@@ -131,16 +131,20 @@ export function toast(message, kind = 'info') {
 // 확인 창(<dialog>) — Promise<boolean>
 export function confirmDialog(message, { ok = '확인', cancel = '취소', danger = false, detail = '' } = {}) {
   return new Promise((resolve) => {
-    // Buttons close the dialog themselves: the page CSP (form-action) blocks <form method="dialog">.
+    // Buttons answer directly: the page CSP (form-action) blocks <form method="dialog">,
+    // and the dialog's own "close" event can arrive late, so it is only a fallback (Esc).
+    let done = false;
+    const finish = (yes) => { if (done) return; done = true; try { dlg.close(); } catch { /* already closed */ } dlg.remove(); resolve(yes); };
     const dlg = h('dialog', { class: 'confirm', 'aria-labelledby': 'cf-title' },
       h('div', { class: 'confirm-body' },
         h('p', { id: 'cf-title', class: 'confirm-title' }, message),
         detail ? h('p', { class: 'confirm-detail' }, detail) : null,
         h('div', { class: 'confirm-actions' },
-          h('button', { type: 'button', class: 'btn btn-line', onclick: () => dlg.close('no') }, cancel),
-          h('button', { type: 'button', class: 'btn ' + (danger ? 'btn-danger' : 'btn-dark'), onclick: () => dlg.close('yes') }, ok))));
+          h('button', { type: 'button', class: 'btn btn-line', onclick: () => finish(false) }, cancel),
+          h('button', { type: 'button', class: 'btn ' + (danger ? 'btn-danger' : 'btn-dark'), onclick: () => finish(true) }, ok))));
     document.body.append(dlg);
-    dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes'); dlg.remove(); });
+    dlg.addEventListener('cancel', (e) => { e.preventDefault(); finish(false); });
+    dlg.addEventListener('close', () => finish(false));
     dlg.showModal();
   });
 }
