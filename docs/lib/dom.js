@@ -131,13 +131,14 @@ export function toast(message, kind = 'info') {
 // 확인 창(<dialog>) — Promise<boolean>
 export function confirmDialog(message, { ok = '확인', cancel = '취소', danger = false, detail = '' } = {}) {
   return new Promise((resolve) => {
+    // Buttons close the dialog themselves: the page CSP (form-action) blocks <form method="dialog">.
     const dlg = h('dialog', { class: 'confirm', 'aria-labelledby': 'cf-title' },
-      h('form', { method: 'dialog', class: 'confirm-body' },
+      h('div', { class: 'confirm-body' },
         h('p', { id: 'cf-title', class: 'confirm-title' }, message),
         detail ? h('p', { class: 'confirm-detail' }, detail) : null,
         h('div', { class: 'confirm-actions' },
-          h('button', { type: 'submit', value: 'no', class: 'btn btn-line' }, cancel),
-          h('button', { type: 'submit', value: 'yes', class: 'btn ' + (danger ? 'btn-danger' : 'btn-dark') }, ok))));
+          h('button', { type: 'button', class: 'btn btn-line', onclick: () => dlg.close('no') }, cancel),
+          h('button', { type: 'button', class: 'btn ' + (danger ? 'btn-danger' : 'btn-dark'), onclick: () => dlg.close('yes') }, ok))));
     document.body.append(dlg);
     dlg.addEventListener('close', () => { resolve(dlg.returnValue === 'yes'); dlg.remove(); });
     dlg.showModal();
