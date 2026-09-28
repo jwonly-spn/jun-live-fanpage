@@ -40,6 +40,9 @@ let cached = null;
 export async function identity({ create = true } = {}) {
   if (cached) return cached;
   const db = await openDb();
+  try { return await load(db, create); } finally { db.close(); } // 열어 둔 채로 두면 열쇠 지우기(resetDevice)가 막힌다
+}
+async function load(db, create) {
   let rec = await tx(db, 'readonly', (s) => s.get(ID));
   if (!rec) {
     if (!create) return null;
@@ -73,4 +76,10 @@ export async function signedAction(prefix, action, payload) {
   const timestamp = Date.now(), n = nonce();
   const text = `${prefix}/1\n${action}\n${timestamp}\n${n}\n${me.publicKey}\n${await sha256hex(JSON.stringify(payload ?? null))}`;
   return { action, timestamp, nonce: n, publicKey: me.publicKey, signature: await sign(text), payload };
+}
+
+// 가입 정보를 고칠 때: 이 브라우저의 열쇠를 지우고 새로 만든다(예전 기기는 승인 목록에 남음).
+export async function resetDevice() {
+  cached = null;
+  await new Promise((resolve) => { const r = indexedDB.deleteDatabase(DB); r.onsuccess = r.onerror = r.onblocked = () => resolve(); });
 }

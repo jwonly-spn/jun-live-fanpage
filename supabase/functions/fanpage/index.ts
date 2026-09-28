@@ -7,7 +7,8 @@ import * as v from './lib.ts';
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
 const SITE = 'https://jwonly-spn.github.io/jun-live-fanpage/';
 const BUCKET = 'fp-photos';
-const PHOTO_QUOTA = 200 * 1024 * 1024, TOTAL_PHOTO_QUOTA = 850 * 1024 * 1024, MAX_PAGES = 3000;
+// 한 페이지가 전체 저장 공간을 차지하지 못하게 페이지당 100MB(무료 저장 공간 전체는 850MB).
+const PHOTO_QUOTA = 100 * 1024 * 1024, TOTAL_PHOTO_QUOTA = 850 * 1024 * 1024, MAX_PAGES = 3000;
 const enc = new TextEncoder();
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type, x-junlive-admin', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Max-Age': '86400' };
 const json = (body: unknown, status = 200, cache = 'no-store') => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': cache, 'X-Content-Type-Options': 'nosniff' } });
@@ -29,7 +30,10 @@ async function body(req: Request, max = 64 * 1024) {
 }
 // Cloudflare sets cf-connecting-ip (clients cannot); the gateway rewrites x-forwarded-for with it first.
 const clientIp = (req: Request) => req.headers.get('cf-connecting-ip') || (req.headers.get('x-forwarded-for') || '').split(',')[0].trim();
-const ipHash = async (req: Request) => (await sha('ip:' + clientIp(req))).slice(0, 32);
+// 주소는 비밀 값을 섞어 저장한다(그냥 해시하면 모든 IPv4를 넣어 보고 되돌릴 수 있음).
+let saltPromise: Promise<string> | null = null;
+const ipSalt = () => (saltPromise ||= (async () => { const r = await q(db.from('junlive_secrets').select('value').eq('key', 'ip_salt').maybeSingle()); if (!r?.value) throw v.fail(503, '잠시 문제가 생겼어요.'); return r.value as string; })().catch((e) => { saltPromise = null; throw e; }));
+const ipHash = async (req: Request) => (await sha('ip:' + await ipSalt() + ':' + clientIp(req))).slice(0, 32);
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
 const later = (p: Promise<unknown>) => { const safe = p.catch(e => console.error(e)); try { EdgeRuntime?.waitUntil(safe); } catch { /* local */ } };
 async function limit(key: string, seconds: number, max: number, message = '요청이 많아요. 잠시 후 다시 해 주세요.') {
@@ -83,6 +87,9 @@ async function getPost(url: URL) {
   const id = v.uuid(url.searchParams.get('id'), '글');
   const post = await q(db.from('fp_posts').select('*').eq('id', id).maybeSingle());
   if (!post) throw v.fail(404, '글을 찾을 수 없어요.');
+  // 다른 팬페이지의 글을 이 페이지 이름으로 보여 주지 않게(page를 주면 맞는지 확인)
+  const pageParam = url.searchParams.get('page');
+  if (pageParam && pageParam !== post.page_id) throw v.fail(404, '글을 찾을 수 없어요.');
   const page = await livePage(post.page_id);
   v.menuOf(page.published, post.menu_id, undefined, { visibleOnly: true });
   return json({ post: postOut(post) }, 200, 'public, max-age=15');
@@ -118,6 +125,8 @@ async function postComment(req: Request) {
   await limit(`c:${page.id}:${ip}`, 600, 5, '한마디는 10분에 5개까지 남길 수 있어요.');
   await limit(`c:${page.id}`, 60, 60);
   const row = await q(db.from('fp_comments').insert({ page_id: page.id, menu_id: menu.id, post_id: postId, nickname, body: text, ip_hash: ip, fan }).select('*').single());
+  // 30일 지난 한마디의 주소 흔적은 지운다(가끔 한 번씩).
+  if (Math.random() < 0.02) later(db.from('fp_comments').update({ ip_hash: '' }).lt('created', new Date(Date.now() - 30 * 86400000).toISOString()).neq('ip_hash', ''));
   return json({ comment: commentOut(row) });
 }
 async function postLike(req: Request) {
@@ -126,7 +135,10 @@ async function postLike(req: Request) {
   const post = await q(db.from('fp_posts').select('page_id').eq('id', id).maybeSingle());
   if (!post) throw v.fail(404, '글을 찾을 수 없어요.');
   await livePage(post.page_id);
-  await limit(`l:${await ipHash(req)}`, 60, 60);
+  const ip = await ipHash(req);
+  await limit(`l:${ip}`, 60, 60);
+  // 같은 주소에서 한 글에 좋아요를 수없이 누르지 못하게(가족·통신사 공유 주소를 생각해 하루 3번까지)
+  await limit(`l:${id}:${ip}`, 86400, 3, '이 글에는 좋아요를 더 누를 수 없어요.');
   return json(await q(db.rpc('fp_like', { p_post: id, p_fan: fan })));
 }
 async function postAttendance(req: Request) {
@@ -225,6 +237,7 @@ async function publish(o: Owner, on: boolean) {
 async function uploadPhoto(req: Request, o: Owner) {
   const page = needPage(o);
   await limit(`u:${page.id}`, 3600, 300, '사진은 한 시간에 300장까지 올릴 수 있어요.');
+  await limit(`ud:${page.id}`, 86400, 150, '사진은 하루에 150장까지 올릴 수 있어요.');
   const b = await body(req, 3 * 1024 * 1024);
   const full = v.b64(b.data, 1.6 * 1024 * 1024), thumb = v.b64(b.thumb, 220 * 1024);
   const size = v.jpegSize(full), tsize = v.jpegSize(thumb);
@@ -234,19 +247,26 @@ async function uploadPhoto(req: Request, o: Owner) {
   // Reserve the bytes atomically; parallel uploads cannot slip past the quota.
   const bytes = full.length + thumb.length;
   const reserved = await q(db.rpc('fp_add_bytes', { p_page: page.id, p_bytes: bytes, p_quota: PHOTO_QUOTA, p_total: TOTAL_PHOTO_QUOTA }));
-  if (reserved === 'page') throw v.fail(413, '사진 저장 공간(200MB)이 가득 찼어요. 안 쓰는 글을 지워 주세요.');
+  if (reserved === 'page') throw v.fail(413, '사진 저장 공간(100MB)이 가득 찼어요. 안 쓰는 글을 지워 주세요.');
   if (reserved !== 'ok') throw v.fail(503, '사진 저장 공간이 부족해요. 운영자에게 알려 주세요.');
   const id = crypto.randomUUID(), path = `${page.id}/${id}.jpg`, tpath = `${page.id}/${id}_t.jpg`;
+  // 기록을 먼저 남기고 올린다: 중간에 실패해도 정리 대상에서 빠진 파일이 생기지 않는다.
+  const { error: rowError } = await db.from('fp_photos').insert([{ path, page_id: page.id, bytes: full.length }, { path: tpath, page_id: page.id, bytes: thumb.length }]);
+  if (rowError) {
+    console.error(rowError);
+    await db.rpc('fp_add_bytes', { p_page: page.id, p_bytes: -bytes, p_quota: PHOTO_QUOTA, p_total: TOTAL_PHOTO_QUOTA });
+    throw v.fail(503, '사진을 올리지 못했어요. 다시 시도해 주세요.');
+  }
   for (const [p, data] of [[path, full], [tpath, thumb]] as const) {
     const { error } = await db.storage.from(BUCKET).upload(p, data, { contentType: 'image/jpeg', cacheControl: '31536000', upsert: false });
     if (error) {
       console.error(error);
       await db.storage.from(BUCKET).remove([path, tpath]);
+      await db.from('fp_photos').delete().eq('page_id', page.id).in('path', [path, tpath]);
       await db.rpc('fp_add_bytes', { p_page: page.id, p_bytes: -bytes, p_quota: PHOTO_QUOTA, p_total: TOTAL_PHOTO_QUOTA });
       throw v.fail(503, '사진을 올리지 못했어요. 다시 시도해 주세요.');
     }
   }
-  await q(db.from('fp_photos').insert([{ path, page_id: page.id, bytes: full.length }, { path: tpath, page_id: page.id, bytes: thumb.length }]));
   later(cleanPhotos(page.id));
   return json({ path, thumb: tpath, w: size.w, h: size.h, url: publicUrl(path), thumbUrl: publicUrl(tpath) });
 }
@@ -375,6 +395,7 @@ async function app(req: Request) {
   await limit(`d:${device}`, 60, 20);
   const { error } = await db.from('junlive_access_nonces').insert({ id: 'fp:' + device + ':' + b.nonce, expires: now + 120000 });
   if (error) throw v.fail(409, '이미 처리한 요청이에요.');
+  if (Math.random() < 0.05) later(db.from('junlive_access_nonces').delete().lt('expires', now));
   const dev = await q(db.from('junlive_devices').select('state').eq('id', device).maybeSingle());
   if (dev?.state !== 'approved') throw v.fail(403, 'JUN LIVE 사용 승인을 먼저 받아 주세요.');
   const link = await q(db.from('fp_page_devices').select('page_id').eq('device_id', device).maybeSingle());

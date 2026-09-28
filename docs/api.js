@@ -53,7 +53,7 @@ export const auth = {
     if (t.expires && Date.parse(t.expires) < Date.now()) { store.remove(TOKEN_KEY); return null; }
     return t;
   },
-  set(token, expires) { store.set(TOKEN_KEY, { token, expires }); },
+  set(token, expires, slug) { store.set(TOKEN_KEY, { token, expires, ...(slug ? { slug } : {}) }); },
   clear() { store.remove(TOKEN_KEY); },
 };
 
@@ -124,7 +124,7 @@ export const api = {
   page: (slug) => call('GET', 'page', { query: { slug } }),
   home: (page) => call('GET', 'home', { query: { page } }),
   posts: ({ page, menu, category, before }) => call('GET', 'posts', { query: { page, menu, category, before } }),
-  post: (id) => call('GET', 'post', { query: { id } }),
+  post: (id, page) => call('GET', 'post', { query: { id, page } }),
   comments: ({ page, menu, post, before }) => call('GET', 'comments', { query: { page, menu, post, before } }),
   comment: (b) => call('POST', 'comment', { body: { ...b, fan: fanId() } }),
   like: (post) => call('POST', 'like', { body: { post, fan: fanId() } }),

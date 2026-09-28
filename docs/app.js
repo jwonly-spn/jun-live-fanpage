@@ -14,9 +14,13 @@ const app = {
   },
 };
 
-let token = 0;
+let token = 0, lastPath = location.pathname + location.search;
 async function render({ scroll = false } = {}) {
   const my = ++token;
+  lastPath = location.pathname + location.search;
+  // 다른 화면으로 가면 열려 있던 사진 보기·확인 창을 닫는다(아이폰 뒤로 밀기 등).
+  for (const d of document.querySelectorAll('dialog[open]')) { try { d.close(); } catch { d.removeAttribute('open'); } }
+  document.documentElement.classList.remove('no-scroll');
   const route = parseRoute(location.pathname, BASE);
   document.body.dataset.route = route.name;
   try {
@@ -59,5 +63,6 @@ document.addEventListener('click', (e) => {
   app.navigate(url.pathname + url.search + url.hash);
 });
 
-window.addEventListener('popstate', () => render());
+// #main 같은 같은 페이지 안 이동은 다시 그리지 않는다(쓰던 한마디가 지워지지 않게).
+window.addEventListener('popstate', () => { if (location.pathname + location.search === lastPath) return; render(); });
 render();

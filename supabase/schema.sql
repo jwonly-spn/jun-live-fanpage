@@ -149,6 +149,8 @@ begin
   else
     if not found then return jsonb_build_object('error', 'missing'); end if;
     if c.locked_until is not null and c.locked_until > now() then return jsonb_build_object('error', 'locked'); end if;
+    -- A lock that has run out starts counting again from zero (one wrong PIN must not re-lock it).
+    if c.locked_until is not null then update fp_cards set fails = 0, locked_until = null where id = c.id; c.fails := 0; end if;
     if c.pin_hash <> p_pin_hash then
       update fp_cards set fails = fails + 1, locked_until = case when fails + 1 >= 5 then now() + interval '10 minutes' else null end where id = c.id;
       return jsonb_build_object('error', 'pin');
@@ -169,6 +171,9 @@ declare p fp_polls;
 begin
   select * into p from fp_polls where id = p_poll;
   if not found or p.closed or p_option < 0 or p_option >= jsonb_array_length(p.options) then return false; end if;
+  -- New voters: at most 3 per poll from one address (households share addresses; bots do not get 20).
+  if coalesce(p_ip, '') <> '' and not exists(select 1 from fp_votes where poll_id = p_poll and fan = p_fan)
+     and (select count(*) from fp_votes where poll_id = p_poll and ip_hash = p_ip) >= 3 then return false; end if;
   insert into fp_votes(poll_id, fan, option, ip_hash) values (p_poll, p_fan, p_option, p_ip)
   on conflict (poll_id, fan) do update set option = excluded.option;
   return true;
@@ -216,3 +221,10 @@ do $$ declare f text; begin
     execute format('grant execute on function public.%s to service_role', f);
   end loop;
 end $$;
+
+-- Secret salt for visitor-address fingerprints (read by the function with the service role only).
+create table if not exists public.junlive_secrets (key text primary key, value text not null);
+alter table public.junlive_secrets enable row level security;
+revoke all on public.junlive_secrets from anon, authenticated;
+grant select on public.junlive_secrets to service_role;
+insert into public.junlive_secrets(key, value) values ('ip_salt', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')) on conflict (key) do nothing;

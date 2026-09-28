@@ -5,6 +5,8 @@ const ACCEPT = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avi
 
 async function decode(file) {
   if (typeof createImageBitmap === 'function') {
+    // 아주 큰 사진(수천만 화소)은 원본 크기로 풀면 아이폰이 멈춘다: 큰 파일은 줄이면서 읽는다(비율은 브라우저가 유지).
+    if (file.size > 8 * 1024 * 1024) { try { return await createImageBitmap(file, { imageOrientation: 'from-image', resizeWidth: 3072, resizeQuality: 'high' }); } catch { /* 아래 방법으로 */ } }
     try { return await createImageBitmap(file, { imageOrientation: 'from-image' }); } catch { /* 아래 방법으로 */ }
   }
   const url = URL.createObjectURL(file);

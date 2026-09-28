@@ -191,8 +191,10 @@ function renderMenu(ctx, menuId, main) {
 async function renderPost(ctx, postId, main) {
   main.append(loading());
   try {
-    const { post } = await api.post(postId);
+    const { post } = await api.post(postId, ctx.pageId);
     const menu = ctx.menu(post.menu);
+    // 이 팬페이지의 (보이는) 메뉴 글이 아니면 보여 주지 않는다
+    if (!menu) throw Object.assign(new Error('이 팬페이지의 글이 아니에요.'), { status: 404 });
     document.title = `${post.title || menu?.name || '글'} · ${ctx.config.profile.name}의 팬페이지`;
     main.replaceChildren(
       h('div', { class: 'page-head' },

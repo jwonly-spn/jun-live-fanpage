@@ -23,34 +23,52 @@ export async function renderStudio(root, app) {
   const wrap = h('div', { class: 'studio-gate' }, h('div', { class: 'gate-card' }, h('b', null, 'JUN LIVE 팬페이지'), h('div', null, '연결하는 중…')));
   root.replaceChildren(wrap);
 
+  // 휴대폰 도우미(/app)에서 열었다면 다시 여는 곳도 그쪽으로 안내한다.
+  const fromApp = (() => { try { return sessionStorage.getItem('fp_from_app') === '1' || localStorage.getItem('fp_from_app') === '1'; } catch { return false; } })();
+  const reopen = fromApp ? '휴대폰 도우미에서 "팬페이지 꾸미기"를 다시 눌러 주세요.' : 'JUN LIVE 프로그램에서 "팬페이지 꾸미기"를 다시 눌러 주세요.';
+  const appLink = fromApp ? app.link({ name: 'mobile' }) : null;
+
   // 1회용 코드 → 토큰
-  const code = readCodeFromHash(location.hash);
+  const code = pendingCode || readCodeFromHash(location.hash);
   if (location.hash) history.replaceState(history.state, '', location.pathname + location.search);
   if (code) {
     try {
       const r = await api.exchange(code);
-      auth.set(r.token, r.expires);
+      const before = auth.get();
+      // 이미 다른 팬페이지로 로그인돼 있으면, 받은 링크로 바꿀지 먼저 묻는다(남이 보낸 링크로 바뀌지 않게).
+      if (before && before.token !== 'demo-token' && before.slug && r.page?.slug && before.slug !== r.page.slug) {
+        const ok = await confirmDialog('다른 팬페이지로 바꿀까요?', { ok: '바꾸기', cancel: '그대로 두기', detail: `지금은 "${before.slug}" 팬페이지로 로그인돼 있어요. 받은 링크는 "${r.page.slug}" 팬페이지예요.` });
+        if (!ok) { pendingCode = null; return renderStudio(root, app); }
+      }
+      auth.set(r.token, r.expires, r.page?.slug);
+      pendingCode = null;
     } catch (e) {
-      if (!auth.get()) return gate(root, e.status === 400 || e.status === 401 || e.status === 404 ? '연결 코드가 만료됐어요. JUN LIVE 프로그램에서 "팬페이지 꾸미기"를 다시 눌러 주세요.' : e.message);
+      // 연결이 잠깐 끊긴 거면 코드를 기억해 두고 다시 시도할 수 있게 한다(코드는 3분 동안 유효).
+      if (e.status === 0) { pendingCode = code; return gate(root, e.message, () => renderStudio(root, app)); }
+      pendingCode = null;
+      if (!auth.get()) return gate(root, e.status === 400 || e.status === 401 || e.status === 404 ? '연결 코드가 만료됐어요. ' + reopen : e.message, null, appLink);
     }
   }
   if (!auth.get() && isDemo()) auth.set('demo-token', new Date(Date.now() + 30 * 86400e3).toISOString());
-  if (!auth.get()) return gate(root);
+  if (!auth.get()) return gate(root, fromApp ? reopen : null, null, appLink);
 
   let data;
   try { data = await api.ownerPage(); } catch (e) {
-    if (e.status === 401) return gate(root, '로그인이 끝났어요. JUN LIVE 프로그램에서 "팬페이지 꾸미기"를 다시 눌러 열어 주세요.');
+    if (e.status === 401) return gate(root, '로그인이 끝났어요. ' + reopen, null, appLink);
     return gate(root, e.message, () => renderStudio(root, app));
   }
+  if (data.page?.slug && auth.get() && !auth.get().slug) auth.set(auth.get().token, auth.get().expires, data.page.slug);
   new Studio(root, app, data).mount();
 }
 
-function gate(root, message, retry) {
+let pendingCode = null;
+function gate(root, message, retry, appLink) {
   root.replaceChildren(h('div', { class: 'studio-gate' }, h('div', { class: 'gate-card' },
     h('b', null, 'JUN LIVE 팬페이지'),
     h('h1', null, '팬페이지 꾸미기'),
     h('p', null, message || 'JUN LIVE 프로그램에서 \'팬페이지 꾸미기\'를 눌러 열어 주세요.'),
     retry ? h('button', { type: 'button', class: 'btn btn-dark', onclick: retry }, '다시 해 보기') : null,
+    appLink ? h('a', { href: appLink, class: 'btn btn-dark', 'data-link': '' }, '휴대폰 도우미로 가기') : null,
     h('p', { class: 'small muted' }, '이 화면은 팬페이지 주인(DJ)만 쓸 수 있어요.'))));
 }
 

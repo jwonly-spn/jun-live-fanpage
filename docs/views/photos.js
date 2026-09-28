@@ -171,6 +171,6 @@ export function photoStrip(items, { height = 150, onOpen }) {
   return h('div', { class: 'strip', style: { '--strip-h': height + 'px' } },
     items.map((it) => {
       const p = it.photo;
-      return h('a', { class: 'strip-item', href: it.href, 'aria-label': it.label, onclick: onOpen ? (e) => onOpen(e, it) : null, style: { 'aspect-ratio': `${Math.max(1, p.w)} / ${Math.max(1, p.h)}` } }, img(p, { alt: '' }));
+      return h('a', { class: 'strip-item', href: it.href, 'data-link': '', 'aria-label': it.label, onclick: onOpen ? (e) => onOpen(e, it) : null, style: { 'aspect-ratio': `${Math.max(1, p.w)} / ${Math.max(1, p.h)}` } }, img(p, { alt: '' }));
     }));
 }
