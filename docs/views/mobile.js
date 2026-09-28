@@ -49,6 +49,86 @@ async function openStudio(profile, app) {
   location.assign(u.origin === location.origin ? u.href : app.link({ name: 'studio' }).replace(/\?.*$/, '') + u.hash);
 }
 
+// ---------- 방송 봇(공용 클라우드 봇) ----------
+export const CLOUDBOT_URL = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/cloudbot/';
+const DEMO_BOT = { dj: { tag: 'demo_dj', nickname: '체험 DJ', state: 'verified', found: true, code: null, enabled: true, followed: true, status: { state: 'idle' } }, bot: { nickname: 'JUN LIVE 봇', tag: 'junlive_bot' } };
+async function botCall(action, payload) {
+  if (isDemo()) return DEMO_BOT;
+  return post(CLOUDBOT_URL, await signedAction('JUN-LIVE-CLOUDBOT', action, payload ?? {}));
+}
+const ROOM_TEXT = { idle: '방송을 켜면 봇이 자동으로 들어가요.', joining: '방송에 들어가는 중이에요…', verify: '봇이 들어왔어요. 아래 코드를 채팅에 입력해 주세요.', live: '지금 방송에서 봇이 작동 중이에요.', error: '' };
+
+// 앱에 보이는 봇 상태 문장
+export function botStatusText(dj) {
+  const s = dj?.status || {};
+  if (s.state === 'error') return s.error || '확인이 필요해요.';
+  return ROOM_TEXT[s.state] || ROOM_TEXT.idle;
+}
+
+let botTimer = 0;
+// replaceChildren는 null을 글자로 넣으므로 빈 칸은 뺀다
+const fill = (el, ...kids) => el.replaceChildren(...kids.filter((k) => k !== null && k !== undefined && k !== false));
+function renderBot(card, profile, data) {
+  clearTimeout(botTimer);
+  const busy = (btn, fn) => async () => {
+    btn.disabled = true;
+    try { renderBot(card, profile, await fn()); } catch (err) { toast(err.message, 'bad'); btn.disabled = false; }
+  };
+  const title = h('h2', { class: 'sec-title sm' }, '방송 봇');
+  if (!data) {
+    fill(card, title, h('p', { class: 'muted' }, '확인하는 중…'));
+    botCall('status').then((d) => renderBot(card, profile, d)).catch((err) => fill(card, title, h('p', { class: 'field-hint bad' }, err.message), h('button', { class: 'btn btn-line', type: 'button', onclick: () => renderBot(card, profile) }, '다시 확인')));
+    return;
+  }
+  const { dj, bot } = data;
+  const botName = bot?.tag ? '@' + bot.tag : '봇 계정';
+  const again = () => { if (document.body.contains(card)) renderBot(card, profile); };
+
+  if (!dj || dj.state === 'notfound') {
+    const tag = h('input', { id: 'm-bot-tag', autocapitalize: 'none', spellcheck: 'false', maxlength: '40', value: profile.tag });
+    const btn = h('button', { class: 'btn btn-accent', type: 'button' }, '봇 사용 신청');
+    btn.onclick = busy(btn, () => { const c = checkProfile({ nickname: profile.nickname, tag: tag.value }); if (c.error) throw new Error(c.error); return botCall('register', { tag: c.tag }); });
+    fill(card, title,
+      h('p', { class: 'muted small' }, 'PC 없이도 봇이 방송에 매니저로 들어가 채팅 명령·출석·애청지수를 처리해요. (TTS·효과음 같은 소리 기능은 PC에서만 돼요)'),
+      dj?.state === 'notfound' ? h('p', { class: 'field-hint bad' }, `@${dj.tag} 스푼 계정을 찾지 못했어요. 고유닉을 확인해 주세요.`) : null,
+      h('div', { class: 'field' }, h('label', { for: 'm-bot-tag' }, '방송하는 스푼 고유닉'), tag), btn);
+    return;
+  }
+
+  if (dj.state === 'pending') {
+    const step = (done, text) => h('li', { class: done ? 'm-step done' : 'm-step' }, text);
+    const newCode = h('button', { class: 'btn btn-line', type: 'button' }, '코드 새로 받기');
+    newCode.onclick = busy(newCode, () => botCall('new-code'));
+    fill(card, title,
+      h('p', { class: 'muted small' }, `@${dj.tag} 로 신청했어요. 세 단계만 하면 끝나요.`),
+      h('ol', { class: 'm-steps' },
+        step(dj.found && dj.followed, dj.found ? (dj.followed ? `${botName}이 DJ님을 팔로우했어요.` : `${botName}이 DJ님을 팔로우하는 중이에요 (1분 안).`) : '스푼 계정을 찾는 중이에요 (1분 안).'),
+        step(false, `스푼에서 ${botName}을 고정 매니저로 지정해 주세요.`),
+        step(dj.status?.state === 'verify', '방송을 켜고, 봇이 들어오면 채팅에 아래 코드를 입력해 주세요.')),
+      h('p', { class: 'm-bigcode', 'aria-label': '인증 코드' }, dj.code || ''),
+      dj.status?.state ? h('p', { class: 'muted small' }, botStatusText(dj)) : null,
+      h('div', { class: 'row gap wrap' }, h('button', { class: 'btn btn-line', type: 'button', onclick: again }, '새로고침'), newCode));
+    botTimer = setTimeout(again, 15000);
+    return;
+  }
+
+  // 인증 완료
+  const toggle = h('button', { class: 'btn ' + (dj.enabled ? 'btn-line' : 'btn-accent'), type: 'button' }, dj.enabled ? '봇 끄기' : '봇 켜기');
+  toggle.onclick = busy(toggle, () => botCall('enable', { on: !dj.enabled }));
+  let sure = 0;
+  const remove = h('button', { class: 'btn btn-line', type: 'button' }, '봇 해제');
+  remove.onclick = () => {
+    if (Date.now() - sure > 5000) { sure = Date.now(); remove.textContent = '한 번 더 누르면 해제'; return; }
+    busy(remove, () => botCall('remove'))();
+  };
+  fill(card, title,
+    h('div', { class: 'row gap wrap' }, h('span', { class: 'm-state', dataset: { state: dj.enabled ? 'approved' : '' } }, dj.enabled ? '사용 중' : '꺼짐'), h('b', null, dj.nickname || dj.tag), h('span', { class: 'muted' }, '@' + dj.tag)),
+    h('p', { class: 'muted' }, dj.enabled ? botStatusText(dj) : '봇이 방송에 들어가지 않아요.'),
+    h('p', { class: 'muted small' }, `봇 계정: ${botName} (고정 매니저로 지정돼 있어야 해요)`),
+    h('div', { class: 'row gap wrap' }, toggle, remove));
+  botTimer = setTimeout(again, 30000);
+}
+
 export async function renderMobile(root, app) {
   document.title = '모바일 방송 도우미 · JUN LIVE';
   const shell = h('div', { class: 'fp intro mobile-app' });
@@ -125,10 +205,10 @@ export async function renderMobile(root, app) {
       h('p', { class: 'muted' }, desc),
       r.state === 'approved' ? openBtn : h('button', { class: 'btn btn-line', type: 'button', onclick: () => showStatus(p) }, '다시 확인'),
       h('p', { class: 'muted small' }, '이 휴대폰 코드: ', h('code', { class: 'm-code' }, r.code || '')));
+    const botCard = h('section', { class: 'card pad stack', 'aria-live': 'polite' });
+    if (r.state === 'approved') renderBot(botCard, p);
+    if (r.state === 'approved') body.append(botCard);
     body.append(
-      h('section', { class: 'card pad stack' },
-        h('h2', { class: 'sec-title sm' }, '방송 봇 (준비 중)'),
-        h('p', { class: 'muted small' }, 'PC 없이도 채팅 봇·애청지수가 돌아가도록 클라우드 봇을 준비하고 있어요.')),
       h('section', { class: 'card pad stack' },
         h('h2', { class: 'sec-title sm' }, '꼭 읽어 주세요'),
         h('p', { class: 'muted small' }, '승인 열쇠는 이 브라우저 안에만 저장돼요. 브라우저의 ‘사이트 데이터 삭제’를 하면 다시 가입해야 해요.'),

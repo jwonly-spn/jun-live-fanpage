@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { parseRoute, buildPath } from '../docs/lib/route.js';
 import { accessText, b64url, codeOf, nonce, sha256hex } from '../docs/lib/device.js';
-import { checkProfile } from '../docs/views/mobile.js';
+import { checkProfile, botStatusText } from '../docs/views/mobile.js';
 
 test('/app 주소는 모바일 화면', () => {
   assert.deepEqual(parseRoute('/jun-live-fanpage/app', '/jun-live-fanpage/'), { name: 'mobile' });
@@ -31,4 +31,10 @@ test('휴대폰 서명은 서버가 검증하는 형식과 길이', async () => 
   assert.match(sig, /^[-_A-Za-z0-9]{86}$/);
   const id = await sha256hex(await s.exportKey('spki', pair.publicKey));
   assert.match(codeOf(id), /^([0-9A-F]{4}-){5}[0-9A-F]{4}$/);
+});
+
+test('봇 상태 문장', () => {
+  assert.match(botStatusText({ status: { state: 'live' } }), /작동 중/);
+  assert.match(botStatusText({ status: {} }), /자동으로 들어가요/);
+  assert.equal(botStatusText({ status: { state: 'error', error: '봇 계정을 고정 매니저로' } }), '봇 계정을 고정 매니저로');
 });

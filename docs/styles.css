@@ -521,3 +521,6 @@ dialog.confirm::backdrop { background: rgba(0,0,0,.4); }
 .mobile-app .m-state[data-state="revoked"] { background: #fde8e7; color: #b3261e; }
 .mobile-app .m-code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; letter-spacing: .5px; word-break: break-all; }
 .mobile-app form .btn { width: 100%; }
+.mobile-app .m-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
+.mobile-app .m-step.done { color: var(--muted); text-decoration: line-through; }
+.mobile-app .m-bigcode { margin: 4px 0; text-align: center; font: 700 34px/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 6px; color: var(--accent-text); background: var(--soft); border-radius: 12px; padding: 10px; }
