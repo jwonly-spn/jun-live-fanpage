@@ -56,7 +56,7 @@ async function openStudio(profile, app) {
 
 // ---------- 방송 봇(공용 클라우드 봇) ----------
 export const CLOUDBOT_URL = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/cloudbot/';
-const DEMO_BOT = { dj: { tag: 'demo_dj', nickname: '체험 DJ', state: 'verified', found: true, code: null, enabled: true, followed: true, status: { state: 'idle' } }, bot: { nickname: 'JUN LIVE 봇', tag: 'junlive_bot' } };
+const DEMO_BOT = { dj: { tag: 'demo_dj', nickname: '체험 DJ', state: 'verified', found: true, code: null, enabled: true, followed: true, status: { state: 'idle' } }, bot: { nickname: '준라이브', tag: 'junlive' } };
 async function botCall(action, payload) {
   if (isDemo()) return DEMO_BOT;
   return post(CLOUDBOT_URL, await signedAction('JUN-LIVE-CLOUDBOT', action, payload ?? {}));
@@ -127,7 +127,7 @@ function renderBot(card, profile, data) {
       h('p', { class: 'muted small' }, `@${dj.tag} 로 신청했어요. 세 단계만 하면 끝나요.`),
       h('ol', { class: 'm-steps' },
         step(dj.found && dj.followed, dj.found ? (dj.followed ? `${botName}이 DJ님을 팔로우했어요.` : `${botName}이 DJ님을 팔로우하는 중이에요 (1분 안).`) : '스푼 계정을 찾는 중이에요 (1분 안).'),
-        step(false, `스푼에서 ${botName}을 고정 매니저로 지정해 주세요.`),
+        step(false, `스푼 앱의 방송 매니저 설정에서 ${botName}을 고정 매니저로 한 번 지정해 주세요. (봇이 팔로우한 뒤에 목록에 나와요)`),
         step(dj.status?.state === 'verify', '방송을 켜고, 봇이 들어오면 채팅에 아래 코드를 입력해 주세요.')),
       dj.code ? h('p', { class: 'm-bigcode', 'aria-label': '인증 코드' }, dj.code) : h('p', { class: 'muted' }, '코드를 준비하는 중이에요.'),
       dj.status?.state ? status(botStatusText(dj)) : null,
@@ -156,6 +156,34 @@ function renderBot(card, profile, data) {
     h('p', { class: 'muted small' }, `봇 계정: ${botName} (고정 매니저로 지정돼 있어야 해요)`),
     h('div', { class: 'row gap wrap' }, toggle, remove));
   card._every = 30000; schedule(card, refresh, 30000);
+}
+
+// ---------- 설명 ----------
+export const BOT_ACCOUNT = '@junlive';
+const HELP = [
+  ['고유닉이 뭐예요? 어디서 봐요?', '스푼 앱 아래쪽 MY → 내 프로필에서 닉네임 밑에 @로 시작하는 영어 아이디예요. @는 빼고 적어 주세요. 예: @jun_live → jun_live'],
+  ['비밀번호나 개인정보가 필요해요?', '아니요. 스푼 닉네임과 고유닉만 받아요. 비밀번호·전화번호는 묻지 않아요. 적은 정보는 사용 승인과 방송 봇 연결에만 써요.'],
+  ['승인은 얼마나 걸려요?', '지금(베타)은 보통 바로 승인돼요. "승인 기다리는 중"이 보이면 잠시 뒤 "다시 확인"을 눌러 주세요.'],
+  ['방송 봇은 뭘 해 줘요?', '휴대폰 방송에 매니저로 들어가 채팅 명령어, 출석, 애청지수, 룰렛·복권, 인사를 처리해요. 서버에서 돌아서 PC가 없어도 돼요. 효과음·음성 읽기 같은 소리 기능은 PC 프로그램에서만 돼요.'],
+  ['고정 매니저는 어떻게 지정해요?', `봇 사용을 신청하면 봇 계정(${BOT_ACCOUNT})이 먼저 DJ님을 팔로우해요. 그다음 스푼 앱의 방송 매니저 설정에서 ${BOT_ACCOUNT}을 "고정 매니저"로 한 번만 추가해 주세요. 스푼은 나를 팔로우한 사람만 고정 매니저로 지정할 수 있어요.`],
+  ['인증 코드는 뭐예요?', '다른 사람이 DJ님 이름으로 봇을 신청하지 못하게 하는 확인이에요. 처음 한 번만, 봇이 방송에 들어오면 이 화면의 6자리 숫자를 DJ님 계정으로 채팅에 쳐 주세요.'],
+  ['봇이 방송에 안 들어와요', '① 봇 계정이 고정 매니저인지 ② 이 화면에서 봇이 "사용 중"인지 확인해 주세요. 방송을 켜고 1분 안에 들어와요. PC 프로그램으로 방송할 때는 PC 봇이 맡기 때문에 휴대폰 봇은 들어가지 않아요.'],
+  ['PC 프로그램도 같이 써요. 기록은요?', 'PC 프로그램의 방송 관리 → 설정 → 기록 이어받기에서 "온라인 보관 켜기"를 한 번 눌러 주세요. 그러면 PC와 휴대폰 방송 봇이 애청지수·룰렛·통장 기록을 하나로 이어서 써요.'],
+  ['휴대폰을 바꾸거나 브라우저 기록을 지웠어요', '이 화면에서 다시 가입하면 돼요. 방송 봇은 같은 고유닉으로 다시 신청하고, 새 인증 코드를 한 번 더 채팅에 쳐 주세요. 봇의 기록은 그대로 남아 있어요.'],
+];
+function helpCard() {
+  return h('section', { class: 'card pad stack m-help' },
+    h('h2', { class: 'sec-title sm' }, '자주 묻는 질문'),
+    ...HELP.map(([q, a]) => h('details', null, h('summary', null, q), h('p', { class: 'muted small' }, a))));
+}
+function guideCard() {
+  const step = (n, title, text) => h('li', null, h('span', { class: 'm-num' }, n), h('div', null, h('b', null, title), h('p', { class: 'muted small' }, text)));
+  return h('section', { class: 'card pad stack' },
+    h('h2', { class: 'sec-title sm' }, '이렇게 시작해요'),
+    h('ol', { class: 'm-guide' },
+      step('1', '가입 신청', '스푼 닉네임과 고유닉을 적어요. 1분이면 끝나요.'),
+      step('2', '팬페이지 꾸미기', '승인되면 팬들이 볼 나만의 팬페이지를 휴대폰에서 바로 꾸며요.'),
+      step('3', '방송 봇 신청', `봇 계정(${BOT_ACCOUNT})을 고정 매니저로 한 번 지정하면, 방송을 켤 때마다 봇이 들어와요.`)));
 }
 
 export async function renderMobile(root, app) {
@@ -207,11 +235,16 @@ export async function renderMobile(root, app) {
         }
       },
     },
-    h('h2', { class: 'sec-title sm' }, '처음이에요 — 가입 신청'),
-    h('p', { class: 'muted small' }, '방송하는 스푼 계정 정보를 적어 주세요. 비밀번호는 필요 없어요.'),
-    h('div', { class: 'field' }, h('label', { for: 'm-nick' }, '스푼 닉네임'), nick),
-    h('div', { class: 'field' }, h('label', { for: 'm-tag' }, '스푼 고유닉 (@ 뒤)'), tag),
+    h('h2', { class: 'sec-title sm' }, '가입 신청'),
+    h('p', { class: 'muted small' }, '방송하는 스푼 계정 정보를 적어 주세요. 비밀번호·전화번호는 필요 없어요.'),
+    h('div', { class: 'field' }, h('label', { for: 'm-nick' }, '스푼 닉네임'), nick,
+      h('p', { class: 'field-hint' }, '방송에 보이는 이름 그대로 적어 주세요.')),
+    h('div', { class: 'field' }, h('label', { for: 'm-tag' }, '스푼 고유닉 (@ 뒤 영어 아이디)'), tag,
+      h('p', { class: 'field-hint' }, '스푼 앱 MY → 내 프로필에서 닉네임 밑 @아이디예요. @는 빼고 적어요.')),
+    h('p', { class: 'field-hint' }, '한 번 신청한 닉네임·고유닉은 바꿀 수 없어요. 틀렸다면 신청 뒤 "정보 고치고 다시 가입"을 눌러 주세요.'),
     msg, btn));
+    body.prepend(guideCard());
+    body.append(helpCard());
   }
 
   async function showStatus(p, first) {
@@ -234,6 +267,7 @@ export async function renderMobile(root, app) {
     fill(box,
       h('div', { class: 'row gap wrap' }, h('span', { class: 'm-state', dataset: { state: r.state || '' } }, title), h('b', null, p.nickname), h('span', { class: 'muted' }, '@' + p.tag)),
       h('p', { class: 'muted' }, desc),
+      r.state === 'approved' ? h('p', { class: 'muted small' }, '팬페이지 꾸미기: 팬들이 볼 나만의 페이지를 만들고 공개해요. 방송 봇은 아래에서 신청해요.') : null,
       r.state === 'approved' ? openBtn : h('button', { class: 'btn btn-line', type: 'button', onclick: () => showStatus(p) }, '다시 확인'),
       r.state === 'revoked' ? h('p', { class: 'field-hint bad' }, '아래 휴대폰 코드를 관리자에게 알려 주세요.') : null,
       h('p', { class: 'muted small' }, '이 휴대폰 코드: ', h('code', { class: 'm-code' }, r.code || '')),
@@ -246,7 +280,8 @@ export async function renderMobile(root, app) {
         h('h2', { class: 'sec-title sm' }, '꼭 읽어 주세요'),
         h('p', { class: 'muted small' }, '승인 열쇠는 지금 쓰는 브라우저 안에만 저장돼요. 사이트 데이터를 지우거나, 이 브라우저를 오래(아이폰은 7일 넘게) 안 쓰면 다시 가입해야 할 수 있어요.'),
         h('p', { class: 'muted small' }, standalone() ? '지금은 홈 화면 앱으로 열었어요. 앞으로도 이 아이콘으로 열어 주세요.' : '아이폰에서 ‘홈 화면에 추가’를 하면 그 아이콘은 따로 가입해야 해요. 홈 화면 아이콘으로 쓸 거라면 그 아이콘에서 가입해 주세요.'),
-        persistNote));
+        persistNote),
+      helpCard());
     // 브라우저가 열쇠를 지울 수 있는 상태인지 알려 준다
     try { navigator.storage?.persisted?.().then((ok) => { if (ok === false && persistNote.isConnected) persistNote.textContent = '이 브라우저는 저장 공간을 정리할 때 열쇠를 지울 수 있어요. 자주 여는 브라우저에서 쓰는 게 안전해요.'; }).catch(() => {}); } catch { /* 선택 */ }
   }
