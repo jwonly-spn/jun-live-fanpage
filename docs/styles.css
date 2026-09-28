@@ -514,3 +514,10 @@ dialog.confirm::backdrop { background: rgba(0,0,0,.4); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
+
+/* /app 모바일 방송 도우미 */
+.mobile-app .m-state { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--accent-text); }
+.mobile-app .m-state[data-state="approved"] { background: var(--accent); color: var(--on-accent); }
+.mobile-app .m-state[data-state="revoked"] { background: #fde8e7; color: #b3261e; }
+.mobile-app .m-code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; letter-spacing: .5px; word-break: break-all; }
+.mobile-app form .btn { width: 100%; }

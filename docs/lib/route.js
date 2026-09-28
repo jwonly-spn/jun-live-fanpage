@@ -28,6 +28,7 @@ export function parseRoute(pathname, base = '/') {
   const parts = rel.split('/').map(decode);
   if (parts.some((x) => x === null)) return { name: 'notfound' };
   if (parts[0] === 'studio' && parts.length === 1) return { name: 'studio' };
+  if (parts[0] === 'app' && parts.length === 1) return { name: 'mobile' };
   if (parts[0] === 'p' && SLUG.test(parts[1] || '')) {
     const slug = parts[1];
     if (parts.length === 2) return { name: 'fan', slug };
@@ -42,6 +43,7 @@ export function buildPath(base, route) {
   const e = encodeURIComponent;
   switch (route.name) {
     case 'studio': return b + 'studio';
+    case 'mobile': return b + 'app';
     case 'fan':
       if (route.postId) return `${b}p/${e(route.slug)}/post/${e(route.postId)}`;
       if (route.menuId) return `${b}p/${e(route.slug)}/${e(route.menuId)}`;

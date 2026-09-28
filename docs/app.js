@@ -23,6 +23,9 @@ async function render({ scroll = false } = {}) {
     if (route.name === 'studio') {
       const { renderStudio } = await import('./views/studio.js');
       if (my === token) await renderStudio(root, app);
+    } else if (route.name === 'mobile') {
+      const { renderMobile } = await import('./views/mobile.js');
+      if (my === token) await renderMobile(root, app);
     } else if (route.name === 'fan') {
       const { renderFan } = await import('./views/fan.js');
       if (my === token) await renderFan(root, route, app);
