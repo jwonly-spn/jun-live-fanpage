@@ -70,6 +70,15 @@ export function botStatusText(dj) {
   return ROOM_TEXT[s.state] || ROOM_TEXT.idle;
 }
 
+// 공용 봇 자체의 상태(모든 DJ 공통). 문제가 없으면 null.
+export function botHealthText(bot) {
+  if (!bot || bot.online === undefined) return null;
+  if (!bot.online) return '봇 서버를 점검하고 있어요. 곧 다시 작동해요.';
+  if (!bot.login) return '봇 계정을 점검하고 있어요. 곧 다시 작동해요.';
+  if (bot.full) return '지금 봇 자리가 가득 찼어요. 자리가 나면 바로 들어가요.';
+  return null;
+}
+
 // replaceChildren는 null을 글자로 넣으므로 빈 칸은 뺀다
 const fill = (el, ...kids) => el.replaceChildren(...kids.filter((k) => k !== null && k !== undefined && k !== false));
 // 카드마다 자기 타이머를 가진다(다른 화면으로 갔다 와도 옛 카드가 새 카드를 멈추지 않게).
@@ -101,6 +110,8 @@ function renderBot(card, profile, data) {
   const { dj, bot } = data;
   const botName = bot?.tag ? '@' + bot.tag : '봇 계정';
   const status = (text) => h('p', { class: 'muted', 'aria-live': 'polite' }, text);
+  const healthText = botHealthText(bot);
+  const health = healthText ? h('p', { class: 'field-hint bad', role: 'status' }, healthText) : null;
 
   if (!dj || dj.state === 'notfound') {
     const tag = h('input', { id: 'm-bot-tag', autocapitalize: 'none', spellcheck: 'false', maxlength: '40', value: dj?.tag || profile.tag });
@@ -130,7 +141,7 @@ function renderBot(card, profile, data) {
         step(false, `스푼 앱의 방송 매니저 설정에서 ${botName}을 고정 매니저로 한 번 지정해 주세요. (봇이 팔로우한 뒤에 목록에 나와요)`),
         step(dj.status?.state === 'verify', '방송을 켜고, 봇이 들어오면 채팅에 아래 코드를 입력해 주세요.')),
       dj.code ? h('p', { class: 'm-bigcode', 'aria-label': '인증 코드' }, dj.code) : h('p', { class: 'muted' }, '코드를 준비하는 중이에요.'),
-      dj.status?.state ? status(botStatusText(dj)) : null,
+      health, dj.status?.state ? status(botStatusText(dj)) : null,
       h('div', { class: 'row gap wrap' }, h('button', { class: 'btn btn-line', type: 'button', onclick: () => renderBot(card, profile) }, '새로고침'), newCode, cancel));
     card._every = 15000; schedule(card, refresh, 15000);
     return;
@@ -152,6 +163,7 @@ function renderBot(card, profile, data) {
   };
   fill(card, title,
     h('div', { class: 'row gap wrap' }, h('span', { class: 'm-state', dataset: { state: dj.enabled ? 'approved' : '' } }, dj.enabled ? '사용 중' : '꺼짐'), h('b', null, dj.nickname || dj.tag), h('span', { class: 'muted' }, '@' + dj.tag)),
+    dj.enabled ? health : null,
     status(dj.enabled ? botStatusText(dj) : '봇이 방송에 들어가지 않아요.'),
     h('p', { class: 'muted small' }, `봇 계정: ${botName} (고정 매니저로 지정돼 있어야 해요)`),
     h('div', { class: 'row gap wrap' }, toggle, remove));
