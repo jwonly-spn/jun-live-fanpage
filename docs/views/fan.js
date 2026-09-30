@@ -56,8 +56,17 @@ export async function renderFan(root, route, app) {
   if (route.postId) await renderPost(ctx, route.postId, main);
   else if (route.menuId) renderMenu(ctx, route.menuId, main);
   else main.append(homeView(ctx, null));
-  if (!route.menuId && !route.postId) loadHome(ctx, main);
+  if (!route.menuId && !route.postId) { loadHome(ctx, main); void storyBanner(ctx).then((el) => { if (el && main.isConnected) main.prepend(el); }).catch(() => {}); }
   shell.append(footer());
+}
+
+// DJ가 사연함을 열어 두었으면 홈 맨 위에 "사연 보내기"를 보여 준다.
+async function storyBanner(ctx) {
+  const box = await api.storybox(ctx.pageId);
+  if (!box?.open) return null;
+  return h('section', { class: 'card pad story-banner', 'aria-label': '사연 받는 중' },
+    h('div', { class: 'col grow' }, h('b', null, '📮 지금 사연을 받고 있어요'), box.note ? h('span', { class: 'muted small' }, '오늘의 주제: ' + box.note) : null),
+    ilink(ctx.app.link({ name: 'story', slug: ctx.slug }), { class: 'btn btn-accent' }, '사연 보내기'));
 }
 
 function topBar(ctx) {

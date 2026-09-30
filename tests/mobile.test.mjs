@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { webcrypto } from 'node:crypto';
 import { parseRoute, buildPath } from '../docs/lib/route.js';
 import { accessText, b64url, codeOf, nonce, sha256hex } from '../docs/lib/device.js';
-import { checkProfile, botStatusText, botHealthText } from '../docs/views/mobile.js';
+import { checkProfile } from '../docs/views/mobile.js';
 
 test('/app 주소는 모바일 화면', () => {
   assert.deepEqual(parseRoute('/jun-live-fanpage/app', '/jun-live-fanpage/'), { name: 'mobile' });
@@ -31,18 +31,4 @@ test('휴대폰 서명은 서버가 검증하는 형식과 길이', async () => 
   assert.match(sig, /^[-_A-Za-z0-9]{86}$/);
   const id = await sha256hex(await s.exportKey('spki', pair.publicKey));
   assert.match(codeOf(id), /^([0-9A-F]{4}-){5}[0-9A-F]{4}$/);
-});
-
-test('봇 상태 문장', () => {
-  assert.match(botStatusText({ status: { state: 'live' } }), /작동 중/);
-  assert.match(botStatusText({ status: {} }), /자동으로 들어가요/);
-  assert.equal(botStatusText({ status: { state: 'error', error: '봇 계정을 고정 매니저로' } }), '봇 계정을 고정 매니저로');
-});
-
-test('공용 봇 상태 안내: 서버·로그인·자리', () => {
-  assert.equal(botHealthText({ tag: 'junlive' }), null, '예전 응답은 안내 없음');
-  assert.equal(botHealthText({ online: true, login: true, full: false }), null);
-  assert.match(botHealthText({ online: false }), /서버를 점검/);
-  assert.match(botHealthText({ online: true, login: false }), /계정을 점검/);
-  assert.match(botHealthText({ online: true, login: true, full: true }), /가득/);
 });

@@ -376,6 +376,12 @@ export async function handle(method, path, q, body, token, onProgress) {
       });
       return ok({ cards });
     }
+    case 'GET storybox': return ok({ open: true, note: '첫 방송 때 기억나는 순간' });
+    case 'POST story': {
+      if (!String(b.nickname || '').trim()) return fail(400, '닉네임을 적어 주세요.');
+      if (!String(b.body || '').trim() && !b.data) return fail(400, '사연 글이나 사진을 넣어 주세요.');
+      return ok({ story: { id: rid('st_'), nickname: b.nickname, tag: b.tag || '', body: b.body || '', photo: null, created: iso() } });
+    }
     default:
       return fail(404, '없는 요청이에요.');
   }

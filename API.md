@@ -68,6 +68,9 @@
 - `POST attendance {page,menu,nickname,pin,action}` — action `create`(새 카드) | `load`(불러오기) | `check`(오늘 출석). pin = 숫자 4자리(서버엔 해시만). → `{card:{nickname,total,month:["2026-09-01",…],today:bool,next:{at,label}|null}}`. 같은 닉네임+틀린 PIN 5번 → 10분 잠금.
 - `GET poll?page=<id>&menu=<menuId>&fan=<fan>` → `{poll:{id,question,description,options:[{label,votes}],total,voted:index|null,closed}|null}`
 - `POST vote {poll,option,fan}` → `{poll}` (한 사람 1표, 바꾸기 가능)
+- `GET storybox?page=<id>` → `{open:bool, note}` — DJ가 사연함을 열어 두었는지.
+- `POST story {page,nickname,tag?,body?,data?,thumb?,w?,h?,fan}` → `{story}` — 사연함이 열려 있을 때만(403). 닉네임 1~20, 고유닉(영문·숫자, 보상용) 선택, 글 ≤300(사진만도 가능), 사진은 owner/photo와 같은 규격. 같은 사람 10분에 3개, 페이지 시간당 60개. 7일 뒤 자동 삭제.
+  Story = `{id,nickname,tag,body,photo:{path,thumb,w,h,url,thumbUrl}|null,created}` (사진 주소 `p/<slug>/story`)
 
 Post = `{id,menu,title,body,photos:[{path,thumb,w,h}],category,pinned,supporter,eventDate,likes,comments,created}`
 Comment = `{id,menu,post,nickname,body,created,hearted:bool,reply:string|null}`
@@ -94,6 +97,9 @@ Comment = `{id,menu,post,nickname,body,created,hearted:bool,reply:string|null}`
 
 - `POST app {action:"login", payload:{spoon:{id,tag,nickname}}}` → `{code,url}` — 이 기기가 연결된 페이지가 있으면 그 페이지로, 없으면 새로 만들 수 있는 세션.
 - `POST app {action:"sync", payload:{live:{on,title},rankings:{support:{week,month,all},activity}}}` → `{ok,slug}` — 연결된 페이지가 없으면 `{ok:false}`.
+- `POST app {action:"storybox", payload:{open:bool, note?}}` → `{ok,open,note,url}` — 사연함 열기/닫기(url = 팬이 보낼 주소, 공개 전이면 null).
+- `POST app {action:"stories"}` → `{ok,open,note,url,stories:[Story…최신 200개]}` (부를 때 7일 지난 사연 정리).
+- `POST app {action:"story_delete", payload:{id}}` → `{ok}` (사진도 지움).
 
 ## 관리자 (서비스 주인) — 머리글 `x-junlive-admin` (사용 승인 서버와 같은 관리자 키)
 

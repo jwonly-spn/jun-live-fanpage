@@ -44,6 +44,7 @@ const publicUrl = (path: string) => db.storage.from(BUCKET).getPublicUrl(path).d
 // ---------- shaping ----------
 const postOut = (p: any) => ({ id: p.id, menu: p.menu_id, title: p.title, body: p.body, photos: p.photos, category: p.category, pinned: p.pinned, supporter: p.supporter, eventDate: p.event_date, likes: p.likes, comments: p.comment_count, created: p.created });
 const commentOut = (c: any, owner = false) => ({ id: c.id, menu: c.menu_id, post: c.post_id, nickname: c.nickname, body: c.body, created: c.created, hearted: c.hearted, reply: c.reply, ...(owner ? { hidden: c.hidden } : {}) });
+const storyOut = (s: any) => ({ id: s.id, nickname: s.nickname, tag: s.tag, body: s.body, photo: s.photo ? { ...s.photo, url: publicUrl(s.photo.path), thumbUrl: publicUrl(s.photo.thumb) } : null, created: s.created });
 async function livePage(pageId: unknown) {
   const id = v.uuid(pageId, '페이지');
   const page = await q(db.from('fp_pages').select('id,slug,published,blocked').eq('id', id).maybeSingle());
@@ -239,6 +240,13 @@ async function uploadPhoto(req: Request, o: Owner) {
   await limit(`u:${page.id}`, 3600, 300, '사진은 한 시간에 300장까지 올릴 수 있어요.');
   await limit(`ud:${page.id}`, 86400, 150, '사진은 하루에 150장까지 올릴 수 있어요.');
   const b = await body(req, 3 * 1024 * 1024);
+  const p = await storePhoto(page.id, b);
+  later(cleanPhotos(page.id));
+  return json({ ...p, url: publicUrl(p.path), thumbUrl: publicUrl(p.thumb) });
+}
+// 사진 저장(DJ 사진 올리기와 팬 사연 사진이 같이 쓴다): 용량 확보 → 기록 → 업로드
+async function storePhoto(pageId: string, b: any) {
+  const page = { id: pageId };
   const full = v.b64(b.data, 1.6 * 1024 * 1024), thumb = v.b64(b.thumb, 220 * 1024);
   const size = v.jpegSize(full), tsize = v.jpegSize(thumb);
   if (!size || !tsize) throw v.fail(400, 'JPG 사진만 올릴 수 있어요.');
@@ -267,8 +275,38 @@ async function uploadPhoto(req: Request, o: Owner) {
       throw v.fail(503, '사진을 올리지 못했어요. 다시 시도해 주세요.');
     }
   }
-  later(cleanPhotos(page.id));
-  return json({ path, thumb: tpath, w: size.w, h: size.h, url: publicUrl(path), thumbUrl: publicUrl(tpath) });
+  return { path, thumb: tpath, w: size.w, h: size.h };
+}
+// ---------- 사연함 ----------
+async function getStorybox(url: URL) {
+  const page = await livePage(url.searchParams.get('page'));
+  const box = await q(db.from('fp_storybox').select('open,note').eq('page_id', page.id).maybeSingle());
+  return json({ open: Boolean(box?.open), note: box?.note || '' });
+}
+async function postStory(req: Request) {
+  const b = await body(req, 3 * 1024 * 1024);
+  const page = await livePage(b.page);
+  const box = await q(db.from('fp_storybox').select('open').eq('page_id', page.id).maybeSingle());
+  if (!box?.open) throw v.fail(403, '지금은 사연을 받지 않아요. DJ가 사연함을 열면 보낼 수 있어요.');
+  const nickname = v.text(b.nickname, 20, { required: true, label: '닉네임' });
+  const tag = v.text(b.tag, 40, { label: '스푼 고유닉' }).replace(/^@/, '').toLowerCase();
+  if (tag && !/^[a-z0-9._-]{1,40}$/.test(tag)) throw v.fail(400, '스푼 고유닉은 영문·숫자로 적어 주세요.');
+  const text = v.text(b.body, 300, { lines: true, label: '사연' });
+  if (!text && !b.data) throw v.fail(400, '사연 글이나 사진을 넣어 주세요.');
+  const fan = v.fanId(b.fan);
+  const ip = await ipHash(req);
+  const blocked = await q(db.from('fp_blocks').select('key').eq('page_id', page.id).in('key', ['ip:' + ip, 'nick:' + nickname.toLowerCase(), 'fan:' + fan]));
+  if (blocked.length) throw v.fail(403, '이 팬페이지에 사연을 보낼 수 없어요.');
+  await limit(`s:${page.id}:${ip}`, 600, 3, '사연은 10분에 3개까지 보낼 수 있어요.');
+  await limit(`s:${page.id}`, 3600, 60, '지금 사연이 많이 몰렸어요. 잠시 뒤에 다시 보내 주세요.');
+  const photo = b.data ? await storePhoto(page.id, b) : null;
+  const row = await q(db.from('fp_stories').insert({ page_id: page.id, nickname, tag, body: text, photo, ip_hash: ip, fan }).select('*').single());
+  return json({ story: storyOut(row) });
+}
+// 7일 지난 사연은 사진과 함께 지운다.
+async function cleanStories(pageId: string) {
+  const old = await q(db.from('fp_stories').delete().eq('page_id', pageId).lt('created', new Date(Date.now() - 7 * 86400000).toISOString()).select('photo'));
+  await dropPhotos(pageId, (old || []).flatMap((r: any) => r.photo ? [r.photo.path, r.photo.thumb] : []));
 }
 async function cleanPhotos(pageId: string, now = false) {
   const orphans: string[] = now ? [] : (await q(db.rpc('fp_orphan_photos', { p_page: pageId }))).map((r: any) => typeof r === 'string' ? r : r.fp_orphan_photos);
@@ -386,7 +424,7 @@ async function ownerAttendance(url: URL, o: Owner) {
 async function app(req: Request) {
   const b = await body(req);
   const now = Date.now();
-  if (!['login', 'sync'].includes(b.action) || !Number.isSafeInteger(b.timestamp) || Math.abs(now - b.timestamp) > 60000 || !/^[-_A-Za-z0-9]{32}$/.test(b.nonce) || !/^[-_A-Za-z0-9]{122}$/.test(b.publicKey) || !/^[-_A-Za-z0-9]{86}$/.test(b.signature)) throw v.fail(400, '요청이 만료되었거나 올바르지 않아요. PC 시간을 확인해 주세요.');
+  if (!['login', 'sync', 'storybox', 'stories', 'story_delete'].includes(b.action) || !Number.isSafeInteger(b.timestamp) || Math.abs(now - b.timestamp) > 60000 || !/^[-_A-Za-z0-9]{32}$/.test(b.nonce) || !/^[-_A-Za-z0-9]{122}$/.test(b.publicKey) || !/^[-_A-Za-z0-9]{86}$/.test(b.signature)) throw v.fail(400, '요청이 만료되었거나 올바르지 않아요. PC 시간을 확인해 주세요.');
   const message = `JUN-LIVE-FANPAGE/1\n${b.action}\n${b.timestamp}\n${b.nonce}\n${b.publicKey}\n${await sha(JSON.stringify(b.payload ?? null))}`;
   let valid = false;
   try { const key = await crypto.subtle.importKey('spki', decode64url(b.publicKey), { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']); valid = await crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, key, decode64url(b.signature), enc.encode(message)); } catch { /* bad key */ }
@@ -408,6 +446,25 @@ async function app(req: Request) {
     return json({ code, url: SITE + 'studio#code=' + code });
   }
   if (!link) return json({ ok: false });
+  if (b.action === 'storybox') {
+    const open = b.payload?.open === true, note = v.text(b.payload?.note, 80, { label: '사연 주제' });
+    await q(db.from('fp_storybox').upsert({ page_id: link.page_id, open, note, updated: new Date().toISOString() }));
+    const page = await q(db.from('fp_pages').select('slug,published').eq('id', link.page_id).single());
+    return json({ ok: true, open, note, url: page.published ? SITE + 'p/' + page.slug + '/story' : null });
+  }
+  if (b.action === 'stories') {
+    later(cleanStories(link.page_id));
+    const box = await q(db.from('fp_storybox').select('open,note').eq('page_id', link.page_id).maybeSingle());
+    const page = await q(db.from('fp_pages').select('slug,published').eq('id', link.page_id).single());
+    const rows = await q(db.from('fp_stories').select('*').eq('page_id', link.page_id).order('created', { ascending: false }).limit(200));
+    return json({ ok: true, open: Boolean(box?.open), note: box?.note || '', url: page.published ? SITE + 'p/' + page.slug + '/story' : null, stories: rows.map(storyOut) });
+  }
+  if (b.action === 'story_delete') {
+    const id = v.uuid(b.payload?.id, '사연');
+    const row = await q(db.from('fp_stories').delete().eq('id', id).eq('page_id', link.page_id).select('photo').maybeSingle());
+    if (row?.photo) await dropPhotos(link.page_id, [row.photo.path, row.photo.thumb]);
+    return json({ ok: true });
+  }
   const live = b.payload?.live || {};
   await q(db.from('fp_live').upsert({ page_id: link.page_id, on_air: live.on === true, title: v.text(live.title, 80, { label: '방송 제목' }), rankings: v.rankings(b.payload?.rankings), updated: new Date().toISOString() }));
   const page = await q(db.from('fp_pages').select('slug,published').eq('id', link.page_id).single());
@@ -430,7 +487,9 @@ async function handle(req: Request) {
     const url = new URL(req.url);
     const route = url.pathname.replace(/^\/(functions\/v1\/)?fanpage\/?/, '').replace(/\/$/, '');
     const G = req.method === 'GET', P = req.method === 'POST';
-    if (G && route === 'health') return json({ service: 'jun-live-fanpage', v: 1 });
+    if (G && route === 'health') return json({ service: 'jun-live-fanpage', v: 5 });
+    if (G && route === 'storybox') return await getStorybox(url);
+    if (P && route === 'story') return await postStory(req);
     if (G && route === 'page') return await getPage(url);
     if (G && route === 'home') return await getHome(url);
     if (G && route === 'posts') return await getPosts(url);

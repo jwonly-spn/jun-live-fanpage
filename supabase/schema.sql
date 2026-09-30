@@ -228,3 +228,39 @@ alter table public.junlive_secrets enable row level security;
 revoke all on public.junlive_secrets from anon, authenticated;
 grant select on public.junlive_secrets to service_role;
 insert into public.junlive_secrets(key, value) values ('ip_salt', replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '')) on conflict (key) do nothing;
+
+-- 사연함(2026-09-30): DJ가 열어 두면 팬이 글·사진을 보낸다. 7일 뒤 자동 삭제.
+create table if not exists public.fp_storybox(
+  page_id uuid primary key references public.fp_pages(id) on delete cascade,
+  open boolean not null default false, note text not null default '', updated timestamptz not null default now()
+);
+create table if not exists public.fp_stories(
+  id uuid primary key default gen_random_uuid(),
+  page_id uuid not null references public.fp_pages(id) on delete cascade,
+  nickname text not null, tag text not null default '', body text not null default '',
+  photo jsonb, ip_hash text not null default '', fan text not null default '',
+  created timestamptz not null default now()
+);
+create index if not exists fp_stories_page on public.fp_stories(page_id, created desc);
+do $$ declare t text; begin
+  foreach t in array array['fp_storybox','fp_stories'] loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('revoke all on public.%I from anon, authenticated', t);
+    execute format('grant select, insert, update, delete on public.%I to service_role', t);
+  end loop;
+end $$;
+-- 사연 사진도 "쓰는 중"으로 본다(하루 뒤 고아 사진 정리에서 빠지지 않게).
+create or replace function public.fp_orphan_photos(p_page uuid)
+returns setof text language sql security definer set search_path = public as $$
+  with used as (
+    select jsonb_array_elements(photos) ph from fp_posts where page_id = p_page
+    union all select photo from fp_stories where page_id = p_page and photo is not null
+    union all select draft->'profile'->'avatar' from fp_pages where id = p_page
+    union all select draft->'profile'->'cover' from fp_pages where id = p_page
+    union all select published->'profile'->'avatar' from fp_pages where id = p_page
+    union all select published->'profile'->'cover' from fp_pages where id = p_page
+  ), paths as (select ph->>'path' p from used union select ph->>'thumb' from used)
+  select f.path from fp_photos f where f.page_id = p_page and f.created < now() - interval '1 day' and f.path not in (select p from paths where p is not null)
+$$;
+revoke execute on function public.fp_orphan_photos(uuid) from public, anon, authenticated;
+grant execute on function public.fp_orphan_photos(uuid) to service_role;

@@ -30,6 +30,9 @@ async function render({ scroll = false } = {}) {
     } else if (route.name === 'mobile') {
       const { renderMobile } = await import('./views/mobile.js');
       if (my === token) await renderMobile(root, app);
+    } else if (route.name === 'story') {
+      const { renderStory } = await import('./views/story.js');
+      if (my === token) await renderStory(root, route, app);
     } else if (route.name === 'fan') {
       const { renderFan } = await import('./views/fan.js');
       if (my === token) await renderFan(root, route, app);

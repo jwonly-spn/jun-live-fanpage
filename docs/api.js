@@ -131,6 +131,8 @@ export const api = {
   attendance: (b) => call('POST', 'attendance', { body: b }),
   poll: ({ page, menu }) => call('GET', 'poll', { query: { page, menu, fan: fanId() } }),
   vote: (poll, option) => call('POST', 'vote', { body: { poll, option, fan: fanId() } }),
+  storybox: (page) => call('GET', 'storybox', { query: { page } }),
+  story: (b, onProgress) => call('POST', 'story', { body: { ...b, fan: fanId() }, onProgress, timeout: 90000 }),
   // DJ
   exchange: (code) => call('POST', 'owner/exchange', { body: { code } }),
   ownerPage: () => call('GET', 'owner/page', { owner: true }),

@@ -50,3 +50,9 @@ test('studio#code= 읽기', () => {
   assert.equal(readCodeFromHash('#code=<script>'), null);
   assert.equal(readCodeFromHash(''), null);
 });
+
+test('사연 보내기 주소 p/<slug>/story', () => {
+  assert.deepEqual(parseRoute('/jun-live-fanpage/p/haru/story', '/jun-live-fanpage/'), { name: 'story', slug: 'haru' });
+  assert.equal(buildPath('/jun-live-fanpage/', { name: 'story', slug: 'haru' }), '/jun-live-fanpage/p/haru/story');
+  assert.equal(parseRoute('/p/haru/story/x', '/').name, 'notfound');
+});

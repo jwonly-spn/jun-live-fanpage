@@ -32,6 +32,7 @@ export function parseRoute(pathname, base = '/') {
   if (parts[0] === 'p' && SLUG.test(parts[1] || '')) {
     const slug = parts[1];
     if (parts.length === 2) return { name: 'fan', slug };
+    if (parts.length === 3 && parts[2] === 'story') return { name: 'story', slug }; // 사연 보내기(메뉴 id보다 먼저)
     if (parts.length === 3 && MENU.test(parts[2])) return { name: 'fan', slug, menuId: parts[2] };
     if (parts.length === 4 && parts[2] === 'post' && POST.test(parts[3])) return { name: 'fan', slug, postId: parts[3] };
   }
@@ -44,6 +45,7 @@ export function buildPath(base, route) {
   switch (route.name) {
     case 'studio': return b + 'studio';
     case 'mobile': return b + 'app';
+    case 'story': return `${b}p/${e(route.slug)}/story`;
     case 'fan':
       if (route.postId) return `${b}p/${e(route.slug)}/post/${e(route.postId)}`;
       if (route.menuId) return `${b}p/${e(route.slug)}/${e(route.menuId)}`;
