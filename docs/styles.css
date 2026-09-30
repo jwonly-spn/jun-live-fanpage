@@ -515,15 +515,12 @@ dialog.confirm::backdrop { background: rgba(0,0,0,.4); }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* /app 모바일 방송 도우미 */
+/* /app 휴대폰 가입·팬페이지 */
 .mobile-app .m-state { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--accent-text); }
 .mobile-app .m-state[data-state="approved"] { background: var(--accent); color: var(--on-accent); }
 .mobile-app .m-state[data-state="revoked"] { background: #fde8e7; color: #b3261e; }
 .mobile-app .m-code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 13px; letter-spacing: .5px; word-break: break-all; }
 .mobile-app form .btn { width: 100%; }
-.mobile-app .m-steps { margin: 0; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; }
-.mobile-app .m-step.done { color: var(--muted); text-decoration: line-through; }
-.mobile-app .m-bigcode { margin: 4px 0; text-align: center; font: 700 34px/1.2 ui-monospace, Menlo, Consolas, monospace; letter-spacing: 6px; color: var(--accent-text); background: var(--soft); border-radius: 12px; padding: 10px; }
 
 .mobile-app .m-guide { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
 .mobile-app .m-guide li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start; }

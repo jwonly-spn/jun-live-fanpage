@@ -21,7 +21,7 @@ export function renderIntro(root, app, { notFound = false } = {}) {
       h('h1', { class: 'display' }, '스푼 DJ를 위한\n다정한 팬페이지'),
       h('p', { class: 'intro' }, '방송 밖에서도 팬들과 추억을 쌓는 나만의 공간이에요.'),
       h('p', { class: 'soft-box' }, 'JUN LIVE 프로그램의 ‘팬페이지 꾸미기’에서 만들 수 있어요.'),
-      h('div', { class: 'row gap wrap' }, ilink(app.link({ name: 'mobile' }), { class: 'btn btn-accent' }, 'PC가 없어요 · 휴대폰으로 시작'))),
+      h('div', { class: 'row gap wrap' }, ilink(app.link({ name: 'mobile' }), { class: 'btn btn-accent' }, '휴대폰으로 가입 · 팬페이지 꾸미기'))),
     h('ul', { class: 'intro-features' }, features.map(([t, d]) => h('li', { class: 'card pad' }, h('b', null, t), h('p', { class: 'muted' }, d)))),
     isDemo() ? h('section', { class: 'card pad stack' },
       h('h2', { class: 'sec-title sm' }, '체험 모드'),

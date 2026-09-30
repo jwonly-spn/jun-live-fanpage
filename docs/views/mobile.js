@@ -1,4 +1,4 @@
-// /app — PC 없이 휴대폰만으로 JUN LIVE 쓰기(모바일 방송 도우미).
+// /app — 휴대폰 브라우저로 가입 신청하고 팬페이지를 꾸민다(승인 기기 = 이 브라우저의 열쇠).
 // 이 브라우저가 스스로 기기 열쇠를 만들고 승인을 받는다. 승인되면 팬페이지 꾸미기를 바로 연다.
 import { h, applyTheme, store, toast } from '../lib/dom.js';
 import { identity, nonce, sign, accessText, signedAction, supported, resetDevice } from '../lib/device.js';

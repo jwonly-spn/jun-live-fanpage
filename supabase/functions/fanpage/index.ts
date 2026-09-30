@@ -447,7 +447,10 @@ async function app(req: Request) {
   }
   if (!link) return json({ ok: false });
   if (b.action === 'storybox') {
-    const open = b.payload?.open === true, note = v.text(b.payload?.note, 80, { label: '사연 주제' });
+    const open = b.payload?.open === true;
+    // 주제를 안 보내면(채팅 !사연) 저장해 둔 주제를 그대로 둔다.
+    const existing = b.payload?.note === undefined ? await q(db.from('fp_storybox').select('note').eq('page_id', link.page_id).maybeSingle()) : null;
+    const note = b.payload?.note === undefined ? (existing?.note || '') : v.text(b.payload?.note, 80, { label: '사연 주제' });
     await q(db.from('fp_storybox').upsert({ page_id: link.page_id, open, note, updated: new Date().toISOString() }));
     const page = await q(db.from('fp_pages').select('slug,published').eq('id', link.page_id).single());
     return json({ ok: true, open, note, url: page.published ? SITE + 'p/' + page.slug + '/story' : null });
@@ -487,7 +490,7 @@ async function handle(req: Request) {
     const url = new URL(req.url);
     const route = url.pathname.replace(/^\/(functions\/v1\/)?fanpage\/?/, '').replace(/\/$/, '');
     const G = req.method === 'GET', P = req.method === 'POST';
-    if (G && route === 'health') return json({ service: 'jun-live-fanpage', v: 5 });
+    if (G && route === 'health') return json({ service: 'jun-live-fanpage', v: 6 });
     if (G && route === 'storybox') return await getStorybox(url);
     if (P && route === 'story') return await postStory(req);
     if (G && route === 'page') return await getPage(url);
