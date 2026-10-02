@@ -59,7 +59,7 @@ async function getPage(url: URL) {
   if (!page || page.blocked || !page.published) throw v.fail(404, '아직 공개되지 않은 팬페이지예요.');
   const live = await q(db.from('fp_live').select('on_air,title,rankings,updated').eq('page_id', page.id).maybeSingle());
   const fresh = live && Date.now() - Date.parse(live.updated) < 15 * 60 * 1000;
-  return json({ page: { id: page.id, slug: page.slug, config: v.publicConfig(page.published), updated: page.published_at }, live: live ? { on: Boolean(live.on_air && fresh), title: live.title, updated: live.updated } : null, rankings: live?.rankings ?? null }, 200, 'public, max-age=30');
+  return json({ page: { id: page.id, slug: page.slug, config: v.publicConfig(page.published), updated: page.published_at }, live: live ? { on: Boolean(live.on_air && fresh), title: live.title, updated: live.updated } : null, rankings: null }, 200, 'public, max-age=30');
 }
 async function getHome(url: URL) {
   const page = await livePage(url.searchParams.get('page'));
@@ -469,7 +469,8 @@ async function app(req: Request) {
     return json({ ok: true });
   }
   const live = b.payload?.live || {};
-  await q(db.from('fp_live').upsert({ page_id: link.page_id, on_air: live.on === true, title: v.text(live.title, 80, { label: '방송 제목' }), rankings: v.rankings(b.payload?.rankings), updated: new Date().toISOString() }));
+  // 스푼 답변(2026-10-02 1-나): 순위를 개발사 서버에 저장·공개하지 않는다. 예전 판이 보내도 받지 않는다.
+  await q(db.from('fp_live').upsert({ page_id: link.page_id, on_air: live.on === true, title: v.text(live.title, 80, { label: '방송 제목' }), rankings: null, updated: new Date().toISOString() }));
   const page = await q(db.from('fp_pages').select('slug,published').eq('id', link.page_id).single());
   return json({ ok: true, slug: page.slug, url: page.published ? SITE + 'p/' + page.slug : null });
 }
