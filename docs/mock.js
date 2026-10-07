@@ -72,6 +72,33 @@ function seed() {
   };
 }
 
+// ---- DJ 키우기 체험 페이지(가상 닉네임) ----
+export const KIUGI_DEMO = { slug: 'nyangdj7' };
+const kiugiKey = (s) => String(s ?? '').normalize('NFC').toLowerCase().replace(/\s+/g, '');
+function kiugiDemo() {
+  const names = ['밤톨이', '사탕요정', '달무리', '호박꽃', '별사탕', '새벽달', '구름빵', '보름달', '솜사탕', '밤하늘', '유령친구', '마녀수프', '박쥐날개', '꿀호떡', '달빛소나기', 'Pumpkin', 'Candy Ghost', '밤톨이2', '작은밤톨', '초코칩'];
+  const outfits = [
+    { head: 'witch-hat', top: 'stage-jacket', bottom: 'witch-dress', hand: 'magic-wand', bg: 'halloween-night' },
+    { head: 'cat-ears', face: 'blush', top: 'pumpkin-hoodie', bottom: 'check-skirt', shoes: 'pumpkin-slippers', bg: 'pumpkin-field' },
+    { head: 'candle-crown', face: 'monocle', outer: 'dracula-cape', bottom: 'dracula-suit', bg: 'haunted-house' },
+    { head: 'pumpkin-hat', top: 'candy-vest', bottom: 'overalls', hand: 'lollipop' },
+    { head: 'ghost-pin', top: 'ghost-pajama', outer: 'ghost-wings', bg: 'candy-shop' },
+    { face: 'mustache', top: 'belly-tee', bottom: 'ripped-jeans', hand: 'rubber-chicken' },
+    {}, { head: 'bat-clips', top: 'bat-blouse', shoes: 'bat-shoes' },
+  ];
+  const people = names.map((nickname, i) => {
+    const love = Math.max(0, 5200 - i * 260 - (i % 3) * 37);
+    let level = 1; while (level < 10 && love >= 50 * (level + 1) * level) level++;
+    return { nickname, level, love, worn: outfits[i % outfits.length] };
+  });
+  return {
+    slug: KIUGI_DEMO.slug, name: '도담', paused: false, count: people.length, updatedAt: ago(0.1),
+    season: { id: 's1', name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' },
+    character: { name: '도담', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2', eyes: 'sparkle', nose: 'dot', mouth: 'smile' },
+    top: people.slice(0, 3).map((p, i) => ({ rank: i + 1, ...p })), people,
+  };
+}
+
 let db = null;
 function load() {
   if (db) return db;
@@ -375,6 +402,21 @@ export async function handle(method, path, q, body, token, onProgress) {
         return { nickname: c.nickname, total, monthCount: c.dates.filter((d) => d.slice(0, 7) === today.slice(0, 7)).length, last: c.dates.slice().sort().pop() || null, rewards: (m?.options?.rewards || []).filter((r) => r.at <= total).map((r) => r.label) };
       });
       return ok({ cards });
+    }
+    // DJ 키우기 페이지(k/<주소>) — 체험용 가상 닉네임만(실제 청취자 이름 없음). nyangdj7 = 열린 페이지, shutpg22 = DJ가 닫아 둔 페이지
+    case 'GET kiugi/page': {
+      if (q.slug === 'shutpg22') return { status: 404, json: { error: 'DJ가 지금은 키우기 페이지를 닫아 두었어요.', closed: true } };
+      if (q.slug !== KIUGI_DEMO.slug) return fail(404, '키우기 페이지를 찾을 수 없어요. 주소를 확인해 주세요.');
+      const { people, ...page } = kiugiDemo();
+      return ok(page);
+    }
+    case 'GET kiugi/find': {
+      if (q.slug !== KIUGI_DEMO.slug) return fail(404, '키우기 페이지를 찾을 수 없어요. 주소를 확인해 주세요.');
+      const key = kiugiKey(q.q);
+      if (!key || [...String(q.q || '').trim()].length > 40) return fail(400, '닉네임을 1~40자로 적어 주세요.');
+      const all = kiugiDemo().people.map((p, i) => ({ ...p, rank: i + 1, k: kiugiKey(p.nickname) }));
+      const hits = [...all.filter((p) => p.k === key), ...all.filter((p) => p.k !== key && p.k.includes(key))];
+      return ok({ results: hits.slice(0, 5).map(({ k, ...p }) => p), exact: all.filter((p) => p.k === key).length, more: hits.length > 5 });
     }
     case 'GET storybox': return ok({ open: true, note: '첫 방송 때 기억나는 순간' });
     case 'POST story': {

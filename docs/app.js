@@ -33,6 +33,9 @@ async function render({ scroll = false } = {}) {
     } else if (route.name === 'story') {
       const { renderStory } = await import('./views/story.js');
       if (my === token) await renderStory(root, route, app);
+    } else if (route.name === 'kiugi') {
+      const { renderKiugi } = await import('./views/kiugi.js');
+      if (my === token) await renderKiugi(root, route, app);
     } else if (route.name === 'fan') {
       const { renderFan } = await import('./views/fan.js');
       if (my === token) await renderFan(root, route, app);

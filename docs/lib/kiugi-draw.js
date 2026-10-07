@@ -1,0 +1,72 @@
+// DJ 키우기 그림(사이트) — 먼치킨과 같은 그림 규칙 kiugi-art.js 를 그대로 쓴다(docs/kiugi/: 먼치킨 저장소의 tools/sync-kiugi-site.mjs 가 복사한다).
+// 사이트 보안 규칙(CSP: 인라인 style 금지)과 사이트 주소(BASE) 때문에 그린 SVG 글을 조금 고친다(cspSafeSvg).
+// DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 그대로 불러 쓴다).
+import { characterSvg } from '../kiugi/kiugi-art.js';
+
+export const STAGE = '#EFE9F8';
+const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
+
+// 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림에 쓰는 것
+//  items: {옷id: {slot, season, name, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
+//  seasons: {시즌id: {id, name, expressions}} · last: 마지막 시즌 id(모르는 시즌의 표정은 이것으로)
+export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
+  const items = {}, seasons = {};
+  let last = null;
+  for (const raw of Array.isArray(raws) ? raws : []) {
+    const id = raw?.season?.id;
+    if (typeof id !== 'string' || !id) continue;
+    last = id;
+    seasons[id] = { id, name: raw.season.name || id, expressions: Array.isArray(raw.expressions) ? raw.expressions : [] };
+    for (const it of Array.isArray(raw.items) ? raw.items : []) if (it?.id) items[it.id] = { slot: it.slot, season: id, name: it.name };
+    for (const r of Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []) if (r?.id) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true };
+  }
+  return { items, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
+}
+
+// 레벨 표정(레벨마다 바뀐다): 그 시즌 목록에서 레벨 이하 중 가장 높은 것
+export function expressionFor(catalog, seasonId, level) {
+  const list = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.expressions || [];
+  let pick = list[0] || DEFAULT_EXPRESSION;
+  for (const e of list) if (Number(e.level) <= Number(level)) pick = e;
+  return pick;
+}
+
+const attr = (s) => String(s).replace(/["<>&]/g, encodeURIComponent);
+const color = (v) => { const m = /^var\(--[\w-]+,\s*([^)]+)\)$/.exec(String(v).trim()); return (m ? m[1] : String(v)).trim(); };
+// 그린 SVG 글 → 사이트에 넣을 수 있는 글: 그림 파일 주소를 사이트 BASE 아래로, style="fill:…" 는 fill 속성으로(남은 style 은 뺀다)
+export function cspSafeSvg(svg, base = '/') {
+  const root = attr((String(base).endsWith('/') ? base : base + '/') + 'kiugi/');
+  return String(svg)
+    .replace(/ href="\/kiugi\//g, ` href="${root}`)
+    .replace(/ style="fill:([^";]*);?"/g, (_, v) => ` fill="${attr(color(v))}"`)
+    .replace(/ style="[^"]*"/g, '');
+}
+
+// 캐릭터 한 장(글): DJ 캐릭터에 청취자가 입힌 옷, 레벨 표정
+export function characterMarkup(catalog, character, worn, level, { seasonId = null, base = '/', label = '', stage = STAGE } = {}) {
+  const svg = characterSvg(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} },
+    { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage, label });
+  return cspSafeSvg(svg, base);
+}
+
+// 글 → 화면에 넣을 SVG 요소(XML 로 읽는다 — innerHTML 을 쓰지 않는다). 읽지 못하면 null.
+export function svgNode(markup) {
+  const doc = new DOMParser().parseFromString(markup, 'image/svg+xml');
+  const el = doc.documentElement;
+  if (!el || el.localName !== 'svg' || doc.getElementsByTagName('parsererror').length) return null;
+  return document.importNode(el, true);
+}
+
+// docs/kiugi/manifest.json → 시즌 목록·보정값을 한 번만 받아 둔다(실패하면 다음에 다시)
+let catalogPromise = null;
+export function loadCatalog(base = '/') {
+  return catalogPromise ||= (async () => {
+    const root = (String(base).endsWith('/') ? base : base + '/') + 'kiugi/';
+    const get = async (name) => { const r = await fetch(root + name, { cache: 'no-cache' }); if (!r.ok) throw Error('키우기 그림 목록을 받지 못했어요.'); return r.json(); };
+    const manifest = await get('manifest.json');
+    const raws = await Promise.all((Array.isArray(manifest.seasons) ? manifest.seasons : []).filter((n) => /^season-[a-z0-9-]+\.json$/.test(n)).map(get));
+    const files = manifest.files && typeof manifest.files === 'object' ? manifest.files : {}, adjust = {};
+    await Promise.all(Object.keys(files).filter((s) => /^[a-z0-9][a-z0-9_-]*$/.test(s)).map(async (s) => { try { adjust[s] = await get(s + '/adjust.json'); } catch { adjust[s] = {}; } }));
+    return buildCatalog(raws, { files, adjust });
+  })().catch((e) => { catalogPromise = null; throw e; });
+}

@@ -15,6 +15,8 @@ export function stripBase(pathname, base) {
 }
 
 const SLUG = /^[a-z0-9-]{3,30}$/;
+// DJ 키우기 페이지 주소(k/<주소>): 서버가 만든 8자(헷갈리는 i·l·o·0·1 없음)
+export const KIUGI_SLUG = /^[a-hjkmnp-z2-9]{8}$/;
 const MENU = /^[a-z0-9_]{2,24}$/;
 const POST = /^[A-Za-z0-9_-]{1,64}$/;
 
@@ -29,6 +31,7 @@ export function parseRoute(pathname, base = '/') {
   if (parts.some((x) => x === null)) return { name: 'notfound' };
   if (parts[0] === 'studio' && parts.length === 1) return { name: 'studio' };
   if (parts[0] === 'app' && parts.length === 1) return { name: 'mobile' };
+  if (parts[0] === 'k' && parts.length === 2 && KIUGI_SLUG.test(parts[1] || '')) return { name: 'kiugi', slug: parts[1] };
   if (parts[0] === 'p' && SLUG.test(parts[1] || '')) {
     const slug = parts[1];
     if (parts.length === 2) return { name: 'fan', slug };
@@ -45,6 +48,7 @@ export function buildPath(base, route) {
   switch (route.name) {
     case 'studio': return b + 'studio';
     case 'mobile': return b + 'app';
+    case 'kiugi': return `${b}k/${e(route.slug)}`;
     case 'story': return `${b}p/${e(route.slug)}/story`;
     case 'fan':
       if (route.postId) return `${b}p/${e(route.slug)}/post/${e(route.postId)}`;

@@ -104,3 +104,28 @@ Comment = `{id,menu,post,nickname,body,created,hearted:bool,reply:string|null}`
 ## 관리자 (서비스 주인) — 머리글 `x-junlive-admin` (사용 승인 서버와 같은 관리자 키)
 
 - `GET admin/pages?q=` → 페이지 목록, `POST admin/page {id,blocked}`
+
+## DJ 키우기 페이지 — Edge Function `kiugi` (2026-10-08)
+
+청취자가 닉네임을 적어 자기 키우기 캐릭터를 보고, 1~3등은 늘 보이는 공개 페이지. 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
+올리는 쪽은 먼치킨(봇 프로그램) 본체 `app/desktop/kiugi-fanpage.cjs`(먼치킨 저장소). 그림은 먼치킨과 같은 `kiugi-art.js`(사이트 `docs/kiugi/`, 먼치킨 저장소 `node tools/sync-kiugi-site.mjs`로 복사).
+
+- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql`(`kg_pages`).
+- 저장하는 것: DJ 캐릭터(이름·모양 열쇠), 시즌(id·이름·끝나는 날), 청취자 닉네임(≤100자)·레벨(1~100)·애정도·입은 옷({칸: 옷 id}), 1~3등, 인원 수. 고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다. 3,000명·본문 1.5MB까지.
+- 주소는 처음 올린 기기에 묶인다(같은 PC가 다시 올리면 같은 주소에 통째로 바꿔 넣음). `{enabled:false}`를 올리면 내용만 지우고 주소는 남긴다. 60일 동안 올리지 않으면 내용을 지운다. 승인 서버에서 차단·대기로 바꾼 기기의 페이지는 닫힌다. 심사용 기기는 올리지 못한다.
+
+공개(로그인 없음, 주소 해시마다 횟수 제한):
+- `GET page?slug=` (1분 60번) → `{slug,name,season:{id,name,endsAt}|null,paused,character,top:[{rank,nickname,level,love,worn}],count,updatedAt}` · 없으면 404, 닫혀 있으면 404 `{error,closed:true}`
+- `GET find?slug=&q=` (1분 30번, q 1~40자, 띄어쓰기·대소문자 무시) → `{results:[{rank,nickname,level,love,worn}…5명까지, 정확히 같은 닉네임 먼저],exact,more}`
+- `GET health` → `{service:"jun-live-kiugi",v:1}`
+
+먼치킨(기기 서명, 기기 1분 2번):
+- `POST app` 본문 `{action:"upload",payload,publicKey,timestamp,nonce,signature}`, 서명 문자열 `JUN-LIVE-KIUGI/1\n{action}\n{timestamp}\n{nonce}\n{publicKey}\n{sha256hex(JSON.stringify(payload))}` (ieee-p1363, base64url, 시간 ±60초, 같은 nonce 한 번).
+  payload = 엔진 `GET /api/bot/f/kiugi/fanpage`의 답에서 `{enabled:true,v:1,paused,season,character,people:[{nickname,level,love,worn}]}` 또는 `{enabled:false}` → `{ok,enabled,slug,url,count}`
+
+올리는 순서(배포 — 사용자 허락 뒤):
+1. SQL: `supabase/kiugi.sql` 실행(마이그레이션 이름 `kiugi_pages`). 여러 번 실행해도 된다. 함께 쓰는 `junlive_devices`·`junlive_access_nonces`·`junlive_secrets`·`fp_hit`이 이미 있어야 한다(승인 서버·팬페이지 schema).
+2. Edge Function `kiugi` 배포: 파일 `index.ts`·`handler.ts`·`lib.ts` 세 개, JWT 확인 끔(`verify_jwt: false`).
+3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":1}`, `GET …/kiugi/page?slug=abcdefgh` → 404.
+4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림이 바뀔 때마다) → `node tools/deploy-site.cjs "키우기 페이지"`.
+5. 먼치킨 새 버전(봇 프로그램)에 `desktop/kiugi-fanpage.cjs`가 들어가야 실제로 올라간다.

@@ -5,6 +5,8 @@ import { uuid } from './lib/text.js';
 export const API_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/fanpage/';
 export const API_KEY = 'sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD';
 export const PHOTO_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/fp-photos/';
+// DJ 키우기 페이지(k/<주소>) 서버: 먼치킨이 올린 DJ 캐릭터·1~3등·닉네임 찾기(API.md "키우기 페이지")
+export const KIUGI_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/';
 
 const TOKEN_KEY = 'fp_owner';
 const FAN_KEY = 'fp_fan';
@@ -71,15 +73,16 @@ function qs(query) {
 }
 
 // owner: true = 토큰 꼭 필요, 'optional' = 있으면 붙임(DJ가 아직 공개 안 한 자기 페이지 글을 볼 때)
-async function call(method, path, { query, body, owner = false, onProgress, timeout = 20000 } = {}) {
+// base: 서버 함수 주소(기본 팬페이지). mockPath: 체험 모드에서 mock.js 가 받을 길(다른 함수는 'kiugi/page'처럼 앞에 이름을 붙인다).
+async function call(method, path, { query, body, owner = false, onProgress, timeout = 20000, base = API_BASE, mockPath = path } = {}) {
   const token = owner ? auth.get()?.token : null;
   if (owner === true && !token) throw new ApiError(STATUS_MESSAGE[401], 401);
   let status, json;
   if (isDemo()) {
     const m = await mock();
-    ({ status, json } = await m.handle(method, path, query || {}, body, token, onProgress));
+    ({ status, json } = await m.handle(method, mockPath, query || {}, body, token, onProgress));
   } else if (onProgress && body) {
-    ({ status, json } = await xhr(method, API_BASE + path + qs(query), body, token, onProgress, timeout));
+    ({ status, json } = await xhr(method, base + path + qs(query), body, token, onProgress, timeout));
   } else {
     const headers = { apikey: API_KEY };
     if (token) headers.Authorization = 'Bearer ' + token;
@@ -88,7 +91,7 @@ async function call(method, path, { query, body, owner = false, onProgress, time
     const timer = setTimeout(() => ctl.abort(), timeout);
     let res;
     try {
-      res = await fetch(API_BASE + path + qs(query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
+      res = await fetch(base + path + qs(query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
     } catch (e) {
       throw new ApiError(e?.name === 'AbortError' ? '응답이 늦어요. 잠시 뒤에 다시 해 주세요.' : '인터넷 연결을 확인해 주세요.', 0);
     } finally { clearTimeout(timer); }
@@ -98,7 +101,8 @@ async function call(method, path, { query, body, owner = false, onProgress, time
   if (status < 200 || status >= 300) {
     if (status === 401 && token) auth.clear();
     const msg = json && typeof json.error === 'string' && json.error ? json.error : STATUS_MESSAGE[status] || '문제가 생겼어요. 잠시 뒤에 다시 해 주세요.';
-    throw new ApiError(msg, status);
+    // closed: 키우기 페이지가 있지만 DJ가 닫아 둔 것(없는 주소와 구별)
+    throw Object.assign(new ApiError(msg, status), { closed: json?.closed === true });
   }
   return json || {};
 }
@@ -151,4 +155,10 @@ export const api = {
   createPoll: (b) => call('POST', 'owner/poll', { body: b, owner: true }),
   closePoll: (menu) => call('POST', 'owner/poll/close', { body: { menu }, owner: true }),
   ownerAttendance: (menu) => call('GET', 'owner/attendance', { query: { menu }, owner: true }),
+};
+
+// DJ 키우기 페이지(로그인 없음)
+export const kiugiApi = {
+  page: (slug) => call('GET', 'page', { query: { slug }, base: KIUGI_BASE, mockPath: 'kiugi/page' }),
+  find: (slug, q) => call('GET', 'find', { query: { slug, q }, base: KIUGI_BASE, mockPath: 'kiugi/find' }),
 };
