@@ -173,10 +173,16 @@ const ITEMS={
  'shadow-wings':()=>`<g fill="#1A1424"${s6}><path d="M440 600 Q300 380 120 420 Q200 470 190 540 Q260 520 280 590 Q330 560 360 640 Q400 600 440 660Z"/><path d="M584 600 Q724 380 904 420 Q824 470 834 540 Q764 520 744 590 Q694 560 664 640 Q624 600 584 660Z"/></g><path d="M140 420 Q200 400 260 430 M884 420 Q824 400 764 430" stroke="#A58CFF" stroke-width="8" stroke-linecap="round" opacity=".8"/>`,
  'moonlight-aura':()=>`<circle cx="512" cy="420" r="380" fill="#FFF6C8" opacity=".35"/><circle cx="512" cy="420" r="300" fill="#FFF9DC" opacity=".45"/>${star(190,260,14,'#FFF3B0',false)}${star(840,300,16,'#FFF3B0',false)}${star(250,700,10,'#FFFFFF',false)}${star(800,720,12,'#FFFFFF',false)}`
 };
-// 몸 뒤에 그리는 것(넓게 펼쳐진 날개·다리·배낭)
-export const BACK_ITEMS=new Set(['bat-wings','ghost-wings','spider-legs','pumpkin-backpack','shadow-wings','moonlight-aura']);
-// neck(목, 2026-10-08): 목에 거는 헤드폰 — 상의·겉옷 위, 얼굴·머리카락 아래
-const LAYER_ORDER=['bottom','top','outer','neck','shoes'];
+// 몸 뒤에 그리는 것(넓게 펼쳐진 날개·다리). 그림 v2(2026-10-08 Codex 최종 패키지 assets.json layer=back)와 같다.
+// 호박 배낭은 v2 그림이 앞에 그리는 그림이라 PNG 일 때는 앞, 자리 그림(SVG)일 때만 뒤.
+export const BACK_ITEMS=new Set(['bat-wings','ghost-wings','spider-legs','shadow-wings','moonlight-aura']);
+const SVG_BACK_ITEMS=new Set([...BACK_ITEMS,'pumpkin-backpack']);
+// 그림 v2 겹치기 규칙(Codex 기술연결가이드 4~6): 전신 의상은 상의를 가리고(입은 상의는 기억), 멜빵은 상의 위에,
+// 신발을 신으면 기본 운동화를 뺀 몸(base_{성별}_{피부}_no_shoes.png), 손 소품 뒤에는 그 손(base_{성별}_{피부}_hand_{left|right}.png)을 다시 그린다.
+export const FULL_OUTFITS=new Set(['ghost-sheet','dracula-suit','witch-dress','gothic-dress']);
+export const OVERALLS=new Set(['overalls']);
+// 손 소품을 드는 손(화면 기준 왼쪽·오른쪽)
+export const HAND_SIDE=Object.freeze({lollipop:'right','ghost-doll':'left','bat-balloon':'right','pumpkin-basket':'left',broom:'right','magic-wand':'right','skull-mic':'right',bone:'left','rubber-chicken':'right','rotten-fish':'left'});
 // 이름이 적힌 자리 표시(그림이 아직 없는 것)
 const placeholder=(name,slot)=>{const y={head:150,face:440,neck:560,top:680,bottom:820,outer:640,shoes:930,hand:800,bg:512,aura:512}[slot]||512;return `<g><rect x="362" y="${y-26}" width="300" height="52" rx="14" fill="#FFFFFF" fill-opacity=".8" stroke="#7353D9" stroke-dasharray="10 6" stroke-width="4"/><text x="512" y="${y+9}" text-anchor="middle" font-size="28" font-weight="700" fill="#7353D9">${esc(name)}</text></g>`;};
 export const hasItemArt=id=>Object.hasOwn(ITEMS,id);
@@ -189,7 +195,8 @@ function pngLayer(art,season,file,c,{tint=''}={}){
  const t=x||y||k!==1?` transform="translate(${x} ${y}) translate(512 512) scale(${k}) translate(-512 -512)"`:'';
  return `<image href="/kiugi/${esc(season)}/${esc(file)}" x="0" y="0" width="1024" height="1024"${t}${tint?` filter="url(#${c.id}${tint})"`:''}/>`;
 }
-const backOf=(art,season,file,id)=>{const a=art?.adjust?.[season]?.[String(file).replace(/\.png$/,'')];return typeof a?.back==='boolean'?a.back:BACK_ITEMS.has(id);};
+const hasFile=(art,season,file)=>Boolean(art&&season&&(art.files?.[season]||[]).includes(file));
+const backOf=(art,season,file,id)=>{const a=art?.adjust?.[season]?.[String(file).replace(/\.png$/,'')];return typeof a?.back==='boolean'?a.back:(hasFile(art,season,file)?BACK_ITEMS:SVG_BACK_ITEMS).has(id);};
 // 캐릭터 한 장. dj = {gender,hair,hairColor,skin,eyes,nose,mouth}, look = {worn:{칸:옷id}, trick:{item,slot}(1시간 장난 분장 — 그 칸을 덮는다)},
 // items = {옷id: {slot,season,name,reward}}(엔진 state 의 시즌 옷·시즌 보상), expression = 레벨 표정({parts}), art = 그림 파일 목록.
 // options: transparent(배경 없음) · solid(배경 색) · label(접근성 이름)
@@ -198,12 +205,16 @@ export function characterSvg(dj={},look={},{items={},expression=null,art=null,tr
  const worn={...(look?.worn||{})};if(look?.trick?.item&&look.trick.slot)worn[look.trick.slot]=look.trick.item;
  const parts=new Set(Array.isArray(expression?.parts)?expression.parts:[]);
  const eyesKey=[...parts].find(p=>p.startsWith('eyes:'))?.slice(5)||dj.eyes||'round',mouthKey=[...parts].find(p=>p.startsWith('mouth:'))?.slice(6)||dj.mouth||'smile';
+ // 한 칸의 그림 파일. 남자 캐릭터는 남자 옷 그림({시즌}_m_{칸}_{옷id}.png, 2026-10-08 그림 v2)이 있으면 그것을, 없으면 같은 옷의 기본 그림
+ const fileOf=slot=>{
+  const id=worn[slot];if(!id)return null;const meta=items[id]||{};const season=meta.season||BASE_SEASON;
+  const male=!meta.reward&&c.g==='m'?`${season}_m_${slot}_${id}.png`:null;
+  return{id,meta,season,file:meta.reward?`reward_${id}.png`:male&&hasFile(art,season,male)?male:`${season}_${slot}_${id}.png`};
+ };
+ const hasPng=slot=>{const f=fileOf(slot);return Boolean(f&&hasFile(art,f.season,f.file));};
  // 옷 한 칸: PNG(시즌 폴더) → SVG 자리 그림 → 이름 자리 표시
  const item=(slot,{back=null}={})=>{
-  const id=worn[slot];if(!id)return'';const meta=items[id]||{};const season=meta.season||BASE_SEASON;
-  // 남자 캐릭터는 남자 옷 그림({시즌}_m_{칸}_{옷id}.png, 2026-10-08 그림 v2)이 있으면 그것을, 없으면 같은 옷의 기본 그림
-  const male=!meta.reward&&c.g==='m'?`${season}_m_${slot}_${id}.png`:null;
-  const file=meta.reward?`reward_${id}.png`:male&&(art?.files?.[season]||[]).includes(male)?male:`${season}_${slot}_${id}.png`;
+  const f=fileOf(slot);if(!f)return'';const{id,meta,season,file}=f;
   const isBack=backOf(art,season,file,id);if(back!==null&&isBack!==back)return'';
   const png=pngLayer(art,season,file,c);if(png)return `<g data-slot="${slot}">${png}</g>`;
   return `<g data-slot="${slot}">${ITEMS[id]?ITEMS[id](c):placeholder(meta.name||id,slot)}</g>`;
@@ -216,14 +227,20 @@ export function characterSvg(dj={},look={},{items={},expression=null,art=null,tr
  const hairFront=base(`hair_${dj.hair}_front.png`,`<g fill="${c.hair}"${s6}>${h.front}</g>${h.extra||''}`,{tint:'hair'});
  const over=key=>parts.has(key)?base(`exp_${key.slice(4)}.png`,EXPRESSION_ART[key]()):'';
  const eyes=base(`eyes_${eyesKey}.png`,eyesSvg(eyesKey));
+ // 그림 v2 겹치는 순서(Codex 기술연결가이드 3, 아래에서 위로): 배경 → 오라 → 뒤 겉옷(날개·거미 다리) → 뒷머리 → 몸 → 하의 → 상의(전신 의상이면 숨김)
+ //  → 전신 의상·멜빵 → 신발 → 앞 겉옷 → 목 → 눈·코·입 → 얼굴 장식 → 표정 효과 → 앞머리 → 머리 장식 → 손 소품 → 그 손 → 둥실 하트
+ const skin=SKIN_COLORS[dj.skin]?dj.skin:'s2',full=FULL_OUTFITS.has(worn.bottom),late=full||OVERALLS.has(worn.bottom);
+ const noShoes=`base_${c.g}_${skin}_no_shoes.png`,shoes=hasPng('shoes')&&hasFile(art,BASE_SEASON,noShoes);
+ const side=hasPng('hand')?HAND_SIDE[worn.hand]:null,hand=side?pngLayer(art,BASE_SEASON,`base_${c.g}_${skin}_hand_${side}.png`,c)||'':'';
  let o='';
  o+=worn.bg?item('bg'):(transparent?'':`<rect width="1024" height="1024" style="fill:${solid}"/>`);
  o+=item('aura');o+=item('outer',{back:true});
- o+=hairBack+base(`base_${c.g}_${dj.skin||'s2'}.png`,bodySvg(c));
- for(const slot of LAYER_ORDER)o+=slot==='outer'?item('outer',{back:false}):item(slot);
+ o+=hairBack+base(shoes?noShoes:`base_${c.g}_${skin}.png`,bodySvg(c));
+ if(!late)o+=item('bottom');if(!full)o+=item('top');if(late)o+=item('bottom');
+ o+=item('shoes')+item('outer',{back:false})+item('neck');
  o+=eyes+base(`nose_${dj.nose||'dot'}.png`,noseSvg(dj.nose))+base(`mouth_${mouthKey}.png`,mouthSvg(mouthKey));
- o+=over('exp-blush')+over('exp-sparkle')+over('exp-tears');
- o+=hairFront+item('hand')+item('face')+item('head')+over('exp-floating-hearts');
+ o+=item('face')+over('exp-blush')+over('exp-sparkle')+over('exp-tears');
+ o+=hairFront+item('head')+item('hand')+hand+over('exp-floating-hearts');
  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img"${label?` aria-label="${esc(label)}"`:' aria-hidden="true"'}><defs>${defs(c)}${tint}</defs>${o}</svg>`;
 }
 // 상점 칸의 옷 하나(옷만, 배경은 옅게). 배경 옷은 그 배경 그대로.
