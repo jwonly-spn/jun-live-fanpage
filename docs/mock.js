@@ -92,9 +92,9 @@ function kiugiDemo() {
     return { nickname, level, love, worn: outfits[i % outfits.length] };
   });
   return {
-    slug: KIUGI_DEMO.slug, name: '도담', paused: false, count: people.length, updatedAt: ago(0.1),
+    slug: KIUGI_DEMO.slug, name: '먼치', paused: false, count: people.length, updatedAt: ago(0.1),
     season: { id: 's1', name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' },
-    character: { name: '도담', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2', eyes: 'sparkle', nose: 'dot', mouth: 'smile' },
+    character: { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2', eyes: 'sparkle', nose: 'dot', mouth: 'smile' },
     top: people.slice(0, 3).map((p, i) => ({ rank: i + 1, ...p })), people,
   };
 }

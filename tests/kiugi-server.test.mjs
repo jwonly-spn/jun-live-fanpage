@@ -23,7 +23,7 @@ function signed(key, payload, { at = T0, nonce = crypto.randomBytes(24).toString
   return body;
 }
 const PERSON = (n, love, extra = {}) => ({ nickname: '팬' + n, level: 1 + Math.min(9, Math.floor(love / 100)), love, worn: { head: 'cat-ears' }, ...extra });
-const PAYLOAD = (people = [PERSON(1, 50), PERSON(2, 300), PERSON(3, 120)]) => ({ enabled: true, v: 1, at: T0, paused: false, season: { id: 's1', name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, character: { name: '도담', gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' }, people, top: [] });
+const PAYLOAD = (people = [PERSON(1, 50), PERSON(2, 300), PERSON(3, 120)]) => ({ enabled: true, v: 1, at: T0, paused: false, season: { id: 's1', name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, character: { name: '먼치', gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' }, people, top: [] });
 
 function memoryStore(clock) {
   const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), calls: [] };
@@ -61,7 +61,7 @@ test('검사: 청취자 줄은 닉네임·레벨·애정도·입은 옷만, 이�
     PERSON(1, 50, { tag: 'jl-1', nyang: 10, userId: 3 }), PERSON(2, 300), { nickname: '  ', level: 1, love: 1 }, { nickname: 'x', level: 0, love: 1 }, { nickname: 'y', level: 1, love: -1 },
     { nickname: '\u202e가짜\u200b 이름 ', level: 2, love: 120, worn: { head: 'witch-hat', Bad: 'x', face: '<script>', bg: 'halloween-night', aura: 'moonlight-aura' } }, PERSON(4, 300)
   ]));
-  assert.equal(s.enabled, true); assert.equal(s.count, 4); assert.equal(s.name, '도담');
+  assert.equal(s.enabled, true); assert.equal(s.count, 4); assert.equal(s.name, '먼치');
   assert.deepEqual(s.people.map((p) => p.nickname), ['팬2', '팬4', '가짜 이름', '팬1']);
   assert.deepEqual(s.people[2].worn, { head: 'witch-hat', bg: 'halloween-night', aura: 'moonlight-aura' });
   assert.equal(s.people[2].k, '가짜이름');
@@ -77,7 +77,7 @@ test('검사: 청취자 줄은 닉네임·레벨·애정도·입은 옷만, 이�
   const big = v.snapshot(PAYLOAD(Array.from({ length: 3100 }, (_, i) => PERSON(i, 5000 - i))));
   assert.equal(big.count, 3000); assert.equal(big.people.at(-1).nickname, '팬2999');
   // 캐릭터는 이름표에 맞는 모양 열쇠만
-  assert.deepEqual(v.character({ name: '도담', hair: 'bob', skin: 'S2', evil: 'x', eyes: '<b>' }), { name: '도담', hair: 'bob' });
+  assert.deepEqual(v.character({ name: '먼치', hair: 'bob', skin: 'S2', evil: 'x', eyes: '<b>' }), { name: '먼치', hair: 'bob' });
   assert.deepEqual(v.character({ name: '두부', gender: 'm', hair: 'm_two-block' }), { name: '두부', gender: 'm', hair: 'm_two-block' }, '성별 머리 열쇠(밑줄)');
   assert.deepEqual(v.worn({ head: 'm_witch-hat', top: 'a b' }), { head: 'm_witch-hat' });
 });

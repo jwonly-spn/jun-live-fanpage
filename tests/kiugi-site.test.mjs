@@ -43,7 +43,7 @@ test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 �
   assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/s1/a.png"/><g style="opacity:.5"/></svg>', B),
     '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/s1/a.png"/><g/></svg>');
   const c = await catalog();
-  const svg = characterMarkup(c, { name: '도담', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { head: 'witch-hat', aura: 'moonlight-aura', face: '<script>' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
+  const svg = characterMarkup(c, { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { head: 'witch-hat', aura: 'moonlight-aura', face: '<script>' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
   assert.doesNotMatch(svg, / style="/); assert.match(svg, new RegExp(`fill="${STAGE}"`));
   assert.match(svg, /href="\/jun-live-fanpage\/kiugi\/s1\/base_f_s2\.png"/); assert.match(svg, /href="\/jun-live-fanpage\/kiugi\/s1\/s1_head_witch-hat\.png"/);
   assert.doesNotMatch(svg, /href="\/kiugi\//);
@@ -70,6 +70,6 @@ test('화면 글: 순위·레벨 표정·애정도, 시즌 끝나는 날', async
   assert.deepEqual(personLine({ rank: 4, nickname: '사탕요정', level: 7, love: 2345 }, c, 's1'), { title: '4등 · 사탕요정', sub: 'Lv.7 두근두근 · 애정도 2,345' });
   assert.equal(seasonLine({ name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, Date.parse('2026-10-20T00:00:00Z')), '할로윈 시즌 · 11월 30일까지');
   assert.equal(seasonLine(null), '다음 시즌 준비 중');
-  assert.equal(josa('도담', '을', '를'), '도담을'); assert.equal(josa('두부', '을', '를'), '두부를');
-  assert.equal(josa('도담', '이', '가'), '도담이'); assert.equal(josa('DJ', '이', '가'), 'DJ가'); assert.equal(josa('루나7', '이', '가'), '루나7이');
+  assert.equal(josa('먼치킨', '을', '를'), '먼치킨을'); assert.equal(josa('두부', '을', '를'), '두부를');
+  assert.equal(josa('먼치킨', '이', '가'), '먼치킨이'); assert.equal(josa('DJ', '이', '가'), 'DJ가'); assert.equal(josa('루나7', '이', '가'), '루나7이');
 });
