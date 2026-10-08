@@ -9,7 +9,14 @@
 // 문서(DOM) 없이 글만 만든다(노드 시험에서 바로 불러 쓴다).
 export const BASE_SEASON='s1';
 export const SKIN_COLORS=Object.freeze({s1:'#FCE3D3',s2:'#F6CFAE',s3:'#E3AC84',s4:'#C68A62',s5:'#8D5A3D'});
-export const HAIR_COLORS=Object.freeze({black:'#2B2420',brown:'#6B4226',light:'#A8713F',blond:'#E8C268',pink:'#F29CB8',purple:'#9B7BD8',sky:'#7BC4E8',silver:'#C9CED6'});
+// 머리색: 회색 머리 그림에 이 색을 곱한다(Codex 그림 패키지 기술연결가이드 7 — 결과 = 원본 × 색 ÷ 255, 2026-10-08).
+//  예전(진한 색 + 밝히기)보다 머리결이 살아 있다. cocoa·charcoal·beige·lilac 은 패키지 권장값.
+export const HAIR_COLORS=Object.freeze({black:'#55434C',brown:'#A07052',light:'#C2A476',blond:'#F2D58E',pink:'#F5A6C0',purple:'#9B87AE',sky:'#92CCF0',silver:'#F0F2F6'});
+// 머리색 고르기 칸의 동그라미 색(화면 전용): 곱하기 색 그대로 칠하면 실제 머리보다 너무 밝다(검정이 회보라, 은발이 흰 바탕에 안 보임).
+//  회색 머리 그림의 보통 밝기(약 0.8)를 곱해 그려진 머리와 비슷하게 맞춘다. 그림에는 HAIR_COLORS 를 쓴다.
+export const HAIR_SWATCH_GRAY=0.8;
+export const hairSwatch=hex=>{const m=/^#([0-9a-f]{6})$/i.exec(String(hex||''));if(!m)return'#808080';return '#'+[0,2,4].map(i=>Math.round(parseInt(m[1].slice(i,i+2),16)*HAIR_SWATCH_GRAY).toString(16).padStart(2,'0').toUpperCase()).join('');};
+export const HAIR_SWATCHES=Object.freeze(Object.fromEntries(Object.entries(HAIR_COLORS).map(([k,v])=>[k,hairSwatch(v)])));
 const OUT='#4A3426',EYE='#2E2433';
 const s5=` stroke="${OUT}" stroke-width="5" stroke-linejoin="round"`,s6=` stroke="${OUT}" stroke-width="6" stroke-linejoin="round"`;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -222,7 +229,9 @@ export function characterSvg(dj={},look={},{items={},expression=null,art=null,tr
  const base=(file,svg,opts)=>pngLayer(art,BASE_SEASON,file,c,opts)??svg;
  // 그림 v2 의 새 머리(f_*·m_*)는 그림 파일이 없을 때 비슷한 자리 그림으로(여자 머리 → 긴 생머리, 남자 머리 → 짧은 머리)
  const h=HAIR_SHAPES[dj.hair]||(String(dj.hair||'').startsWith('m_')?HAIR_SHAPES.short:String(dj.hair||'').startsWith('f_')?HAIR_SHAPES.long:null)||HAIR_SHAPES.bob;
- const tint=`<filter id="${c.id}hair" color-interpolation-filters="sRGB"><feComponentTransfer in="SourceGraphic" result="lift"><feFuncR type="linear" slope="1.18"/><feFuncG type="linear" slope="1.18"/><feFuncB type="linear" slope="1.18"/></feComponentTransfer><feFlood flood-color="${c.hair}" result="ink"/><feComposite in="ink" in2="SourceAlpha" operator="in" result="mask"/><feBlend in="lift" in2="mask" mode="multiply" result="dyed"/><feComposite in="dyed" in2="SourceAlpha" operator="in"/></filter>`;
+ // 머리 그림(회색)에 머리색을 곱한다: 채널마다 원본 × 색/255, 투명도는 그대로(Codex 기술연결가이드 7과 같은 셈)
+ const mul=[1,3,5].map(i=>(parseInt(c.hair.slice(i,i+2),16)/255).toFixed(4));
+ const tint=`<filter id="${c.id}hair" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="${mul[0]} 0 0 0 0 0 ${mul[1]} 0 0 0 0 0 ${mul[2]} 0 0 0 0 0 1 0"/></filter>`;
  const hairBack=base(`hair_${dj.hair}_back.png`,h.back?`<g fill="${c.hair}"${s6}>${h.back}</g>`:'',{tint:'hair'});
  const hairFront=base(`hair_${dj.hair}_front.png`,`<g fill="${c.hair}"${s6}>${h.front}</g>${h.extra||''}`,{tint:'hair'});
  const over=key=>parts.has(key)?base(`exp_${key.slice(4)}.png`,EXPRESSION_ART[key]()):'';
