@@ -5,7 +5,7 @@ import { h, icon, store } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { relativeTime, formatDate } from '../lib/text.js';
 import { loadCatalog, buildCatalog, expressionFor } from '../lib/kiugi-draw.js';
-import { ilink, loading, errorBox, share } from './common.js';
+import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, BRAND } from './common.js';
 import { art, heartText, baseOf } from './cards.js';
 
 const MEDALS = ['🥇', '🥈', '🥉'];
@@ -41,11 +41,11 @@ export function checkQuery(q) {
 }
 
 export async function renderKiugi(root, route, app) {
-  document.title = 'DJ 키우기';
+  document.title = `DJ 키우기 · ${BRAND}`;
   store.remove('kg_nick'); // 예전 판이 이 기기에 남긴 찾기 글은 지운다
-  const shell = h('div', { class: 'fp kg-site' });
+  const night = h('div', { class: 'kg-night' }, ...nightTop(app));
   const main = h('main', { id: 'main', class: 'fp-main kg-main', tabindex: '-1' }, loading());
-  shell.append(main);
+  const shell = h('div', { class: 'fp kg-site' }, night, main);
   root.replaceChildren(shell);
   let page;
   const catalogJob = loadCatalog(app.base).catch(() => buildCatalog([]));
@@ -54,37 +54,34 @@ export async function renderKiugi(root, route, app) {
   const catalog = await catalogJob;
   const name = page.name || page.character?.name || 'DJ';
   const seasonId = page.season?.id || null;
-  document.title = `${name} 키우기`;
+  document.title = `${name} 키우기 · ${BRAND}`;
   const href = location.origin + app.link({ name: 'kiugi', slug: page.slug });
   const ctx = { app, catalog, character: page.character, seasonId, slug: page.slug, name };
+  const shareBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '공유하기', onclick: () => share(href, `${name} 키우기`) }, icon('share'));
 
-  shell.replaceChildren(
-    h('header', { class: 'fp-top' },
-      ilink(app.link({ name: 'kiugi', slug: page.slug }), { class: 'fp-brand' }, `${name} 키우기`),
-      h('button', { type: 'button', class: 'icon-btn', 'aria-label': '공유하기', onclick: () => share(href, `${name} 키우기`) }, icon('share'))),
-    main);
-  const hero = h('section', { class: 'card pad kg-hero' },
-    h('div', { class: 'kg-hero-text' },
-      h('span', { class: 'chip-soft' }, (page.season ? '🎃 ' : '🍂 ') + seasonLine(page.season)),
-      h('h1', { class: 'display' }, `${name} 키우기`),
-      h('p', { class: 'muted' }, page.paused ? '다음 시즌을 준비하고 있어요. 새 시즌이 시작되면 다시 만나요!' : `방송에서 모은 냥으로 청취자마다 자기 ${josa(name, '을', '를')} 꾸며요.`)),
-    h('div', { class: 'kg-hero-art' }, art(catalog, page.character, {}, 1, { seasonId, base: app.base, label: `${name} 캐릭터`, eager: true })));
-  main.replaceChildren(hero);
+  night.replaceChildren(...nightTop(app, { actions: [shareBtn] }),
+    h('div', { class: 'kg-wrap' },
+      h('section', { class: 'kg-hero dj' },
+        h('div', { class: 'kg-hero-copy' },
+          h('span', { class: 'kg-pill season' }, (page.season ? '🎃 ' : '🍂 ') + seasonLine(page.season)),
+          h('h1', { class: 'display' }, `${name} 키우기`),
+          h('p', { class: 'intro' }, page.paused ? '다음 시즌을 준비하고 있어요. 새 시즌이 시작되면 다시 만나요!' : `방송에서 모은 냥으로 청취자마다 자기 ${josa(name, '을', '를')} 꾸며요.`),
+          h('p', { class: 'kg-hero-stats' }, `참여한 청취자 ${fmt(page.count)}명 · ${relativeTime(page.updatedAt) || '조금 전'} 업데이트`)),
+        h('div', { class: 'kg-hero-art' }, art(catalog, page.character, {}, 1, { seasonId, base: app.base, label: `${name} 캐릭터`, eager: true, kind: 'night' })))));
+  main.replaceChildren();
   if (!page.paused) main.append(findCard(page, ctx), topCard(page, ctx));
   main.append(howCard(name));
-  shell.append(h('footer', { class: 'fp-foot kg-foot' },
-    h('p', null, `참여한 청취자 ${fmt(page.count)}명 · ${relativeTime(page.updatedAt) || '조금 전'} 업데이트`),
-    h('p', null, '이 페이지에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 아이디를 빼고 싶으면 DJ에게 말해 주세요.'),
-    h('p', null, ilink(app.link({ name: 'intro' }), { class: 'kg-foot-link' }, '먼치킨 키우기 메인'), ' · 스푼이 만든 서비스가 아니에요')));
+  shell.append(siteFoot(app, '이 페이지에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 아이디를 빼고 싶으면 DJ에게 말해 주세요.'));
 }
 
 function missing(e, retry, app) {
   const notFound = e.status === 404;
-  return h('div', { class: 'fp-missing' },
+  return h('div', { class: 'kg-panel fp-missing' },
     h('h1', { class: 'sec-title' }, e.closed ? '키우기 페이지가 닫혀 있어요' : notFound ? '키우기 페이지를 찾을 수 없어요' : '키우기 페이지를 열지 못했어요'),
     h('p', { class: 'muted' }, e.closed ? 'DJ가 지금은 키우기 페이지를 닫아 두었어요. 다시 열리면 이 주소로 볼 수 있어요.' : notFound ? '주소가 맞는지 확인해 주세요.' : e.message),
-    notFound ? null : h('button', { type: 'button', class: 'btn btn-line', onclick: retry }, '다시 해 보기'),
-    ilink(app.link({ name: 'intro' }), { class: 'btn btn-line' }, '먼치킨 키우기 메인으로'));
+    h('div', { class: 'row wrap gap' },
+      notFound ? null : h('button', { type: 'button', class: 'btn btn-line', onclick: retry }, '다시 해 보기'),
+      ilink(app.link({ name: 'intro' }), { class: 'btn btn-accent' }, `${BRAND} 메인으로`)));
 }
 
 // 내 아이디로 찾기(마지막으로 찾은 아이디는 이 기기에 기억해 다음에 바로 보여 준다)
@@ -94,9 +91,9 @@ function findCard(page, ctx) {
   input.value = store.get(saved, '') || '';
   const status = h('p', { class: 'form-status', role: 'status', 'aria-live': 'polite' });
   const results = h('div', { class: 'kg-results' });
-  const submit = h('button', { type: 'submit', class: 'btn btn-accent' }, '찾기');
+  const submit = h('button', { type: 'submit', class: 'btn btn-accent' }, icon('search', { size: 18 }), '찾기');
   const form = h('form', { class: 'kg-find', role: 'search', novalidate: true },
-    h('label', { for: 'kg_q', class: 'kg-find-label' }, '내 아이디'),
+    h('label', { for: 'kg_q', class: 'sr-only' }, '내 아이디'),
     h('div', { class: 'kg-find-row' }, input, submit), status);
   let seq = 0;
   async function search(q) {
@@ -121,9 +118,9 @@ function findCard(page, ctx) {
   }
   form.addEventListener('submit', (e) => { e.preventDefault(); void search(input.value); });
   if (input.value) queueMicrotask(() => void search(input.value));
-  return h('section', { class: 'card pad stack kg-find-card', id: 'find' },
-    h('h2', { class: 'sec-title' }, '내 아이디로 찾기'),
-    h('p', { class: 'muted small', id: 'kg_q_help' }, '방송에서 !아이디 로 만든 아이디를 적어 주세요(시즌마다 새로 만들어요).'),
+  return h('section', { class: 'kg-panel kg-search', id: 'find' },
+    secHead('내 아이디로 찾기', ''),
+    h('p', { class: 'kg-help', id: 'kg_q_help' }, '방송에서 !아이디 로 만든 아이디를 적어 주세요(시즌마다 새로 만들어요).'),
     form, results);
 }
 
@@ -136,35 +133,35 @@ function resultItem(p, ctx, found) {
       found ? h('span', { class: 'eyebrow' }, '찾았어요!') : null,
       h('b', null, line.title),
       h('span', { class: 'muted small' }, line.sub),
-      h('span', { class: 'kg-result-go' }, '캐릭터 보기 ›')));
+      h('span', { class: 'kg-result-go' }, '캐릭터 보기', icon('arrow', { size: 16 }))));
 }
 
+// 이번 시즌 1~3등: 시상대(2등 · 1등 · 3등 차례로 보이고, 읽는 차례는 1·2·3등)
 function topCard(page, ctx) {
   const top = Array.isArray(page.top) ? page.top.slice(0, 3) : [];
-  return h('section', { class: 'card pad stack', 'aria-labelledby': 'kg_top' },
-    h('h2', { class: 'sec-title', id: 'kg_top' }, '이번 시즌 1~3등'),
-    h('p', { class: 'muted small' }, '애정도(이번 시즌에 받은 냥)가 높은 순서예요. 애정도 숫자는 지금은 보여 주지 않아요.'),
+  return h('section', { class: 'kg-sec', 'aria-labelledby': 'kg_top' },
+    secHead('이번 시즌 1~3등', '애정도(이번 시즌에 받은 냥)가 높은 순서예요. 애정도 숫자는 지금은 보여 주지 않아요.', null, { id: 'kg_top' }),
     top.length
-      ? h('ol', { class: 'kg-top' }, ...top.map((p, i) => h('li', { class: 'kg-top-item' },
-        ilink(ctx.app.link({ name: 'character', slug: ctx.slug, base: baseOf(p.id) }), { class: 'kg-top-link', 'aria-label': `${i + 1}등 ${p.id} 캐릭터 보기` },
+      ? h('ol', { class: 'kg-podium' }, ...top.map((p, i) => h('li', { class: `kg-podium-one p${i + 1}` },
+        ilink(ctx.app.link({ name: 'character', slug: ctx.slug, base: baseOf(p.id) }), { class: 'kg-podium-link', 'aria-label': `${i + 1}등 ${p.id} 캐릭터 보기` },
+          h('span', { class: 'kg-podium-medal', 'aria-hidden': 'true' }, MEDALS[i] || ''),
           art(ctx.catalog, ctx.character, p.worn, p.level, { seasonId: ctx.seasonId, base: ctx.app.base, label: `${i + 1}등 ${p.id} 캐릭터`, eager: true }),
-          h('b', null, `${MEDALS[i] || ''} ${i + 1}등`),
-          h('span', { class: 'kg-top-name' }, p.id),
-          h('span', { class: 'muted small' }, `Lv.${p.level} ${expressionFor(ctx.catalog, ctx.seasonId, p.level).name}`),
-          h('span', { class: 'kg-card-hearts' }, heartText(p.hearts))))))
+          h('b', { class: 'kg-podium-name' }, p.id),
+          h('span', { class: 'kg-podium-sub' }, `Lv.${p.level} ${expressionFor(ctx.catalog, ctx.seasonId, p.level).name}`),
+          h('span', { class: 'kg-heart-pill inline' }, heartText(p.hearts)),
+          h('span', { class: 'kg-podium-step', 'aria-hidden': 'true' }, `${i + 1}`)))))
       : h('p', { class: 'empty' }, '아직 순위가 없어요. 방송에서 냥을 모아 보세요!'));
 }
 
 function howCard(name) {
   const cmd = (t) => h('code', { class: 'kg-cmd' }, t);
-  return h('section', { class: 'card pad stack' },
-    h('h2', { class: 'sec-title sm' }, '어떻게 키워요?'),
-    h('ul', { class: 'kg-how' },
-      h('li', null, '먼저 방송 채팅에 ', cmd('!아이디 먼치팬'), ' 처럼 쳐서 이번 시즌 아이디를 만들어요(한글 1~6자). 이 페이지에는 ', cmd(`먼치팬#${name}`), ' 처럼 보여요.'),
-      h('li', null, '방송에서 채팅·좋아요·하트·스푼·출석으로 냥을 모아요.'),
-      h('li', null, '채팅에 ', cmd(`!${name} 상점 머리`), ' 처럼 치면 그 칸의 옷이 번호와 함께 나와요. ', cmd(`!${name} 머리1`), ' (또는 옷 이름)으로 사면 바로 입고, 가진 옷이면 입기만 해요.'),
-      h('li', null, '애정도가 오르면 레벨이 오르고 표정이 바뀌어요(Lv.10까지).'),
-      h('li', null, '방송 중에 내 ', name, ' 보기: ', cmd(`!${name}`), ' · 순위: ', cmd(`!${name} 순위`)),
-      h('li', null, '마음에 드는 캐릭터에게는 캐릭터 페이지에서 하루 한 번 하트를 보낼 수 있어요.')),
+  const step = (n, title, ...body) => h('li', { class: 'kg-step' }, h('span', { class: 'kg-step-n', 'aria-hidden': 'true' }, n), h('b', null, title), h('p', null, ...body));
+  return h('section', { class: 'kg-sec' },
+    secHead('어떻게 키워요?', `방송 채팅에 이렇게 쳐 보세요. ${name} 대신 다른 말을 치면 답하지 않아요.`),
+    h('ol', { class: 'kg-steps' },
+      step('1', '아이디 만들기', cmd('!아이디 먼치팬'), ' 처럼 쳐서 이번 시즌 아이디를 만들어요(한글 1~6자). 이 페이지에는 ', cmd(`먼치팬#${name}`), ' 처럼 보여요.'),
+      step('2', '냥 모으기', '방송에서 채팅·좋아요·하트·스푼·출석으로 냥을 모아요. 애정도가 오르면 레벨이 오르고 표정이 바뀌어요(Lv.10까지).'),
+      step('3', '옷 입히기', cmd(`!${name} 상점 머리`), ' 처럼 치면 그 칸의 옷이 번호와 함께 나와요. ', cmd(`!${name} 머리1`), ' (또는 옷 이름)으로 사면 바로 입고, 가진 옷이면 입기만 해요.'),
+      step('4', '보고 응원하기', '방송 중에 내 ', name, ' 보기: ', cmd(`!${name}`), ' · 순위: ', cmd(`!${name} 순위`), '. 마음에 드는 캐릭터에게는 캐릭터 페이지에서 하루 한 번 하트를 보낼 수 있어요.')),
     h('p', { class: 'note' }, '냥은 현금·스푼으로 바꿀 수 없어요. 시즌이 끝나면 아이디도 냥도 새로 시작하고 시즌 보상만 남아요. 이 페이지는 5분쯤마다 새로 올라와요.'));
 }

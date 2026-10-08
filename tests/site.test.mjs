@@ -60,22 +60,43 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
   }
 });
 
-test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글', async () => {
+test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이트 이름 "스푼 DJ 키우기"와 비공식 표시(맨 위·아래)', async () => {
   const index = await text('index.html');
   assert.equal(await text('404.html'), index);
-  assert.match(index, /<title>먼치킨 키우기<\/title>/);
+  assert.match(index, /<title>스푼 DJ 키우기<\/title>/);
+  assert.match(index, /스푼 공식 서비스가 아니에요/, '검색 설명에도 비공식');
   assert.match(index, /script-src 'self'/); assert.match(index, /connect-src 'self' https:\/\/aksegkhhugqvvaidgvro\.supabase\.co/);
+  assert.match(index, /family=Jua/, '둥근 제목 글씨');
+  const common = await import('../docs/views/common.js');
+  assert.equal(common.BRAND, '스푼 DJ 키우기');
+  assert.equal(common.UNOFFICIAL, '스푼 공식 서비스가 아니에요');
+  assert.match(common.DISCLAIMER, /스푼\(Spoon\)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요/);
+  const commonSrc = await text('views/common.js');
+  assert.match(commonSrc, /'kg-unofficial' \}, UNOFFICIAL/, '맨 위 비공식 한 줄');
+  assert.match(commonSrc, /'fp-foot-legal' \}, DISCLAIMER/, '맨 아래 비공식 안내');
+  for (const f of ['views/intro.js', 'views/kiugi.js', 'views/character.js', 'views/items.js']) {
+    const src = await text(f);
+    assert.match(src, /nightTop\(app/, f + ': 맨 위 비공식 한 줄이 있는 머리줄');
+    assert.match(src, /siteFoot\(app/, f + ': 바닥글');
+    assert.doesNotMatch(src, /먼치킨 키우기/, f + ': 예전 사이트 이름 없음');
+  }
   const intro = await text('views/intro.js');
-  assert.match(intro, /'먼치킨 키우기'/, '메인 제목');
-  assert.match(intro, /DJ가 알려 준 키우기 주소로 들어가면 청취자들이 꾸민 캐릭터를 볼 수 있어요\./);
-  assert.match(intro, /스푼이 만든 서비스가 아니에요/);
   assert.match(intro, /\?demo=1/);
   assert.match(intro, /팬페이지 서비스를 마쳤어요/);
-  for (const title of ['지금 인기 있는 캐릭터', '새로 꾸민 캐릭터', '많이 입은 옷 TOP 5', '키우기 중인 DJ', '아이디로 찾기']) assert.ok(intro.includes(title), title);
-  // 메인은 칸 목록으로 그린다: 시즌 띠 · 찾기 · 인기 · 새로 꾸민 · 옷 TOP 5 · DJ · 예시
-  const { LANDING_SECTIONS, EMPTY_POPULAR } = await import('../docs/views/intro.js');
-  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['heroSection', 'seasonSection', 'searchSection', 'popularSection', 'recentSection', 'topItemsSection', 'djsSection', 'aboutSection']);
+  for (const title of ['지금 인기 있는 캐릭터', '새로 꾸민 캐릭터', '이렇게 키워요', '많이 입은 옷 TOP 5', '키우기 중인 DJ', '아이디로 찾기']) assert.ok(intro.includes(title), title);
+  // 메인: 밤하늘 첫 화면(heroSection) 아래 칸 목록 — 찾기 · 인기 · 새로 꾸민 · 이렇게 키워요 · 옷 TOP 5 · DJ · 예시
+  const { LANDING_SECTIONS, EMPTY_POPULAR, HERO_TEXT, heroSection } = await import('../docs/views/intro.js');
+  assert.equal(typeof heroSection, 'function');
+  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['searchSection', 'popularSection', 'recentSection', 'howSection', 'topItemsSection', 'djsSection', 'aboutSection']);
   assert.match(EMPTY_POPULAR, /첫 하트/);
+  assert.match(HERO_TEXT, /하트/);
+});
+
+test('모양: 보안 규칙상 style 속성을 쓰지 않고, 화면 클래스는 styles.css 에 있다', async () => {
+  const css = await text('styles.css');
+  for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-cast', 'kg-panel', 'kg-card', 'kg-rank-badge', 'kg-heart-pill', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-podium', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal'])
+    assert.match(css, new RegExp(`\\.${cls}[\\s{.:,\\[]`), cls);
+  for (const f of await siteScripts()) assert.doesNotMatch(await text(f), /\bstyle:\s*['"`]|setAttribute\(\s*['"]style/, f + ': style 속성 없음');
 });
 
 test('화면에 애정도 숫자를 쓰지 않는다(레벨과 표정 이름만)', async () => {

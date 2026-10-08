@@ -30,6 +30,10 @@ export function append(el, children) {
 // 아이콘(고정 모양만)
 const ICONS = {
   share: ['M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7', 'M12 3v12', 'M7 8l5-5 5 5'],
+  search: ['M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z', 'M21 21l-5.2-5.2'],
+  arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
+  book: ['M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h14', 'M8 7h8'],
+  headphones: ['M4 15v-3a8 8 0 0 1 16 0v3', 'M4 15a2 2 0 0 1 2-2h1v7H6a2 2 0 0 1-2-2Z', 'M20 15a2 2 0 0 0-2-2h-1v7h1a2 2 0 0 0 2-2Z'],
 };
 
 const SVGNS = 'http://www.w3.org/2000/svg';

@@ -1,7 +1,7 @@
 // DJ 키우기 그림(사이트) — 먼치킨과 같은 그림 규칙 kiugi-art.js 를 그대로 쓴다(docs/kiugi/: 먼치킨 저장소의 tools/sync-kiugi-site.mjs 가 복사한다).
 // 사이트 보안 규칙(CSP: 인라인 style 금지)과 사이트 주소(BASE) 때문에 그린 SVG 글을 조금 고친다(cspSafeSvg).
 // DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 그대로 불러 쓴다).
-import { characterSvg } from '../kiugi/kiugi-art.js';
+import { characterSvg, itemSvg } from '../kiugi/kiugi-art.js';
 
 export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
@@ -70,11 +70,16 @@ export function cspSafeSvg(svg, base = '/') {
     .replace(/ style="[^"]*"/g, '');
 }
 
-// 캐릭터 한 장(글): DJ 캐릭터에 청취자가 입힌 옷, 레벨 표정
+// 캐릭터 한 장(글): DJ 캐릭터에 청취자가 입힌 옷, 레벨 표정. stage: 바탕 색 · null 이면 바탕 없이(화면의 무대 그림이 보인다 — 배경 옷을 입으면 그 배경)
 export function characterMarkup(catalog, character, worn, level, { seasonId = null, base = '/', label = '', stage = STAGE } = {}) {
   const svg = characterSvg(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} },
-    { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage, label });
+    { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage || STAGE, transparent: stage === null, label });
   return cspSafeSvg(svg, base);
+}
+// 옷 한 벌만(글): 옷 도감·입은 옷 칸. gender 'm' 이면 남자 캐릭터용 그림이 있는 옷은 그 그림(상의·하의·겉옷·신발)
+export function itemMarkup(catalog, id, { base = '/', label = '', gender = 'f' } = {}) {
+  // 옷 그림 뒤의 옅은 바탕 사각형은 빼서 화면의 무대 그림이 보이게 한다(배경 옷은 바탕이 없어 그대로)
+  return cspSafeSvg(itemSvg(id, { items: catalog?.items || {}, art: catalog?.art || null, label, gender }), base).replace(/<rect x="-200" y="-200" width="1424" height="1424"[^>]*\/>/, '');
 }
 
 // 글 → 화면에 넣을 SVG 요소(XML 로 읽는다 — innerHTML 을 쓰지 않는다). 읽지 못하면 null.
