@@ -1,4 +1,5 @@
 // 시작점: 주소를 읽고 알맞은 화면을 그린다(history.pushState 방식, 새로고침 없이 이동).
+// 화면: 첫 화면(먼치킨 DJ 키우기 안내) · DJ 키우기 페이지(k/<주소>).
 import { computeBase, parseRoute, buildPath } from './lib/route.js';
 import { isDemo } from './api.js';
 
@@ -18,30 +19,15 @@ let token = 0, lastPath = location.pathname + location.search;
 async function render({ scroll = false } = {}) {
   const my = ++token;
   lastPath = location.pathname + location.search;
-  // 다른 화면으로 가면 열려 있던 사진 보기·확인 창을 닫는다(아이폰 뒤로 밀기 등).
-  for (const d of document.querySelectorAll('dialog[open]')) { try { d.close(); } catch { d.removeAttribute('open'); } }
-  document.documentElement.classList.remove('no-scroll');
   const route = parseRoute(location.pathname, BASE);
   document.body.dataset.route = route.name;
   try {
-    if (route.name === 'studio') {
-      const { renderStudio } = await import('./views/studio.js');
-      if (my === token) await renderStudio(root, app);
-    } else if (route.name === 'mobile') {
-      const { renderMobile } = await import('./views/mobile.js');
-      if (my === token) await renderMobile(root, app);
-    } else if (route.name === 'story') {
-      const { renderStory } = await import('./views/story.js');
-      if (my === token) await renderStory(root, route, app);
-    } else if (route.name === 'kiugi') {
+    if (route.name === 'kiugi') {
       const { renderKiugi } = await import('./views/kiugi.js');
       if (my === token) await renderKiugi(root, route, app);
-    } else if (route.name === 'fan') {
-      const { renderFan } = await import('./views/fan.js');
-      if (my === token) await renderFan(root, route, app);
     } else {
       const { renderIntro } = await import('./views/intro.js');
-      if (my === token) renderIntro(root, app, { notFound: route.name === 'notfound' });
+      if (my === token) renderIntro(root, app, { notice: route.name === 'intro' ? null : route.name });
     }
   } catch (e) {
     console.error(e);
@@ -69,6 +55,6 @@ document.addEventListener('click', (e) => {
   app.navigate(url.pathname + url.search + url.hash);
 });
 
-// #main 같은 같은 페이지 안 이동은 다시 그리지 않는다(쓰던 한마디가 지워지지 않게).
+// #find 같은 같은 페이지 안 이동은 다시 그리지 않는다(쓰던 찾기 글이 지워지지 않게).
 window.addEventListener('popstate', () => { if (location.pathname + location.search === lastPath) return; render(); });
 render();

@@ -1,5 +1,6 @@
-// DJ 키우기 팬페이지 — Supabase Edge Function "kiugi" (API.md "키우기 페이지").
-// JWT 확인을 끄고 올린다(verify_jwt false): 팬은 로그인하지 않고, 먼치킨은 승인받은 기기 키로 서명한다.
+// DJ 키우기 페이지 — Supabase Edge Function "kiugi" (API.md "DJ 키우기 페이지").
+// JWT 확인을 끄고 올린다(verify_jwt false): 보는 사람은 로그인하지 않고, 먼치킨은 승인받은 기기 키로 서명한다.
+// people 칸(jsonb)에는 청취자가 직접 만든 시즌 아이디·레벨·애정도·입은 옷·찾기 열쇠만 들어간다(lib.ts person).
 // 표: kg_pages(supabase/kiugi.sql). 함께 쓰는 것: junlive_devices·junlive_access_nonces(승인 서버), fp_hit·junlive_secrets(팬페이지 schema.sql).
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import * as v from './lib.ts';

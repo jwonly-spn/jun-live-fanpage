@@ -1,131 +1,59 @@
-# JUN LIVE 팬페이지 — 설계서 (API 계약)
+# 먼치킨 DJ 키우기 사이트 — 설계서 (API 계약)
 
-모든 DJ가 쓰는 팬페이지 서비스. 사이트 하나(`docs/`, GitHub Pages)에 모든 DJ의 페이지가 들어간다.
+## 바뀐 것 (2026-10-08)
 
-- 사이트 주소: `https://jwonly-spn.github.io/jun-live-fanpage/` (BASE). 팬 페이지 `BASE + 'p/<slug>'`, DJ 편집 `BASE + 'studio'`.
+스푼 답변(2026-10-08): Open API 정보는 개발사 서버에 저장할 수 없고, 청취자 정보와 이어진 팬 글도 서버에 둘 수 없다.
+
+- **팬페이지 서비스를 마쳤다.** 사이트에서 팬 페이지(`p/<주소>…`)·DJ 꾸미기(`studio`)·휴대폰 가입(`app`)·사연 보내기를 뺐다. 그 주소로 오면 "팬페이지 서비스를 마쳤어요" 안내가 나온다. 서버 함수 `fanpage`는 `GET health`만 답하고 나머지는 모두 410(아래).
+- **DJ 키우기는 청취자가 직접 만든 아이디만 쓴다.** 청취자가 DJ 방송 채팅에서 `!아이디 <한글 1~6자>`로 이번 시즌 아이디를 만들고, 먼치킨은 `<그 글자>#<DJ 캐릭터 이름>`(예: `밤톨#먼치`) 모양으로 올린다. 스푼 닉네임은 받지도 저장하지도 않는다. 올리는 내용은 v2, 예전 v1(스푼 닉네임)은 400으로 거절.
+- 사이트 첫 화면은 "먼치킨 DJ 키우기" 안내(체험 페이지 링크, "스푼이 만든 서비스가 아니에요"). 칸 목록(`views/intro.js`의 `LANDING_SECTIONS`)으로 그려서 나중에 "지금 인기 있는 캐릭터" 칸을 더할 수 있다.
+- 그대로인 것: 스푼 연결 페이지 `spoon.html`(스푼 동의 화면의 리디렉션 주소)과 함수 `spoon-link`, 표 `kg_pages`(people 은 jsonb 라 모양만 바뀜).
+
+## 사이트
+
+- 주소: `https://jwonly-spn.github.io/jun-live-fanpage/` (BASE, `docs/`, GitHub Pages, 빌드 없음).
   GitHub Pages는 모르는 경로에 `404.html`을 주므로 `404.html`은 `index.html`과 같은 내용(SPA). 경로에서 BASE 경로(`/jun-live-fanpage/`)를 떼고 라우팅.
-- 서버: Supabase Edge Function `fanpage` — `API = https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/fanpage/`
-  모든 요청에 머리글 `apikey: sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD` (공개 키, 비밀 아님).
-- 사진: 공개 버킷 `fp-photos`. 주소 = `https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/fp-photos/<path>`
-- 응답은 JSON. 오류는 `{error:"한국어 메시지"}` + HTTP 상태(400/401/403/404/409/413/429/503).
-- 날짜·요일 계산은 한국 시간(Asia/Seoul).
+- 화면: `/`(첫 화면) · `k/<주소>`(DJ 키우기 페이지) · `p/…`·`studio`·`app`(마친 서비스 안내) · 그 밖(없는 주소 안내). `spoon.html`은 따로 있는 페이지.
+- 체험: `k/nyangdj7?demo=1`(지어낸 아이디, 서버에 닿지 않음 — `docs/mock.js`).
 
-## 설정 (config) — DJ가 꾸미는 내용 전체, draft/published 두 벌
+## DJ 키우기 페이지 — Edge Function `kiugi` (v2, 2026-10-08)
 
-```json
-{
-  "v": 1,
-  "theme": "rose",                        // rose|peach|butter|mint|sky|lavender|mono|midnight
-  "layout": "story",                      // story(이야기 중심)|photo(사진 중심)
-  "profile": {
-    "name": "하루",                        // 1~24자
-    "intro": "당신의 하루 끝에,\n조금 더 다정한 시간.",   // ≤100
-    "description": "…",                   // ≤300
-    "quote": "좋은 목소리가 좋은 하루를 만든다.",  // ≤80, 선택
-    "schedule": "매일 저녁 8시",            // 다음 약속, ≤60, 선택
-    "spoonUrl": "https://www.spooncast.net/kr/channel/…",  // spooncast.net https만
-    "avatar": {"path":"…","thumb":"…","w":800,"h":800} | null,
-    "cover":  {"path":"…","thumb":"…","w":1600,"h":900} | null
-  },
-  "menus": [                              // 최대 12개, 홈은 고정이라 목록에 없음
-    {
-      "id": "m_x8k2",                     // [a-z0-9_]{2,24}, 페이지 안에서 고유
-      "name": "추억", "description": "…",  // 이름 1~24, 설명 ≤80
-      "form": "photo_text",               // 아래 양식 중 하나
-      "visible": true,
-      "options": { … }                    // 양식별
-    }
-  ]
-}
-```
-
-양식(form)과 options:
-
-| form | 이름 | options |
-|---|---|---|
-| `board` | 글 게시판 | `allowComments` |
-| `photo_text` | 사진 + 글 | `categories: string[]`(≤8, 각 ≤12자), `allowComments`, `showOnHome` |
-| `album` | 사진 앨범 | `categories`, `showOnHome` |
-| `archive` | 박제판(인스타 피드) | `allowComments`, `showOnHome` |
-| `lounge` | 팬 라운지 | `question`(오늘의 질문, ≤80), `showMissions`(오늘 할 일) |
-| `attendance` | 출석 체크 | `rewards: [{at:15,label:"복권 1장"}]`(≤10) |
-| `poll` | 투표 | (투표 내용은 owner/poll로 만든다) |
-| `ranking` | 랭킹 | `support`(후원 랭킹 보이기), `activity`(애청지수 보이기) |
-| `days` | 기념일 | `days: [{id,title,date:"2026-09-09",yearly:bool,note}]`(≤20) |
-| `links` | 링크 모음 | `links: [{label,url}]`(≤12, https만) |
-
-사진은 **절대 자르지 않는다**. 사진마다 `w`,`h`를 저장하고 화면은 그 비율로 칸을 만든다(피드: 폭 100%, 높이 = 폭×h/w, 최대 폭×1.5 — 넘으면 전체가 보이게 contain, 옆은 같은 사진 흐리게. 앨범: 2열(PC 3~4열) 메이슨리).
-
-## 공개 API (로그인 없음)
-
-- `GET page?slug=<slug>` → `{page:{id,slug,config,updated}, live:{on,title,updated}|null, rankings:{support:{week:[],month:[],all:[]},activity:[]}|null}` (공개 안 됐거나 차단: 404). 랭킹 항목 `{nickname}`(애청지수는 `{nickname,level}`), 금액 없음, 최대 20명.
-- `GET home?page=<id>` → `{menus:{<menuId>:[post…최신 3개]}, comments:[최근 한마디 4개], pinned:[고정 글 3개]}`
-- `GET posts?page=<id>&menu=<menuId>&category=<선택>&before=<ISO 선택>` → `{posts:[Post], more:bool}` (20개씩, 고정 글 먼저는 첫 페이지만)
-- `GET post?id=<id>` → `{post:Post}`
-- `GET comments?page=<id>&menu=<menuId>&post=<선택>&before=<ISO>` → `{comments:[Comment], more}` (20개씩)
-- `POST comment {page,menu,post?,nickname,body,fan}` → `{comment}` — 닉네임 1~20, 글 1~200. 같은 사람(ip) 10분에 5개까지. 차단된 ip/닉네임은 403.
-- `POST like {post,fan}` → `{likes,liked}` (fan = 브라우저마다 만든 무작위 id, 누르면 켜고/끄기)
-- `POST attendance {page,menu,nickname,pin,action}` — action `create`(새 카드) | `load`(불러오기) | `check`(오늘 출석). pin = 숫자 4자리(서버엔 해시만). → `{card:{nickname,total,month:["2026-09-01",…],today:bool,next:{at,label}|null}}`. 같은 닉네임+틀린 PIN 5번 → 10분 잠금.
-- `GET poll?page=<id>&menu=<menuId>&fan=<fan>` → `{poll:{id,question,description,options:[{label,votes}],total,voted:index|null,closed}|null}`
-- `POST vote {poll,option,fan}` → `{poll}` (한 사람 1표, 바꾸기 가능)
-- `GET storybox?page=<id>` → `{open:bool, note}` — DJ가 사연함을 열어 두었는지.
-- `POST story {page,nickname,tag?,body?,data?,thumb?,w?,h?,fan}` → `{story}` — 사연함이 열려 있을 때만(403). 닉네임 1~20, 고유닉(영문·숫자, 보상용) 선택, 글 ≤300(사진만도 가능), 사진은 owner/photo와 같은 규격. 같은 사람 10분에 3개, 페이지 시간당 60개. 7일 뒤 자동 삭제.
-  Story = `{id,nickname,tag,body,photo:{path,thumb,w,h,url,thumbUrl}|null,created}` (사진 주소 `p/<slug>/story`)
-
-Post = `{id,menu,title,body,photos:[{path,thumb,w,h}],category,pinned,supporter,eventDate,likes,comments,created}`
-Comment = `{id,menu,post,nickname,body,created,hearted:bool,reply:string|null}`
-
-## DJ API (머리글 `Authorization: Bearer <token>`)
-
-- `POST owner/exchange {code}` → `{token,expires,page:{id,slug}|null}` — JUN LIVE가 연 주소 `BASE + 'studio#code=<code>'`의 1회용 코드(3분). 토큰은 30일, 브라우저 localStorage에 저장.
-- `GET owner/page` → `{page:{id,slug,draft,published,revision,publishedAt,blocked}|null, spoon:{nickname,tag}}`
-- `POST owner/page {slug?,draft,revision}` → `{page}` — 처음이면 slug 필요(영문 소문자·숫자·하이픈 3~30, 예약어 studio/p/api/admin 금지)해서 만든다. revision이 다르면 409.
-- `POST owner/publish` → `{page}` (draft를 published로 복사) / `POST owner/unpublish`
-- `POST owner/photo {data,thumb,w,h}` — data/thumb = base64 JPEG(원본 긴 변 ≤2048·≤1.5MB, 미리보기 긴 변 ≤640·≤200KB), 브라우저에서 줄여서 보낸다 → `{path,thumb,w,h}`. 페이지당 사진 총 200MB.
-- `POST owner/post {id?,menu,title,body,photos,category,pinned,supporter,eventDate}` → `{post}` (제목 ≤60, 글 ≤3000, 사진 ≤10장)
-- `POST owner/post/delete {id}` → `{ok}` (사진 파일도 지움)
-- `GET owner/comments?menu=&before=` → `{comments:[Comment+{hidden,ipBlocked}],more}`
-- `POST owner/comment {id,hearted?,reply?,hidden?}` → `{comment}` / `POST owner/comment/delete {id}` / `POST owner/block {comment}` (그 사람 ip·닉네임 차단)
-- `POST owner/poll {menu,question,description,options:[..2~6]}` → 새 투표(이전 것 닫힘) / `POST owner/poll/close {menu}`
-- `GET owner/attendance?menu=` → `{cards:[{nickname,total,monthCount,last,rewards:[label…]}]}` (보상 받을 사람 확인용)
-
-## JUN LIVE 프로그램 API (기기 서명)
-
-사용 승인 서버와 같은 기기 키(ECDSA P-256)로 서명. 기기는 `junlive_devices`에서 approved여야 함.
-본문 `{action,payload,publicKey,timestamp,nonce,signature}`, 서명 문자열
-`JUN-LIVE-FANPAGE/1\n{action}\n{timestamp}\n{nonce}\n{publicKey}\n{sha256hex(JSON.stringify(payload))}` (ieee-p1363, base64url).
-
-- `POST app {action:"login", payload:{spoon:{id,tag,nickname}}}` → `{code,url}` — 이 기기가 연결된 페이지가 있으면 그 페이지로, 없으면 새로 만들 수 있는 세션.
-- `POST app {action:"sync", payload:{live:{on,title},rankings:{support:{week,month,all},activity}}}` → `{ok,slug}` — 연결된 페이지가 없으면 `{ok:false}`.
-- `POST app {action:"storybox", payload:{open:bool, note?}}` → `{ok,open,note,url}` — 사연함 열기/닫기(url = 팬이 보낼 주소, 공개 전이면 null).
-- `POST app {action:"stories"}` → `{ok,open,note,url,stories:[Story…최신 200개]}` (부를 때 7일 지난 사연 정리).
-- `POST app {action:"story_delete", payload:{id}}` → `{ok}` (사진도 지움).
-
-## 관리자 (서비스 주인) — 머리글 `x-junlive-admin` (사용 승인 서버와 같은 관리자 키)
-
-- `GET admin/pages?q=` → 페이지 목록, `POST admin/page {id,blocked}`
-
-## DJ 키우기 페이지 — Edge Function `kiugi` (2026-10-08)
-
-청취자가 닉네임을 적어 자기 키우기 캐릭터를 보고, 1~3등은 늘 보이는 공개 페이지. 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
+청취자가 자기 아이디로 자기 키우기 캐릭터를 찾고, 1~3등은 늘 보이는 공개 페이지. 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
 올리는 쪽은 먼치킨(봇 프로그램) 본체 `app/desktop/kiugi-fanpage.cjs`(먼치킨 저장소). 그림은 먼치킨과 같은 `kiugi-art.js`(사이트 `docs/kiugi/`, 먼치킨 저장소 `node tools/sync-kiugi-site.mjs`로 복사).
 
-- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql`(`kg_pages`).
-- 저장하는 것: DJ 캐릭터(이름·모양 열쇠), 시즌(id·이름·끝나는 날), 청취자 닉네임(≤100자)·레벨(1~100)·애정도·입은 옷({칸: 옷 id}), 1~3등, 인원 수. 고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다. 3,000명·본문 1.5MB까지.
+- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql`(`kg_pages`). 요청에 머리글 `apikey: sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(공개 키, 비밀 아님).
+- 아이디: `<앞>#<캐릭터 이름>`. 앞 = 한글 완성 글자(가~힣)만 1~6자(청취자가 만든 부분), 캐릭터 이름 = 한글·영문·숫자 1~8자이고 올린 내용의 `character.name`과 글자 그대로 같아야 한다. NFC로 맞추고 앞뒤 공백만 뗀 뒤 검사한다. 모양이 틀리거나 뒤 이름이 다른 줄은 그 줄만 버린다. 같은 아이디가 두 번 오면 애정도 높은 줄만 남긴다.
+- 저장하는 것: DJ 캐릭터(이름·모양 열쇠), 시즌(id·이름·끝나는 날), 청취자 줄 `{id, level(1~100), love, worn({칸: 옷 id}), k(찾기 열쇠 = 아이디를 NFC·영문 소문자·띄어쓰기 뺀 것)}`, 1~3등, 인원 수. 스푼 닉네임·고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다(보낸 줄의 다른 칸은 버림). 3,000명·본문 1.5MB까지.
 - 주소는 처음 올린 기기에 묶인다(같은 PC가 다시 올리면 같은 주소에 통째로 바꿔 넣음). `{enabled:false}`를 올리면 내용만 지우고 주소는 남긴다. 60일 동안 올리지 않으면 내용을 지운다. 승인 서버에서 차단·대기로 바꾼 기기의 페이지는 닫힌다. 심사용 기기는 올리지 못한다.
 
 공개(로그인 없음, 주소 해시마다 횟수 제한):
-- `GET page?slug=` (1분 60번) → `{slug,name,season:{id,name,endsAt}|null,paused,character,top:[{rank,nickname,level,love,worn}],count,updatedAt}` · 없으면 404, 닫혀 있으면 404 `{error,closed:true}`
-- `GET find?slug=&q=` (1분 30번, q 1~40자, 띄어쓰기·대소문자 무시) → `{results:[{rank,nickname,level,love,worn}…5명까지, 정확히 같은 닉네임 먼저],exact,more}`
-- `GET health` → `{service:"jun-live-kiugi",v:1}`
+- `GET page?slug=` (1분 60번) → `{slug,name,season:{id,name,endsAt}|null,paused,character,top:[{rank,id,level,love,worn}],count,updatedAt}` · 없으면 404, 닫혀 있으면 404 `{error,closed:true}`. 아이디 모양이 아닌 예전 줄은 top 에서 뺀다.
+- `GET find?slug=&q=` (1분 30번) → `{results:[{rank,id,level,love,worn}…5명까지],exact,more}`. q 는 띄어쓰기를 뺀 뒤 앞 부분만(`밤톨`, 한글 1~6자) 또는 전체 아이디(`밤톨#먼치`). 전체로 찾으면 아이디 전체와, 앞 부분만 적으면 앞 부분끼리 비교한다. 정확히 같은 사람 먼저, 그다음 그 글이 들어 있는 사람(둘 다 순위 순). 모양이 틀리면 400 "아이디를 한글 1~6자로 적어 주세요. 예: 밤톨 또는 밤톨#먼치".
+- `GET health` → `{service:"jun-live-kiugi",v:2}`
 
 먼치킨(기기 서명, 기기 1분 2번):
-- `POST app` 본문 `{action:"upload",payload,publicKey,timestamp,nonce,signature}`, 서명 문자열 `JUN-LIVE-KIUGI/1\n{action}\n{timestamp}\n{nonce}\n{publicKey}\n{sha256hex(JSON.stringify(payload))}` (ieee-p1363, base64url, 시간 ±60초, 같은 nonce 한 번).
-  payload = 엔진 `GET /api/bot/f/kiugi/fanpage`의 답에서 `{enabled:true,v:1,paused,season,character,people:[{nickname,level,love,worn}]}` 또는 `{enabled:false}` → `{ok,enabled,slug,url,count}`
+- `POST app` 본문 `{action:"upload",payload,publicKey,timestamp,nonce,signature}`, 서명 문자열 `JUN-LIVE-KIUGI/1\n{action}\n{timestamp}\n{nonce}\n{publicKey}\n{sha256hex(JSON.stringify(payload))}` (ieee-p1363, base64url, 시간 ±60초, 같은 nonce 한 번) → `{ok,enabled,slug,url,count}`
+- payload v2:
+  ```json
+  {
+    "enabled": true, "v": 2, "at": 1792000000000, "paused": false,
+    "season": {"id": "s1", "name": "할로윈", "endsAt": "2026-11-30T14:59:59.000Z"},
+    "character": {"name": "먼치", "gender": "f", "hair": "long", "hairColor": "pink", "skin": "s2", "eyes": "sparkle", "nose": "dot", "mouth": "smile"},
+    "people": [{"id": "밤톨#먼치", "level": 3, "love": 420, "worn": {"head": "witch-hat"}}]
+  }
+  ```
+  또는 `{enabled:false}`(내용 지우기). `at`은 받아도 쓰지 않는다(서버 시간 사용). `paused:true`이거나 시즌이 없으면 청취자를 싣지 않는다. `character.name`이 한글·영문·숫자 1~8자가 아니면 400. `v`가 2가 아니면 400 "먼치킨을 새 버전으로 업데이트한 뒤 다시 올려 주세요."
 
 올리는 순서(배포 — 사용자 허락 뒤):
-1. SQL: `supabase/kiugi.sql` 실행(마이그레이션 이름 `kiugi_pages`). 여러 번 실행해도 된다. 함께 쓰는 `junlive_devices`·`junlive_access_nonces`·`junlive_secrets`·`fp_hit`이 이미 있어야 한다(승인 서버·팬페이지 schema).
-2. Edge Function `kiugi` 배포: 파일 `index.ts`·`handler.ts`·`lib.ts` 세 개, JWT 확인 끔(`verify_jwt: false`).
-3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":1}`, `GET …/kiugi/page?slug=abcdefgh` → 404.
-4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림이 바뀔 때마다) → `node tools/deploy-site.cjs "키우기 페이지"`.
-5. 먼치킨 새 버전(봇 프로그램)에 `desktop/kiugi-fanpage.cjs`가 들어가야 실제로 올라간다.
+1. SQL: 표는 그대로라 새 마이그레이션은 없다(처음이면 `supabase/kiugi.sql`, 이름 `kiugi_pages`). 함께 쓰는 `junlive_devices`·`junlive_access_nonces`·`junlive_secrets`·`fp_hit`이 이미 있어야 한다(승인 서버·팬페이지 schema).
+2. Edge Function `kiugi` 배포: 파일 `index.ts`·`handler.ts`·`lib.ts` 세 개, JWT 확인 끔(`verify_jwt: false`). 소스에 유니코드 표기(백슬래시-u)를 넣지 않는다(올리기 도구가 글자로 풀어 버림).
+3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":2}`, `GET …/kiugi/page?slug=abcdefgh` → 404, `GET …/kiugi/find?slug=abcdefgh&q=abc` → 400.
+4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`.
+5. 먼치킨 새 버전(봇 프로그램)이 v2(`!아이디`로 만든 아이디)를 올려야 실제로 보인다.
+
+## 마친 서비스 — Edge Function `fanpage` (2026-10-08)
+
+- `GET health` → 200 `{service:"jun-live-fanpage",closed:true}`
+- 그 밖의 모든 길(예전 사이트·먼치킨·송출의 `app` 요청·`owner/…`·`admin/…` 포함) → 410 `{error:"팬페이지 서비스를 마쳤어요."}`. `OPTIONS`는 204. CORS 머리글은 그대로.
+- 배포: 파일 `index.ts` 하나(예전 `lib.ts`는 지움), JWT 확인 끔. 데이터베이스를 쓰지 않는다.
+- 예전 팬페이지 표(`fp_*`)·사진 버킷(`fp-photos`)은 지우지 않았다(`supabase/schema.sql`·`storage.sql`). `fp_hit`·`junlive_secrets`는 `kiugi`가 계속 쓴다. 남은 자료를 지울지는 사용자가 정한다.

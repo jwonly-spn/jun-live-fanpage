@@ -1,11 +1,12 @@
 // DJ 키우기 페이지(사이트): 주소 k/<주소> · 그림(kiugi-art.js 를 사이트 규칙에 맞게) · 체험 모드 가짜 서버 · 화면 글
+// 아이디는 모두 지어낸 것(청취자가 방송에서 "!아이디"로 만드는 시즌 아이디 흉내, 모양 "<앞>#<캐릭터 이름>").
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { parseRoute, buildPath } from '../docs/lib/route.js';
+import { parseRoute, buildPath, DEMO_KIUGI_SLUG } from '../docs/lib/route.js';
 import { buildCatalog, expressionFor, cspSafeSvg, characterMarkup, STAGE } from '../docs/lib/kiugi-draw.js';
 import { handle, KIUGI_DEMO } from '../docs/mock.js';
-import { personLine, seasonLine, josa } from '../docs/views/kiugi.js';
+import { personLine, seasonLine, josa, checkQuery, idKey } from '../docs/views/kiugi.js';
 
 const B = '/jun-live-fanpage/';
 const read = async (p) => JSON.parse(await readFile(new URL('../docs/kiugi/' + p, import.meta.url), 'utf8'));
@@ -20,6 +21,7 @@ test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고
   for (const bad of ['/jun-live-fanpage/k/nyangdj1', '/jun-live-fanpage/k/NYANGDJ7', '/jun-live-fanpage/k/nyangd', '/jun-live-fanpage/k/nyangdj7/x', '/jun-live-fanpage/k/']) assert.equal(parseRoute(bad, B).name, 'notfound', bad);
   assert.equal(buildPath(B, { name: 'kiugi', slug: 'nyangdj7' }), '/jun-live-fanpage/k/nyangdj7');
   assert.deepEqual(parseRoute(buildPath(B, { name: 'kiugi', slug: 'abcdefgh' }), B), { name: 'kiugi', slug: 'abcdefgh' });
+  assert.equal(KIUGI_DEMO.slug, DEMO_KIUGI_SLUG);
 });
 
 test('사이트에 복사한 키우기 파일: 그림 스크립트·시즌 목록·목록(manifest)', async () => {
@@ -52,24 +54,41 @@ test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 �
   assert.match(svg, /^<svg viewBox="0 0 1024 1024"/);
 });
 
-test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 페이지·찾기(정확히 같은 닉네임 먼저)', async () => {
+test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 페이지·아이디로 찾기(정확히 같은 아이디 먼저)', async () => {
   const page = await handle('GET', 'kiugi/page', { slug: KIUGI_DEMO.slug });
   assert.equal(page.status, 200);
   assert.deepEqual(Object.keys(page.json).sort(), ['character', 'count', 'name', 'paused', 'season', 'slug', 'top', 'updatedAt']);
+  assert.equal(page.json.name, '먼치');
   assert.equal(page.json.top.length, 3); assert.equal(page.json.top[0].rank, 1);
+  assert.deepEqual(page.json.top.map((p) => p.id), ['밤톨#먼치', '사탕요정#먼치', '달무리#먼치']);
+  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).sort(), ['id', 'level', 'love', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  assert.doesNotMatch(JSON.stringify(page.json), /nickname/);
   const closed = await handle('GET', 'kiugi/page', { slug: 'shutpg22' });
   assert.equal(closed.status, 404); assert.equal(closed.json.closed, true);
   assert.equal((await handle('GET', 'kiugi/page', { slug: 'abcdefgh' })).status, 404);
-  const found = (await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: ' 밤 톨이 ' })).json;
-  assert.equal(found.results[0].nickname, '밤톨이'); assert.equal(found.exact, 1); assert.ok(found.results.length >= 2);
-  assert.equal((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '' })).status, 400);
+  const found = (await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: ' 밤 톨 ' })).json;
+  assert.deepEqual(found.results.map((p) => p.id), ['밤톨#먼치', '밤톨이네#먼치', '작은밤톨#먼치'], '앞 부분이 같은 사람 먼저, 그다음 들어 있는 사람');
+  assert.equal(found.exact, 1);
+  assert.deepEqual(Object.keys(found.results[0]).sort(), ['id', 'level', 'love', 'rank', 'worn']);
+  assert.deepEqual((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '사탕요정#먼치' })).json.results.map((p) => p.id), ['사탕요정#먼치'], '전체 아이디로');
+  assert.equal((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '먼치팬' })).json.results[0].id, '먼치팬#먼치', '안내 예시 아이디로 찾을 수 있다');
+  assert.deepEqual((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '먼치' })).json.results.map((p) => p.id), ['먼치팬#먼치'], '캐릭터 이름으로 찾아도 모두가 나오지 않는다(앞 부분끼리만 비교)');
+  for (const q of ['', 'Pumpkin', '가'.repeat(7), '#먼치', '밤톨#']) {
+    const r = await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q });
+    assert.equal(r.status, 400, q); assert.match(r.json.error, /아이디.*1~6자/);
+  }
 });
 
-test('화면 글: 순위·레벨 표정·애정도, 시즌 끝나는 날', async () => {
+test('화면 글: 순위·아이디·레벨 표정·애정도, 시즌 끝나는 날, 찾기 칸 검사', async () => {
   const c = await catalog();
-  assert.deepEqual(personLine({ rank: 4, nickname: '사탕요정', level: 7, love: 2345 }, c, 's1'), { title: '4등 · 사탕요정', sub: 'Lv.7 두근두근 · 애정도 2,345' });
+  assert.deepEqual(personLine({ rank: 4, id: '사탕요정#먼치', level: 7, love: 2345 }, c, 's1'), { title: '4등 · 사탕요정#먼치', sub: 'Lv.7 두근두근 · 애정도 2,345' });
   assert.equal(seasonLine({ name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, Date.parse('2026-10-20T00:00:00Z')), '할로윈 시즌 · 11월 30일까지');
   assert.equal(seasonLine(null), '다음 시즌 준비 중');
-  assert.equal(josa('먼치킨', '을', '를'), '먼치킨을'); assert.equal(josa('두부', '을', '를'), '두부를');
+  assert.equal(josa('먼치킨', '을', '를'), '먼치킨을'); assert.equal(josa('먼치', '을', '를'), '먼치를');
   assert.equal(josa('먼치킨', '이', '가'), '먼치킨이'); assert.equal(josa('DJ', '이', '가'), 'DJ가'); assert.equal(josa('루나7', '이', '가'), '루나7이');
+  assert.equal(checkQuery(' 달 무리 '), null); assert.equal(idKey(' 달 무리 '), '달무리');
+  assert.equal(checkQuery('밤톨'.normalize('NFD')), null);
+  assert.match(checkQuery(''), /적어 주세요/); assert.match(checkQuery('   '), /적어 주세요/);
+  assert.equal(checkQuery('먼치팬#먼치'), null); assert.equal(checkQuery(' 먼치팬 # Munchi7 '), null);
+  for (const bad of ['abc', '밤톨1', '가나다라마바사', 'ㅂㅌ', '#먼치', '밤톨#', '밤톨#먼치#먼치', '밤톨#가나다라마바사아자']) assert.match(checkQuery(bad), /한글 1~6자/, bad);
 });

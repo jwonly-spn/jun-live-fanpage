@@ -1,23 +1,4 @@
-// 글자 처리 — 이스케이프, 날짜 표시 등. DOM 없이 동작.
-
-const ESC = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' };
-export function escapeHtml(s) {
-  return String(s ?? '').replace(/[&<>"'`]/g, (c) => ESC[c]);
-}
-
-export function charCount(s) {
-  return Array.from(String(s ?? '')).length;
-}
-
-export function clip(s, n) {
-  const a = Array.from(String(s ?? ''));
-  return a.length > n ? a.slice(0, n).join('') + '…' : a.join('');
-}
-
-export function initial(name) {
-  const c = Array.from(String(name ?? '').trim())[0];
-  return c ? c.toUpperCase() : '·';
-}
+// 글자 처리 — 날짜 표시(한국 시간). DOM 없이 동작.
 
 const KST = 9 * 3600 * 1000;
 
@@ -47,17 +28,4 @@ export function relativeTime(iso, now = Date.now()) {
   if (dayDiff === 1) return '어제';
   if (dayDiff < 7) return `${dayDiff}일 전`;
   return formatDate(iso, now);
-}
-
-export function uuid() {
-  if (globalThis.crypto?.randomUUID) return globalThis.crypto.randomUUID();
-  const b = new Uint8Array(16);
-  globalThis.crypto.getRandomValues(b);
-  b[6] = (b[6] & 15) | 64; b[8] = (b[8] & 63) | 128;
-  const x = Array.from(b, (v) => v.toString(16).padStart(2, '0')).join('');
-  return `${x.slice(0, 8)}-${x.slice(8, 12)}-${x.slice(12, 16)}-${x.slice(16, 20)}-${x.slice(20)}`;
-}
-
-export function percent(votes, total) {
-  return total > 0 ? Math.round((votes / total) * 100) : 0;
 }

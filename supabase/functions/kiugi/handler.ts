@@ -1,5 +1,6 @@
-// DJ 키우기 팬페이지 — 요청 처리(데이터베이스는 store 로 받는다: index.ts 가 Supabase 로, 노드 시험은 메모리로 넣는다).
-// 길: GET health · GET page?slug= · GET find?slug=&q= · POST app(먼치킨이 서명해 올림). 모든 답에 CORS(사이트가 부른다).
+// DJ 키우기 페이지 — 요청 처리(데이터베이스는 store 로 받는다: index.ts 가 Supabase 로, 노드 시험은 메모리로 넣는다).
+// 길: GET health · GET page?slug= · GET find?slug=&q=(청취자가 만든 시즌 아이디로 찾기) · POST app(먼치킨이 서명해 올림, 내용 v2).
+// 모든 답에 CORS(사이트가 부른다).
 import * as v from './lib.ts';
 
 export const SITE = 'https://jwonly-spn.github.io/jun-live-fanpage/';
@@ -90,7 +91,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     try {
       const url = new URL(req.url);
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
-      if (req.method === 'GET' && route === 'health') return json({ service: 'jun-live-kiugi', v: 1 });
+      if (req.method === 'GET' && route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION });
       if (req.method === 'GET' && route === 'page') return await page(url, req);
       if (req.method === 'GET' && route === 'find') return await find(url, req);
       if (req.method === 'POST' && route === 'app') return await upload(req);
