@@ -18,7 +18,7 @@
 
 ## 사이트
 
-- 주소: `https://jwonly-spn.github.io/jun-live-fanpage/` (BASE, `docs/`, GitHub Pages, 빌드 없음).
+- 주소: `https://키우기.com/`(xn--ok0bp87bn6g.com, BASE `/`, 2026-10-08부터 — 예전 `https://jwonly-spn.github.io/jun-live-fanpage/` 는 GitHub 가 새 주소로 넘김. `docs/`, GitHub Pages, 빌드 없음).
   GitHub Pages는 모르는 경로에 `404.html`을 주므로 `404.html`은 `index.html`과 같은 내용(SPA). 경로에서 BASE 경로(`/jun-live-fanpage/`)를 떼고 라우팅.
 - 화면: `/`(메인, `views/intro.js` — 칸 목록 `LANDING_SECTIONS`) · `items`(옷 도감) · `k/<주소>`(DJ 키우기 페이지) · `k/<주소>/<아이디 앞 부분>`(캐릭터 페이지, 앞 부분 = 한글 1~6자) · `p/…`·`studio`·`app`(마친 서비스 안내) · 그 밖(없는 주소 안내). `spoon.html`은 따로 있는 페이지.
 - 화면에는 레벨과 표정 이름만 보이고 애정도 숫자는 보이지 않는다.

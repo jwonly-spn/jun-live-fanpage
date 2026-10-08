@@ -4,7 +4,7 @@
 //  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v2)
 import * as v from './lib.ts';
 
-export const SITE = 'https://jwonly-spn.github.io/jun-live-fanpage/';
+export const SITE = 'https://xn--ok0bp87bn6g.com/';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Max-Age': '86400' };
 const json = (body: unknown, status = 200, cache = 'no-store') => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': cache, 'X-Content-Type-Options': 'nosniff' } });
 // Cloudflare 가 넣는 cf-connecting-ip(사용자가 바꿀 수 없음) → 없으면 x-forwarded-for 첫 칸

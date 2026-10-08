@@ -3,7 +3,7 @@
 import crypto from 'node:crypto';
 import { createHandler } from '../supabase/functions/kiugi/handler.ts';
 
-export const SITE = 'https://jwonly-spn.github.io/jun-live-fanpage/';
+export const SITE = 'https://xn--ok0bp87bn6g.com/';
 export const BASE = 'https://x.supabase.co/functions/v1/kiugi/';
 export const T0 = Date.parse('2026-10-20T12:00:00Z');
 

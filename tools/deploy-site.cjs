@@ -4,7 +4,9 @@
 'use strict';
 const fs = require('node:fs'), path = require('node:path'), {spawnSync} = require('node:child_process');
 const OWNER = 'jwonly-spn', NAME = 'jun-live-fanpage', ROOT = path.join(__dirname, '..');
-const SITE = `https://${OWNER}.github.io/${NAME}/`;
+// 2026-10-08부터 키우기.com(영문 표기 xn--ok0bp87bn6g.com). docs/CNAME 과 GitHub Pages 의 사용자 도메인을 같게 둔다.
+const DOMAIN = 'xn--ok0bp87bn6g.com';
+const SITE = `https://${DOMAIN}/`;
 const GIT = 'C:/Users/User/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git';
 const env = {...process.env, GIT_EXEC_PATH: GIT + '/mingw64/bin', GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'never'};
 const git = (...args) => {
@@ -45,14 +47,21 @@ async function gh(route, init = {}) {
   git('push', '-u', 'origin', 'main');
   const head = git('rev-parse', 'HEAD');
   console.log('올린 커밋:', head.slice(0, 7));
-  const pages = await gh(`/repos/${OWNER}/${NAME}/pages`, {allowMissing: true});
-  if (!pages) await gh(`/repos/${OWNER}/${NAME}/pages`, {method: 'POST', body: JSON.stringify({source: {branch: 'main', path: '/docs'}})});
+  let pages = await gh(`/repos/${OWNER}/${NAME}/pages`, {allowMissing: true});
+  if (!pages) pages = await gh(`/repos/${OWNER}/${NAME}/pages`, {method: 'POST', body: JSON.stringify({source: {branch: 'main', path: '/docs'}})});
+  if (fs.readFileSync(path.join(ROOT, 'docs/CNAME'), 'utf8').trim() !== DOMAIN) throw Error('docs/CNAME 이 ' + DOMAIN + ' 이 아니에요.');
+  if (pages.cname !== DOMAIN) await gh(`/repos/${OWNER}/${NAME}/pages`, {method: 'PUT', body: JSON.stringify({cname: DOMAIN, source: {branch: 'main', path: '/docs'}})});
   // Wait for the Pages build of this commit.
   for (let i = 0; i < 60; i++) {
     const b = await gh(`/repos/${OWNER}/${NAME}/pages/builds/latest`, {allowMissing: true});
     if (b && b.commit === head && b.status === 'built') break;
     if (b && b.commit === head && b.status === 'errored') throw Error('GitHub Pages 빌드 실패: ' + JSON.stringify(b.error));
     await new Promise(r => setTimeout(r, 5000));
+  }
+  pages = await gh(`/repos/${OWNER}/${NAME}/pages`);
+  if (!pages.https_enforced) {
+    const r = await gh(`/repos/${OWNER}/${NAME}/pages`, {method: 'PUT', allow: [400, 404, 422], body: JSON.stringify({cname: DOMAIN, https_enforced: true, source: {branch: 'main', path: '/docs'}})});
+    console.log('https 강제:', r && r.message ? '아직(인증서 준비 중) — ' + r.message : '켬');
   }
   const check = await fetch(SITE, {cache: 'no-store'});
   const deep = await fetch(SITE + 'p/test-page-check', {cache: 'no-store'});

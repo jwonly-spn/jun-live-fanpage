@@ -2,7 +2,7 @@
 
 먼치킨(스푼 DJ용 봇 프로그램)의 DJ 키우기 공개 사이트와 스푼 연결 페이지예요. 스푼이 만든 서비스가 아니에요.
 
-- 사이트: https://jwonly-spn.github.io/jun-live-fanpage/ (`docs/`, GitHub Pages, 빌드 없음)
+- 사이트: https://키우기.com/ (영문 표기 xn--ok0bp87bn6g.com, 2026-10-08부터. 예전 https://jwonly-spn.github.io/jun-live-fanpage/ 는 자동으로 넘어감. `docs/`, GitHub Pages, 빌드 없음, `docs/CNAME`)
   - 메인 `/`(시즌·아이디로 찾기·인기 캐릭터·새로 꾸민 캐릭터·많이 입은 옷·키우기 중인 DJ), 옷 도감 `items`, DJ 키우기 페이지 `k/<주소>`, 캐릭터 페이지 `k/<주소>/<아이디 앞 부분>`(하트·링크 복사), 스푼 연결 `spoon.html`
 - DJ 키우기 서버: Supabase Edge Function `kiugi` (`supabase/functions/kiugi/`), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`(하트·이름 하나만·메인 노출), 그림·시즌 목록 `docs/kiugi/`(먼치킨 저장소 `tools/sync-kiugi-site.mjs`로 복사 — 직접 고치지 않기)
 - 애정도 숫자는 스푼 답을 기다리는 동안 숨김(`supabase/functions/kiugi/lib.ts`의 `SHOW_LOVE`)

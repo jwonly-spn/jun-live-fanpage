@@ -87,6 +87,7 @@ test('화면에 애정도 숫자를 쓰지 않는다(레벨과 표정 이름만)
 
 test('스푼 연결 페이지(spoon.html)는 그대로 있다', async () => {
   const html = await text('spoon.html');
-  assert.match(html, /\/jun-live-fanpage\/spoon\.js/); assert.match(html, /\/jun-live-fanpage\/spoon\.css/);
+  // 2026-10-08 키우기.com 으로 옮긴 뒤로는 사이트가 도메인 맨 앞(/)에 있다
+  assert.match(html, /src="\/spoon\.js"/); assert.match(html, /href="\/spoon\.css"/);
   assert.match(await text('spoon.js'), /functions\/v1\/spoon-link\/callback/);
 });
