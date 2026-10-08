@@ -3,6 +3,7 @@
 // 올리는 쪽: 먼치킨(봇 프로그램)이 승인받은 기기 키로 서명해 한 페이지 분량(DJ 캐릭터 + 청취자 시즌 아이디·레벨·애정도·입은 옷)을 통째로 바꾼다.
 // 시즌 아이디 = 청취자가 DJ 방송 채팅에서 "!아이디 <한글 1~6자>"로 직접 만든 이름 + "#" + DJ 캐릭터 이름(예: 밤톨#먼치).
 // 스푼에서 받은 정보(이름·고유닉·번호)는 받지도 저장하지도 않는다. jl-번호·냥·출석도 받지 않는다.
+// 2단계: 애정도 숫자 숨김(SHOW_LOVE), 캐릭터 이름 열쇠(nameKeyOf), 메인 노출(main), 새로 꾸민 때(withChanges·summarize), 하트(heartMap·kstDay).
 export class Fail extends Error {
   status: number;
   extra: Record<string, unknown> | undefined;
@@ -26,6 +27,10 @@ export const FULL_ID = /^[가-힣]{1,6}#[가-힣A-Za-z0-9]{1,8}$/;
 const QUERY_KEY = /^[가-힣]{1,6}(#[가-힣a-z0-9]{1,8})?$/;
 export const MAX_PEOPLE = 3000, MAX_PAYLOAD_BYTES = 1_500_000, MAX_BODY_CHARS = 1_600_000;
 export const NAME_MAX = 20, QUERY_MAX = 40, FIND_LIMIT = 5, TOP = 3, LEVEL_MAX = 100, LOVE_MAX = 1_000_000_000;
+// 애정도 숫자를 밖으로 보일지(스푼 답을 기다리는 동안 false — 순서는 그대로 애정도 순)
+export const SHOW_LOVE = false;
+// 메인 페이지·전체 찾기 개수
+export const HOME_POPULAR = 12, HOME_RECENT = 8, SEARCH_LIMIT = 10;
 export const KEEP_MS = 60 * 86400000, CLOCK_SKEW_MS = 60000, NONCE_MS = 120000;
 
 const enc = new TextEncoder();
@@ -90,7 +95,8 @@ export function worn(value: unknown) {
   return out;
 }
 
-export type Person = { id: string; level: number; love: number; worn: Record<string, string>; k: string };
+// ch = 이 사람이 마지막으로 새로 나타나거나 옷을 바꾼 때(서버 시각). "새로 꾸민 캐릭터" 순서에만 쓰고 밖으로 내보내지 않는다.
+export type Person = { id: string; level: number; love: number; worn: Record<string, string>; k: string; ch?: number };
 // 청취자 한 줄 → {id, level, love, worn, k}. 이 다섯 칸만 새로 만들어 담는다(보낸 줄의 다른 칸은 버린다).
 // 모양이 이상한 줄(아이디 모양이 아니거나 뒤 이름이 이 캐릭터가 아님 등)은 그 줄만 뺀다(한 사람 때문에 전체가 막히지 않게).
 export function person(value: unknown, characterName: string): Person | null {
@@ -101,10 +107,23 @@ export function person(value: unknown, characterName: string): Person | null {
   if (!Number.isSafeInteger(love) || (love as number) < 0 || (love as number) > LOVE_MAX) return null;
   return { id, level: level as number, love: love as number, worn: worn(value.worn), k: searchKey(id) };
 }
-export const publicPerson = (p: Person, index: number) => ({ rank: index + 1, id: p.id, level: p.level, love: p.love, worn: p.worn });
+// 밖으로 내보내는 한 사람: {rank, id, level, worn, hearts?}. 애정도 숫자는 SHOW_LOVE 가 true 일 때만(스푼 답을 기다리는 동안 숨김 — 순서는 그대로 애정도 순).
+export function publicPerson(p: Pick<Person, 'id' | 'level' | 'love' | 'worn'>, rank: number, hearts?: number) {
+  const out: Record<string, unknown> = { rank, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {} };
+  if (SHOW_LOVE) out.love = p.love;
+  if (hearts !== undefined) out.hearts = hearts;
+  return out;
+}
+// 메인 페이지·전체 찾기의 카드 한 장: {slug, djName, id, level, worn, hearts}
+export const card = (p: Pick<Person, 'id' | 'level' | 'worn'>, slug: string, djName: string, hearts: number) =>
+  ({ slug, djName, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, hearts });
+
+// 캐릭터 이름 열쇠(사이트 전체에서 하나만): NFC + 영문 소문자
+export const nameKeyOf = (name: string) => String(name ?? '').normalize('NFC').toLowerCase();
 
 // 먼치킨이 보낸 내용(v2) → 저장할 모양. {enabled:false} 는 "지워 주세요".
-// v2 = {enabled:true, v:2, at, paused, season:{id,name,endsAt}|null, character:{name,...}, people:[{id:"밤톨#먼치", level, love, worn}]}
+// v2 = {enabled:true, v:2, at, paused, main?, season:{id,name,endsAt}|null, character:{name,...}, people:[{id:"밤톨#먼치", level, love, worn}]}
+// main: 메인 페이지(인기·새로 꾸민·DJ 목록·전체 찾기)에 보일지. 없으면 true. false 여도 DJ 페이지·캐릭터 페이지는 그대로 열린다.
 export function snapshot(value: unknown) {
   if (!isObject(value)) throw fail(400, '올릴 내용을 확인해 주세요.');
   if (value.enabled === false) return { enabled: false as const };
@@ -120,7 +139,34 @@ export function snapshot(value: unknown) {
   const seen = new Set<string>();
   const unique = people.filter((p) => (seen.has(p.k) ? false : (seen.add(p.k), true)));
   const kept = unique.slice(0, MAX_PEOPLE);
-  return { enabled: true as const, name: ch.name, character: ch, season: se, people: kept, top: kept.slice(0, TOP).map(publicPerson), count: kept.length };
+  // top 은 서버 안에 저장하는 모양(애정도 포함). 밖으로는 pageOut 이 SHOW_LOVE 에 맞춰 내보낸다.
+  const top = kept.slice(0, TOP).map((p, i) => ({ rank: i + 1, id: p.id, level: p.level, love: p.love, worn: p.worn }));
+  return { enabled: true as const, name: ch.name, nameKey: nameKeyOf(ch.name), main: value.main !== false, character: ch, season: se, people: kept, top, count: kept.length };
+}
+
+// 옷 모양 비교용 글(칸 순서와 상관없이 같으면 같은 글)
+const wornKey = (w: unknown) => JSON.stringify(Object.entries(isObject(w) ? w : {}).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)));
+// 지난번 올린 줄과 비교해 ch(새로 꾸민 때)를 붙인다: 처음 보는 사람이나 입은 옷이 바뀐 사람은 now, 그대로면 지난 값.
+export function withChanges(people: Person[], previous: unknown, now: number): Person[] {
+  const before = new Map<string, any>();
+  for (const p of Array.isArray(previous) ? previous : []) if (p && typeof p.k === 'string') before.set(p.k, p);
+  return people.map((p) => {
+    const old = before.get(p.k);
+    const same = old && wornKey(old.worn) === wornKey(p.worn) && Number.isSafeInteger(old.ch);
+    return { ...p, ch: same ? old.ch : now };
+  });
+}
+// 메인 페이지용 요약(올릴 때 한 번 만든다): 새로 꾸민 사람 8명(옷을 하나라도 입은 사람만, ch 최근 순)과 옷마다 입은 사람 수.
+export function summarize(people: Person[]) {
+  const items: Record<string, number> = {};
+  for (const p of people) for (const id of Object.values(p.worn || {})) items[id] = (items[id] || 0) + 1;
+  const recent = people
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => Object.keys(p.worn || {}).length > 0 && Number.isSafeInteger(p.ch))
+    .sort((a, b) => (b.p.ch as number) - (a.p.ch as number) || a.i - b.i)
+    .slice(0, HOME_RECENT)
+    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ch: p.ch }));
+  return { recent, items };
 }
 
 // 찾기 글: 띄어쓰기를 뺀 뒤 앞 부분만(한글 1~6자, "밤톨") 또는 전체 아이디("밤톨#먼치").
@@ -130,30 +176,76 @@ export function query(value: unknown) {
   if ([...raw].length > QUERY_MAX || !QUERY_KEY.test(key)) throw fail(400, `아이디를 한글 1~${ID_MAX}자로 적어 주세요. 예: 밤톨 또는 밤톨#먼치`);
   return key;
 }
+// 한 사람의 찾기 열쇠가 찾는 글과 같은지: 전체로 찾으면 전체끼리, 앞 부분만 적으면 앞 부분끼리.
+const target = (k: string, key: string) => (key.includes('#') ? k : baseOf(k));
+const validPerson = (p: any): p is Person => Boolean(p) && typeof p.id === 'string' && FULL_ID.test(p.id);
+const keyOf = (p: Person) => (typeof p.k === 'string' ? p.k : searchKey(p.id));
+type HeartsOf = (k: string) => number;
 // 찾기: 정확히 같은 아이디 먼저, 그다음 그 글이 들어 있는 아이디(둘 다 순위 순). 5명까지.
 //  전체("밤톨#먼치")로 찾으면 아이디 전체와 비교하고, 앞 부분만("밤톨") 적으면 앞 부분끼리만 비교한다
 //  (뒤의 캐릭터 이름은 모두 같으니 "치"를 적었다고 모두 나오지 않게).
-export function findPeople(people: unknown, key: string, limit = FIND_LIMIT) {
-  const exact: ReturnType<typeof publicPerson>[] = [], part: ReturnType<typeof publicPerson>[] = [];
-  const whole = key.includes('#');
+export function findPeople(people: unknown, key: string, limit = FIND_LIMIT, heartsOf?: HeartsOf) {
+  const exact: Record<string, unknown>[] = [], part: Record<string, unknown>[] = [];
   (Array.isArray(people) ? people : []).forEach((p: Person, i: number) => {
-    if (!p || typeof p.id !== 'string' || !FULL_ID.test(p.id)) return;
-    const k = typeof p.k === 'string' ? p.k : searchKey(p.id);
-    const target = whole ? k : baseOf(k);
-    if (target === key) exact.push(publicPerson(p, i)); else if (target.includes(key)) part.push(publicPerson(p, i));
+    if (!validPerson(p)) return;
+    const k = keyOf(p), t = target(k, key);
+    const out = () => publicPerson(p, i + 1, heartsOf ? heartsOf(k) : undefined);
+    if (t === key) exact.push(out()); else if (t.includes(key)) part.push(out());
   });
   const all = [...exact, ...part];
   return { results: all.slice(0, limit), exact: exact.length, more: all.length > limit };
 }
+// 한 페이지에서 한 사람 찾기(캐릭터 페이지·하트): 전체 아이디는 그대로, 앞 부분만이면 앞 부분이 같은 사람(한 페이지 안에서는 한 명).
+export function findOne(people: unknown, key: string): { p: Person; rank: number } | null {
+  const list = Array.isArray(people) ? people : [];
+  for (let i = 0; i < list.length; i++) {
+    const p = list[i];
+    if (validPerson(p) && target(keyOf(p), key) === key) return { p, rank: i + 1 };
+  }
+  return null;
+}
+
+// 하트 줄 → 이 페이지·이번 시즌의 {찾기 열쇠: 하트 수}. 다른 시즌·다른 페이지 줄은 빼고 센다.
+export function heartMap(rows: unknown, slug: string, seasonId: string | null | undefined) {
+  const out = new Map<string, number>();
+  if (!seasonId) return out;
+  for (const r of Array.isArray(rows) ? rows : []) {
+    if (r && r.slug === slug && r.season === seasonId && typeof r.pid === 'string' && Number.isSafeInteger(r.hearts) && r.hearts > 0) out.set(r.pid, r.hearts);
+  }
+  return out;
+}
 
 // 공개 페이지 모양(청취자 전체 목록·찾기 열쇠·기기 번호는 넣지 않는다).
-// 1~3등은 {rank, id, level, love, worn} 만 — 아이디가 없는 예전 줄은 내보내지 않는다.
-export function pageOut(row: Record<string, any>) {
+// 1~3등은 {rank, id, level, worn, hearts}(애정도는 SHOW_LOVE 일 때만) — 아이디가 없는 예전 줄은 내보내지 않는다.
+export function pageOut(row: Record<string, any>, hearts: Map<string, number> = new Map()) {
   const top = (Array.isArray(row.top) ? row.top : [])
-    .filter((p: any) => p && typeof p.id === 'string' && FULL_ID.test(p.id))
-    .map((p: any, i: number) => ({ rank: Number.isSafeInteger(p.rank) ? p.rank : i + 1, id: p.id, level: p.level, love: p.love, worn: isObject(p.worn) ? p.worn : {} }));
+    .filter(validPerson)
+    .map((p: any, i: number) => publicPerson(p, Number.isSafeInteger(p.rank) ? p.rank : i + 1, hearts.get(searchKey(p.id)) || 0));
   return { slug: row.slug, name: row.name, season: row.season ?? null, paused: !row.season, character: row.character, top, count: Number(row.count) || 0, updatedAt: new Date(Number(row.updated)).toISOString() };
 }
+
+// 메인 페이지의 "지금 시즌": 보이는 페이지들 중 가장 많이 쓰는 시즌(같으면 끝나는 날이 늦은 쪽).
+export function pickSeason(pages: Record<string, any>[]) {
+  const tally = new Map<string, { season: any; n: number }>();
+  for (const p of pages) {
+    const s = p?.season;
+    if (!s || typeof s.id !== 'string') continue;
+    const t = tally.get(s.id) || { season: s, n: 0 };
+    t.n++; tally.set(s.id, t);
+  }
+  let best: { season: any; n: number } | null = null;
+  for (const t of tally.values()) {
+    if (!best || t.n > best.n || (t.n === best.n && Date.parse(t.season.endsAt) > Date.parse(best.season.endsAt))) best = t;
+  }
+  return best ? { id: best.season.id, name: best.season.name, endsAt: best.season.endsAt } : null;
+}
+
+// 하트: 브라우저가 만든 무작위 열쇠(32자) · 한국 날짜
+export const HEART_TOKEN = /^[A-Za-z0-9_-]{32}$/;
+const KST = 9 * 3600000, DAY = 86400000;
+export const kstDay = (t: number) => new Date(t + KST).toISOString().slice(0, 10);
+// 다음 한국 자정(이 날의 투표 열쇠는 그다음 하루까지 두었다가 지운다)
+export const nextKstMidnight = (t: number) => (Math.floor((t + KST) / DAY) + 1) * DAY - KST;
 
 export function slugOf(value: unknown) {
   const s = typeof value === 'string' ? value.trim().toLowerCase() : '';

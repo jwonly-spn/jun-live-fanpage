@@ -1,5 +1,5 @@
 // 시작점: 주소를 읽고 알맞은 화면을 그린다(history.pushState 방식, 새로고침 없이 이동).
-// 화면: 첫 화면(먼치킨 DJ 키우기 안내) · DJ 키우기 페이지(k/<주소>).
+// 화면: 메인(먼치킨 키우기) · 옷 도감(items) · DJ 키우기 페이지(k/<주소>) · 캐릭터 페이지(k/<주소>/<아이디 앞 부분>).
 import { computeBase, parseRoute, buildPath } from './lib/route.js';
 import { isDemo } from './api.js';
 
@@ -25,9 +25,15 @@ async function render({ scroll = false } = {}) {
     if (route.name === 'kiugi') {
       const { renderKiugi } = await import('./views/kiugi.js');
       if (my === token) await renderKiugi(root, route, app);
+    } else if (route.name === 'character') {
+      const { renderCharacter } = await import('./views/character.js');
+      if (my === token) await renderCharacter(root, route, app);
+    } else if (route.name === 'items') {
+      const { renderItems } = await import('./views/items.js');
+      if (my === token) await renderItems(root, app);
     } else {
       const { renderIntro } = await import('./views/intro.js');
-      if (my === token) renderIntro(root, app, { notice: route.name === 'intro' ? null : route.name });
+      if (my === token) await renderIntro(root, app, { notice: route.name === 'intro' ? null : route.name });
     }
   } catch (e) {
     console.error(e);

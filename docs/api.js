@@ -1,8 +1,8 @@
 // 서버와 이야기하기(API.md "DJ 키우기 페이지"). 체험 모드(?demo=1, localhost)에서는 mock.js가 대신 답한다.
-// 읽기만 한다(로그인 없음). 올리는 쪽은 DJ의 먼치킨(봇 프로그램)이다.
+// 로그인 없음. 올리는 쪽은 DJ의 먼치킨(봇 프로그램)이고, 사이트는 읽기와 하트 보내기만 한다.
 
 export const API_KEY = 'sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD';
-// DJ 키우기 페이지(k/<주소>) 서버: DJ 캐릭터·1~3등·시즌 아이디로 찾기
+// DJ 키우기 서버: 메인·DJ 페이지·캐릭터·찾기·하트
 export const KIUGI_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/';
 
 export function isDemo() {
@@ -22,6 +22,7 @@ export class ApiError extends Error {
 const STATUS_MESSAGE = {
   400: '입력한 내용을 다시 확인해 주세요.',
   404: '찾을 수 없어요.',
+  409: '지금은 할 수 없어요.',
   429: '잠시 뒤에 다시 해 주세요.',
   503: '서버가 잠시 쉬고 있어요. 조금 뒤에 다시 해 주세요.',
 };
@@ -39,17 +40,19 @@ function qs(query) {
   return s ? '?' + s : '';
 }
 
-// mockPath: 체험 모드에서 mock.js 가 받을 길('kiugi/page' 처럼 앞에 함수 이름을 붙인다).
-async function get(path, query, { timeout = 20000, mockPath = 'kiugi/' + path } = {}) {
+// 체험 모드에서는 mock.js 가 'kiugi/<길>' 로 받는다.
+async function request(method, path, { query, body, timeout = 20000 } = {}) {
   let status, json;
   if (isDemo()) {
-    ({ status, json } = await (await mock()).handle('GET', mockPath, query || {}));
+    ({ status, json } = await (await mock()).handle(method, 'kiugi/' + path, query || {}, body));
   } else {
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), timeout);
     let res;
     try {
-      res = await fetch(KIUGI_BASE + path + qs(query), { method: 'GET', headers: { apikey: API_KEY }, signal: ctl.signal, cache: 'no-store' });
+      const headers = { apikey: API_KEY };
+      if (body !== undefined) headers['Content-Type'] = 'application/json';
+      res = await fetch(KIUGI_BASE + path + qs(query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
     } catch (e) {
       throw new ApiError(e?.name === 'AbortError' ? '응답이 늦어요. 잠시 뒤에 다시 해 주세요.' : '인터넷 연결을 확인해 주세요.', 0);
     } finally { clearTimeout(timer); }
@@ -64,8 +67,12 @@ async function get(path, query, { timeout = 20000, mockPath = 'kiugi/' + path } 
   return json || {};
 }
 
-// DJ 키우기 페이지(로그인 없음)
+// DJ 키우기(로그인 없음)
 export const kiugiApi = {
-  page: (slug) => get('page', { slug }),
-  find: (slug, q) => get('find', { slug, q }),
+  page: (slug) => request('GET', 'page', { query: { slug } }),
+  find: (slug, q) => request('GET', 'find', { query: { slug, q } }),
+  person: (slug, id) => request('GET', 'person', { query: { slug, id } }),
+  home: () => request('GET', 'home'),
+  search: (q) => request('GET', 'search', { query: { q } }),
+  heart: (slug, id, token) => request('POST', 'heart', { body: { slug, id, token } }),
 };

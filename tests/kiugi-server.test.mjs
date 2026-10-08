@@ -1,65 +1,14 @@
-// DJ 키우기 페이지 서버(supabase/functions/kiugi): 검사·모양(lib.ts) + 요청 처리(handler.ts)를 메모리 store 로.
+// DJ 키우기 페이지 서버(supabase/functions/kiugi): 검사·모양(lib.ts) + 요청 처리(handler.ts)를 메모리 store 로(tests/kiugi-world.mjs).
 // 서명은 먼치킨과 같은 방법(node:crypto, ieee-p1363)으로 만든다. 실제 서버·스푼에 닿지 않는다.
 // 청취자 줄은 v2: 아이디 = 청취자가 방송에서 "!아이디"로 만든 앞 부분(한글 1~6자) + "#" + DJ 캐릭터 이름(예: 밤톨#먼치).
-// 아래 이름은 모두 지어낸 것.
+// 아래 이름은 모두 지어낸 것. 2단계(하트·메인 페이지·이름 하나만)는 tests/kiugi-stage2.test.mjs.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import crypto from 'node:crypto';
 import * as v from '../supabase/functions/kiugi/lib.ts';
-import { createHandler } from '../supabase/functions/kiugi/handler.ts';
+import { SITE, BASE, T0, deviceKey, signed, syl, PERSON, PAYLOAD as MAKE, world, body } from './kiugi-world.mjs';
 
-const SITE = 'https://jwonly-spn.github.io/jun-live-fanpage/';
-const BASE = 'https://x.supabase.co/functions/v1/kiugi/';
-const T0 = Date.parse('2026-10-20T12:00:00Z');
 const ZW = String.fromCharCode(0x200b), RLO = String.fromCharCode(0x202e); // 보이지 않는 글자·글 방향 바꾸기 글자
-
-function deviceKey() {
-  const { privateKey, publicKey } = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
-  const spki = publicKey.export({ type: 'spki', format: 'der' });
-  return { privateKey, publicKey: spki.toString('base64url'), id: crypto.createHash('sha256').update(spki).digest('hex') };
-}
-// 먼치킨(app/desktop/kiugi-fanpage.cjs)과 같은 서명
-function signed(key, payload, { at = T0, nonce = crypto.randomBytes(24).toString('base64url'), action = 'upload' } = {}) {
-  const body = { action, payload, publicKey: key.publicKey, timestamp: at, nonce };
-  const digest = crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex');
-  body.signature = crypto.sign('sha256', Buffer.from(`JUN-LIVE-KIUGI/1\n${action}\n${at}\n${nonce}\n${key.publicKey}\n${digest}`), { key: key.privateKey, dsaEncoding: 'ieee-p1363' }).toString('base64url');
-  return body;
-}
-const syl = (i) => String.fromCharCode(0xac00 + i); // 한글 완성 글자 하나(가, 각, 갂 …)
-const NAME = '먼치';
-const PERSON = (base, love, extra = {}) => ({ id: base + '#' + NAME, level: 1 + Math.min(9, Math.floor(love / 100)), love, worn: { head: 'cat-ears' }, ...extra });
-const PAYLOAD = (people = [PERSON('밤톨', 50), PERSON('사탕요정', 300), PERSON('달무리', 120)]) => ({ enabled: true, v: 2, at: T0, paused: false, season: { id: 's1', name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, character: { name: NAME, gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' }, people });
-
-function memoryStore(clock) {
-  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), calls: [] };
-  return Object.assign(s, {
-    ipSalt: async () => 'salt',
-    hit: async (key, seconds, max) => { const k = key + ':' + Math.floor(clock.now / 1000 / seconds); const n = (s.hits.get(k) || 0) + 1; s.hits.set(k, n); return n <= max; },
-    nonce: async (id) => { if (s.nonces.has(id)) return false; s.nonces.add(id); return true; },
-    device: async (id) => s.devices.get(id) || null,
-    pageByDevice: async (device) => { for (const p of s.pages.values()) if (p.device_id === device) return { slug: p.slug, updated: p.updated }; return null; },
-    createPage: async (row) => {
-      if ([...s.pages.values()].some((p) => p.device_id === row.device_id)) return 'device';
-      if (s.pages.has(row.slug)) return 'slug';
-      s.pages.set(row.slug, { ...row, updated: null, name: '', season: null, character: null, top: [], people: [], count: 0 }); return 'ok';
-    },
-    saveSnapshot: async (slug, snap, now) => { const p = s.pages.get(slug); Object.assign(p, structuredClone({ updated: now, name: snap.name, season: snap.season, character: snap.character, top: snap.top, people: snap.people, count: snap.count })); s.calls.push('save'); },
-    clearSnapshot: async (slug) => { Object.assign(s.pages.get(slug), { updated: null, name: '', season: null, character: null, top: [], people: [], count: 0 }); s.calls.push('clear'); },
-    publicPage: async (slug) => { const p = s.pages.get(slug); if (!p) return null; const { people, ...rest } = p; return structuredClone(rest); },
-    people: async (slug) => { const p = s.pages.get(slug); return p ? { device_id: p.device_id, updated: p.updated, people: structuredClone(p.people) } : null; },
-    expire: async (before) => { for (const p of s.pages.values()) if (p.updated !== null && p.updated < before) Object.assign(p, { updated: null, people: [], top: [], count: 0 }); },
-    cleanNonces: async () => {}
-  });
-}
-function world({ chance = () => 0.5 } = {}) {
-  const clock = { now: T0 }, store = memoryStore(clock);
-  let seed = 1;
-  const handle = createHandler(store, { now: () => clock.now, chance, site: SITE, random: (n) => Uint8Array.from({ length: n }, () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 256) });
-  const post = (body, headers = {}) => handle(new Request(BASE + 'app', { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) }));
-  const get = (path, ip = '1.1.1.1') => handle(new Request(BASE + path, { headers: { 'cf-connecting-ip': ip } }));
-  return { store, clock, handle, post, get };
-}
-const body = async (r) => ({ status: r.status, json: await r.json(), headers: r.headers });
+const PAYLOAD = (people) => MAKE(people);
 const find = (w, slug, q, ip) => w.get('find?slug=' + slug + '&q=' + encodeURIComponent(q), ip);
 
 test('아이디 검사: "<한글 1~6자>#<캐릭터 이름>", 뒤 이름은 이 캐릭터와 같아야 한다, NFC·앞뒤 공백만 정리', () => {
@@ -133,7 +82,9 @@ test('찾기: 앞 부분만 또는 전체 아이디로, 정확히 같은 아이�
   let r = v.findPeople(s.people, v.query(' 밤 톨이 '));
   assert.equal(r.results.length, 5); assert.equal(r.more, true); assert.equal(r.exact, 1);
   assert.deepEqual(r.results.slice(0, 2).map((p) => [p.rank, p.id]), [[3, '밤톨이#먼치'], [1, '밤톨이팬#먼치']]);
-  assert.deepEqual(Object.keys(r.results[0]).sort(), ['id', 'level', 'love', 'rank', 'worn']);
+  assert.deepEqual(Object.keys(r.results[0]).sort(), ['id', 'level', 'rank', 'worn'], '애정도 숫자는 내보내지 않는다(SHOW_LOVE false)');
+  assert.equal(v.SHOW_LOVE, false);
+  assert.deepEqual(v.findPeople(s.people, '밤톨이', 5, (k) => (k === '밤톨이#먼치' ? 4 : 0)).results[0], { rank: 3, id: '밤톨이#먼치', level: 8, worn: { head: 'cat-ears' }, hearts: 4 });
   // 전체 아이디: 정확히 같은 사람 먼저, 그다음 그 글이 들어 있는 아이디
   r = v.findPeople(s.people, v.query('밤톨이#먼치'));
   assert.equal(r.exact, 1); assert.deepEqual(r.results.map((p) => p.id), ['밤톨이#먼치']);
@@ -187,7 +138,7 @@ test('올리기: 승인된 기기만, v2 만, 처음 올리면 주소를 만들�
   w.clock.now += 61000;
   r = await body(await w.post(signed(key, PAYLOAD([PERSON('먼치팬', 999, { nickname: '스푼이름' })]), { at: w.clock.now })));
   assert.equal(r.json.slug, slug); assert.equal(w.store.pages.size, 1);
-  assert.deepEqual(w.store.pages.get(slug).people, [{ id: '먼치팬#먼치', level: 10, love: 999, worn: { head: 'cat-ears' }, k: '먼치팬#먼치' }]);
+  assert.deepEqual(w.store.pages.get(slug).people, [{ id: '먼치팬#먼치', level: 10, love: 999, worn: { head: 'cat-ears' }, k: '먼치팬#먼치', ch: w.clock.now }]);
   assert.doesNotMatch(JSON.stringify([...w.store.pages.values()]), /nickname|스푼이름/, '서버에 저장된 것에 스푼 이름이 없다');
   // 캐릭터 이름 모양이 틀리면 거절
   w.clock.now += 61000;
@@ -232,9 +183,9 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=30');
   assert.deepEqual(Object.keys(r.json).sort(), ['character', 'count', 'name', 'paused', 'season', 'slug', 'top', 'updatedAt']);
   assert.equal(r.json.count, 4); assert.deepEqual(r.json.top.map((p) => [p.rank, p.id]), [[1, '사탕요정#먼치'], [2, '달무리#먼치'], [3, '밤톨#먼치']]); assert.equal(r.json.updatedAt, new Date(T0).toISOString());
-  for (const p of r.json.top) assert.deepEqual(Object.keys(p).sort(), ['id', 'level', 'love', 'rank', 'worn']);
-  assert.doesNotMatch(JSON.stringify(r.json), new RegExp(key.id + '|"k"|device|nickname'));
-  const want = { results: [{ rank: 4, id: '호박꽃#먼치', level: 1, love: 10, worn: { head: 'cat-ears' } }], exact: 1, more: false };
+  for (const p of r.json.top) assert.deepEqual(Object.keys(p).sort(), ['hearts', 'id', 'level', 'rank', 'worn'], '애정도 숫자는 숨기고 하트 수를 싣는다');
+  assert.doesNotMatch(JSON.stringify(r.json), new RegExp(key.id + '|"k"|"ch"|"love"|device|nickname'));
+  const want = { results: [{ rank: 4, id: '호박꽃#먼치', level: 1, worn: { head: 'cat-ears' }, hearts: 0 }], exact: 1, more: false };
   assert.deepEqual((await body(await find(w, slug, '호박꽃'))).json, want, '앞 부분만');
   assert.deepEqual((await body(await find(w, slug, '호박꽃#먼치'))).json, want, '전체 아이디');
   r = await body(await find(w, slug, ''));
@@ -243,7 +194,7 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal((await w.get('page?slug=nope')).status, 404);
   assert.equal((await w.get('page?slug=abcdefgh')).status, 404);
   r = await body(await w.get('health'));
-  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2 });
+  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true });
   assert.equal((await w.handle(new Request(BASE + 'page', { method: 'OPTIONS' }))).status, 204);
   // 주소마다 찾기는 1분에 30번
   for (let i = 0; i < 29; i++) await find(w, slug, '밤', '9.9.9.9');

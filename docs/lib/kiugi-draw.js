@@ -6,9 +6,10 @@ import { characterSvg } from '../kiugi/kiugi-art.js';
 export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 
-// 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림에 쓰는 것
-//  items: {옷id: {slot, season, name, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
-//  seasons: {시즌id: {id, name, expressions}} · last: 마지막 시즌 id(모르는 시즌의 표정은 이것으로)
+// 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림·옷 도감에 쓰는 것
+//  items: {옷id: {slot, season, name, price, level, tier?, tierName?, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
+//   값·레벨은 먼치킨(rules.mjs)과 같게: 시즌 옷은 등급표(tiers)의 price·level, 시즌 보상은 보상 값과 보상 규칙의 최소 레벨
+//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], rewardRule:{minLevel, minAttendance}}} · last: 마지막 시즌 id
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
   const items = {}, seasons = {};
   let last = null;
@@ -16,11 +17,38 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
     const id = raw?.season?.id;
     if (typeof id !== 'string' || !id) continue;
     last = id;
-    seasons[id] = { id, name: raw.season.name || id, expressions: Array.isArray(raw.expressions) ? raw.expressions : [] };
-    for (const it of Array.isArray(raw.items) ? raw.items : []) if (it?.id) items[it.id] = { slot: it.slot, season: id, name: it.name };
-    for (const r of Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []) if (r?.id) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true };
+    const tiers = raw.tiers && typeof raw.tiers === 'object' ? raw.tiers : {};
+    const rule = raw.seasonRewardRule && typeof raw.seasonRewardRule === 'object' ? raw.seasonRewardRule : {};
+    const minLevel = Number(rule.minLevel) || 1;
+    seasons[id] = {
+      id, name: raw.season.name || id, endsAt: raw.season.endsAt || null,
+      expressions: Array.isArray(raw.expressions) ? raw.expressions : [],
+      slots: (Array.isArray(raw.slots) ? raw.slots : []).filter((s) => s?.id).map((s) => ({ id: s.id, name: s.name || s.id })),
+      rewardRule: { minLevel, minAttendance: Number(rule.minAttendance) || 0 },
+    };
+    for (const it of Array.isArray(raw.items) ? raw.items : []) {
+      if (!it?.id) continue;
+      const t = tiers[it.tier] || {};
+      items[it.id] = { slot: it.slot, season: id, name: it.name, tier: it.tier, tierName: t.name || it.tier, price: Number(t.price) || 0, level: Number(t.level) || 1 };
+    }
+    for (const r of Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []) if (r?.id) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true, price: Number(r.price) || 0, level: minLevel };
   }
   return { items, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
+}
+
+// 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 오라 등 — 은 여기서)
+const SLOT_FALLBACK = { aura: '오라' };
+export function slotName(catalog, seasonId, slot) {
+  const s = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
+  return s.find((x) => x.id === slot)?.name || SLOT_FALLBACK[slot] || slot;
+}
+// 입은 옷 → [{slot, slotName, id, name}] (시즌 칸 순서대로, 모르는 옷은 id 그대로)
+export function wornList(catalog, seasonId, worn) {
+  const order = ((catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || []).map((s) => s.id);
+  const rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length : i; };
+  return Object.entries(worn && typeof worn === 'object' ? worn : {})
+    .sort(([a], [b]) => rank(a) - rank(b))
+    .map(([slot, id]) => ({ slot, slotName: slotName(catalog, seasonId, slot), id, name: catalog?.items?.[id]?.name || id }));
 }
 
 // 레벨 표정(레벨마다 바뀐다): 그 시즌 목록에서 레벨 이하 중 가장 높은 것
