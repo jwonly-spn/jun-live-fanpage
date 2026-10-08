@@ -87,7 +87,7 @@ export async function renderCharacter(root, route, app) {
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요.` : '아직 아무것도 입지 않았어요.', null, { kicker: 'LOADOUT' }),
       slots.length
         ? h('ul', { class: 'kg-worn' }, ...slots.map((w) => h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
-          w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
+          w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
           h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : '비어 있음')))))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     h('section', { class: 'kg-panel kg-share' },

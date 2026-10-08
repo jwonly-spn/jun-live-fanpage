@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { parseRoute, buildPath, DEMO_KIUGI_SLUG } from '../docs/lib/route.js';
-import { buildCatalog, expressionFor, cspSafeSvg, characterMarkup, STAGE, wornList, slotName } from '../docs/lib/kiugi-draw.js';
+import { buildCatalog, expressionFor, cspSafeSvg, characterMarkup, itemMarkup, paintMarkup, STAGE, wornList, slotName } from '../docs/lib/kiugi-draw.js';
 import { handle, KIUGI_DEMO } from '../docs/mock.js';
 import { personLine, seasonLine, josa, checkQuery, idKey } from '../docs/views/kiugi.js';
 import { levelLine, heartText, baseOf } from '../docs/views/cards.js';
@@ -15,7 +15,7 @@ const B = '/jun-live-fanpage/';
 const read = async (p) => JSON.parse(await readFile(new URL('../docs/kiugi/' + p, import.meta.url), 'utf8'));
 const catalog = async () => {
   const manifest = await read('manifest.json');
-  return buildCatalog(await Promise.all(manifest.seasons.map(read)), { files: { s1: ['base_f_s2.png', 's1_head_witch-hat.png'] }, adjust: { s1: {} } });
+  return buildCatalog(await Promise.all(manifest.seasons.map(read)), { files: manifest.files, adjust: {} });
 };
 
 test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고 다시 읽기', () => {
@@ -27,40 +27,60 @@ test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고
   assert.equal(KIUGI_DEMO.slug, DEMO_KIUGI_SLUG);
 });
 
-test('사이트에 복사한 키우기 파일: 그림 스크립트·시즌 목록·목록(manifest)', async () => {
+test('사이트에 복사한 키우기 파일(그림 V3): 그림 스크립트·모양 규칙·그림 목록·시즌 목록·manifest, 예전 V2 그림 폴더는 없다', async () => {
   const manifest = await read('manifest.json');
-  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); assert.ok(Array.isArray(manifest.files.s1));
+  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); assert.equal(manifest.files.v3.length, 214, '파츠 162 + 마스크 52'); assert.equal(manifest.files.s1, undefined);
   const s1 = await read('season-s1.json');
-  assert.equal(s1.season.id, 's1'); assert.ok(s1.items.length > 20);
-  await readFile(new URL('../docs/kiugi/s1/adjust.json', import.meta.url));
+  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'v3'); assert.equal(s1.items.length, 30);
+  for (const name of ['kiugi-art.js', 'kiugi-look.js', 'kiugi-v3-data.js']) await readFile(new URL('../docs/kiugi/' + name, import.meta.url));
+  await assert.rejects(readFile(new URL('../docs/kiugi/s1/adjust.json', import.meta.url)));
 });
 
-test('옷 표·레벨 표정: 시즌 옷과 시즌 보상(보상 표시), 모르는 시즌은 마지막 시즌 표정', async () => {
+test('옷 표·레벨 표정(그림 V3): 의상·신발·악세사리(묶음·번호)와 시즌 보상, 입은 옷 칸, 모르는 시즌은 마지막 시즌 표정', async () => {
   const c = await catalog();
-  assert.deepEqual(c.items['witch-hat'], { slot: 'head', season: 's1', name: '마녀 모자', tier: 'fine', tierName: '고급', price: 600, level: 3 }, '값·레벨은 등급표에서(먼치킨 rules.mjs 와 같게)');
-  assert.deepEqual(c.items['cat-ears'], { slot: 'head', season: 's1', name: '고양이 귀 머리띠', tier: 'basic', tierName: '기본', price: 50, level: 1 });
+  assert.deepEqual(c.items.outfit_02, { slot: 'outfit', cat: 'outfit', number: 2, season: 's1', name: '크림슨 나이트 간호사', tier: 'fine', tierName: '고급', price: 600, level: 3 }, '값·레벨은 등급표에서(먼치킨 rules.mjs 와 같게)');
+  assert.deepEqual(c.items.accessory_01, { slot: 'head', cat: 'acc', number: 1, season: 's1', name: '블랙 캣 헤드밴드', tier: 'basic', tierName: '기본', price: 50, level: 1 });
   assert.deepEqual(c.items['moonlight-aura'], { slot: 'aura', season: 's1', name: '달빛 오라', reward: true, price: 15000, level: 10 });
   assert.deepEqual(c.seasons.s1.rewardRule, { minLevel: 10, minAttendance: 20 });
-  assert.deepEqual(c.seasons.s1.slots.map((s) => s.id), ['head', 'face', 'neck', 'top', 'bottom', 'outer', 'shoes', 'hand', 'bg']);
-  assert.deepEqual(wornList(c, 's1', { bg: 'candy-shop', head: 'witch-hat', aura: 'moonlight-aura', top: 'no-such' }).map((w) => [w.slotName, w.name]),
-    [['머리', '마녀 모자'], ['상의', 'no-such'], ['배경', '사탕 가게'], ['오라', '달빛 오라']], '시즌 칸 순서, 모르는 칸은 뒤로, 모르는 옷은 id 그대로');
-  assert.equal(slotName(c, 's1', 'bottom'), '하의·원피스');
+  assert.deepEqual(c.seasons.s1.slots.map((s) => s.id), ['outfit', 'shoes', 'head', 'face', 'neck', 'hand']);
+  assert.deepEqual(c.seasons.s1.categories.map((s) => [s.id, s.code]), [['outfit', '의상'], ['shoes', '신발'], ['acc', '악세']]);
+  assert.deepEqual(wornList(c, 's1', { hand: 'accessory_10', aura: 'moonlight-aura', outfit: 'outfit_01', head: 'witch-hat', top: 'no-such' }).map((w) => [w.slotName, w.name]),
+    [['의상', '체크메이트 블랙 캣'], ['손 장식', '출입금지 손목밴드'], ['오라', '달빛 오라']], '시즌 칸 순서, 모르는 칸은 뒤로, 목록에 없는 옷(예전 V2 옷 등)은 뺀다');
+  assert.equal(slotName(c, 's1', 'neck'), '목 장식');
   assert.equal(expressionFor(c, 's1', 1).name, '기본'); assert.equal(expressionFor(c, 's1', 8).name, '하트 눈'); assert.equal(expressionFor(c, 's1', 99).name, '사랑 가득');
   assert.equal(expressionFor(c, 's9', 8).name, '하트 눈');
   assert.equal(expressionFor(buildCatalog([]), 's1', 5).name, '기본');
 });
 
-test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 주소에 맞게: style→fill, 그림 파일은 BASE/kiugi/ 아래', async () => {
-  assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/s1/a.png"/><g style="opacity:.5"/></svg>', B),
-    '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/s1/a.png"/><g/></svg>');
+test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 주소에 맞게: style→fill, 그림 파일은 BASE/kiugi/v3 아래, 마스크는 속성으로', async () => {
+  assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/v3/a.png?v=0123456789ab"/><g style="opacity:.5"/></svg>', B),
+    '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/v3/a.png?v=0123456789ab"/><g/></svg>');
   const c = await catalog();
-  const svg = characterMarkup(c, { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { head: 'witch-hat', aura: 'moonlight-aura', face: '<script>' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
+  // 예전 판 먼치킨이 올린 DJ 캐릭터(V2 값 long·skin)도 가장 비슷한 V3 그림으로
+  const svg = characterMarkup(c, { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { outfit: 'outfit_03', shoes: 'shoe_02', head: 'accessory_01', face: '<script>' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
   assert.doesNotMatch(svg, / style="/); assert.match(svg, new RegExp(`fill="${STAGE}"`));
-  assert.match(svg, /href="\/jun-live-fanpage\/kiugi\/s1\/base_f_s2\.png"/); assert.match(svg, /href="\/jun-live-fanpage\/kiugi\/s1\/s1_head_witch-hat\.png"/);
+  for (const f of ['female_body', 'female_hair_02_back', 'female_hair_02_front', 'outfit_03_female', 'outfit_03_female_cut', 'shoe_02_female', 'shoe_02_female_cut', 'accessory_01_female']) assert.match(svg, new RegExp(`href="/jun-live-fanpage/kiugi/v3/${f}\\.png\\?v=[0-9a-f]{12}"`), f);
+  assert.match(svg, /mask="url\(#kg[a-z0-9]+_oc\)"/); assert.match(svg, /mask-type="alpha"/);
   assert.doesNotMatch(svg, /href="\/kiugi\//);
   assert.match(svg, /aria-label="밤톨이님의 &quot;캐릭터&quot;"/);
-  assert.doesNotMatch(svg, /<script/, '이상한 옷 이름은 글자로만(그림 태그가 되지 않는다)');
+  assert.doesNotMatch(svg, /<script/, '이상한 옷 id 는 그리지 않는다');
   assert.match(svg, /^<svg viewBox="0 0 1024 1024"/);
+  // 옷 한 벌(도감): 기본 캐릭터가 그 옷만 입은 모습, 성별 버전, 시즌 보상은 배지, 예전 옷은 이름 자리 표시
+  assert.match(itemMarkup(c, 'outfit_05', { base: B, gender: 'm' }), /kiugi\/v3\/outfit_05_male\.png/);
+  assert.match(itemMarkup(c, 'outfit_05', { base: B }), /kiugi\/v3\/outfit_05_female\.png/);
+  assert.doesNotMatch(itemMarkup(c, 'pumpkin-crown', { base: B }), /<image/);
+  assert.match(itemMarkup(c, 'witch-hat', { base: B }), />witch-hat</);
+});
+
+test('그림 칸 넣기(paintMarkup): 그림을 다 받은 뒤 한 번에, 빨리 여러 번 그리면 마지막 것만, 못 받은 그림은 칸에 표시', async () => {
+  const c = await catalog();
+  const stage = { dataset: {}, kids: null, replaceChildren(...k) { this.kids = k; } };
+  const a = characterMarkup(c, { gender: 'f' }, { outfit: 'outfit_01' }, 1, { base: B }), b = characterMarkup(c, { gender: 'm' }, { outfit: 'outfit_02' }, 1, { base: B });
+  const slow = (u) => new Promise((r) => setTimeout(r, u.includes('outfit_01') ? 30 : 1));
+  const [ra, rb] = await Promise.all([paintMarkup(stage, a, { load: slow, make: (m) => ({ m }) }), paintMarkup(stage, b, { load: slow, make: (m) => ({ m }) })]);
+  assert.deepEqual([ra, rb], [false, true]); assert.equal(stage.kids[0].m, b);
+  await paintMarkup(stage, a, { load: (u) => (u.includes('outfit_01_female.png') ? Promise.reject(new Error('x')) : Promise.resolve()), make: (m) => ({ m }) });
+  assert.equal(stage.dataset.kgArtError, '1');
 });
 
 test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 페이지·아이디로 찾기(정확히 같은 아이디 먼저)', async () => {
@@ -161,18 +181,17 @@ test('첫 화면 숫자 칸(시즌 번호·남은 날, 한국 날짜)과 캐릭�
   assert.equal(daysLeft(s, Date.parse('2026-12-05T00:00:00Z')), 0, '지나면 0');
   assert.equal(daysLeft({ endsAt: 'x' }), null);
   const c = await catalog();
-  const slots = loadoutSlots(c, 's1', { head: 'witch-hat', aura: 'moonlight-aura' });
-  assert.deepEqual(slots.map((w) => [w.slot, w.id]), [['head', 'witch-hat'], ['face', null], ['neck', null], ['top', null], ['bottom', null], ['outer', null], ['shoes', null], ['hand', null], ['bg', null], ['aura', 'moonlight-aura']]);
-  assert.equal(slots[1].slotName, '얼굴'); assert.equal(slots[0].name, '마녀 모자');
+  const slots = loadoutSlots(c, 's1', { head: 'accessory_06', aura: 'moonlight-aura', top: 'witch-hat' });
+  assert.deepEqual(slots.map((w) => [w.slot, w.id]), [['outfit', null], ['shoes', null], ['head', 'accessory_06'], ['face', null], ['neck', null], ['hand', null], ['aura', 'moonlight-aura']]);
+  assert.equal(slots[2].slotName, '머리 장식'); assert.equal(slots[2].name, '퇴근한 악마'); assert.equal(slots[0].slotName, '의상');
 });
 
-test('옷 도감 묶음: 시즌 칸 순서대로, 값·레벨·입은 사람 수, 시즌 보상은 따로', async () => {
+test('옷 도감 묶음(그림 V3): 의상·신발·악세사리 차례로, 번호(의상1·악세3)·값·레벨·악세사리 자리·입은 사람 수, 시즌 보상은 따로', async () => {
   const c = await catalog();
-  const { groups, rewards, rule } = itemGroups(c, 's1', new Map([['witch-hat', 4]]));
-  assert.deepEqual(groups.map((g) => g.name), ['머리', '얼굴', '목', '상의', '하의·원피스', '겉옷·등', '신발', '손 소품', '배경']);
-  const hat = groups[0].items.find((x) => x.id === 'witch-hat');
-  assert.deepEqual(hat, { id: 'witch-hat', name: '마녀 모자', price: 600, level: 3, tierName: '고급', count: 4 });
-  assert.equal(groups.reduce((n, g) => n + g.items.length, 0), 83);
+  const { groups, rewards, rule } = itemGroups(c, 's1', new Map([['outfit_02', 4]]));
+  assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['의상', '의상', 10], ['신발', '신발', 10], ['악세사리', '악세', 10]]);
+  assert.deepEqual(groups[0].items.find((x) => x.id === 'outfit_02'), { id: 'outfit_02', name: '크림슨 나이트 간호사', price: 600, level: 3, tierName: '고급', count: 4, code: '의상2' });
+  assert.deepEqual(groups[2].items.find((x) => x.id === 'accessory_03'), { id: 'accessory_03', name: '베네치안 반가면', price: 600, level: 3, tierName: '고급', count: 0, code: '악세3', place: '얼굴 장식' });
   assert.deepEqual(rewards.map((r) => [r.id, r.price, r.level]), [['pumpkin-crown', 15000, 10], ['shadow-wings', 15000, 10], ['moonlight-aura', 15000, 10]]);
   assert.deepEqual(rule, { minLevel: 10, minAttendance: 20 });
   assert.equal(wearLine(0), '아직 입은 사람이 없어요'); assert.equal(wearLine(1200), '1,200명이 입고 있어요');

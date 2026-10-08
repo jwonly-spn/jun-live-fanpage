@@ -1,6 +1,6 @@
-// 옷 도감(items): 이번 시즌 옷을 칸마다 — 옷 그림·이름·값(냥)·몇 레벨부터·입은 사람 수. 시즌 보상은 따로.
+// 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V3: 의상·신발·악세사리) — 옷 그림·번호(의상1)·이름·값(냥)·몇 레벨부터·악세사리 자리·입은 사람 수. 시즌 보상은 따로.
 // 이름·값·레벨은 사이트에 복사된 시즌 목록(docs/kiugi/season-*.json, 먼치킨과 같은 값)에서, 입은 사람 수는 메인 페이지 자료(home.items)에서.
-// 입은 사람 수는 메인 페이지에 보이는 방송(main)만 센다. 옷 그림은 여자·남자 캐릭터용을 단추로 바꿔 본다(상의·하의·겉옷·신발).
+// 입은 사람 수는 메인 페이지에 보이는 방송(main)만 센다. 옷 그림은 여자·남자 캐릭터용을 단추로 바꿔 본다(같은 번호 옷의 남녀 몸 버전).
 import { h } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog } from '../lib/kiugi-draw.js';
@@ -10,14 +10,18 @@ import { itemArt } from './cards.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 
-// 도감 묶음(시험에서 바로 쓴다): [{slot, name, items:[{id, name, price, level, tierName, count}]}] + 시즌 보상 묶음
+// 도감 묶음(시험에서 바로 쓴다): [{slot(묶음 id), name, code, items:[{id, name, price, level, tierName, count, code?, place?}]}] + 시즌 보상 묶음
+//  묶음 = 시즌 목록의 categories(의상·신발·악세사리). code = 채팅 번호(의상1·악세3), place = 악세사리 자리 이름(머리 장식 등)
 export function itemGroups(catalog, seasonId, counts = new Map()) {
   const season = catalog?.seasons?.[seasonId];
   if (!season) return { groups: [], rewards: [] };
   const mine = Object.entries(catalog.items || {}).filter(([, it]) => it.season === seasonId);
-  const row = ([id, it]) => ({ id, name: it.name, price: it.price, level: it.level, tierName: it.tierName || '', count: counts.get(id) || 0 });
-  const groups = season.slots.map((s) => ({ slot: s.id, name: s.name, items: mine.filter(([, it]) => !it.reward && it.slot === s.id).map(row) })).filter((g) => g.items.length);
-  const rewards = mine.filter(([, it]) => it.reward).map(row);
+  const cats = season.categories?.length ? season.categories : season.slots.map((s) => ({ id: s.id, name: s.name, code: s.name }));
+  const slotNames = new Map(season.slots.map((s) => [s.id, s.name]));
+  const row = (cat) => ([id, it]) => ({ id, name: it.name, price: it.price, level: it.level, tierName: it.tierName || '', count: counts.get(id) || 0,
+    ...(cat && Number.isInteger(it.number) ? { code: `${cat.code}${it.number}` } : {}), ...(cat?.id === 'acc' ? { place: slotNames.get(it.slot) || it.slot } : {}) });
+  const groups = cats.map((c) => ({ slot: c.id, name: c.name, code: c.code, items: mine.filter(([, it]) => !it.reward && (it.cat || it.slot) === c.id).map(row(c)) })).filter((g) => g.items.length);
+  const rewards = mine.filter(([, it]) => it.reward).map(row(null));
   return { groups, rewards, rule: season.rewardRule };
 }
 export const wearLine = (n) => (n > 0 ? `${fmt(n)}명이 입고 있어요` : '아직 입은 사람이 없어요');
@@ -41,7 +45,7 @@ export async function renderItems(root, app) {
       h('div', { class: 'kg-wrap' },
         h('section', { class: 'kg-hero small' },
           h('div', { class: 'kg-hero-copy' }, kicker, pill, h('h1', { class: 'display' }, '옷 도감'),
-            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 칸마다 모았어요. 방송 채팅에 번호를 치면 사서 바로 입어요.'), sexes, stats),
+            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 의상·신발·악세사리를 모았어요. 방송 채팅에 번호를 치면 사서 바로 입어요. 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), sexes, stats),
           feature))),
     main,
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
@@ -56,7 +60,7 @@ export async function renderItems(root, app) {
   const total = groups.reduce((n, g) => n + g.items.length, 0);
   if (total) stats.replaceChildren(...statTiles([
     { value: fmt(total), label: '이번 시즌 옷' },
-    { value: fmt(groups.length), label: '꾸밀 수 있는 칸' },
+    { value: fmt(groups.length), label: '옷 묶음' },
     rewards.length ? { value: fmt(rewards.length), label: '시즌 보상' } : null]));
   // 넓은 화면의 첫 화면 오른쪽: 시즌 보상 진열(장식 — 같은 내용은 아래 "시즌 보상" 칸에 있다)
   if (rewards.length) feature.replaceChildren(h('span', { class: 'kg-kicker' }, 'SEASON REWARD'),
@@ -68,10 +72,11 @@ export async function renderItems(root, app) {
   const itemCard = (it, reward = false) => h('li', { class: 'kg-item' + (reward ? ' reward' : tierOf(it.id)) },
     itemArt(catalog, it.id, { base: app.base, label: it.name, gender }),
     h('span', { class: 'kg-item-body' },
-      h('b', { class: 'kg-item-name' }, it.name),
+      h('b', { class: 'kg-item-name' }, it.code ? h('span', { class: 'kg-chip soft' }, it.code) : null, it.code ? ' ' : null, it.name),
       h('span', { class: 'kg-chips' },
         h('span', { class: 'kg-chip nyang' }, `${fmt(it.price)}냥`),
         h('span', { class: 'kg-chip' }, `Lv.${it.level}`),
+        it.place ? h('span', { class: 'kg-chip soft' }, it.place) : null,
         reward ? h('span', { class: 'kg-chip tier' }, '시즌 보상') : it.tierName ? h('span', { class: 'kg-chip soft tier' }, it.tierName) : null),
       h('span', { class: 'kg-item-count' + (it.count ? '' : ' none') }, wearLine(it.count))));
   const rewardGroup = rewards.length ? { slot: 'reward', name: '시즌 보상', items: rewards, reward: true } : null;
@@ -80,8 +85,8 @@ export async function renderItems(root, app) {
   const paint = () => list.replaceChildren(...[
     ...(groups.length ? all.filter((g) => pick === 'all' || g.slot === pick) : [{ name: '옷', items: [], empty: true }]).map((g) => h('section', { class: 'kg-sec' + (g.reward ? ' kg-rewards' : '') },
       g.reward
-        ? secHead('시즌 보상', `Lv.${rule.minLevel}${rule.minAttendance ? ` · 출석 ${rule.minAttendance}번` : ''}부터 살 수 있고, 시즌이 끝나도 남아요.`, null, { kicker: 'SEASON REWARD' })
-        : secHead(g.name, g.empty ? '' : `${g.items.length}벌`),
+        ? secHead('시즌 보상', `Lv.${rule.minLevel}${rule.minAttendance ? ` · 출석 ${rule.minAttendance}번` : ''}부터 살 수 있고, 시즌이 끝나도 남아요. 캐릭터에 입히지 않고 효과가 계속되는 배지예요.`, null, { kicker: 'SEASON REWARD' })
+        : secHead(g.name, g.empty ? '' : `${g.items.length}${g.slot === 'outfit' ? '벌' : g.slot === 'shoes' ? '켤레' : '개'}${g.code ? ` · 방송 채팅에 !캐릭터이름 ${g.code}1 처럼 번호를 쳐요` : ''}`),
       g.empty ? h('p', { class: 'empty' }, '옷 목록을 불러오지 못했어요.') : h('ul', { class: 'kg-items' }, ...g.items.map((it) => itemCard(it, Boolean(g.reward)))))),
     home ? null : h('p', { class: 'note' }, '지금은 입은 사람 수를 불러오지 못했어요. 이름·값·레벨만 보여요.')].filter(Boolean));
   // 칸 고르기(전체 · 머리 · 얼굴 … · 시즌 보상)

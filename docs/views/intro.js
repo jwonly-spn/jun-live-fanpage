@@ -114,14 +114,15 @@ function howSection() {
     h('ol', { class: 'kg-steps' },
       step('1', '아이디 만들기', '방송 채팅에 아이디를 만들면 이번 시즌 동안 그 이름으로 보여요.', '!아이디 밤톨'),
       step('2', '냥 모으기', '채팅·좋아요·하트·후원·출석으로 냥이 모여요. 애정도가 오르면 표정이 바뀌어요.', null),
-      step('3', '옷 입히기', 'DJ 캐릭터 이름 뒤에 상점을 붙이면 옷이 번호와 함께 나와요. 번호를 치면 사서 바로 입어요.', '!먼치 상점 머리')),
+      step('3', '옷 입히기', 'DJ 캐릭터 이름 뒤에 상점을 붙이면 의상·신발·악세사리가 번호와 함께 나와요. 번호(의상1·악세3)를 치면 사서 바로 입어요.', '!먼치 상점 의상')),
     h('p', { class: 'note' }, '예시의 "먼치"는 DJ마다 다른 캐릭터 이름이에요.'));
 }
 // 많이 입은 옷 TOP 5(막대는 1등 기준)
 async function topItemsSection(ctx) {
   let home; try { home = await ctx.home(); } catch { return null; }
   const seasonId = home.season?.id || ctx.catalog.last;
-  const top = (home.items || []).slice(0, 5), max = Math.max(1, ...top.map((x) => Number(x.count) || 0));
+  // 이번 시즌 목록에 있는 옷만(예전 판 먼치킨이 올린 예전 옷 id 는 그림·이름이 없어 뺀다)
+  const top = (home.items || []).filter((x) => ctx.catalog.items[x.id]).slice(0, 5), max = Math.max(1, ...top.map((x) => Number(x.count) || 0));
   return section(secHead('많이 입은 옷 TOP 5', '메인에 보이는 방송의 캐릭터가 입은 옷이에요.',
     ilink(ctx.app.link({ name: 'items' }), { class: 'kg-more' }, '옷 도감', icon('arrow', { size: 16 })), { kicker: 'MOST WORN' }),
     top.length

@@ -2,7 +2,7 @@
 // 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 // 카드 모양(styles.css): 수집 카드 — 테두리 색이 1~3등은 금·은·동, 아래쪽에 레벨 문장, 위쪽에 순위 문장·하트.
 import { h, icon, toast } from '../lib/dom.js';
-import { characterMarkup, itemMarkup, expressionFor, svgNode } from '../lib/kiugi-draw.js';
+import { characterMarkup, itemMarkup, expressionFor, paintMarkup } from '../lib/kiugi-draw.js';
 import { ilink, crest } from './common.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
@@ -18,10 +18,17 @@ export function idText(id) {
 }
 
 let observer = null;
-// 그림 칸: make() 가 SVG 요소를 돌려준다. eager 면 바로, 아니면 화면 가까이 왔을 때. kind: 무대 모양(styles.css .kg-stage.<kind>)
+// 그림 칸: make() 가 SVG 글을 돌려준다. eager 면 바로, 아니면 화면 가까이 왔을 때. kind: 무대 모양(styles.css .kg-stage.<kind>)
+//  그림 V3(2026-10-09): 그림 파일을 모두 받은 뒤 한 번에 넣는다(paintMarkup — 반쯤 그려진 모습이 보이지 않게).
 export function lazyStage(make, label, { eager = false, kind = '' } = {}) {
   const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') });
-  const draw = () => { let node = null; try { node = make(); } catch (e) { console.error(e); } stage.replaceChildren(node || h('span', { class: 'kg-noart' }, label)); };
+  const noart = () => h('span', { class: 'kg-noart' }, label);
+  const draw = () => {
+    let markup = null;
+    try { markup = make(); } catch (e) { console.error(e); }
+    if (!markup) { stage.replaceChildren(noart()); return; }
+    paintMarkup(stage, markup, { fallback: noart() }).catch((e) => { console.error(e); stage.replaceChildren(noart()); });
+  };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
   observer ||= new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { observer.unobserve(e.target); e.target.kgDraw?.(); }
@@ -33,11 +40,11 @@ export function lazyStage(make, label, { eager = false, kind = '' } = {}) {
 // DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대 그림은 styles.css)
 export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '' } = {}) {
   if (!character) return h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => svgNode(characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null })), label, { eager, kind });
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind });
 }
-// 옷 한 벌 그림(옷 도감·입은 옷)
-export function itemArt(catalog, id, { base = '/', label = '', gender = 'f' } = {}) {
-  return lazyStage(() => svgNode(itemMarkup(catalog, id, { base, label, gender })), label, { kind: 'item' });
+// 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다)
+export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null } = {}) {
+  return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: 'item' });
 }
 
 // 캐릭터 카드 {slug, djName, id, level, worn, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동)

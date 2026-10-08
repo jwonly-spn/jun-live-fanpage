@@ -19,19 +19,21 @@ const fail = (status, error, extra = {}) => ({ status, json: { error, ...extra }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const kstDay = (t) => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
 
+// 입은 옷(그림 V3 옷 id = 패키지 pair: outfit_01~10 의상 · shoe_01~10 신발 · accessory_01~10 악세사리 — 자리는 머리·얼굴·목·손 중 그 악세사리 자리)
 const OUTFITS = [
-  { head: 'witch-hat', top: 'stage-jacket', bottom: 'witch-dress', hand: 'magic-wand', bg: 'halloween-night' },
-  { head: 'cat-ears', face: 'blush', top: 'pumpkin-hoodie', bottom: 'check-skirt', shoes: 'pumpkin-slippers', bg: 'pumpkin-field' },
-  { head: 'candle-crown', face: 'monocle', outer: 'dracula-cape', bottom: 'dracula-suit', bg: 'haunted-house' },
-  { head: 'pumpkin-hat', top: 'candy-vest', bottom: 'overalls', hand: 'lollipop' },
-  { head: 'ghost-pin', top: 'ghost-pajama', outer: 'ghost-wings', bg: 'candy-shop' },
-  { face: 'mustache', top: 'belly-tee', bottom: 'ripped-jeans', hand: 'rubber-chicken' },
-  {}, { head: 'bat-clips', top: 'bat-blouse', shoes: 'bat-shoes' },
+  { outfit: 'outfit_05', shoes: 'shoe_01', neck: 'accessory_04', head: 'accessory_06' },
+  { outfit: 'outfit_03', shoes: 'shoe_02', head: 'accessory_01', hand: 'accessory_08' },
+  { outfit: 'outfit_04', shoes: 'shoe_10', face: 'accessory_03' },
+  { outfit: 'outfit_01', shoes: 'shoe_03', neck: 'accessory_02', hand: 'accessory_10' },
+  { outfit: 'outfit_10', shoes: 'shoe_06', face: 'accessory_07' },
+  { outfit: 'outfit_08', shoes: 'shoe_08', neck: 'accessory_09' },
+  {}, { outfit: 'outfit_02', hand: 'accessory_05', shoes: 'shoe_05' },
 ];
+// DJ 캐릭터(그림 V3 값: 머리·눈·코·입 번호 1~10). 젤리는 일부러 예전(V2) 값 — 예전 판 먼치킨이 올린 자료도 가장 비슷한 V3 그림으로 그리는지 보려고.
 const DJS = [
-  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2', eyes: 'sparkle', nose: 'dot', mouth: 'smile' },
+  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: '9', hairColor: 'pink', eyes: '2', nose: '1', mouth: '2' },
     bases: ['밤톨', '사탕요정', '달무리', '먼치팬', '호박꽃', '별사탕', '새벽달', '구름빵', '보름달', '솜사탕', '밤하늘', '유령친구', '마녀수프', '박쥐날개', '꿀호떡', '달빛소나기', '호박등', '사탕유령', '밤톨이네', '작은밤톨', '초코칩'] },
-  { slug: 'cuky2345', character: { name: '쿠키', gender: 'm', hair: 'm_two-block', hairColor: 'brown', skin: 's3', eyes: 'round', nose: 'round', mouth: 'grin' },
+  { slug: 'cuky2345', character: { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '5', mouth: '8' },
     bases: ['귤껍질', '여름밤', '별사탕', '밤톨', '솜사탕', '초코칩'] },
   { slug: 'jery2468', character: { name: '젤리', gender: 'f', hair: 'f_twin', hairColor: 'sky', skin: 's1', eyes: 'happy', nose: 'dot', mouth: 'cat' },
     bases: ['달무리', '사탕요정', '여름밤', '꿀호떡'] },
