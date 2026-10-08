@@ -88,7 +88,7 @@ function floatingHearts(g) {
 }
 export const EXPRESSION_PARTS_V3 = Object.freeze(['exp-blush', 'exp-floating-hearts']);
 // 보기: full = 캔버스 전체 · bust = 얼굴·어깨(작은 칸용) · 그 밖은 "x y w h" 그대로
-const VIEWS = Object.freeze({full: `0 0 ${SIZE} ${SIZE}`, bust: '357 62 310 310'});
+const VIEWS = Object.freeze({full: `0 0 ${SIZE} ${SIZE}`, bust: '347 34 330 330'});
 
 // 캐릭터 한 장. dj = DJ 캐릭터({gender, hair, hairColor, eyes, nose, mouth} — 예전 V2 값도 받는다), look = {worn:{칸:옷id}, trick:{item,slot}(1시간 장난 분장 — 그 칸을 덮는다)},
 // expression = 레벨 표정({parts}). options: transparent(바탕 없음) · solid(바탕 색) · label(접근성 이름) · view('full'|'bust'|viewBox 글).
