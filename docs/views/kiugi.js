@@ -5,11 +5,27 @@ import { h, icon, store } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { relativeTime, formatDate } from '../lib/text.js';
 import { loadCatalog, buildCatalog, expressionFor } from '../lib/kiugi-draw.js';
-import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { art, heartText, baseOf } from './cards.js';
+import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, crest, statTiles, BRAND } from './common.js';
+import { art, heartText, baseOf, idText } from './cards.js';
 
-const MEDALS = ['🥇', '🥈', '🥉'];
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
+// 시즌 번호(s1 → 1)와 끝날 때까지 남은 날(한국 날짜 기준, 지났으면 0, 모르면 null)
+export function seasonNo(season) {
+  const m = /^s(\d+)$/.exec(String(season?.id ?? ''));
+  return m ? Number(m[1]) : null;
+}
+export function daysLeft(season, now = Date.now()) {
+  const end = Date.parse(season?.endsAt ?? '');
+  if (Number.isNaN(end)) return null;
+  const day = (t) => Math.floor((t + 9 * 3600000) / 86400000);
+  return Math.max(0, day(end) - day(now));
+}
+// 머리글(작은 영문): "SEASON 01 · 할로윈"
+export const seasonKicker = (season) => {
+  const n = seasonNo(season);
+  return season ? `SEASON ${n ? String(n).padStart(2, '0') : ''}`.trim() : 'OFF SEASON';
+};
+export const dDay = (season, now) => { const d = daysLeft(season, now); return d === null ? null : d === 0 ? 'D-DAY' : `D-${d}`; };
 // 찾기 칸 규칙(서버와 같음): 앞 부분만("밤톨", 한글 1~6자) 또는 전체 아이디("밤톨#먼치"). 띄어쓰기는 뺀다.
 export const QUERY_RULE = /^[가-힣]{1,6}(#[가-힣A-Za-z0-9]{1,8})?$/;
 export const idKey = (s) => String(s ?? '').normalize('NFC').replace(/\s+/g, '');
@@ -50,7 +66,7 @@ export async function renderKiugi(root, route, app) {
   let page;
   const catalogJob = loadCatalog(app.base).catch(() => buildCatalog([]));
   try { page = await kiugiApi.page(route.slug); }
-  catch (e) { main.replaceChildren(missing(e, () => renderKiugi(root, route, app), app)); return; }
+  catch (e) { main.replaceChildren(missing(e, () => renderKiugi(root, route, app), app)); shell.append(siteFoot(app)); return; }
   const catalog = await catalogJob;
   const name = page.name || page.character?.name || 'DJ';
   const seasonId = page.season?.id || null;
@@ -59,15 +75,20 @@ export async function renderKiugi(root, route, app) {
   const ctx = { app, catalog, character: page.character, seasonId, slug: page.slug, name };
   const shareBtn = h('button', { type: 'button', class: 'icon-btn', 'aria-label': '공유하기', onclick: () => share(href, `${name} 키우기`) }, icon('share'));
 
+  const left = page.season ? dDay(page.season) : null;
   night.replaceChildren(...nightTop(app, { actions: [shareBtn] }),
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero dj' },
         h('div', { class: 'kg-hero-copy' },
-          h('span', { class: 'kg-pill season' }, (page.season ? '🎃 ' : '🍂 ') + seasonLine(page.season)),
+          h('span', { class: 'kg-kicker', 'aria-hidden': 'true' }, `${seasonKicker(page.season)} · DJ`),
+          h('span', { class: 'kg-pill season' }, seasonLine(page.season)),
           h('h1', { class: 'display' }, `${name} 키우기`),
           h('p', { class: 'intro' }, page.paused ? '다음 시즌을 준비하고 있어요. 새 시즌이 시작되면 다시 만나요!' : `방송에서 모은 냥으로 청취자마다 자기 ${josa(name, '을', '를')} 꾸며요.`),
-          h('p', { class: 'kg-hero-stats' }, `참여한 청취자 ${fmt(page.count)}명 · ${relativeTime(page.updatedAt) || '조금 전'} 업데이트`)),
-        h('div', { class: 'kg-hero-art' }, art(catalog, page.character, {}, 1, { seasonId, base: app.base, label: `${name} 캐릭터`, eager: true, kind: 'night' })))));
+          h('div', { class: 'kg-hero-stats' }, ...statTiles([
+            { value: fmt(page.count), label: '참여한 청취자' },
+            { value: relativeTime(page.updatedAt) || '조금 전', label: '마지막 업데이트' },
+            left ? { value: left, label: '시즌 끝까지' } : null]))),
+        h('div', { class: 'kg-hero-art kg-showcase' }, art(catalog, page.character, {}, 1, { seasonId, base: app.base, label: `${name} 캐릭터`, eager: true, kind: 'night' })))));
   main.replaceChildren();
   if (!page.paused) main.append(findCard(page, ctx), topCard(page, ctx));
   main.append(howCard(name));
@@ -119,7 +140,7 @@ function findCard(page, ctx) {
   form.addEventListener('submit', (e) => { e.preventDefault(); void search(input.value); });
   if (input.value) queueMicrotask(() => void search(input.value));
   return h('section', { class: 'kg-panel kg-search', id: 'find' },
-    secHead('내 아이디로 찾기', ''),
+    secHead('내 아이디로 찾기', '', null, { kicker: 'SEARCH' }),
     h('p', { class: 'kg-help', id: 'kg_q_help' }, '방송에서 !아이디 로 만든 아이디를 적어 주세요(시즌마다 새로 만들어요).'),
     form, results);
 }
@@ -140,16 +161,16 @@ function resultItem(p, ctx, found) {
 function topCard(page, ctx) {
   const top = Array.isArray(page.top) ? page.top.slice(0, 3) : [];
   return h('section', { class: 'kg-sec', 'aria-labelledby': 'kg_top' },
-    secHead('이번 시즌 1~3등', '애정도(이번 시즌에 받은 냥)가 높은 순서예요. 애정도 숫자는 지금은 보여 주지 않아요.', null, { id: 'kg_top' }),
+    secHead('이번 시즌 1~3등', '애정도(이번 시즌에 받은 냥)가 높은 순서예요. 애정도 숫자는 지금은 보여 주지 않아요.', null, { id: 'kg_top', kicker: 'SEASON TOP 3' }),
     top.length
       ? h('ol', { class: 'kg-podium' }, ...top.map((p, i) => h('li', { class: `kg-podium-one p${i + 1}` },
         ilink(ctx.app.link({ name: 'character', slug: ctx.slug, base: baseOf(p.id) }), { class: 'kg-podium-link', 'aria-label': `${i + 1}등 ${p.id} 캐릭터 보기` },
-          h('span', { class: 'kg-podium-medal', 'aria-hidden': 'true' }, MEDALS[i] || ''),
-          art(ctx.catalog, ctx.character, p.worn, p.level, { seasonId: ctx.seasonId, base: ctx.app.base, label: `${i + 1}등 ${p.id} 캐릭터`, eager: true }),
-          h('b', { class: 'kg-podium-name' }, p.id),
+          h('span', { class: 'kg-podium-medal', 'aria-hidden': 'true' }, crest(i + 1)),
+          art(ctx.catalog, ctx.character, p.worn, p.level, { seasonId: ctx.seasonId, base: ctx.app.base, label: `${i + 1}등 ${p.id} 캐릭터`, eager: true, kind: 'podium' }),
+          h('span', { class: 'kg-podium-step', 'aria-hidden': 'true' }, h('span', { class: 'kg-podium-place' }, ['1ST', '2ND', '3RD'][i])),
+          h('b', { class: 'kg-podium-name' }, ...idText(p.id)),
           h('span', { class: 'kg-podium-sub' }, `Lv.${p.level} ${expressionFor(ctx.catalog, ctx.seasonId, p.level).name}`),
-          h('span', { class: 'kg-heart-pill inline' }, heartText(p.hearts)),
-          h('span', { class: 'kg-podium-step', 'aria-hidden': 'true' }, `${i + 1}`)))))
+          h('span', { class: 'kg-heart-pill inline' }, heartText(p.hearts))))))
       : h('p', { class: 'empty' }, '아직 순위가 없어요. 방송에서 냥을 모아 보세요!'));
 }
 
@@ -157,7 +178,7 @@ function howCard(name) {
   const cmd = (t) => h('code', { class: 'kg-cmd' }, t);
   const step = (n, title, ...body) => h('li', { class: 'kg-step' }, h('span', { class: 'kg-step-n', 'aria-hidden': 'true' }, n), h('b', null, title), h('p', null, ...body));
   return h('section', { class: 'kg-sec' },
-    secHead('어떻게 키워요?', `방송 채팅에 이렇게 쳐 보세요. ${name} 대신 다른 말을 치면 답하지 않아요.`),
+    secHead('어떻게 키워요?', `방송 채팅에 이렇게 쳐 보세요. ${name} 대신 다른 말을 치면 답하지 않아요.`, null, { kicker: 'HOW TO PLAY' }),
     h('ol', { class: 'kg-steps' },
       step('1', '아이디 만들기', cmd('!아이디 먼치팬'), ' 처럼 쳐서 이번 시즌 아이디를 만들어요(한글 1~6자). 이 페이지에는 ', cmd(`먼치팬#${name}`), ' 처럼 보여요.'),
       step('2', '냥 모으기', '방송에서 채팅·좋아요·하트·스푼·출석으로 냥을 모아요. 애정도가 오르면 레벨이 오르고 표정이 바뀌어요(Lv.10까지).'),

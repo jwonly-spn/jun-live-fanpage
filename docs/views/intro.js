@@ -6,9 +6,9 @@ import { h, icon } from '../lib/dom.js';
 import { buildPath, DEMO_KIUGI_SLUG } from '../lib/route.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, slotName } from '../lib/kiugi-draw.js';
-import { ilink, errorBox, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { seasonLine } from './kiugi.js';
-import { characterCard, djCard, art } from './cards.js';
+import { ilink, errorBox, nightTop, siteFoot, secHead, crest, statTiles, BRAND } from './common.js';
+import { seasonLine, seasonKicker, dDay } from './kiugi.js';
+import { characterCard, djCard, art, itemArt } from './cards.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 const NOTICE = {
@@ -32,12 +32,20 @@ const cards = (list, home, ctx, opts = {}) => {
 // 밤하늘 첫 화면: 시즌 띠 · 사이트 이름 · 한 줄 설명 · 참여 수 · 무대(인기 캐릭터 1~3등, 없으면 DJ 캐릭터). 자료는 받은 뒤에 채운다.
 // heading: 위에 알림 상자가 있으면 'h2'(제목이 두 번 h1 이 되지 않게).
 export function heroSection(ctx) {
+  const kicker = h('span', { class: 'kg-kicker', 'aria-hidden': 'true' }, 'SEASON');
   const pill = h('span', { class: 'kg-pill season' }, '시즌 정보를 불러오는 중…');
-  const stats = h('p', { class: 'kg-hero-stats' });
+  const stats = h('div', { class: 'kg-hero-stats' });
   const cast = h('div', { class: 'kg-cast', 'aria-hidden': 'true' });
   ctx.home().then((home) => {
-    pill.textContent = (home.season ? '🎃 ' : '🍂 ') + seasonLine(home.season);
-    stats.textContent = home.totals?.djs ? `DJ ${fmt(home.totals.djs)}명 · 청취자 ${fmt(home.totals.people)}명이 키우는 중` : '아직 키우기를 연 DJ가 없어요. 곧 만나요!';
+    kicker.textContent = seasonKicker(home.season);
+    pill.textContent = seasonLine(home.season);
+    const left = home.season ? dDay(home.season) : null;
+    if (home.totals?.djs) {
+      stats.replaceChildren(...statTiles([
+        { value: fmt(home.totals.djs), label: '키우기 중인 DJ' },
+        { value: fmt(home.totals.people), label: '함께 키우는 청취자' },
+        left ? { value: left, label: '시즌 끝까지' } : null]));
+    } else stats.replaceChildren(h('p', { class: 'kg-hero-note' }, '아직 키우기를 연 DJ가 없어요. 곧 만나요!'));
     const look = looks(home), seasonId = home.season?.id || null;
     const top = (home.popular?.length ? home.popular : home.recent || []).slice(0, 3)
       .map((c) => ({ character: look.get(c.slug), worn: c.worn, level: c.level }));
@@ -45,11 +53,16 @@ export function heroSection(ctx) {
     // 1등을 가운데에 크게
     const order = list.length === 3 ? [list[1], list[0], list[2]] : list;
     cast.replaceChildren(...order.map((c) => h('div', { class: 'kg-cast-one' + (c === list[0] ? ' lead' : '') },
-      art(ctx.catalog, c.character, c.worn, c.level, { seasonId: home.season?.id || null, base: ctx.app.base, eager: true, kind: 'night' }))));
-  }).catch(() => { pill.textContent = '🍂 지금은 시즌 정보를 불러오지 못했어요'; });
+      art(ctx.catalog, c.character, c.worn, c.level, { seasonId, base: ctx.app.base, eager: true, kind: 'night' }))));
+  }).catch(() => { kicker.textContent = 'SEASON'; pill.textContent = '지금은 시즌 정보를 불러오지 못했어요'; });
+  const home = ctx.app.link({ name: 'intro' });
   return h('section', { class: 'kg-hero home' },
-    h('div', { class: 'kg-hero-copy' }, pill, h(ctx.heading, { class: 'display' }, BRAND), h('p', { class: 'intro' }, HERO_TEXT), stats),
-    cast);
+    h('div', { class: 'kg-hero-copy' }, kicker, pill, h(ctx.heading, { class: 'display' }, BRAND), h('p', { class: 'intro' }, HERO_TEXT),
+      h('div', { class: 'kg-hero-cta' },
+        ilink(home + '#find', { class: 'btn btn-accent' }, icon('search', { size: 18 }), '내 캐릭터 찾기'),
+        ilink(ctx.app.link({ name: 'items' }), { class: 'btn btn-line' }, '옷 도감 보기')),
+      stats),
+    h('div', { class: 'kg-cast-wrap' }, cast));
 }
 // 아이디로 찾기(메인에 보이는 모든 방송에서)
 function searchSection(ctx) {
@@ -76,28 +89,28 @@ function searchSection(ctx) {
     finally { if (my === seq) submit.disabled = false; }
   });
   return h('section', { class: 'kg-panel kg-search', id: 'find' },
-    secHead('아이디로 찾기', ''),
+    secHead('아이디로 찾기', '', null, { kicker: 'SEARCH' }),
     h('p', { class: 'kg-help', id: 'kg_gq_help' }, '방송에서 !아이디 로 만든 아이디를 적어 주세요. 여러 방송에 같은 아이디가 있으면 함께 보여요.'),
     form, results);
 }
 // 지금 인기 있는 캐릭터(하트 많은 순)
 async function popularSection(ctx) {
   let home; try { home = await ctx.home(); } catch { return h('section', { class: 'kg-panel' }, errorBox('지금은 목록을 불러오지 못했어요. 잠시 뒤에 다시 해 주세요.', () => ctx.app.navigate(location.pathname + location.search, { replace: true }))); }
-  return section(secHead('지금 인기 있는 캐릭터', '하트를 많이 받은 순서예요. 하트는 하루에 한 번 보낼 수 있어요.'),
+  return section(secHead('지금 인기 있는 캐릭터', '하트를 많이 받은 순서예요. 하트는 하루에 한 번 보낼 수 있어요.', null, { kicker: 'RANKING' }),
     home.popular?.length ? h('div', { class: 'kg-grid' }, ...cards(home.popular, home, ctx, { ranked: true })) : h('p', { class: 'empty' }, EMPTY_POPULAR));
 }
 // 새로 꾸민 캐릭터(옆으로 넘겨 보기)
 async function recentSection(ctx) {
   let home; try { home = await ctx.home(); } catch { return null; }
-  return section(secHead('새로 꾸민 캐릭터', '방금 옷을 갈아입은 캐릭터예요. 옆으로 넘겨 보세요.'),
+  return section(secHead('새로 꾸민 캐릭터', '방금 옷을 갈아입은 캐릭터예요. 옆으로 넘겨 보세요.', null, { kicker: 'NEW LOOK' }),
     home.recent?.length ? h('div', { class: 'kg-strip' }, ...cards(home.recent, home, ctx)) : h('p', { class: 'empty' }, '아직 새로 꾸민 캐릭터가 없어요.'));
 }
 // 이렇게 키워요(채팅 예시의 "먼치"는 DJ마다 다른 캐릭터 이름)
 function howSection() {
   const step = (n, title, body, bubble) => h('li', { class: 'kg-step' },
     h('span', { class: 'kg-step-n', 'aria-hidden': 'true' }, n), h('b', null, title), h('p', null, body),
-    bubble ? h('span', { class: 'kg-bubble' }, bubble) : null);
-  return section(secHead('이렇게 키워요', 'DJ 방송 채팅에서 바로 할 수 있어요.'),
+    bubble ? h('span', { class: 'kg-bubble' }, h('span', { class: 'kg-bubble-tag', 'aria-hidden': 'true' }, '채팅'), bubble) : null);
+  return section(secHead('이렇게 키워요', 'DJ 방송 채팅에서 바로 할 수 있어요.', null, { kicker: 'HOW TO PLAY' }),
     h('ol', { class: 'kg-steps' },
       step('1', '아이디 만들기', '방송 채팅에 아이디를 만들면 이번 시즌 동안 그 이름으로 보여요.', '!아이디 밤톨'),
       step('2', '냥 모으기', '채팅·좋아요·하트·후원·출석으로 냥이 모여요. 애정도가 오르면 표정이 바뀌어요.', null),
@@ -110,12 +123,13 @@ async function topItemsSection(ctx) {
   const seasonId = home.season?.id || ctx.catalog.last;
   const top = (home.items || []).slice(0, 5), max = Math.max(1, ...top.map((x) => Number(x.count) || 0));
   return section(secHead('많이 입은 옷 TOP 5', '메인에 보이는 방송의 캐릭터가 입은 옷이에요.',
-    ilink(ctx.app.link({ name: 'items' }), { class: 'kg-more' }, '옷 도감', icon('arrow', { size: 16 }))),
+    ilink(ctx.app.link({ name: 'items' }), { class: 'kg-more' }, '옷 도감', icon('arrow', { size: 16 })), { kicker: 'MOST WORN' }),
     top.length
       ? h('ol', { class: 'kg-rank kg-panel' }, ...top.map((x, i) => {
         const it = ctx.catalog.items[x.id];
         return h('li', null,
-          h('span', { class: 'kg-rank-n' }, `${i + 1}`),
+          crest(i + 1, { className: 'kg-rank-n' }),
+          h('span', { class: 'kg-rank-art', 'aria-hidden': 'true' }, itemArt(ctx.catalog, x.id, { base: ctx.app.base, label: it?.name || x.id })),
           h('span', { class: 'kg-rank-name' }, it?.name || x.id, it ? h('small', null, slotName(ctx.catalog, seasonId, it.slot)) : null),
           h('span', { class: 'kg-rank-count' }, `${fmt(x.count)}명`),
           h('progress', { class: 'kg-rank-bar', max, value: Number(x.count) || 0, 'aria-hidden': 'true' }));
@@ -126,14 +140,14 @@ async function topItemsSection(ctx) {
 async function djsSection(ctx) {
   let home; try { home = await ctx.home(); } catch { return null; }
   const seasonId = home.season?.id || null;
-  return section(secHead('키우기 중인 DJ', 'DJ 캐릭터를 누르면 그 방송의 키우기 페이지로 가요.'),
+  return section(secHead('키우기 중인 DJ', 'DJ 캐릭터를 누르면 그 방송의 키우기 페이지로 가요.', null, { kicker: 'DJ LIST' }),
     home.djs?.length ? h('div', { class: 'kg-grid' }, ...home.djs.map((d) => djCard(d, { app: ctx.app, catalog: ctx.catalog, seasonId }))) : h('p', { class: 'empty' }, '아직 키우기를 연 DJ가 없어요.'));
 }
 // 예시와 알림
 function aboutSection(ctx) {
   const demo = buildPath(ctx.app.base, { name: 'kiugi', slug: DEMO_KIUGI_SLUG }) + '?demo=1';
   return h('section', { class: 'kg-panel kg-about' },
-    h('div', null, h('b', null, 'DJ 키우기 페이지는 이렇게 생겼어요'), h('p', null, '예시 페이지의 캐릭터와 아이디는 모두 지어낸 것이에요.')),
+    h('div', null, h('span', { class: 'kg-kicker', 'aria-hidden': 'true' }, 'PREVIEW'), h('b', null, 'DJ 키우기 페이지는 이렇게 생겼어요'), h('p', null, '예시 페이지의 캐릭터와 아이디는 모두 지어낸 것이에요.')),
     ilink(demo, { class: 'btn btn-line' }, '예시 페이지 보기'));
 }
 

@@ -1,16 +1,27 @@
-// 캐릭터 페이지(k/<주소>/<아이디 앞 부분>): 밤하늘 무대의 큰 그림 · 아이디 · 레벨과 표정 · 하트(하루 한 번) · 입은 옷(옷 그림) · DJ 페이지 링크 · 링크 복사.
+// 캐릭터 페이지(k/<주소>/<아이디 앞 부분>): 액자 속 큰 그림 · 아이디 · 레벨과 표정 · 정보 칸 · 하트(하루 한 번) · 입은 옷(칸마다, 빈 칸도) · DJ 페이지 링크 · 링크 복사.
 // 애정도 숫자는 보이지 않는다. 하트 열쇠는 이 브라우저 저장소에만 둔다(lib/hearts.js). 로그인 없음.
 import { h, icon, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, wornList } from '../lib/kiugi-draw.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { art, itemArt, heartText, levelLine, copyLink } from './cards.js';
+import { art, itemArt, heartText, levelLine, copyLink, idText } from './cards.js';
+import { seasonKicker } from './kiugi.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
 function browserStorage() { try { return window.localStorage; } catch { return null; } }
 export const HEART_SENT = '♥ 오늘 하트 보냈어요';
 export const HEART_SEND = '♥ 하트 보내기';
+
+// 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸), 시즌 칸에 없는 것(시즌 보상 오라 등)은 뒤에
+export function loadoutSlots(catalog, seasonId, worn) {
+  const list = wornList(catalog, seasonId, worn);
+  const slots = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
+  const bySlot = new Map(list.map((w) => [w.slot, w]));
+  const out = slots.map((s) => bySlot.get(s.id) || { slot: s.id, slotName: s.name, id: null, name: '' });
+  for (const w of list) if (!slots.some((s) => s.id === w.slot)) out.push(w);
+  return out;
+}
 
 export async function renderCharacter(root, route, app) {
   document.title = BRAND;
@@ -21,7 +32,7 @@ export async function renderCharacter(root, route, app) {
   const catalogJob = loadCatalog(app.base).catch(() => buildCatalog([]));
   let data;
   try { data = await kiugiApi.person(route.slug, route.base); }
-  catch (e) { main.replaceChildren(missing(e, route, app)); return; }
+  catch (e) { main.replaceChildren(missing(e, route, app)); shell.append(siteFoot(app)); return; }
   const catalog = await catalogJob;
   const dj = data.dj || {}, seasonId = data.season?.id || null;
   const djLink = app.link({ name: 'kiugi', slug: dj.slug });
@@ -29,6 +40,7 @@ export async function renderCharacter(root, route, app) {
   document.title = `${data.id} · ${dj.name} 키우기`;
 
   const worn = wornList(catalog, seasonId, data.worn);
+  const slots = loadoutSlots(catalog, seasonId, data.worn);
   const gender = dj.character?.gender === 'm' ? 'm' : 'f';
   const storage = browserStorage();
   const key = heartKey(dj.slug, data.id, seasonId);
@@ -50,27 +62,36 @@ export async function renderCharacter(root, route, app) {
     } catch (e) { heartBtn.disabled = false; status.textContent = e.message; }
   });
 
+  const level = Number(data.level) || 1;
+  const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
   night.replaceChildren(...nightTop(app),
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
-        h('div', { class: 'kg-hero-art' }, art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'night' })),
+        h('div', { class: 'kg-hero-art kg-showcase framed' },
+          art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'night' }),
+          h('span', { class: 'kg-lv-crest', 'aria-hidden': 'true' }, h('small', null, 'LV'), String(level))),
         h('div', { class: 'kg-hero-copy' },
+          h('span', { class: 'kg-kicker', 'aria-hidden': 'true' }, `${seasonKicker(data.season)} · PROFILE`),
           ilink(djLink, { class: 'kg-pill season' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
-          h('h1', { class: 'display kg-char-id' }, data.id),
+          h('h1', { class: 'display kg-char-id' }, ...idText(data.id)),
           h('p', { class: 'kg-char-level' }, levelLine(catalog, seasonId, data.level)),
+          h('dl', { class: 'kg-facts' },
+            fact('입은 옷', `${worn.length}벌`),
+            fact('시즌', data.season?.name || '—'),
+            fact('DJ', dj.name || '—')),
           h('div', { class: 'kg-heart-row' }, heartBtn, count),
-          h('p', { class: 'kg-hero-stats' }, '하트는 하루에 한 번 보낼 수 있어요.'),
+          h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요.'),
           status))));
   main.replaceChildren(
     h('section', { class: 'kg-sec' },
-      secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요.` : ''),
-      worn.length
-        ? h('ul', { class: 'kg-worn' }, ...worn.map((w) => h('li', { class: 'kg-worn-one' },
-          itemArt(catalog, w.id, { base: app.base, label: w.name, gender }),
-          h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.name)))))
+      secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요.` : '아직 아무것도 입지 않았어요.', null, { kicker: 'LOADOUT' }),
+      slots.length
+        ? h('ul', { class: 'kg-worn' }, ...slots.map((w) => h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
+          w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
+          h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : '비어 있음')))))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     h('section', { class: 'kg-panel kg-share' },
-      h('div', null, h('b', null, '친구에게 알려 주기'), h('p', null, '링크를 보내서 하트를 부탁해 보세요.')),
+      h('div', null, h('span', { class: 'kg-kicker', 'aria-hidden': 'true' }, 'SHARE'), h('b', null, '친구에게 알려 주기'), h('p', null, '링크를 보내서 하트를 부탁해 보세요.')),
       h('div', { class: 'row wrap gap' },
         h('button', { type: 'button', class: 'btn btn-accent', onclick: () => copyLink(url, copyBox) }, '링크 복사'),
         ilink(djLink, { class: 'btn btn-line' }, `${dj.name} 키우기 보기`)),

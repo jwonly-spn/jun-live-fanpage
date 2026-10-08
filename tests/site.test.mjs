@@ -66,7 +66,7 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
   assert.match(index, /<title>스푼 DJ 키우기<\/title>/);
   assert.match(index, /스푼 공식 서비스가 아니에요/, '검색 설명에도 비공식');
   assert.match(index, /script-src 'self'/); assert.match(index, /connect-src 'self' https:\/\/aksegkhhugqvvaidgvro\.supabase\.co/);
-  assert.match(index, /family=Jua/, '둥근 제목 글씨');
+  assert.match(index, /family=Noto\+Serif\+KR/, '제목 글씨(명조, 2026-10-09 게임 화면 느낌으로 바꿈)');
   const common = await import('../docs/views/common.js');
   assert.equal(common.BRAND, '스푼 DJ 키우기');
   assert.equal(common.UNOFFICIAL, '스푼 공식 서비스가 아니에요');

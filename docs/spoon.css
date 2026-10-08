@@ -1,10 +1,14 @@
-:root { color-scheme: light dark; --bg: #fff6f8; --ink: #2a2230; --sub: #6d6272; --accent: #c2406a; }
-@media (prefers-color-scheme: dark) { :root { --bg: #1b161d; --ink: #f1e9f0; --sub: #b3a6b6; --accent: #ff8fb1; } }
+/* 스푼 연결 페이지 — 키우기 사이트와 같은 짙은 남색 + 금색(글꼴은 이 페이지 보안 규칙상 기기 글꼴만) */
+:root { color-scheme: dark; --bg: #07111f; --panel: #0f2036; --ink: #f0e6d2; --sub: #aaa492; --gold: #c8aa6e; --gold-dark: #785a28; --ok: #6fd6cc; --fail: #ff9a4d; }
 * { box-sizing: border-box; }
-body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--ink); font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; line-height: 1.7; word-break: keep-all; }
-main { width: min(440px, 100%); padding: 32px 22px; text-align: center; }
-.brand { margin: 0 0 6px; font-size: 13px; letter-spacing: .12em; color: var(--accent); font-weight: 700; }
-h1 { margin: 0 0 14px; font-size: 26px; line-height: 1.35; }
+body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; color: var(--ink); line-height: 1.7; word-break: keep-all;
+  font-family: "Noto Sans KR", system-ui, -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  background: radial-gradient(60% 50% at 80% 20%, rgba(108, 63, 214, .22), transparent 70%), radial-gradient(70% 40% at 50% 110%, rgba(226, 98, 42, .18), transparent 70%), linear-gradient(180deg, #010a13, var(--bg)); }
+main { position: relative; width: min(440px, 100%); padding: 32px 24px; text-align: center; border: 1px solid rgba(200, 170, 110, .3); background: linear-gradient(180deg, rgba(18, 38, 63, .96), rgba(9, 21, 37, .98)); box-shadow: 0 30px 60px -30px #000; }
+main::before { content: ""; position: absolute; left: 18%; right: 18%; top: -1px; height: 1px; background: linear-gradient(90deg, transparent, var(--ink), transparent); }
+.brand { margin: 0 0 8px; font-size: 13px; letter-spacing: .22em; color: var(--gold); font-weight: 700; }
+h1 { margin: 0 0 14px; font-size: 26px; line-height: 1.35; font-family: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", "Batang", serif; }
 p { margin: 0 0 12px; font-size: 16px; }
 .hint { color: var(--sub); font-size: 13.5px; }
-body[data-state="ok"] h1 { color: var(--accent); }
+body[data-state="ok"] h1 { color: var(--ok); }
+body[data-state="fail"] h1 { color: var(--fail); }

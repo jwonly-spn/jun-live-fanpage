@@ -151,6 +151,21 @@ test('하트 기억(lib/hearts.js): 브라우저 열쇠 32자, 오늘 보낸 캐
   assert.equal(sentToday(null, 'nope', T), false);
 });
 
+test('첫 화면 숫자 칸(시즌 번호·남은 날, 한국 날짜)과 캐릭터 페이지 입은 옷 칸(빈 칸 포함)', async () => {
+  const { seasonKicker, daysLeft, dDay } = await import('../docs/views/kiugi.js');
+  const { loadoutSlots } = await import('../docs/views/character.js');
+  const s = { id: 's1', name: '할로윈', endsAt: '2026-11-30T23:59:59+09:00' };
+  assert.equal(seasonKicker(s), 'SEASON 01'); assert.equal(seasonKicker(null), 'OFF SEASON');
+  assert.equal(daysLeft(s, Date.parse('2026-10-09T00:00:00Z')), 52); assert.equal(dDay(s, Date.parse('2026-10-09T00:00:00Z')), 'D-52');
+  assert.equal(dDay(s, Date.parse('2026-11-29T15:30:00Z')), 'D-DAY', '한국 날짜로 마지막 날');
+  assert.equal(daysLeft(s, Date.parse('2026-12-05T00:00:00Z')), 0, '지나면 0');
+  assert.equal(daysLeft({ endsAt: 'x' }), null);
+  const c = await catalog();
+  const slots = loadoutSlots(c, 's1', { head: 'witch-hat', aura: 'moonlight-aura' });
+  assert.deepEqual(slots.map((w) => [w.slot, w.id]), [['head', 'witch-hat'], ['face', null], ['neck', null], ['top', null], ['bottom', null], ['outer', null], ['shoes', null], ['hand', null], ['bg', null], ['aura', 'moonlight-aura']]);
+  assert.equal(slots[1].slotName, '얼굴'); assert.equal(slots[0].name, '마녀 모자');
+});
+
 test('옷 도감 묶음: 시즌 칸 순서대로, 값·레벨·입은 사람 수, 시즌 보상은 따로', async () => {
   const c = await catalog();
   const { groups, rewards, rule } = itemGroups(c, 's1', new Map([['witch-hat', 4]]));
