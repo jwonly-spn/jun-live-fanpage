@@ -253,8 +253,11 @@ export function characterSvg(dj={},look={},{items={},expression=null,art=null,tr
  return `<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" role="img"${label?` aria-label="${esc(label)}"`:' aria-hidden="true"'}><defs>${defs(c)}${tint}</defs>${o}</svg>`;
 }
 // 상점 칸의 옷 하나(옷만, 배경은 옅게). 배경 옷은 그 배경 그대로.
-export function itemSvg(id,{items={},art=null,label=''}={}){
- const meta=items[id]||{},slot=meta.slot||'head',season=meta.season||BASE_SEASON,file=meta.reward?`reward_${id}.png`:`${season}_${slot}_${id}.png`,c={g:'f',skin:SKIN_COLORS.s2,hair:HAIR_COLORS.brown,id:'kg'+(++SEQ).toString(36)+'_'};
+// gender 'm' 이면 남자 옷 그림({시즌}_m_{칸}_{옷id}.png — 상의·하의·겉옷·신발, 2026-10-08)이 있으면 그것, 없으면 같은 옷의 기본 그림(캐릭터 그리기와 같은 규칙)
+export function itemSvg(id,{items={},art=null,label='',gender='f'}={}){
+ const meta=items[id]||{},slot=meta.slot||'head',season=meta.season||BASE_SEASON,g=gender==='m'?'m':'f';
+ const male=!meta.reward&&g==='m'?`${season}_m_${slot}_${id}.png`:null;
+ const file=meta.reward?`reward_${id}.png`:male&&hasFile(art,season,male)?male:`${season}_${slot}_${id}.png`,c={g,skin:SKIN_COLORS.s2,hair:HAIR_COLORS.brown,id:'kg'+(++SEQ).toString(36)+'_'};
  const body=pngLayer(art,season,file,c)??(ITEMS[id]?ITEMS[id](c):placeholder(meta.name||id,slot));
  // 옷이 놓이는 자리로 확대(머리·얼굴은 위쪽, 신발은 아래쪽)
  const box={head:'232 0 560 560',face:'312 252 400 400',neck:'312 360 400 400',top:'232 452 560 560',bottom:'232 600 560 560',outer:'72 352 880 880',shoes:'332 760 360 360',hand:'232 452 560 560',bg:'0 0 1024 1024',aura:'0 0 1024 1024'}[slot]||'0 0 1024 1024';
