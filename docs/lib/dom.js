@@ -27,19 +27,24 @@ export function append(el, children) {
   return el;
 }
 
-// 아이콘(고정 모양만)
+// 아이콘(고정 모양만). filled: 속을 채운 모양(하트 등)
 const ICONS = {
   share: ['M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7', 'M12 3v12', 'M7 8l5-5 5 5'],
   search: ['M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15Z', 'M21 21l-5.2-5.2'],
   arrow: ['M5 12h14', 'M13 6l6 6-6 6'],
+  'chevron-left': ['M15 5l-7 7 7 7'],
+  'chevron-right': ['M9 5l7 7-7 7'],
   book: ['M4 19V5a2 2 0 0 1 2-2h14v16H6a2 2 0 0 0-2 2v0a2 2 0 0 0 2 2h14', 'M8 7h8'],
+  hanger: ['M10 6a2 2 0 1 1 2 2v1.2', 'M12 9.2 3.6 15a1.2 1.2 0 0 0 .7 2.2h15.4a1.2 1.2 0 0 0 .7-2.2L12 9.2Z'],
+  heart: ['M12 20.2s-7.6-4.5-7.6-10.4A4.3 4.3 0 0 1 12 7.1a4.3 4.3 0 0 1 7.6 2.7c0 5.9-7.6 10.4-7.6 10.4Z'],
+  link: ['M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1', 'M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1'],
   headphones: ['M4 15v-3a8 8 0 0 1 16 0v3', 'M4 15a2 2 0 0 1 2-2h1v7H6a2 2 0 0 1-2-2Z', 'M20 15a2 2 0 0 0-2-2h-1v7h1a2 2 0 0 0 2-2Z'],
 };
 
 const SVGNS = 'http://www.w3.org/2000/svg';
-export function icon(name, { size = 20, label } = {}) {
+export function icon(name, { size = 20, label, filled = false } = {}) {
   const svg = document.createElementNS(SVGNS, 'svg');
-  for (const [k, v] of Object.entries({ viewBox: '0 0 24 24', width: size, height: size, fill: 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', focusable: 'false' })) svg.setAttribute(k, v);
+  for (const [k, v] of Object.entries({ viewBox: '0 0 24 24', width: size, height: size, fill: filled ? 'currentColor' : 'none', stroke: 'currentColor', 'stroke-width': '1.8', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', focusable: 'false' })) svg.setAttribute(k, v);
   if (label) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', label); } else svg.setAttribute('aria-hidden', 'true');
   for (const d of ICONS[name] || []) {
     const path = document.createElementNS(SVGNS, 'path');

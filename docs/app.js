@@ -55,7 +55,10 @@ document.addEventListener('click', (e) => {
   e.preventDefault();
   if (url.pathname === location.pathname && url.search === location.search && url.hash) {
     history.replaceState(null, '', url.href);
-    document.getElementById(decodeURIComponent(url.hash.slice(1)))?.scrollIntoView({ behavior: 'smooth' });
+    const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+    target?.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    // 머리줄의 찾기 단추(#find): 찾기 칸으로 가면서 바로 적을 수 있게
+    target?.querySelector('input')?.focus({ preventScroll: true });
     return;
   }
   app.navigate(url.pathname + url.search + url.hash);

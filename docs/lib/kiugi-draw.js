@@ -10,7 +10,7 @@ const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 //  items: {옷id: {slot, season, name, price, level, tier?, tierName?, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
 //   값·레벨은 먼치킨(rules.mjs)과 같게: 시즌 옷은 등급표(tiers)의 price·level, 시즌 보상은 보상 값과 보상 규칙의 최소 레벨
 //  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code}], rewardRule:{minLevel, minAttendance}}} · last: 마지막 시즌 id
-//  그림 V3(2026-10-09): 옷은 묶음(categories — 의상·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
+//  그림 V3·V4(2026-10-09): 옷은 묶음(categories — V4 는 한벌옷·상의·하의·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
   const items = {}, seasons = {};
   let last = null;
@@ -39,8 +39,8 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
   return { items, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
 }
 
-// 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 오라 등 — 은 여기서)
-const SLOT_FALLBACK = { aura: '오라' };
+// 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 왕관·날개·오라 — 은 여기서. 그림 V4 부터 보상도 캐릭터가 입는다)
+const SLOT_FALLBACK = { crown: '왕관', wings: '날개', aura: '오라' };
 export function slotName(catalog, seasonId, slot) {
   const s = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
   return s.find((x) => x.id === slot)?.name || SLOT_FALLBACK[slot] || slot;
@@ -48,7 +48,7 @@ export function slotName(catalog, seasonId, slot) {
 // 입은 옷 → [{slot, slotName, id, name}] (시즌 칸 순서대로). 시즌 목록에 없는 옷(예전 판 먼치킨이 올린 그림 V2 옷 id 등)은 그림·이름이 없어 뺀다.
 export function wornList(catalog, seasonId, worn) {
   const order = ((catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || []).map((s) => s.id);
-  const rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length : i; };
+  const extra = Object.keys(SLOT_FALLBACK), rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length + (extra.includes(slot) ? extra.indexOf(slot) : extra.length) : i; };
   return Object.entries(worn && typeof worn === 'object' ? worn : {}).filter(([, id]) => Boolean(catalog?.items?.[id]))
     .sort(([a], [b]) => rank(a) - rank(b))
     .map(([slot, id]) => ({ slot, slotName: slotName(catalog, seasonId, slot), id, name: catalog?.items?.[id]?.name || id }));
@@ -79,8 +79,8 @@ export function characterMarkup(catalog, character, worn, level, { seasonId = nu
     { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage || STAGE, transparent: stage === null, label });
   return cspSafeSvg(svg, base);
 }
-// 옷 한 벌만(글): 옷 도감·입은 옷 칸. 그림 V3: 기본 캐릭터(그 성별)가 그 옷만 입은 모습을 옷이 있는 곳에 맞춰(옷 그림은 자르지 않는다).
-//  gender 'm' 이면 같은 번호 옷의 남자 몸 버전. dj(DJ 캐릭터)를 주면 성별이 같을 때 그 얼굴·머리로. 시즌 보상은 배지 그림, 모르는 옷은 이름 자리 표시.
+// 옷 한 벌만(글): 옷 도감·입은 옷 칸. 그림 V4: 기본 캐릭터(그 성별)가 그 옷(시즌 보상 포함)만 입은 모습을 옷이 있는 곳에 맞춰(옷 그림은 자르지 않는다).
+//  gender 'm' 이면 같은 번호 옷의 남자 몸 버전. dj(DJ 캐릭터)를 주면 성별이 같을 때 그 얼굴·머리로. 모르는 옷(예전 판이 올린 지운 옷 등)은 이름 자리 표시.
 export function itemMarkup(catalog, id, { base = '/', label = '', gender = 'f', dj = null } = {}) {
   // 바탕 없이(화면의 무대 그림이 보인다). 예전 판의 옅은 바탕 사각형이 있으면 뺀다.
   return cspSafeSvg(itemSvg(id, { label, gender, dj, name: catalog?.items?.[id]?.name || '' }), base).replace(/<rect x="-200" y="-200" width="1424" height="1424"[^>]*\/>/, '');

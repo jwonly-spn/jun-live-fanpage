@@ -1,9 +1,9 @@
 // 캐릭터 카드·DJ 카드·그림 칸(메인·DJ 페이지·찾기 결과가 함께 쓴다). DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 글 도우미를 쓴다).
 // 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
-// 카드 모양(styles.css): 수집 카드 — 테두리 색이 1~3등은 금·은·동, 아래쪽에 레벨 문장, 위쪽에 순위 문장·하트.
+// 카드 모양(styles.css): 패션 앱 상품 카드 — 위는 부드러운 무대 위 캐릭터(세로 3:4로 잘라 크게), 아래는 글 세 줄(어느 방송 · 아이디 · 레벨과 하트).
 import { h, icon, toast } from '../lib/dom.js';
 import { characterMarkup, itemMarkup, expressionFor, paintMarkup } from '../lib/kiugi-draw.js';
-import { ilink, crest } from './common.js';
+import { ilink, medal } from './common.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -15,6 +15,11 @@ export const levelLine = (catalog, seasonId, level) => `Lv.${level} ${expression
 export function idText(id) {
   const s = String(id ?? ''), i = s.indexOf('#');
   return i < 0 ? [s] : [s.slice(0, i), h('span', { class: 'kg-id-tag' }, s.slice(i))];
+}
+// 하트 수(작은 하트 그림 + 숫자). 화면 읽기에는 "하트 n개"
+export function heartCount(n, { className = '' } = {}) {
+  return h('span', { class: 'kg-hearts' + (className ? ' ' + className : ''), 'aria-label': `하트 ${fmt(n)}개` },
+    icon('heart', { size: 14, filled: true }), h('span', { 'aria-hidden': 'true' }, fmt(n)));
 }
 
 let observer = null;
@@ -32,45 +37,49 @@ export function lazyStage(make, label, { eager = false, kind = '' } = {}) {
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
   observer ||= new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { observer.unobserve(e.target); e.target.kgDraw?.(); }
-  }, { rootMargin: '400px 0px' });
+  }, { rootMargin: '400px 400px' });
   stage.kgDraw = draw;
   observer.observe(stage);
   return stage;
 }
-// DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대 그림은 styles.css)
+// DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대는 styles.css). 캐릭터 칸은 세로(char)로 잘라 크게 보인다. kind: 무대 모양 더하기(hero·bare 등)
 export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '' } = {}) {
-  if (!character) return h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind });
+  const cls = 'char' + (kind ? ' ' + kind : '');
+  if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls });
 }
-// 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다)
-export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null } = {}) {
-  return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: 'item' });
+// 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
+export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {
+  return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item' });
 }
 
-// 캐릭터 카드 {slug, djName, id, level, worn, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동)
-export function characterCard(c, { app, catalog, character, seasonId, showDj = true, eager = false, rank = null }) {
+// 캐릭터 카드 {slug, djName, id, level, worn, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동 배지)
+// label: 맨 위 작은 줄(없으면 "<DJ> 키우기", showDj 가 false 면 없음)
+export function characterCard(c, { app, catalog, character, seasonId, showDj = true, eager = false, rank = null, label = null }) {
   const href = app.link({ name: 'character', slug: c.slug, base: baseOf(c.id) });
-  return ilink(href, { class: 'kg-card' + (rank && rank <= 3 ? ` top${rank}` : '') },
-    art(catalog, character, c.worn, c.level, { seasonId, base: app.base, label: `${c.id} 캐릭터`, eager }),
-    rank ? crest(rank, { className: 'kg-rank-badge', label: `${rank}등` }) : null,
-    h('span', { class: 'kg-heart-pill', 'aria-label': `하트 ${fmt(c.hearts)}개` }, heartText(c.hearts)),
-    h('span', { class: 'kg-card-body' },
-      h('span', { class: 'kg-card-lv', 'aria-hidden': 'true' }, h('small', null, 'Lv'), String(c.level ?? 1)),
-      h('span', { class: 'kg-card-text' },
-        h('b', { class: 'kg-card-id' }, ...idText(c.id)),
-        h('span', { class: 'kg-card-sub' }, h('span', { class: 'sr-only' }, `Lv.${c.level} `), expressionFor(catalog, seasonId, c.level).name),
-        showDj && c.djName ? h('span', { class: 'kg-card-dj' }, `${c.djName} 키우기`) : null)));
+  return ilink(href, { class: 'kg-card' + (rank ? ` ranked r${Math.min(rank, 4)}` : '') },
+    h('div', { class: 'kg-card-media' },
+      art(catalog, character, c.worn, c.level, { seasonId, base: app.base, label: `${c.id} 캐릭터`, eager }),
+      rank ? medal(rank, { className: 'kg-rank-badge', label: `${rank}등` }) : null),
+    h('div', { class: 'kg-card-info' },
+      label ? h('span', { class: 'kg-card-dj' + (rank === 1 ? ' accent' : '') }, label) : showDj && c.djName ? h('span', { class: 'kg-card-dj' }, `${c.djName} 키우기`) : null,
+      h('b', { class: 'kg-card-id' }, ...idText(c.id)),
+      h('span', { class: 'kg-card-meta' },
+        h('span', { class: 'kg-card-lv' }, h('b', null, `Lv.${c.level ?? 1}`), ' ', expressionFor(catalog, seasonId, c.level).name),
+        heartCount(c.hearts))));
 }
 
 // DJ 카드 {slug, name, character, count} → DJ 키우기 페이지로 가는 링크
 export function djCard(d, { app, catalog, seasonId }) {
   return ilink(app.link({ name: 'kiugi', slug: d.slug }), { class: 'kg-card kg-dj' },
-    art(catalog, d.character, {}, 1, { seasonId, base: app.base, label: `${d.name} 캐릭터`, kind: 'dj' }),
-    h('span', { class: 'kg-card-body' },
-      h('span', { class: 'kg-card-text' },
-        h('b', { class: 'kg-card-id' }, `${d.name} 키우기`),
-        h('span', { class: 'kg-card-sub' }, `청취자 ${fmt(d.count)}명`),
-        h('span', { class: 'kg-card-go' }, '보러 가기', icon('arrow', { size: 16 })))));
+    h('div', { class: 'kg-card-media' },
+      art(catalog, d.character, {}, 1, { seasonId, base: app.base, label: `${d.name} 캐릭터`, kind: 'dj' })),
+    h('div', { class: 'kg-card-info' },
+      h('span', { class: 'kg-card-dj' }, 'DJ 캐릭터'),
+      h('b', { class: 'kg-card-id' }, `${d.name} 키우기`),
+      h('span', { class: 'kg-card-meta' },
+        h('span', { class: 'kg-card-lv' }, `청취자 ${fmt(d.count)}명`),
+        h('span', { class: 'kg-card-go', 'aria-hidden': 'true' }, icon('arrow', { size: 16 })))));
 }
 
 // 링크 복사: 클립보드가 되면 복사, 안 되면 주소 칸을 보여 주고 글자를 골라 둔다(길게 눌러 복사)

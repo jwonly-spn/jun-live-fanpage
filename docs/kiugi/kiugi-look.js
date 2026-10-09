@@ -1,9 +1,9 @@
-// DJ 키우기 캐릭터 모양 규칙(그림 V3, 2026-10-09). 화면(kiugi-art.js·kiugi-ui.js)·엔진(src/bot/kiugi/rules.mjs)·키우기 사이트가 함께 쓴다(문서·DOM 없이).
+// DJ 키우기 캐릭터 모양 규칙(그림 V3, 2026-10-09 · V4 그림 목록 kiugi-v4-data.js — 몸·머리·눈·코·입은 V3 와 같은 번호·이름). 화면(kiugi-art.js·kiugi-ui.js)·엔진(src/bot/kiugi/rules.mjs)·키우기 사이트가 함께 쓴다(문서·DOM 없이).
 // V3 캐릭터 = 성별(몸) + 머리 모양 1~10 + 눈·코·입 1~10 + 머리색. 머리·눈·코·입은 그 성별 전용 그림을 번호로 고른다(반대 성별 그림은 쓰지 않는다).
 // 피부색은 고르지 않는다: V3 의상 그림에 드러난 맨살이 함께 그려져 있어 피부를 바꾸면 옷의 맨살과 어긋난다(패키지 기술연결가이드).
 // 값은 모두 글자('1'~'10')로 둔다(키우기 사이트 서버가 모양 열쇠를 글자로만 받는다).
 // 예전(V2) 값(hair:'bob', eyes:'round' 처럼 저장된 DJ 캐릭터·예전 앱이 올린 사이트 자료)은 가장 가까운 V3 번호로 읽는다(LEGACY). 저장된 값은 DJ 가 다시 저장할 때 바뀐다.
-import {V3} from './kiugi-v3-data.js';
+import {ART} from './kiugi-v4-data.js';
 
 export const NUMBERS = Object.freeze(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
 export const GENDERS = Object.freeze({f: '여자', m: '남자'});
@@ -17,8 +17,8 @@ export const HAIR_SWATCHES = Object.freeze(Object.fromEntries(Object.entries(HAI
 
 const frozen = (o) => Object.freeze(Object.fromEntries(NUMBERS.map((n) => [n, o?.[n] || n + '번'])));
 // 이름표(패키지 assets.json 의 name): 머리는 성별마다 다르고, 눈·코·입은 남녀가 같은 이름이다(그림은 성별마다 따로).
-export const HAIR_NAMES = Object.freeze({f: frozen(V3.names.hair?.f), m: frozen(V3.names.hair?.m)});
-export const FACE_NAMES = Object.freeze({eyes: frozen(V3.names.eyes?.f), nose: frozen(V3.names.nose?.f), mouth: frozen(V3.names.mouth?.f)});
+export const HAIR_NAMES = Object.freeze({f: frozen(ART.names.hair?.f), m: frozen(ART.names.hair?.m)});
+export const FACE_NAMES = Object.freeze({eyes: frozen(ART.names.eyes?.f), nose: frozen(ART.names.nose?.f), mouth: frozen(ART.names.mouth?.f)});
 
 // 예전 V2 열쇠 → V3 번호(사용자 확인 필요: 가장 가까운 것으로 골랐다).
 //  머리: V2 웹툰풍 20종과 V3 머리 20종은 이름·차례가 같다(여자 10번 '시크 픽시'는 V3 에서 '페이스라인 레이어드 보브'로 바뀌었다 — 픽시를 되살리지 않는다).

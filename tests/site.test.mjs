@@ -66,7 +66,10 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
   assert.match(index, /<title>스푼 DJ 키우기<\/title>/);
   assert.match(index, /스푼 공식 서비스가 아니에요/, '검색 설명에도 비공식');
   assert.match(index, /script-src 'self'/); assert.match(index, /connect-src 'self' https:\/\/aksegkhhugqvvaidgvro\.supabase\.co/);
-  assert.match(index, /family=Noto\+Serif\+KR/, '제목 글씨(명조, 2026-10-09 게임 화면 느낌으로 바꿈)');
+  // 글꼴(2026-10-09 두 번째 새 디자인): Pretendard — 고정 판(1.3.9)·무결성 해시(SRI), 보안 규칙은 그 CDN 만 더 허용
+  assert.match(index, /href="https:\/\/cdn\.jsdelivr\.net\/npm\/pretendard@1\.3\.9\/dist\/web\/variable\/pretendardvariable-dynamic-subset\.css" integrity="sha384-[A-Za-z0-9+/=]{64}" crossorigin="anonymous"/, '글꼴 Pretendard(고정 판 + SRI)');
+  assert.match(index, /style-src 'self' https:\/\/cdn\.jsdelivr\.net; font-src https:\/\/cdn\.jsdelivr\.net;/);
+  assert.doesNotMatch(index, /Noto\+Serif|Barlow/, '예전 게임 화면 글꼴(명조·좁은 숫자 글꼴)은 쓰지 않는다');
   const common = await import('../docs/views/common.js');
   assert.equal(common.BRAND, '스푼 DJ 키우기');
   assert.equal(common.UNOFFICIAL, '스푼 공식 서비스가 아니에요');
@@ -94,7 +97,8 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
 
 test('모양: 보안 규칙상 style 속성을 쓰지 않고, 화면 클래스는 styles.css 에 있다', async () => {
   const css = await text('styles.css');
-  for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-cast', 'kg-panel', 'kg-card', 'kg-rank-badge', 'kg-heart-pill', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-podium', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal'])
+  // 2026-10-09 두 번째 새 디자인: 방패 문장·하트 이름표 대신 순위 배지(kg-medal)·하트 수(kg-hearts)·옆으로 넘기는 줄(kg-rail)·무대(kg-stage)
+  for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-cast', 'kg-panel', 'kg-card', 'kg-rank-badge', 'kg-medal', 'kg-hearts', 'kg-rail', 'kg-stage', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-podium', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal'])
     assert.match(css, new RegExp(`\\.${cls}[\\s{.:,\\[]`), cls);
   for (const f of await siteScripts()) assert.doesNotMatch(await text(f), /\bstyle:\s*['"`]|setAttribute\(\s*['"]style/, f + ': style 속성 없음');
 });

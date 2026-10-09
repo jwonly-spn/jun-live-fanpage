@@ -1,6 +1,6 @@
 {
   "season": {"id": "s1", "name": "할로윈", "theme": "할로윈", "endsAt": "2026-11-30T23:59:59+09:00", "rewardShopOpensAt": "2026-11-16T00:00:00+09:00", "nextSeasonAt": "2026-12-01T00:00:00+09:00"},
-  "art": "v3",
+  "art": "v4",
   "tiers": {
     "basic": {"name": "기본", "price": 50, "level": 1},
     "normal": {"name": "일반", "price": 200, "level": 1},
@@ -8,17 +8,23 @@
     "rare": {"name": "희귀", "price": 2000, "level": 6}
   },
   "categories": [
-    {"id": "outfit", "name": "의상", "code": "의상", "part": "옷 한 벌(위·아래가 함께, 성별에 맞는 몸 버전으로 입혀요)"},
+    {"id": "outfit", "name": "한벌옷", "code": "한벌", "part": "위·아래가 한 벌(입으면 상의·하의 대신 보여요 — 벗으면 입던 상의·하의가 다시 보여요)"},
+    {"id": "top", "name": "상의", "code": "상의", "part": "윗옷(입으면 한벌옷을 벗어요)"},
+    {"id": "bottom", "name": "하의", "code": "하의", "part": "바지·치마(입으면 한벌옷을 벗어요)"},
     {"id": "shoes", "name": "신발", "code": "신발", "part": "두 발(기본 운동화를 바꿔요)"},
-    {"id": "acc", "name": "악세사리", "code": "악세", "part": "머리·얼굴·목·손 자리마다 하나씩"}
+    {"id": "acc", "name": "악세사리", "code": "악세", "part": "머리·얼굴·목·손 자리마다 하나씩"},
+    {"id": "bg", "name": "배경", "code": "배경", "part": "캐릭터 뒤 장면 하나(남녀가 같은 배경이에요)"}
   ],
   "slots": [
-    {"id": "outfit", "name": "의상", "cat": "outfit"},
+    {"id": "outfit", "name": "한벌옷", "cat": "outfit"},
+    {"id": "top", "name": "상의", "cat": "top"},
+    {"id": "bottom", "name": "하의", "cat": "bottom"},
     {"id": "shoes", "name": "신발", "cat": "shoes"},
     {"id": "head", "name": "머리 장식", "cat": "acc"},
     {"id": "face", "name": "얼굴 장식", "cat": "acc"},
     {"id": "neck", "name": "목 장식", "cat": "acc"},
-    {"id": "hand", "name": "손 장식", "cat": "acc"}
+    {"id": "hand", "name": "손 장식", "cat": "acc"},
+    {"id": "bg", "name": "배경", "cat": "bg"}
   ],
   "styles": {"cute": "귀여움", "cool": "멋짐", "funny": "장난"},
   "items": [
@@ -27,33 +33,61 @@
     {"id": "outfit_03", "cat": "outfit", "slot": "outfit", "number": 3, "name": "레이스 느와르 메이드", "tier": "fine", "style": "cute"},
     {"id": "outfit_04", "cat": "outfit", "slot": "outfit", "number": 4, "name": "미드나잇 다이아몬드 할리퀸", "tier": "rare", "style": "cool"},
     {"id": "outfit_05", "cat": "outfit", "slot": "outfit", "number": 5, "name": "퍼플 베놈 조커", "tier": "rare", "style": "cool"},
-    {"id": "outfit_06", "cat": "outfit", "slot": "outfit", "number": 6, "name": "와인라운지 매니저", "tier": "normal", "style": "cool"},
-    {"id": "outfit_07", "cat": "outfit", "slot": "outfit", "number": 7, "name": "붕대 감은 록스타", "tier": "basic", "style": "funny"},
-    {"id": "outfit_08", "cat": "outfit", "slot": "outfit", "number": 8, "name": "퇴근한 저승사자", "tier": "normal", "style": "funny"},
-    {"id": "outfit_09", "cat": "outfit", "slot": "outfit", "number": 9, "name": "VIP 유령 게스트", "tier": "basic", "style": "funny"},
-    {"id": "outfit_10", "cat": "outfit", "slot": "outfit", "number": 10, "name": "월요일의 뱀파이어", "tier": "fine", "style": "funny"},
 
-    {"id": "shoe_01", "cat": "shoes", "slot": "shoes", "number": 1, "name": "흡혈귀 버클 부츠", "tier": "fine", "style": "cool"},
-    {"id": "shoe_02", "cat": "shoes", "slot": "shoes", "number": 2, "name": "문라이트 메리제인", "tier": "normal", "style": "cute"},
-    {"id": "shoe_03", "cat": "shoes", "slot": "shoes", "number": 3, "name": "나이트 캣 하이탑", "tier": "normal", "style": "cute"},
-    {"id": "shoe_04", "cat": "shoes", "slot": "shoes", "number": 4, "name": "옥스블러드 레이스업", "tier": "normal", "style": "cool"},
-    {"id": "shoe_05", "cat": "shoes", "slot": "shoes", "number": 5, "name": "아이보리 클럽 스니커즈", "tier": "basic", "style": "cute"},
-    {"id": "shoe_06", "cat": "shoes", "slot": "shoes", "number": 6, "name": "펌프킨 스웨이드 로퍼", "tier": "basic", "style": "cute"},
-    {"id": "shoe_07", "cat": "shoes", "slot": "shoes", "number": 7, "name": "미라 스트랩 하이탑", "tier": "normal", "style": "funny"},
-    {"id": "shoe_08", "cat": "shoes", "slot": "shoes", "number": 8, "name": "퇴근 박쥐 첼시부츠", "tier": "fine", "style": "funny"},
-    {"id": "shoe_09", "cat": "shoes", "slot": "shoes", "number": 9, "name": "해골 버클 더비", "tier": "fine", "style": "cool"},
-    {"id": "shoe_10", "cat": "shoes", "slot": "shoes", "number": 10, "name": "몬스터 클럽 플랫폼", "tier": "rare", "style": "funny"},
+    {"id": "top_01", "cat": "top", "slot": "top", "number": 1, "name": "차콜 밤고양이 후디", "tier": "normal", "style": "cute"},
+    {"id": "top_02", "cat": "top", "slot": "top", "number": 2, "name": "아이보리 심야유령 셔츠", "tier": "basic", "style": "cute"},
+    {"id": "top_03", "cat": "top", "slot": "top", "number": 3, "name": "버건디 뱀파이어 니트", "tier": "normal", "style": "cool"},
+    {"id": "top_04", "cat": "top", "slot": "top", "number": 4, "name": "그레이 거미줄 니트", "tier": "basic", "style": "cool"},
+    {"id": "top_05", "cat": "top", "slot": "top", "number": 5, "name": "미드나잇 블랙 집업", "tier": "fine", "style": "cool"},
+    {"id": "top_06", "cat": "top", "slot": "top", "number": 6, "name": "크림 달빛 가디건", "tier": "rare", "style": "cute"},
+    {"id": "top_07", "cat": "top", "slot": "top", "number": 7, "name": "포레스트 마녀 워크셔츠", "tier": "normal", "style": "cool"},
+    {"id": "top_08", "cat": "top", "slot": "top", "number": 8, "name": "더스티 퍼플 오프듀티 맨투맨", "tier": "basic", "style": "funny"},
+    {"id": "top_09", "cat": "top", "slot": "top", "number": 9, "name": "호박빛 베이스볼 셔츠", "tier": "normal", "style": "funny"},
+    {"id": "top_10", "cat": "top", "slot": "top", "number": 10, "name": "스모크 체커 폴로", "tier": "fine", "style": "cool"},
 
-    {"id": "accessory_01", "cat": "acc", "slot": "head", "number": 1, "name": "블랙 캣 헤드밴드", "tier": "basic", "style": "cute"},
-    {"id": "accessory_02", "cat": "acc", "slot": "neck", "number": 2, "name": "고딕 크로스 초커", "tier": "normal", "style": "cool"},
-    {"id": "accessory_03", "cat": "acc", "slot": "face", "number": 3, "name": "베네치안 반가면", "tier": "fine", "style": "cool"},
-    {"id": "accessory_04", "cat": "acc", "slot": "neck", "number": 4, "name": "블러드 문 펜던트", "tier": "rare", "style": "cool"},
-    {"id": "accessory_05", "cat": "acc", "slot": "hand", "number": 5, "name": "스터드 체인 커프", "tier": "normal", "style": "cool"},
-    {"id": "accessory_06", "cat": "acc", "slot": "head", "number": 6, "name": "퇴근한 악마", "tier": "normal", "style": "funny"},
-    {"id": "accessory_07", "cat": "acc", "slot": "face", "number": 7, "name": "밤샘 박사 안경", "tier": "basic", "style": "funny"},
-    {"id": "accessory_08", "cat": "acc", "slot": "hand", "number": 8, "name": "유령 클러치", "tier": "normal", "style": "cute"},
-    {"id": "accessory_09", "cat": "acc", "slot": "neck", "number": 9, "name": "VIP 묘비 패스", "tier": "basic", "style": "funny"},
-    {"id": "accessory_10", "cat": "acc", "slot": "hand", "number": 10, "name": "출입금지 손목밴드", "tier": "basic", "style": "funny"}
+    {"id": "bottom_01", "cat": "bottom", "slot": "bottom", "number": 1, "name": "미드나잇 와이드 데님", "tier": "normal", "style": "cool"},
+    {"id": "bottom_02", "cat": "bottom", "slot": "bottom", "number": 2, "name": "버건디 체크 플리츠", "tier": "normal", "style": "cute"},
+    {"id": "bottom_03", "cat": "bottom", "slot": "bottom", "number": 3, "name": "실버체인 카고", "tier": "fine", "style": "cool"},
+    {"id": "bottom_04", "cat": "bottom", "slot": "bottom", "number": 4, "name": "차콜 테일러드 버뮤다", "tier": "basic", "style": "cool"},
+    {"id": "bottom_05", "cat": "bottom", "slot": "bottom", "number": 5, "name": "벨벳 이클립스 랩스커트", "tier": "rare", "style": "cool"},
+    {"id": "bottom_06", "cat": "bottom", "slot": "bottom", "number": 6, "name": "호박 야간근무 조거", "tier": "normal", "style": "funny"},
+    {"id": "bottom_07", "cat": "bottom", "slot": "bottom", "number": 7, "name": "유령 출근복 쇼츠", "tier": "basic", "style": "funny"},
+    {"id": "bottom_08", "cat": "bottom", "slot": "bottom", "number": 8, "name": "해골 리듬 트랙팬츠", "tier": "fine", "style": "funny"},
+    {"id": "bottom_09", "cat": "bottom", "slot": "bottom", "number": 9, "name": "마녀의 체크 스케이터", "tier": "normal", "style": "cute"},
+    {"id": "bottom_10", "cat": "bottom", "slot": "bottom", "number": 10, "name": "박쥐 택배 유틸 킬트", "tier": "basic", "style": "funny"},
+
+    {"id": "shoe2_01", "cat": "shoes", "slot": "shoes", "number": 1, "name": "박쥐 버클 로퍼", "tier": "normal", "style": "cool"},
+    {"id": "shoe2_02", "cat": "shoes", "slot": "shoes", "number": 2, "name": "버건디 뱀파이어 첼시", "tier": "rare", "style": "cool"},
+    {"id": "shoe2_03", "cat": "shoes", "slot": "shoes", "number": 3, "name": "문라이트 크레센트", "tier": "normal", "style": "cute"},
+    {"id": "shoe2_04", "cat": "shoes", "slot": "shoes", "number": 4, "name": "스파이더 레이스 워커", "tier": "fine", "style": "cool"},
+    {"id": "shoe2_05", "cat": "shoes", "slot": "shoes", "number": 5, "name": "블랙로즈 더비", "tier": "normal", "style": "cool"},
+    {"id": "shoe2_06", "cat": "shoes", "slot": "shoes", "number": 6, "name": "호박 포인트 스니커즈", "tier": "basic", "style": "cute"},
+    {"id": "shoe2_07", "cat": "shoes", "slot": "shoes", "number": 7, "name": "유령 탭 하이탑", "tier": "basic", "style": "funny"},
+    {"id": "shoe2_08", "cat": "shoes", "slot": "shoes", "number": 8, "name": "미드나잇 캣 로퍼", "tier": "normal", "style": "cute"},
+    {"id": "shoe2_09", "cat": "shoes", "slot": "shoes", "number": 9, "name": "미라 랩 스니커즈", "tier": "basic", "style": "funny"},
+    {"id": "shoe2_10", "cat": "shoes", "slot": "shoes", "number": 10, "name": "캔디문 러너", "tier": "fine", "style": "funny"},
+
+    {"id": "acc2_01", "cat": "acc", "slot": "head", "number": 1, "name": "벨벳 초승달 마녀모자", "tier": "fine", "style": "cute"},
+    {"id": "acc2_02", "cat": "acc", "slot": "head", "number": 2, "name": "은빛 박쥐 머리장식", "tier": "normal", "style": "cool"},
+    {"id": "acc2_03", "cat": "acc", "slot": "head", "number": 3, "name": "유령의 야근 머리띠", "tier": "basic", "style": "funny"},
+    {"id": "acc2_04", "cat": "acc", "slot": "face", "number": 4, "name": "자정의 와인 안경", "tier": "normal", "style": "cool"},
+    {"id": "acc2_05", "cat": "acc", "slot": "face", "number": 5, "name": "볼 위의 작은 박쥐", "tier": "basic", "style": "cute"},
+    {"id": "acc2_06", "cat": "acc", "slot": "neck", "number": 6, "name": "가넷 문라이트 초커", "tier": "rare", "style": "cool"},
+    {"id": "acc2_07", "cat": "acc", "slot": "neck", "number": 7, "name": "미드나잇 DJ 헤드폰", "tier": "fine", "style": "cool"},
+    {"id": "acc2_08", "cat": "acc", "slot": "neck", "number": 8, "name": "퇴근 실패 유령 목걸이", "tier": "basic", "style": "funny"},
+    {"id": "acc2_09", "cat": "acc", "slot": "hand", "number": 9, "name": "잠긴 자정 체인 팔찌", "tier": "normal", "style": "cool"},
+    {"id": "acc2_10", "cat": "acc", "slot": "hand", "number": 10, "name": "막차 호박 랜턴", "tier": "normal", "style": "funny"},
+
+    {"id": "background_01", "cat": "bg", "slot": "bg", "number": 1, "name": "자정의 바이올렛 클럽", "tier": "fine", "style": "cool"},
+    {"id": "background_02", "cat": "bg", "slot": "bg", "number": 2, "name": "블루문 루프톱", "tier": "fine", "style": "cool"},
+    {"id": "background_03", "cat": "bg", "slot": "bg", "number": 3, "name": "잭오랜턴 골목", "tier": "normal", "style": "cute"},
+    {"id": "background_04", "cat": "bg", "slot": "bg", "number": 4, "name": "벨벳 고딕 홀", "tier": "rare", "style": "cool"},
+    {"id": "background_05", "cat": "bg", "slot": "bg", "number": 5, "name": "달빛 유리 온실", "tier": "rare", "style": "cute"},
+    {"id": "background_06", "cat": "bg", "slot": "bg", "number": 6, "name": "호박빛 심야 카페", "tier": "normal", "style": "cute"},
+    {"id": "background_07", "cat": "bg", "slot": "bg", "number": 7, "name": "고스트 레코드룸", "tier": "normal", "style": "funny"},
+    {"id": "background_08", "cat": "bg", "slot": "bg", "number": 8, "name": "네온 유령 세탁소", "tier": "basic", "style": "funny"},
+    {"id": "background_09", "cat": "bg", "slot": "bg", "number": 9, "name": "마녀의 프라이빗 라운지", "tier": "fine", "style": "cool"},
+    {"id": "background_10", "cat": "bg", "slot": "bg", "number": 10, "name": "할로윈 애프터파티", "tier": "normal", "style": "funny"}
   ],
   "expressions": [
     {"level": 1, "name": "기본", "parts": [], "desc": "DJ가 고른 눈·코·입 그대로"},
@@ -77,9 +111,9 @@
     {"id": "exp-tears", "name": "감동 눈물", "desc": "두 눈가에 맺힌 반짝이는 눈물 방울(눈물만)"}
   ],
   "seasonRewards": [
-    {"id": "pumpkin-crown", "slot": "head", "name": "황금 호박 왕관", "price": 15000, "desc": "금빛으로 빛나는 호박 모양 왕관, 주위에 반짝이는 빛", "perk": "앞으로 모든 시즌에서 받는 냥 +10%"},
-    {"id": "shadow-wings", "slot": "outer", "name": "그림자 날개", "price": 15000, "desc": "보랏빛 연기가 피어오르는 크고 멋진 검은 날개, 끝이 빛남", "perk": "트릭 오어 트릿에서 트릭에 안 걸리고 사탕 2배"},
-    {"id": "moonlight-aura", "slot": "aura", "name": "달빛 오라", "price": 15000, "desc": "캐릭터 뒤에서 은은하게 빛나는 둥근 달빛 후광과 작은 별들(다른 옷과 함께 보임)", "perk": "채팅으로 받는 냥 한도 1.5배"}
+    {"id": "pumpkin-crown", "pair": "reward_01", "slot": "crown", "name": "황금 호박 왕관", "price": 15000, "desc": "금빛 호박 왕관 — 캐릭터 머리 위에 써요(머리 장식은 가려져요)", "perk": "앞으로 모든 시즌에서 받는 냥 +10%"},
+    {"id": "shadow-wings", "pair": "reward_02", "slot": "wings", "name": "그림자 날개", "price": 15000, "desc": "보랏빛이 도는 크고 멋진 검은 날개 — 캐릭터 등 뒤에 펼쳐져요", "perk": "트릭 오어 트릿에서 트릭에 안 걸리고 사탕 2배"},
+    {"id": "moonlight-aura", "pair": "reward_03", "slot": "aura", "name": "달빛 오라", "price": 15000, "desc": "캐릭터 뒤에서 은은하게 빛나는 둥근 달빛 후광과 작은 별들(다른 옷과 함께 보여요)", "perk": "채팅으로 받는 냥 한도 1.5배"}
   ],
   "seasonRewardRule": {"opensAt": "2026-11-16T00:00:00+09:00", "minLevel": 10, "minAttendance": 20, "keeps": "시즌이 끝나도 남는 것은 시즌 보상뿐"}
 }
