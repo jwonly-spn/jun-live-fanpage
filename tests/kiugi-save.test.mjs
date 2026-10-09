@@ -10,7 +10,7 @@ import { ART } from '../docs/kiugi/kiugi-v5-data.js';
 import { buildCatalog, characterMarkup, expressionFor } from '../docs/lib/kiugi-draw.js';
 import {
   characterPlan, planSteps, planUrls, artUrl, paintPlan, tintedHair, tintKey, TINT_CACHE_MAX, coverRect, labelParts, levelParts, levelText, saveFileName, saveMode,
-  SAVE_W, SAVE_H, SAVE_LAYOUT, SITE_MARK, SITE_DOMAIN, UNOFFICIAL_MARK, SAVE_LABEL, renderSaveImage, saveCharacterImage, canvasBlob,
+  SAVE_W, SAVE_H, SAVE_LAYOUT, SITE_MARK, SITE_DOMAIN, UNOFFICIAL_MARK, SAVE_LABEL, renderSaveImage, saveCharacterImage, canvasBlob, alphaBox, placeCharacter,
 } from '../docs/lib/kiugi-save.js';
 
 const B = '/jun-live-fanpage/';
@@ -36,6 +36,7 @@ const WORN = [
   { head: 'acc2_01' }, // 높은 모자 → 둥실 하트가 옆으로
   { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04' }, // 새 상의·하의(V5 11~20) — 하의 19 는 밑단이 있다
   { top: 'top_11', bottom: 'bottom_13', bg: 'background_02' },
+  { top: 'top_02', bottom: 'bottom_02', shoes: 'shoe2_05', head: 'acc2_02', crown: 'acc2_11', wings: 'acc2_12', aura: 'acc2_13' }, // 악세11~13(왕관·날개·오라) — 왕관이 머리 장식을 가림
 ];
 const EXPR = [{ level: 1, parts: [] }, { level: 7, parts: ['exp-floating-hearts', 'exp-blush'] }, { level: 10, parts: ['eyes:heart', 'exp-blush', 'exp-floating-hearts', 'mouth:grin'] }];
 const each = (fn) => { for (const dj of DJS) for (const worn of WORN) for (const ex of EXPR) fn(dj, { worn }, ex); };
@@ -75,6 +76,17 @@ test('그릴 차례 = 화면 그림의 차례(layersOf): 보상 오라·날개 �
   assert.ok(!crowned.includes('accessory.head') && !crowned.includes('top') && crowned.includes('outfit.hem') && crowned.includes('reward.front'));
   // 지운 옷·예전 배경은 그리지 않는다
   assert.deepEqual(planSteps(characterPlan(DJS[0], { worn: WORN[7] }, null)), planSteps(characterPlan(DJS[0], { worn: {} }, null)));
+  // 악세11~13(acc2_11 왕관 · acc2_12 날개 · acc2_13 오라) = 예전 시즌 보상과 같은 그림·같은 층(오라·날개는 몸 뒤, 왕관은 맨 위 — 머리 장식을 가린다)
+  for (const dj of DJS) {
+    const now = characterPlan(dj, { worn: { head: 'acc2_02', crown: 'acc2_11', wings: 'acc2_12', aura: 'acc2_13' } }, null);
+    const old = characterPlan(dj, { worn: { head: 'acc2_02', crown: 'pumpkin-crown', wings: 'shadow-wings', aura: 'moonlight-aura' } }, null);
+    assert.deepEqual(planSteps(now), planSteps(old)); assert.deepEqual(planUrls(now, B), planUrls(old, B));
+    const steps = planSteps(now);
+    assert.deepEqual([steps[0], steps[1], steps.at(-1)], ['reward.aura', 'reward.back', 'reward.front']);
+    assert.ok(!steps.includes('accessory.head'), '왕관이 머리 장식을 가린다');
+  }
+  assert.ok(planUrls(characterPlan(DJS[1], { worn: { crown: 'acc2_11' } }, null), B).some((u) => /\/reward_01_male\.png\?/.test(u)), '남자 몸 버전 그림');
+  assert.deepEqual(planSteps(characterPlan(DJS[0], { worn: { head: 'acc2_11', crown: 'acc2_12' } }, null)), planSteps(characterPlan(DJS[0], { worn: {} }, null)), '칸이 맞지 않는 악세11~13 은 그리지 않는다');
 });
 
 test('같은 그림 파일·마스크·머리색·표정 겹치기: characterSvg 가 만든 SVG 글과 하나하나 같다', () => {
@@ -189,22 +201,117 @@ test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고
   assert.doesNotMatch(save, /multiply|tintColor|HAIR_COLORS/, '예전 곱하기 없음');
 });
 
-test('배치(1080×1350): 배경은 잘라 채우기, 캐릭터(날개·오라·왕관·둥실 하트 포함)는 그림 안·아래 띠 위, 글 줄은 띠 안에 차례로', () => {
+const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-6, `${msg}: ${a} ≠ ${b}`);
+// 놓은 자리(placeCharacter)가 지켜야 하는 것: 상자 가운데 = 그림 한가운데(540, 675), 줄이기만(늘리지 않음), 위·아래(띠 위)·옆 여백 안
+function placedOk(box, label) {
+  const L = SAVE_LAYOUT, at = placeCharacter(box), w = box.x1 - box.x0, hgt = box.y1 - box.y0;
+  near(at.x + ((box.x0 + box.x1) / 2) * at.f, SAVE_W / 2, label + ' 가로 가운데');
+  near(at.y + ((box.y0 + box.y1) / 2) * at.f, SAVE_H / 2, label + ' 세로 가운데');
+  assert.ok(at.f > 0 && at.f <= 1, label + ' 줄이기만');
+  const top = at.y + box.y0 * at.f, bottom = at.y + box.y1 * at.f, left = at.x + box.x0 * at.f, right = at.x + box.x1 * at.f;
+  assert.ok(top >= L.fit.top - 1e-6, `${label} 위 끝 ${top}`);
+  assert.ok(bottom <= L.fit.bottom + 1e-6 && bottom < L.band.y, `${label} 아래 끝 ${bottom} < 띠 ${L.band.y}`);
+  assert.ok(left >= L.fit.side - 1e-6 && right <= SAVE_W - L.fit.side + 1e-6, `${label} 옆 ${left}~${right}`);
+  assert.ok(right - left <= SAVE_W - 2 * L.fit.side + 1e-6, label + ' 너비');
+  near(at.bottom, bottom, label + ' 발끝(그림자 자리)');
+  near(w * at.f, right - left, label + ' 너비 그대로 줄임'); near(hgt * at.f, bottom - top, label + ' 높이 그대로 줄임');
+  return at;
+}
+
+test('배치(1080×1350): 배경은 잘라 채우기, 캐릭터(날개·오라·왕관·둥실 하트 포함)는 그림 한가운데·아래 띠 위, 글 줄은 띠 안에 차례로', () => {
   assert.equal(SAVE_W, 1080); assert.equal(SAVE_H, 1350); assert.equal(ART.size, SIZE);
   assert.deepEqual(coverRect(1024, 1024), { x: -135, y: 0, w: 1350, h: 1350 });
   assert.deepEqual(coverRect(1600, 900, 1080, 1350), { x: -660, y: 0, w: 2400, h: 1350 });
-  const L = SAVE_LAYOUT, c = L.char;
+  const L = SAVE_LAYOUT, s = L.char.s;
+  assert.deepEqual(L.center, { x: 540, y: 675 }, '그림 한가운데');
+  assert.ok(L.fit.top >= 0 && L.fit.top < L.center.y && L.center.y < L.fit.bottom && L.fit.bottom < L.band.y && L.fit.side > 0);
+  // 가장 큰 캐릭터: 모든 그림(배경 빼고 — 날개·오라·왕관 포함)과 둥실 하트를 합친 상자(1.1배 캐릭터 캔버스 픽셀)
   const boxes = ART.assets.filter((a) => a.category !== 'background').map((a) => a.box);
   const heartsTop = Math.min(...characterPlan(DJS[0], { worn: {} }, EXPR[1]).ops.find((o) => o.kind === 'hearts').hearts.map((x) => Number(/^M[\d.]+ ([\d.]+)/.exec(x.d)[1]) - 30));
-  const top = Math.min(heartsTop, ...boxes.map((b) => b[1])), bottom = Math.max(...boxes.map((b) => b[3]));
-  const left = Math.min(...boxes.map((b) => b[0])), right = Math.max(...boxes.map((b) => b[2]));
-  assert.ok(c.y + top * c.s >= 30, `캐릭터 위 끝 ${c.y + top * c.s}`);
-  assert.ok(c.y + bottom * c.s < L.band.y, `발끝 ${c.y + bottom * c.s} < 띠 ${L.band.y}`);
-  assert.ok(c.x + left * c.s >= 0 && c.x + right * c.s <= SAVE_W, '날개까지 가로 안');
-  assert.ok(Math.abs(c.x + (SIZE / 2) * c.s - SAVE_W / 2) <= 1, '가운데');
+  const all = { x0: Math.min(...boxes.map((b) => b[0])) * s, y0: Math.min(heartsTop, ...boxes.map((b) => b[1])) * s, x1: Math.max(...boxes.map((b) => b[2])) * s, y1: Math.max(...boxes.map((b) => b[3])) * s };
+  const at = placedOk(all, '모든 그림');
+  assert.ok(at.f > 0.75, `너무 작게 줄이지 않는다(${at.f})`);
+  // 그림 하나하나(몸 + 그 그림)도 같은 규칙
+  const body = ART.assets.find((a) => a.category === 'body').box;
+  for (const a of ART.assets.filter((x) => x.category !== 'background')) {
+    const b = { x0: Math.min(body[0], a.box[0]) * s, y0: Math.min(body[1], a.box[1]) * s, x1: Math.max(body[2], a.box[2]) * s, y1: Math.max(body[3], a.box[3]) * s };
+    placedOk(b, a.id);
+  }
   assert.ok(L.band.y < L.id.y && L.id.y < L.sub.y && L.sub.y < L.rule.y && L.rule.y < L.mark.y && L.mark.y < SAVE_H - 20);
   assert.ok(L.fade.from < L.fade.to && L.fade.to <= L.band.y);
-  assert.ok(L.shadow.cy > c.y + 900 * c.s && L.shadow.cy < L.band.y);
+  assert.ok(at.bottom - 6 < L.band.y && L.shadow.rx > 0 && L.shadow.ry > 0, '발밑 그림자는 띠 위');
+});
+
+test('알파 상자(alphaBox)와 놓을 자리(placeCharacter): 정확히 한가운데(540, 675), 크면 줄이고, 띠·옆 여백을 넘지 않는다', () => {
+  // 4×3 캔버스: (1,0)·(2,2) 는 보이고, (3,1) 은 알파 10(기준 16 이하라 빼는 옅은 가장자리)
+  const px = (w, hgt, dots) => { const d = new Uint8ClampedArray(w * hgt * 4); for (const [x, y, a] of dots) d[(y * w + x) * 4 + 3] = a; return d; };
+  const data = px(4, 3, [[1, 0, 255], [2, 2, 200], [3, 1, 10]]);
+  assert.deepEqual(alphaBox(data, 4, 3), { x0: 1, y0: 0, x1: 3, y1: 3 }, '오른쪽·아래는 끝 다음 칸(너비 = x1 − x0)');
+  assert.deepEqual(alphaBox(data, 4, 3, 5), { x0: 1, y0: 0, x1: 4, y1: 3 }, '기준을 낮추면 옅은 점도');
+  assert.deepEqual(alphaBox(px(4, 3, [[2, 1, 17]]), 4, 3), { x0: 2, y0: 1, x1: 3, y1: 2 }, '한 점');
+  assert.deepEqual(alphaBox(px(4, 3, [[0, 0, 16]]), 4, 3), { x0: 0, y0: 0, x1: 4, y1: 3 }, '아무것도 없으면(기준 이하뿐) 캔버스 전체');
+  assert.deepEqual(alphaBox(new Uint8ClampedArray(0), 0, 0), { x0: 0, y0: 0, x1: 0, y1: 0 });
+  const L = SAVE_LAYOUT, half = Math.min(L.center.y - L.fit.top, L.fit.bottom - L.center.y), maxW = SAVE_W - 2 * L.fit.side;
+  // 작은 캐릭터: 늘리지 않고 그대로, 캔버스 어디에 그려졌든 한가운데로
+  const small = placedOk({ x0: 300, y0: 100, x1: 500, y1: 400 }, '작은 캐릭터');
+  assert.deepEqual(small, { x: 540 - 400, y: 675 - 250, f: 1, bottom: 675 + 150 });
+  // 너무 큰 캐릭터: 위아래(띠 위까지의 반)에 맞춰 줄인다 — 발끝이 정확히 fit.bottom
+  const tall = placedOk({ x0: 0, y0: 0, x1: 600, y1: 1127 }, '긴 캐릭터');
+  near(tall.f, (2 * half) / 1127, '긴 캐릭터 배수'); near(tall.bottom, L.center.y + half, '긴 캐릭터 발끝');
+  // 너무 넓은 캐릭터(날개·오라): 옆 여백에 맞춰 줄인다
+  const wide = placedOk({ x0: 0, y0: 400, x1: 1127, y1: 700 }, '넓은 캐릭터');
+  near(wide.f, maxW / 1127, '넓은 캐릭터 배수');
+  // 크고 넓으면 더 많이 줄여야 하는 쪽으로
+  const both = placedOk({ x0: 0, y0: 0, x1: 2000, y1: 1200 }, '크고 넓은 캐릭터');
+  near(both.f, Math.min((2 * half) / 1200, maxW / 2000), '크고 넓은 캐릭터 배수');
+  // 여러 크기·자리(1.1배 캐릭터 캔버스 1127 안팎)
+  for (const w of [1, 37, 400, 999, 1000, 1001, 1127]) for (const hgt of [1, 120, 2 * half - 1, 2 * half, 2 * half + 1, 1127]) for (const x0 of [0, 64]) placedOk({ x0, y0: 13, x1: x0 + w, y1: 13 + hgt }, `${w}×${hgt}@${x0}`);
+  // 빈 상자(그린 것 없음 — alphaBox 가 캔버스 전체를 준다)도 나누기 0 없이
+  const empty = placeCharacter({ x0: 5, y0: 5, x1: 5, y1: 5 });
+  assert.ok(Number.isFinite(empty.x) && Number.isFinite(empty.y) && empty.f === 1);
+});
+
+test('이미지 만들기(renderSaveImage): 그린 캐릭터를 재서(알파 상자) 그 가운데를 그림 한가운데에, 줄이면 한 번만', async () => {
+  globalThis.Path2D ??= class { constructor(d) { this.d = d; } };
+  const CHAR_PX = Math.ceil(SIZE * SAVE_LAYOUT.char.s);
+  // 가짜 캔버스: 그리기는 적어 두기만, 1.1배 캐릭터 캔버스의 픽셀은 정한 상자만 보이게
+  const run = async (card, rect) => {
+    const canvases = [], grad = { addColorStop() {} };
+    const doc = {
+      createElement() {
+        const c = { width: 0, height: 0, draws: [] };
+        const base = {
+          canvas: c,
+          drawImage(im, ...a) { c.draws.push({ im, w: im?.width, a }); },
+          getImageData(x, y, w, hgt) {
+            const d = new Uint8ClampedArray(w * hgt * 4);
+            if (c.width === CHAR_PX) for (let yy = rect.y0; yy < rect.y1; yy++) for (let xx = rect.x0; xx < rect.x1; xx++) d[(yy * w + xx) * 4 + 3] = 255;
+            return { data: d };
+          },
+          measureText: () => ({ width: 10 }), createLinearGradient: () => grad, createRadialGradient: () => grad,
+        };
+        c.getContext = () => new Proxy(base, { get: (t, p) => (p in t ? t[p] : () => grad) });
+        canvases.push(c);
+        return c;
+      },
+    };
+    const out = await renderSaveImage(card, { base: B, doc, load: async (u) => ({ url: u }) });
+    assert.deepEqual([out.width, out.height], [SAVE_W, SAVE_H]);
+    const draws = out.draws.filter((d) => d.w === CHAR_PX);
+    assert.equal(draws.length, 1, '캐릭터는 바탕에 한 번만 올린다');
+    return draws[0].a;
+  };
+  const card = { id: '밤톨#먼치', character: DJS[0], worn: WORN[1], level: 7, expression: EXPR[1], seasonName: '할로윈', hearts: 3 };
+  for (const rect of [{ x0: 100, y0: 60, x1: 900, y1: 1000 }, { x0: 420, y0: 300, x1: 700, y1: 700 }, { x0: 0, y0: 0, x1: CHAR_PX, y1: CHAR_PX }]) {
+    const [x, y, w, hgt] = await run(card, rect);
+    const at = placeCharacter(rect);
+    assert.deepEqual([x, y, w, hgt], [at.x, at.y, CHAR_PX * at.f, CHAR_PX * at.f], JSON.stringify(rect));
+    near(x + ((rect.x0 + rect.x1) / 2) * at.f, 540, '가로 한가운데'); near(y + ((rect.y0 + rect.y1) / 2) * at.f, 675, '세로 한가운데');
+  }
+  // 그린 것이 하나도 없으면 캔버스 전체를 가운데에
+  const [x, y, w] = await run({ ...card, worn: {} }, { x0: 0, y0: 0, x1: 0, y1: 0 });
+  const at = placeCharacter({ x0: 0, y0: 0, x1: CHAR_PX, y1: CHAR_PX });
+  assert.deepEqual([x, y, w], [at.x, at.y, CHAR_PX * at.f]);
 });
 
 test('글: 아이디(앞 · #이름), "Lv.N · 시즌", 파일 이름, 사이트 표시', () => {

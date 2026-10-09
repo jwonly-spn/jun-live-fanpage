@@ -16,7 +16,9 @@
 //  · 그림 주소는 /kiugi/v5/(패키지 판 폴더) + ?v=<해시 앞 12자> — 예전 그림(V4 의 뒷머리 13장 등)이 캐시에 남지 않는다(마스크도 마스크 파일 해시).
 // 옷 id 는 패키지의 pair 그대로: outfit_01~05(한벌옷) · top_01~20(상의) · bottom_01~20(하의) · shoe2_01~10(신발) · acc2_01~10(악세사리).
 //  번호는 두 자리로 읽고, 그 번호의 그림이 목록(kiugi-v5-data.js)에 있을 때만 옷으로 본다(상의·하의 11~20 도 01~10 과 똑같이).
-//  시즌 보상은 시즌 목록 id(pumpkin-crown·shadow-wings·moonlight-aura) 또는 패키지 pair(reward_01~03) 모두 받는다.
+//  악세11~13(acc2_11 왕관 · acc2_12 날개 · acc2_13 오라, 2026-10-09 사용자 "시즌 보상은 전부 악세사리로"): 예전 시즌 보상 그림 reward_01~03 을 그대로 쓴다
+//   (같은 층·같은 차례 — 오라·날개는 몸 뒤, 왕관은 맨 위이고 머리 장식을 가린다). 그림 목록(만든 파일)은 바꾸지 않고 ACC_REWARD_ART 로 잇는다.
+//  예전 시즌 보상 id(pumpkin-crown·shadow-wings·moonlight-aura)와 패키지 pair(reward_01~03)도 그대로 받는다(사이트에 남은 예전 올림·예전 기록).
 // 입은 옷 = {outfit, top, bottom, shoes, head, face, neck, hand, crown, wings, aura, bg}. 배경 background_01~10 은 남녀가 같은 그림(성별을 바꿔도 그대로).
 //  예전(V2) 칸 bg 의 옛 배경 id(halloween-night 등)는 그리지 않는다.
 // 그리지 않는 것: V4 에서 지운 옛 id(의상 outfit_06~10 · 신발 shoe_* · 악세사리 accessory_* — 새 그림에 이어 붙이지 않는다), 예전(V2) 옷 id, 칸과 맞지 않는 옷.
@@ -45,8 +47,10 @@ export const WEAR_SLOTS = Object.freeze(Object.keys(SLOT_CATEGORY));
 export const ACCESSORY_SLOTS = Object.freeze(['head', 'face', 'neck', 'hand']);
 // 보상 칸 → 겹치는 층(패키지 layer)
 export const REWARD_SLOT_LAYER = Object.freeze({aura: 'aura', wings: 'back', crown: 'front'});
-// 시즌 보상 id(시즌 목록) → 패키지 보상 번호·칸
+// 예전 시즌 보상 id(0.15.58~) → 패키지 보상 번호·칸
 export const REWARD_ART = Object.freeze({'pumpkin-crown': Object.freeze({number: 1, slot: 'crown'}), 'shadow-wings': Object.freeze({number: 2, slot: 'wings'}), 'moonlight-aura': Object.freeze({number: 3, slot: 'aura'})});
+// 왕관·날개·오라 악세사리(악세11~13) → 같은 보상 그림 번호·칸
+export const ACC_REWARD_ART = Object.freeze({acc2_11: Object.freeze({number: 1, slot: 'crown'}), acc2_12: Object.freeze({number: 2, slot: 'wings'}), acc2_13: Object.freeze({number: 3, slot: 'aura'})});
 // 악세사리를 겹치는 차례(앞머리 위): 목 → 손 → 얼굴 → 머리
 export const ACCESSORY_ORDER = Object.freeze(['neck', 'hand', 'face', 'head']);
 const PREFIX_CATEGORY = Object.freeze({outfit: 'outfit', top: 'top', bottom: 'bottom', shoe2: 'shoe', acc2: 'accessory', reward: 'reward', background: 'background'});
@@ -56,6 +60,7 @@ const PAIR = /^(outfit|top|bottom|shoe2|acc2|reward|background)_(\d{2})$/;
 export function pairOf(id) {
   const s = String(id ?? '');
   if (Object.hasOwn(REWARD_ART, s)) return {category: 'reward', number: REWARD_ART[s].number};
+  if (Object.hasOwn(ACC_REWARD_ART, s)) return {category: 'reward', number: ACC_REWARD_ART[s].number};
   const m = PAIR.exec(s);
   if (!m) return null;
   const category = PREFIX_CATEGORY[m[1]], number = Number(m[2]);

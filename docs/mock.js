@@ -20,14 +20,14 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const kstDay = (t) => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
 
 // 입은 옷(그림 V5 옷 id = 패키지 pair: outfit_01~05 한벌옷 · top_01~20 상의 · bottom_01~20 하의 · shoe2_01~10 신발 · acc2_01~10 악세사리
-//  — 자리는 머리·얼굴·목·손 중 그 악세사리 자리, 시즌 보상은 crown·wings·aura 칸, 배경 background_01~10 은 bg 칸 — 남녀 같은 배경). 먼치킨이 올리는 모양 그대로: 한벌옷에 가려진 상의·하의, 왕관에 가려진 머리 장식은 올리지 않는다.
+//  — 자리는 머리·얼굴·목·손 중 그 악세사리 자리, 악세11~13(왕관·날개·오라)은 crown·wings·aura 칸, 배경 background_01~10 은 bg 칸 — 남녀 같은 배경). 먼치킨이 올리는 모양 그대로: 한벌옷에 가려진 상의·하의, 왕관에 가려진 머리 장식은 올리지 않는다.
 //  마지막 줄은 예전 판이 올린 자료 흉내 — V4 에서 지운 옷(의상 07·신발 shoe_03·악세사리 accessory_01)과 예전(V2) 배경 id 라 그리지 않는다.
 const OUTFITS = [
-  { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04', bg: 'background_01', crown: 'pumpkin-crown', wings: 'shadow-wings', aura: 'moonlight-aura' },
+  { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04', bg: 'background_01', crown: 'acc2_11', wings: 'acc2_12', aura: 'acc2_13' },
   { outfit: 'outfit_03', shoes: 'shoe2_06', neck: 'acc2_06' },
   { top: 'top_11', bottom: 'bottom_12', shoes: 'shoe2_03', head: 'acc2_01', hand: 'acc2_10', bg: 'background_05' },
   { outfit: 'outfit_04', shoes: 'shoe2_02', face: 'acc2_05' },
-  { top: 'top_14', bottom: 'bottom_16', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'shadow-wings' },
+  { top: 'top_14', bottom: 'bottom_16', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'acc2_12' },
   { top: 'top_20', bottom: 'bottom_18', shoes: 'shoe2_10', head: 'acc2_03', bg: 'background_10' },
   { top: 'top_05', bottom: 'bottom_03', shoes: 'shoe2_06' },
   {}, { outfit: 'outfit_02', hand: 'acc2_09', shoes: 'shoe2_05' },
@@ -54,7 +54,9 @@ function pagesNow() {
       const love = Math.max(0, (d === 0 ? 5200 : 3100 - d * 600) - i * 260 - (i % 3) * 37);
       let level = 1; while (level < 10 && love >= 50 * (level + 1) * level) level++;
       const id = `${base}#${dj.character.name}`;
-      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ch: t - (i * 3 + d) * 1700e3 };
+      // 단 칭호(먼치킨이 올리는 모양 — 지금 효과가 있는 단 칭호 하나): 1·2등과 몇 사람만
+      const titles = i === 0 ? ['title-halloween-insa'] : i === 1 ? ['title-candy-plz'] : i === 6 ? ['title-kiugi-master'] : [];
+      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ch: t - (i * 3 + d) * 1700e3 };
     });
     return { slug: dj.slug, name: dj.character.name, character: dj.character, season: SEASON, people, count: people.length, updatedAt: new Date(t - (d + 1) * 300e3).toISOString() };
   });
@@ -62,8 +64,8 @@ function pagesNow() {
 const hearts = new Map(Object.entries(SEED_HEARTS));
 const votes = new Set();
 const heartsOf = (slug, k) => hearts.get(`${slug}|${k}`) || 0;
-const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, hearts: heartsOf(slug, p.k) });
-const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, hearts: heartsOf(page.slug, p.k) });
+const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), hearts: heartsOf(slug, p.k) });
+const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), hearts: heartsOf(page.slug, p.k) });
 const target = (k, key) => (key.includes('#') ? k : baseOf(k));
 const pageOf = (slug) => pagesNow().find((p) => p.slug === slug) || null;
 function queryKey(value) {
@@ -100,7 +102,7 @@ export async function handle(method, path, q = {}, body = {}) {
       if (!key) return fail(400, BAD_QUERY);
       const p = page.people.find((x) => target(x.k, key) === key);
       if (!p) return fail(404, NO_PERSON);
-      return ok({ id: p.id, level: p.level, worn: p.worn, hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
+      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
     }
     case 'GET kiugi/home': {
       const pages = pagesNow();

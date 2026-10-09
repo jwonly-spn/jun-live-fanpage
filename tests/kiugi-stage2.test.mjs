@@ -273,7 +273,8 @@ test('메인 페이지 인기는 12명까지, 1분에 60번, 함수 안에서 �
 test('캐릭터(person): 앞 부분·전체 아이디, 하트·시즌·DJ, 없으면 404', async () => {
   const { w, A, B } = await threeDjs();
   await w.heart(A, '밤톨', TOKEN(1));
-  const want = { id: '밤톨#먼치', level: 10, worn: { head: 'witch-hat', top: 'bat-blouse' }, hearts: 1, season: SEASON, dj: { slug: A, name: '먼치', character: { name: '먼치', gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' } } };
+  // titles: 단 칭호(0.15.63~) — 캐릭터(person)는 칭호가 없어도 늘 배열로 내보낸다
+  const want = { id: '밤톨#먼치', level: 10, worn: { head: 'witch-hat', top: 'bat-blouse' }, titles: [], hearts: 1, season: SEASON, dj: { slug: A, name: '먼치', character: { name: '먼치', gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' } } };
   let r = await body(await w.get(`person?slug=${A}&id=${enc('밤톨')}`));
   assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=30');
   assert.deepEqual(r.json, want);
@@ -284,6 +285,27 @@ test('캐릭터(person): 앞 부분·전체 아이디, 하트·시즌·DJ, 없�
   assert.equal((await w.get(`person?slug=${A}&id=${enc('밤톨#쿠키')}`)).status, 404);
   assert.equal((await w.get(`person?slug=${A}&id=abc`)).status, 400);
   assert.equal((await w.get(`person?slug=abcdefgh&id=${enc('밤톨')}`)).status, 404);
+});
+
+test('칭호(titles): 먼치킨이 올린 단 칭호가 캐릭터·1~3등·찾기·메인·전체 찾기에 그대로, 이상한 id 는 빠지고 칭호 없는 사람은 칸이 없다', async () => {
+  const w = world();
+  const k = w.approve();
+  const slug = (await w.upload(k, PAYLOAD([
+    PERSON('밤톨', 900, { worn: { crown: 'acc2_11', top: 'top_11' }, titles: ['title-halloween-insa', '<b>칭호</b>'] }),
+    PERSON('사탕요정', 500, { worn: { wings: 'acc2_12' } }),
+  ]))).json.slug;
+  await w.heart(slug, '밤톨', TOKEN(1));
+  const person = (await body(await w.get(`person?slug=${slug}&id=${enc('밤톨')}`))).json;
+  assert.deepEqual([person.titles, person.worn], [['title-halloween-insa'], { crown: 'acc2_11', top: 'top_11' }]);
+  assert.deepEqual((await body(await w.get(`person?slug=${slug}&id=${enc('사탕요정')}`))).json.titles, []);
+  const page = (await body(await w.get('page?slug=' + slug))).json;
+  assert.deepEqual(page.top.map((p) => p.titles ?? null), [['title-halloween-insa'], null]);
+  assert.deepEqual((await body(await w.get(`find?slug=${slug}&q=${enc('밤톨')}`))).json.results[0].titles, ['title-halloween-insa']);
+  const home = (await body(await w.get('home'))).json;
+  assert.deepEqual(home.popular.map((c) => [c.id, c.titles ?? null]), [['밤톨#먼치', ['title-halloween-insa']]]);
+  assert.deepEqual(home.recent.map((c) => [c.id, c.titles ?? null]), [['밤톨#먼치', ['title-halloween-insa']], ['사탕요정#먼치', null]]);
+  assert.deepEqual((await body(await w.get('search?q=' + enc('밤톨')))).json.results.map((c) => c.titles ?? null), [['title-halloween-insa']]);
+  noSecrets(person); noSecrets(page); noSecrets(home);
 });
 
 test('전체 찾기(search): 전체 아이디는 캐릭터 이름 열쇠로 바로, 앞 부분은 같은 사람 먼저·들어 있는 사람 다음, 10명까지', async () => {

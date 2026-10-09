@@ -4,7 +4,8 @@
 //  하트·링크 복사 단추 줄과 섞지 않는다(휴대폰에서는 넓게, PC 에서는 보통 너비).
 import { h, icon, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, wornList, expressionFor } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl } from '../lib/kiugi-draw.js';
+import { copyCode, titleEffects } from './items.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
@@ -15,8 +16,10 @@ function browserStorage() { try { return window.localStorage; } catch { return n
 export const HEART_SENT = '오늘 하트 보냈어요';
 export const HEART_SEND = '하트 보내기';
 
-// 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸), 시즌 칸에 없는 것(시즌 보상 왕관·날개·오라)은 뒤에.
+// 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸), 시즌 칸에 없는 것(예전 목록의 시즌 보상 왕관·날개·오라)은 뒤에.
 //  그림 V4: 한벌옷을 입으면 상의·하의 칸은 "한벌옷이 덮고 있어요", 왕관을 쓰면 머리 장식 칸은 "왕관이 가려요"(covered).
+//  2026-10-09: 왕관·날개·오라는 악세사리(악세11~13) — 시즌 칸(crown·wings·aura)에 들어 있다. 입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!캐릭터이름 상의11" 이 복사된다.
+//  칭호(지금 효과가 있는 것)는 아이디 아래에.
 export const COVERED = Object.freeze({ outfit: '한벌옷이 덮고 있어요', crown: '왕관이 가려요' });
 export function loadoutSlots(catalog, seasonId, worn) {
   const list = wornList(catalog, seasonId, worn);
@@ -88,6 +91,7 @@ export async function renderCharacter(root, route, app) {
     } catch (e) { heartBtn.disabled = false; status.textContent = e.message; }
   });
 
+  const titles = titleList(catalog, data.titles);
   const level = Number(data.level) || 1;
   const look = expressionFor(catalog, seasonId, level), expression = look.name;
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
@@ -101,6 +105,10 @@ export async function renderCharacter(root, route, app) {
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
+          // 단 칭호(먼치킨은 단 칭호 하나만 보낸다): 배지 그림 + "시즌2까지 / 효과…" 줄
+          ...titles.slice(0, 1).map((t) => h('div', { class: 'kg-char-title' },
+            t.image ? h('img', { class: 'kg-char-title-img', src: titleImageUrl(t, app.base), alt: `칭호 ${t.name}`, decoding: 'async' }) : h('b', { class: 'kg-title-word' }, t.name),
+            titleEffects(t))),
           h('h1', { class: 'display kg-char-id' }, ...idText(data.id)),
           h('p', { class: 'kg-char-level' }, h('span', { class: 'kg-lv' }, `Lv.${level}`), h('span', null, expression)),
           h('dl', { class: 'kg-facts' },
@@ -113,11 +121,15 @@ export async function renderCharacter(root, route, app) {
           status, copyBox))));
   main.replaceChildren(
     h('section', { class: 'kg-sec' },
-      secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요.` : '아직 아무것도 입지 않았어요.'),
+      secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.'),
       slots.length
-        ? h('ul', { class: 'kg-worn' }, ...slots.map((w) => h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
-          w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
-          h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : w.covered || '비어 있음')))))
+        ? h('ul', { class: 'kg-worn' }, ...slots.map((w) => {
+          const code = w.id ? itemCodeOf(catalog, seasonId, w.id) : null;
+          return h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
+            w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
+            h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : w.covered || '비어 있음'),
+              code ? h('button', { type: 'button', class: 'kg-worn-code', title: `!${dj.name} ${code} 복사`, onclick: () => copyCode(code, dj.name) }, `!${dj.name} ${code}`) : null));
+        }))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     h('section', { class: 'kg-banner' },
       h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기의 다른 캐릭터`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),

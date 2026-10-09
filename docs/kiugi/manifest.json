@@ -4,6 +4,13 @@
     "season-s1.json"
   ],
   "files": {
+    "titles": [
+      "title-candy-plz.png",
+      "title-halloween-insa.png",
+      "title-kiugi-master.png",
+      "title-namjang-yeoja.png",
+      "title-yeojang-namja.png"
+    ],
     "v5": [
       "acc2_01_female.png",
       "acc2_01_male.png",

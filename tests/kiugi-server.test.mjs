@@ -56,6 +56,20 @@ test('검사(v2): 청취자 줄은 아이디·레벨·애정도·입은 옷만, 
   assert.deepEqual(en.people.map((p) => [p.id, p.k]), [['별사탕#Munchi7', '별사탕#munchi7']]);
 });
 
+test('칭호(0.15.63~): 옷 id 모양만 3개까지 겹치지 않게 싣고, 없으면 titles 칸이 없다 · 1~3등·카드·한 사람 내보내기에도', () => {
+  assert.deepEqual(v.titles(['title-pumpkin-king', 'title-pumpkin-king', 'Bad!', 3, 'title-night-shadow', 'title-moon-guardian', 'title-x']), ['title-pumpkin-king', 'title-night-shadow', 'title-moon-guardian']);
+  assert.deepEqual(v.titles('title-pumpkin-king'), []);
+  const s = v.snapshot(PAYLOAD([PERSON('밤톨', 500, { titles: ['title-pumpkin-king', '<b>'] }), PERSON('사탕요정', 10, { titles: [] })]));
+  assert.deepEqual(s.people[0].titles, ['title-pumpkin-king']);
+  assert.equal(Object.hasOwn(s.people[1], 'titles'), false, '칭호 없으면 칸도 없다');
+  assert.deepEqual(s.top[0].titles, ['title-pumpkin-king']);
+  assert.deepEqual(v.publicPerson(s.people[0], 1).titles, ['title-pumpkin-king']);
+  assert.equal(Object.hasOwn(v.publicPerson(s.people[1], 2), 'titles'), false);
+  assert.deepEqual(v.card(s.people[0], 'abcdefgh', '먼치', 0).titles, ['title-pumpkin-king']);
+  const sum = v.summarize(v.withChanges(s.people.map((p) => ({ ...p, worn: { top: 'top_01' } })), [], 1));
+  assert.deepEqual(sum.recent.find((x) => x.id === '밤톨#먼치').titles, ['title-pumpkin-king']);
+});
+
 test('검사(v2): 판 번호·캐릭터 이름·시즌·끄기·쉬는 중·인원 상한', () => {
   assert.deepEqual(v.snapshot({ enabled: false, extra: 1 }), { enabled: false });
   assert.throws(() => v.snapshot({ ...PAYLOAD(), v: 1 }), /업데이트/, 'v1(스푼 이름을 올리던 판)은 받지 않는다');

@@ -33,19 +33,37 @@ const BODY = Object.freeze({ f: 'female', m: 'male' });
 const COLOR = Object.freeze({ text: '#f3efe8', text2: '#a9a6af', text3: '#8a8791', accent: '#ff7a2f', accentText: '#ff9a5c', accentInk: '#1b0c03', bg: '11, 11, 15' });
 const FONT = '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif';
 
-// 배치(1080×1350). 캐릭터는 1024 캔버스 전체를 1.1배로 줄였다 늘릴 뿐(그림마다 옮기지 않는다): 왕관 끝(y 15) → 40, 발끝(y 957) → 1077, 가운데(x 512) → 540.
+// 배치(1080×1350). 캐릭터는 1024 캔버스 전체를 1.1배 캔버스에 그린 뒤, 실제로 그려진 곳(알파 상자 — 왕관·날개·오라·둥실 하트 포함)을 재서
+//  그 가운데가 그림 한가운데(540, 675)에 오게 놓는다(2026-10-09 사용자 "이미지 저장할 때 캐릭터를 정 중앙에"). 위로 fit.top, 아래 띠 위 fit.bottom 안에 들어가지 않으면 그만큼 줄인다(placeCharacter).
+//  아래 띠는 220px(예전 258px)로 얇게 — 가운데에 둔 캐릭터가 거의 줄지 않게.
 const CHAR_S = 1.1;
 export const SAVE_LAYOUT = Object.freeze({
   pad: 64,
-  char: Object.freeze({ s: CHAR_S, x: Math.round(SAVE_W / 2 - (SIZE / 2) * CHAR_S), y: 23 }),
-  shadow: Object.freeze({ cx: SAVE_W / 2, cy: 23 + 952 * CHAR_S, rx: 200, ry: 28 }),
-  fade: Object.freeze({ from: 900, to: 1092 }), // 아래 띠로 이어지는 어둠(캐릭터 밑에 깔아 배경만 어둡게)
-  band: Object.freeze({ y: 1092 }),
-  id: Object.freeze({ y: 1184, size: 92, tag: 0.6, min: 0.55 }), // 아이디 글 아랫줄(앞 92px · #이름 0.6배), 길면 0.55배까지 줄인다
-  sub: Object.freeze({ y: 1240, size: 30, pill: 44 }),
-  rule: Object.freeze({ y: 1272 }),
-  mark: Object.freeze({ y: 1313, size: 25, logo: 34 }),
+  char: Object.freeze({ s: CHAR_S }),
+  center: Object.freeze({ x: SAVE_W / 2, y: SAVE_H / 2 }),
+  fit: Object.freeze({ top: 36, bottom: 1114, side: 40 }),
+  shadow: Object.freeze({ rx: 200, ry: 28 }),
+  fade: Object.freeze({ from: 960, to: 1130 }), // 아래 띠로 이어지는 어둠(캐릭터 밑에 깔아 배경만 어둡게)
+  band: Object.freeze({ y: 1130 }),
+  id: Object.freeze({ y: 1214, size: 82, tag: 0.6, min: 0.55 }), // 아이디 글 아랫줄(앞 82px · #이름 0.6배), 길면 0.55배까지 줄인다
+  sub: Object.freeze({ y: 1262, size: 28, pill: 40 }),
+  rule: Object.freeze({ y: 1290 }),
+  mark: Object.freeze({ y: 1328, size: 23, logo: 32 }),
 });
+// 그린 캐릭터 캔버스의 알파 상자 {x0, y0, x1, y1}(그 캔버스 픽셀) · 아무것도 없으면 캔버스 전체
+export function alphaBox(data, w, hgt, min = 16) {
+  let x0 = w, y0 = hgt, x1 = -1, y1 = -1;
+  for (let y = 0; y < hgt; y++) for (let x = 0; x < w; x++) if (data[(y * w + x) * 4 + 3] > min) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  return x1 < 0 ? { x0: 0, y0: 0, x1: w, y1: hgt } : { x0, y0, x1: x1 + 1, y1: y1 + 1 };
+}
+// 알파 상자 → 그릴 자리 {x, y, f(줄이는 배수 ≤ 1), bottom(발끝 y)}: 상자 가운데 = 그림 가운데, 위·아래·옆 여백 안에 들어가게.
+export function placeCharacter(box) {
+  const L = SAVE_LAYOUT, w = box.x1 - box.x0, hgt = box.y1 - box.y0;
+  const half = Math.min(L.center.y - L.fit.top, L.fit.bottom - L.center.y);
+  const f = Math.min(1, (2 * half) / Math.max(1, hgt), (SAVE_W - 2 * L.fit.side) / Math.max(1, w));
+  const cx = (box.x0 + box.x1) / 2, cy = (box.y0 + box.y1) / 2;
+  return { x: L.center.x - cx * f, y: L.center.y - cy * f, f, bottom: L.center.y + (hgt * f) / 2 };
+}
 
 // 그림(정사각형) → 칸을 빈틈없이 채우는 자리(잘라 채우기, 가운데)
 export function coverRect(sw, sh, dw = SAVE_W, dh = SAVE_H) {
@@ -229,7 +247,7 @@ function drawStage(ctx) {
   ctx.fillStyle = lg; ctx.fillRect(0, 0, SAVE_W, SAVE_H);
   ellipseGlow(ctx, SAVE_W * 0.5, SAVE_H * 0.36, SAVE_W * 0.8, SAVE_H * 0.58, [[0, 'rgba(255, 255, 255, 0.11)'], [0.7, 'rgba(255, 255, 255, 0)']]);
   ellipseGlow(ctx, SAVE_W * 0.5, 0, SAVE_W * 0.7, SAVE_H * 0.46, [[0, 'rgba(255, 122, 47, 0.13)'], [0.72, 'rgba(255, 122, 47, 0)']]);
-  ellipseGlow(ctx, SAVE_W * 0.5, SAVE_LAYOUT.shadow.cy, 430, 120, [[0, 'rgba(255, 255, 255, 0.06)'], [1, 'rgba(255, 255, 255, 0)']]);
+  ellipseGlow(ctx, SAVE_W * 0.5, SAVE_LAYOUT.fit.bottom - 40, 430, 120, [[0, 'rgba(255, 255, 255, 0.06)'], [1, 'rgba(255, 255, 255, 0)']]);
 }
 // 캐릭터(1024 캔버스 전체, 배경 빼고)를 s 배 크기의 캔버스에 — 그림마다 한 번만 줄이고 늘린다(흐려지지 않게)
 function drawCharacter(doc, plan, images, base, s) {
@@ -333,16 +351,18 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
     const r = coverRect(SIZE, SIZE);
     ctx.drawImage(images.get(artUrl(plan.background, base)), r.x, r.y, r.w, r.h);
   } else drawStage(ctx);
-  // 2) 아래 띠로 이어지는 어둠(캐릭터 밑) · 발밑 그림자
+  // 2) 캐릭터를 먼저 그려 실제 크기를 재고(알파 상자) 그림 한가운데 자리를 정한다
+  const ch = drawCharacter(doc, plan, images, base, L.char.s);
+  const at = placeCharacter(alphaBox(ch.getContext('2d').getImageData(0, 0, ch.width, ch.height).data, ch.width, ch.height));
+  // 3) 아래 띠로 이어지는 어둠(캐릭터 밑) · 발밑 그림자
   const fade = ctx.createLinearGradient(0, L.fade.from, 0, L.fade.to);
   fade.addColorStop(0, `rgba(${COLOR.bg}, 0)`); fade.addColorStop(1, `rgba(${COLOR.bg}, 0.86)`);
   ctx.fillStyle = fade; ctx.fillRect(0, L.fade.from, SAVE_W, L.fade.to - L.fade.from);
-  ellipseGlow(ctx, L.shadow.cx, L.shadow.cy, L.shadow.rx, L.shadow.ry, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
-  // 3) 캐릭터
-  const ch = drawCharacter(doc, plan, images, base, L.char.s);
-  ctx.drawImage(ch, L.char.x, L.char.y);
+  ellipseGlow(ctx, L.center.x, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
+  // 4) 캐릭터(줄여야 하면 한 번만 줄인다)
+  ctx.drawImage(ch, at.x, at.y, ch.width * at.f, ch.height * at.f);
   free(ch);
-  // 4) 아래 띠와 글
+  // 5) 아래 띠와 글
   drawBand(ctx, card);
   return canvas;
 }

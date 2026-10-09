@@ -9,10 +9,20 @@ const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 // 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림·옷 도감에 쓰는 것
 //  items: {옷id: {slot, season, name, price, level, tier?, tierName?, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
 //   값·레벨은 먼치킨(rules.mjs)과 같게: 시즌 옷은 등급표(tiers)의 price·level, 시즌 보상은 보상 값과 보상 규칙의 최소 레벨
-//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code}], rewardRule:{minLevel, minAttendance}}} · last: 마지막 시즌 id
+//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code}], rewardRule:{minLevel, minAttendance, lasts}}} · last: 마지막 시즌 id
 //  그림 V3·V4(2026-10-09): 옷은 묶음(categories — V4 는 한벌옷·상의·하의·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
+//  titles: {칭호id: {id, season, number, name, icon, perk, desc, price, level, minAttendance}} — 2026-10-09 사용자 "시즌 보상은 칭호로 통일":
+//   시즌 보상(seasonRewards)에 칸(slot)이 없으면 칭호(입지 않는다). 얻은 시즌과 다음 시즌까지 효과(rewardRule.lasts = 2). 칸이 있는 예전 목록의 보상은 예전처럼 옷.
+export const TITLE_MIN_LEVEL = 10;
+// 0.15.62 이하 먼치킨이 올린 예전 시즌 보상 id → 0.15.63 의 악세11~13(같은 그림·같은 칸). 입은 옷 칸·번호를 새 id 로 읽는다.
+export const OLD_REWARD_IDS = Object.freeze({ 'pumpkin-crown': 'acc2_11', 'shadow-wings': 'acc2_12', 'moonlight-aura': 'acc2_13' });
+const currentId = (id) => OLD_REWARD_IDS[id] || id;
+// 칭호 효과 줄: perks(줄 목록) 또는 perk(글 — 줄바꿈·" · "로 나눈다)
+const perksOf = (r) => (Array.isArray(r?.perks) ? r.perks : String(r?.perk || '').split(/\n| · /)).map((s) => String(s).trim()).filter(Boolean);
+// 칭호 효과가 남는 마지막 시즌 이름("시즌2까지"): 얻은 시즌의 차례(1부터) + lasts − 1
+export const titleUntil = (catalog, seasonId, lasts = 2) => { const i = Object.keys(catalog?.seasons || {}).indexOf(seasonId); return `시즌${(i < 0 ? 0 : i) + Math.max(1, lasts)}까지`; };
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
-  const items = {}, seasons = {};
+  const items = {}, seasons = {}, titles = {};
   let last = null;
   for (const raw of Array.isArray(raws) ? raws : []) {
     const id = raw?.season?.id;
@@ -20,23 +30,28 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
     last = id;
     const tiers = raw.tiers && typeof raw.tiers === 'object' ? raw.tiers : {};
     const rule = raw.seasonRewardRule && typeof raw.seasonRewardRule === 'object' ? raw.seasonRewardRule : {};
-    const minLevel = Number(rule.minLevel) || 1;
+    // 시즌 칭호는 먼치킨 규칙(KIUGI_RULES.titleShop.minLevel)과 같게 Lv.10 — 시즌 목록에 값이 없어도 Lv.1 로 보이지 않게
+    const minLevel = Number(rule.minLevel) || TITLE_MIN_LEVEL;
     const slots = (Array.isArray(raw.slots) ? raw.slots : []).filter((s) => s?.id).map((s) => ({ id: s.id, name: s.name || s.id, cat: s.cat || s.id }));
     const categories = (Array.isArray(raw.categories) && raw.categories.length ? raw.categories : slots).filter((c) => c?.id).map((c) => ({ id: c.id, name: c.name || c.id, code: c.code || c.name || c.id }));
     seasons[id] = {
       id, name: raw.season.name || id, endsAt: raw.season.endsAt || null,
       expressions: Array.isArray(raw.expressions) ? raw.expressions : [],
       slots: slots.map(({ id: sid, name }) => ({ id: sid, name })), categories,
-      rewardRule: { minLevel, minAttendance: Number(rule.minAttendance) || 0 },
+      rewardRule: { minLevel, minAttendance: Number(rule.minAttendance) || 0, lasts: Number(rule.lasts) || 2 },
     };
     for (const it of Array.isArray(raw.items) ? raw.items : []) {
       if (!it?.id) continue;
       const t = tiers[it.tier] || {}, cat = it.cat || slots.find((s) => s.id === it.slot)?.cat || it.slot;
       items[it.id] = { slot: it.slot, cat, ...(Number.isInteger(it.number) ? { number: it.number } : {}), season: id, name: it.name, tier: it.tier, tierName: t.name || it.tier, price: Number(t.price) || 0, level: Number(t.level) || 1 };
     }
-    for (const r of Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []) if (r?.id) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true, price: Number(r.price) || 0, level: minLevel };
+    (Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []).forEach((r, i) => {
+      if (!r?.id) return;
+      if (r.slot) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true, price: Number(r.price) || 0, level: minLevel };
+      else titles[r.id] = { id: r.id, season: id, number: i + 1, name: r.name || r.id, image: typeof r.image === 'string' && /^[a-z0-9/_-]+\.png$/.test(r.image) ? r.image : '', perks: perksOf(r).length ? perksOf(r) : perksOf(rule), desc: r.desc || '', price: Number(r.price) || 0, level: minLevel, minAttendance: Number(rule.minAttendance) || 0 };
+    });
   }
-  return { items, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
+  return { items, titles, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
 }
 
 // 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 왕관·날개·오라 — 은 여기서. 그림 V4 부터 보상도 캐릭터가 입는다)
@@ -49,10 +64,24 @@ export function slotName(catalog, seasonId, slot) {
 export function wornList(catalog, seasonId, worn) {
   const order = ((catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || []).map((s) => s.id);
   const extra = Object.keys(SLOT_FALLBACK), rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length + (extra.includes(slot) ? extra.indexOf(slot) : extra.length) : i; };
-  return Object.entries(worn && typeof worn === 'object' ? worn : {}).filter(([, id]) => Boolean(catalog?.items?.[id]))
+  return Object.entries(worn && typeof worn === 'object' ? worn : {}).map(([slot, id]) => [slot, catalog?.items?.[id] ? id : currentId(id)]).filter(([, id]) => Boolean(catalog?.items?.[id]))
     .sort(([a], [b]) => rank(a) - rank(b))
     .map(([slot, id]) => ({ slot, slotName: slotName(catalog, seasonId, slot), id, name: catalog?.items?.[id]?.name || id }));
 }
+
+// 옷 id → 먼치킨 채팅 상점과 같은 번호(상의11·악세12). 묶음·번호가 없는 옷(예전 목록)은 null.
+export function itemCodeOf(catalog, seasonId, id) {
+  const it = catalog?.items?.[id] || catalog?.items?.[currentId(id)], season = catalog?.seasons?.[it?.season] || catalog?.seasons?.[seasonId];
+  const cat = it && Number.isInteger(it.number) ? season?.categories?.find((c) => c.id === it.cat) : null;
+  return cat ? `${cat.code}${it.number}` : null;
+}
+// 단 칭호 id(서버가 보낸 것 — 지금 효과가 있는 것만) → [{id, name, image, perks, until, code}] (모르는 id 는 뺀다)
+export function titleList(catalog, ids) {
+  return (Array.isArray(ids) ? ids : []).map((id) => catalog?.titles?.[id]).filter(Boolean)
+    .map((t) => ({ id: t.id, name: t.name, image: t.image, perks: t.perks, until: titleUntil(catalog, t.season, catalog.seasons?.[t.season]?.rewardRule?.lasts), code: `칭호${t.number}` }));
+}
+// 칭호 배지 그림 주소(사이트 BASE 아래 kiugi/titles/…)
+export const titleImageUrl = (t, base = '/') => (t?.image ? (String(base).endsWith('/') ? base : base + '/') + 'kiugi/' + t.image : '');
 
 // 레벨 표정(레벨마다 바뀐다): 그 시즌 목록에서 레벨 이하 중 가장 높은 것
 export function expressionFor(catalog, seasonId, level) {

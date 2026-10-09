@@ -1,18 +1,19 @@
 {
-  "season": {"id": "s1", "name": "할로윈", "theme": "할로윈", "endsAt": "2026-11-30T23:59:59+09:00", "rewardShopOpensAt": "2026-11-16T00:00:00+09:00", "nextSeasonAt": "2026-12-01T00:00:00+09:00"},
+  "season": {"id": "s1", "name": "할로윈", "theme": "할로윈", "endsAt": "2026-11-30T23:59:59+09:00", "rewardShopOpensAt": "2026-10-30T00:00:00+09:00", "nextSeasonAt": "2026-12-01T00:00:00+09:00"},
   "art": "v5",
   "tiers": {
     "basic": {"name": "기본", "price": 50, "level": 1},
-    "normal": {"name": "일반", "price": 200, "level": 1},
-    "fine": {"name": "고급", "price": 600, "level": 3},
-    "rare": {"name": "희귀", "price": 2000, "level": 6}
+    "normal": {"name": "일반", "price": 150, "level": 1},
+    "fine": {"name": "고급", "price": 400, "level": 3},
+    "rare": {"name": "희귀", "price": 1200, "level": 6},
+    "legend": {"name": "전설", "price": 2300, "level": 8}
   },
   "categories": [
     {"id": "outfit", "name": "한벌옷", "code": "한벌", "part": "위·아래가 한 벌(입으면 상의·하의 대신 보여요 — 벗으면 입던 상의·하의가 다시 보여요)"},
     {"id": "top", "name": "상의", "code": "상의", "part": "윗옷(입으면 한벌옷을 벗어요)"},
     {"id": "bottom", "name": "하의", "code": "하의", "part": "바지·치마(입으면 한벌옷을 벗어요)"},
     {"id": "shoes", "name": "신발", "code": "신발", "part": "두 발(기본 운동화를 바꿔요)"},
-    {"id": "acc", "name": "악세사리", "code": "악세", "part": "머리·얼굴·목·손 자리마다 하나씩"},
+    {"id": "acc", "name": "악세사리", "code": "악세", "part": "머리·얼굴·목·손·왕관·날개·오라 자리마다 하나씩(왕관을 쓰면 머리 장식은 가려져요)"},
     {"id": "bg", "name": "배경", "code": "배경", "part": "캐릭터 뒤 장면 하나(남녀가 같은 배경이에요)"}
   ],
   "slots": [
@@ -24,6 +25,9 @@
     {"id": "face", "name": "얼굴 장식", "cat": "acc"},
     {"id": "neck", "name": "목 장식", "cat": "acc"},
     {"id": "hand", "name": "손 장식", "cat": "acc"},
+    {"id": "crown", "name": "왕관", "cat": "acc"},
+    {"id": "wings", "name": "날개", "cat": "acc"},
+    {"id": "aura", "name": "오라", "cat": "acc"},
     {"id": "bg", "name": "배경", "cat": "bg"}
   ],
   "styles": {"cute": "귀여움", "cool": "멋짐", "funny": "장난"},
@@ -97,6 +101,9 @@
     {"id": "acc2_08", "cat": "acc", "slot": "neck", "number": 8, "name": "퇴근 실패 유령 목걸이", "tier": "basic", "style": "funny"},
     {"id": "acc2_09", "cat": "acc", "slot": "hand", "number": 9, "name": "잠긴 자정 체인 팔찌", "tier": "normal", "style": "cool"},
     {"id": "acc2_10", "cat": "acc", "slot": "hand", "number": 10, "name": "막차 호박 랜턴", "tier": "normal", "style": "funny"},
+    {"id": "acc2_11", "cat": "acc", "slot": "crown", "number": 11, "name": "황금 호박 왕관", "tier": "legend", "style": "cool", "art": "reward_01", "desc": "금빛 호박 왕관 — 캐릭터 머리 위에 써요(머리 장식은 가려져요)"},
+    {"id": "acc2_12", "cat": "acc", "slot": "wings", "number": 12, "name": "그림자 날개", "tier": "legend", "style": "cool", "art": "reward_02", "desc": "보랏빛이 도는 크고 멋진 검은 날개 — 캐릭터 등 뒤에 펼쳐져요"},
+    {"id": "acc2_13", "cat": "acc", "slot": "aura", "number": 13, "name": "달빛 오라", "tier": "legend", "style": "cute", "art": "reward_03", "desc": "캐릭터 뒤에서 은은하게 빛나는 둥근 달빛 후광과 작은 별들(다른 옷과 함께 보여요)"},
 
     {"id": "background_01", "cat": "bg", "slot": "bg", "number": 1, "name": "자정의 바이올렛 클럽", "tier": "fine", "style": "cool"},
     {"id": "background_02", "cat": "bg", "slot": "bg", "number": 2, "name": "블루문 루프톱", "tier": "fine", "style": "cool"},
@@ -131,9 +138,11 @@
     {"id": "exp-tears", "name": "감동 눈물", "desc": "두 눈가에 맺힌 반짝이는 눈물 방울(눈물만)"}
   ],
   "seasonRewards": [
-    {"id": "pumpkin-crown", "pair": "reward_01", "slot": "crown", "name": "황금 호박 왕관", "price": 15000, "desc": "금빛 호박 왕관 — 캐릭터 머리 위에 써요(머리 장식은 가려져요)", "perk": "앞으로 모든 시즌에서 받는 냥 +10%"},
-    {"id": "shadow-wings", "pair": "reward_02", "slot": "wings", "name": "그림자 날개", "price": 15000, "desc": "보랏빛이 도는 크고 멋진 검은 날개 — 캐릭터 등 뒤에 펼쳐져요", "perk": "트릭 오어 트릿에서 트릭에 안 걸리고 사탕 2배"},
-    {"id": "moonlight-aura", "pair": "reward_03", "slot": "aura", "name": "달빛 오라", "price": 15000, "desc": "캐릭터 뒤에서 은은하게 빛나는 둥근 달빛 후광과 작은 별들(다른 옷과 함께 보여요)", "perk": "채팅으로 받는 냥 한도 1.5배"}
+    {"id": "title-halloween-insa", "name": "할로윈 인싸", "price": 3000, "image": "titles/title-halloween-insa.png"},
+    {"id": "title-yeojang-namja", "name": "여장남자", "price": 3000, "image": "titles/title-yeojang-namja.png"},
+    {"id": "title-namjang-yeoja", "name": "남장여자", "price": 3000, "image": "titles/title-namjang-yeoja.png"},
+    {"id": "title-candy-plz", "name": "사탕내놧", "price": 3000, "image": "titles/title-candy-plz.png"},
+    {"id": "title-kiugi-master", "name": "키우기장인", "price": 3000, "image": "titles/title-kiugi-master.png"}
   ],
-  "seasonRewardRule": {"opensAt": "2026-11-16T00:00:00+09:00", "minLevel": 10, "minAttendance": 20, "keeps": "시즌이 끝나도 남는 것은 시즌 보상뿐"}
+  "seasonRewardRule": {"opensAt": "2026-10-30T00:00:00+09:00", "lasts": 2, "perks": ["채팅으로 받는 냥 한도 1.5배", "받는 냥 +10%", "이벤트 보상 2배 (5% 확률)"], "keeps": "시즌이 끝나도 남는 것은 시즌 칭호뿐 — 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요"}
 }
