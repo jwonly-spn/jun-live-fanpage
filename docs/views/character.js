@@ -5,7 +5,7 @@
 import { h, icon, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl } from '../lib/kiugi-draw.js';
-import { copyCode, titleEffects } from './items.js';
+import { copyCode, chatHint, titleEffects } from './items.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
@@ -18,7 +18,7 @@ export const HEART_SEND = '하트 보내기';
 
 // 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸), 시즌 칸에 없는 것(예전 목록의 시즌 보상 왕관·날개·오라)은 뒤에.
 //  그림 V4: 한벌옷을 입으면 상의·하의 칸은 "한벌옷이 덮고 있어요", 왕관을 쓰면 머리 장식 칸은 "왕관이 가려요"(covered).
-//  2026-10-09: 왕관·날개·오라는 악세사리(악세11~13) — 시즌 칸(crown·wings·aura)에 들어 있다. 입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!캐릭터이름 상의11" 이 복사된다.
+//  2026-10-09: 왕관·날개·오라는 악세사리(악세11~13) — 시즌 칸(crown·wings·aura)에 들어 있다. 입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!옷장 상의 11" 이 복사된다(0.15.66 — !옷장 으로 통일).
 //  칭호(지금 효과가 있는 것)는 아이디 아래에.
 export const COVERED = Object.freeze({ outfit: '한벌옷이 덮고 있어요', crown: '왕관이 가려요' });
 export function loadoutSlots(catalog, seasonId, worn) {
@@ -128,7 +128,7 @@ export async function renderCharacter(root, route, app) {
           return h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
             w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
             h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : w.covered || '비어 있음'),
-              code ? h('button', { type: 'button', class: 'kg-worn-code', title: `!${dj.name} ${code} 복사`, onclick: () => copyCode(code, dj.name) }, `!${dj.name} ${code}`) : null));
+              code ? h('button', { type: 'button', class: 'kg-worn-code', title: `${chatHint(code)} 복사`, onclick: () => copyCode(code) }, chatHint(code)) : null));
         }))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     h('section', { class: 'kg-banner' },

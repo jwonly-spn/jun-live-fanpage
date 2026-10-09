@@ -37,17 +37,18 @@ export const REWARD_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? 
 // 시즌 칭호(먼치킨 채팅의 "칭호1"과 같은 번호)
 export const TITLE_WORD = '칭호';
 export const TITLE_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 이번 시즌 출석 ${rule.minAttendance}번` : ''}부터 살 수 있어요. 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요(시즌 1에 얻으면 시즌 2까지).`;
-// 채팅에 칠 글(번호를 누르면 복사): 옷 도감은 어느 방송인지 모르니 "!캐릭터이름 상의11" 모양으로 알려 준다
-export const chatHint = (code, name = '캐릭터이름') => `!${name} ${code}`;
-export async function copyCode(code, name) {
-  const hint = chatHint(code, name);
-  try { await navigator.clipboard.writeText(name ? hint : code); toast(`${name ? hint : code} 복사했어요 · 방송 채팅에 ${hint} 처럼 쳐요`); }
+// 채팅에 칠 글(번호를 누르면 복사): "!옷장 상의 11"(2026-10-09 먼치킨 0.15.66 — 사기·입기는 어느 방송에서나 !옷장 으로 통일, DJ 캐릭터 이름이 필요 없다)
+export const CLOSET_CMD = '!옷장';
+export const chatHint = (code) => `${CLOSET_CMD} ${String(code).replace(/^(\D+?)(\d+)$/, '$1 $2')}`;
+export async function copyCode(code) {
+  const hint = chatHint(code);
+  try { await navigator.clipboard.writeText(hint); toast(`${hint} 복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 입어요`); }
   catch { toast(`방송 채팅에 ${hint} 처럼 쳐요`); }
 }
 // 칭호 효과 줄(첫 줄 "시즌2까지" 굵게, 다음 줄마다 효과 하나) — 캐릭터 페이지도 같이 쓴다
 export const titleEffects = (t) => h('ul', { class: 'kg-title-effects' },
   t.until ? h('li', { class: 'kg-title-until' }, t.until) : null, ...(t.perks || []).map((p) => h('li', null, p)));
-const codeButton = (code, { accent = false, name } = {}) => h('button', { type: 'button', class: 'kg-item-code' + (accent ? ' accent' : ''), title: `번호 복사 · ${chatHint(code, name)}`, 'aria-label': `${code} 번호 복사`, onclick: () => copyCode(code, name) }, code);
+const codeButton = (code, { accent = false } = {}) => h('button', { type: 'button', class: 'kg-item-code' + (accent ? ' accent' : ''), title: `번호 복사 · ${chatHint(code)}`, 'aria-label': `${code} 번호 복사`, onclick: () => copyCode(code) }, code);
 
 export async function renderItems(root, app) {
   document.title = `옷 도감 · ${BRAND}`;
@@ -64,7 +65,7 @@ export async function renderItems(root, app) {
       h('div', { class: 'kg-wrap' },
         h('section', { class: 'kg-hero small' },
           h('div', { class: 'kg-hero-copy' }, badge, h('h1', { class: 'display' }, '옷 도감'),
-            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 번호는 방송 채팅 상점과 같아요 — 방송 채팅에 !캐릭터이름 상의11 처럼 치면 사서 바로 입어요(번호를 누르면 복사돼요). 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
+            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 번호는 방송 채팅의 !옷장 과 같아요 — 방송 채팅에 !옷장 상의 11 처럼 치면 사서 바로 입어요(번호를 누르면 복사돼요). 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
     main,
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
   const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), kiugiApi.home().catch(() => null)]);

@@ -236,7 +236,7 @@ test('첫 화면 숫자 칸(시즌 번호·남은 날, 한국 날짜)과 캐릭�
   const covered = loadoutSlots(c, 's1', { outfit: 'outfit_01', crown: 'acc2_11' });
   assert.deepEqual(covered.filter((w) => w.covered).map((w) => [w.slot, w.covered]), [['top', '한벌옷이 덮고 있어요'], ['bottom', '한벌옷이 덮고 있어요'], ['head', '왕관이 가려요']]);
   assert.ok(!loadoutSlots(c, 's1', { top: 'top_01', wings: 'acc2_12', aura: 'acc2_13' }).some((w) => w.covered), '날개·오라는 아무것도 가리지 않는다');
-  // 입은 옷 칸의 채팅 번호(캐릭터 페이지가 "!캐릭터이름 상의11" 로 복사): 시즌 목록의 번호 그대로
+  // 입은 옷 칸의 채팅 번호(캐릭터 페이지가 "!옷장 상의 11" 로 복사): 시즌 목록의 번호 그대로
   assert.deepEqual(covered.filter((w) => w.id).map((w) => itemCodeOf(c, 's1', w.id)), ['한벌1', '악세11']);
 });
 
@@ -274,7 +274,8 @@ test('옷 도감 묶음(그림 V5): 한벌옷·상의·하의·신발·악세사
   assert.equal(TITLE_WORD, '칭호');
   assert.match(TITLE_NOTE(rule), /다음 시즌까지 효과/); assert.doesNotMatch(TITLE_NOTE(rule), /출석/, '출석 조건 없음');
   assert.match(TITLE_NOTE({ minLevel: 10, minAttendance: 5 }), /^Lv\.10 · 이번 시즌 출석 5번부터 살 수 있어요/);
-  assert.equal(chatHint('상의11'), '!캐릭터이름 상의11'); assert.equal(chatHint('칭호1', '먼치'), '!먼치 칭호1');
+  // 2026-10-09 먼치킨 0.15.66: 채팅 사기·입기는 어느 방송에서나 "!옷장 상의 11"(DJ 캐릭터 이름이 필요 없다)
+  assert.equal(chatHint('상의11'), '!옷장 상의 11'); assert.equal(chatHint('칭호1'), '!옷장 칭호 1'); assert.equal(chatHint('악세12'), '!옷장 악세 12');
   // 예전 모양 시즌 보상(입는 옷)의 안내 글은 그대로
   assert.match(REWARD_NOTE({ minLevel: 10, minAttendance: 20 }), /^Lv\.10 · 출석 20번부터 살 수 있고/); assert.match(REWARD_NOTE({ minLevel: 10 }), /사면 캐릭터가 바로 입어요/); assert.doesNotMatch(REWARD_NOTE({ minLevel: 10 }), /배지/);
   assert.equal(wearLine(0), '아직 입은 사람이 없어요'); assert.equal(wearLine(1200), '1,200명이 입고 있어요');
@@ -375,14 +376,14 @@ test('화면 글: 첫 화면 4단계(칭호 달기), 옷 도감·캐릭터 페�
   assert.match(intro, /h\('ol', \{ class: 'kg-steps four' \}/);
   const steps = [...intro.matchAll(/step\('(\d)', '([^']+)'/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(steps, [['1', '아이디 만들기'], ['2', '냥 모으기'], ['3', '옷 입히기'], ['4', '칭호 달기']]);
-  assert.match(intro, /'!먼치 상의11'\)/); assert.match(intro, /'!먼치 상점 칭호'\)/); assert.match(intro, /Lv\.10이 되면 시즌 칭호를 살 수 있어요/);
+  assert.match(intro, /'!옷장 상의 11'\)/); assert.match(intro, /'!옷장 칭호'\)/); assert.match(intro, /Lv\.10이 되면 시즌 칭호를 살 수 있어요/); assert.doesNotMatch(intro, /상점 칭호|!먼치 상의/, '예전 명령 안내 없음');
   const css = await src('styles.css');
   for (const cls of ['kg-steps.four', 'kg-item-code.accent', 'kg-worn-code', 'kg-char-title', 'kg-char-title-img', 'kg-title-list', 'kg-title-media', 'kg-title-img', 'kg-title-word', 'kg-title-effects', 'kg-title-until']) assert.match(css, new RegExp(`\\.${cls.replace('.', '\\.')}[\\s{.:,\\[]`), cls);
   const items = await src('views/items.js');
   assert.match(items, /codeButton\(it\.code\)/, '옷 번호는 누르면 복사되는 단추'); assert.match(items, /codeButton\(t\.code, \{ accent: true \}\)/, '칭호 번호도');
   assert.match(items, /'시즌 칭호'/);
   const character = await src('views/character.js');
-  assert.match(character, /itemCodeOf\(catalog, seasonId, w\.id\)/); assert.match(character, /copyCode\(code, dj\.name\)/, '"!캐릭터이름 상의11" 로 복사');
+  assert.match(character, /itemCodeOf\(catalog, seasonId, w\.id\)/); assert.match(character, /copyCode\(code\)/, '"!옷장 상의 11" 로 복사'); assert.match(character, /import \{ copyCode, chatHint, titleEffects \} from '\.\/items\.js'/);
   assert.match(character, /titleList\(catalog, data\.titles\)/); assert.match(character, /titles\.slice\(0, 1\)/, '단 칭호 하나');
   assert.match(await src('views/kiugi.js'), /시즌 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요/);
 });
