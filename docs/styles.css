@@ -351,6 +351,52 @@ a { color: inherit; }
 .kg-char-title-img { width: min(100%, 300px); height: auto; filter: drop-shadow(0 6px 16px rgba(0, 0, 0, .4)); }
 .kg-char-title .kg-title-effects { margin: 0; }
 .kg-worn-one.is-empty b { font-weight: 500; color: var(--text-3); }
+/* 입혀 보기(views/character.js tryOnPanel): "입은 옷" 제목 옆 단추로 연다. 휴대폰은 미리 보기·채팅 한 줄·탭이 위에 붙고(아래로 옷 칸), 넓은 화면은 왼쪽에 붙은 칸 + 오른쪽 옷 칸 */
+.kg-try-open { flex: none; min-height: 44px; padding: 0 16px; font-size: 14px; }
+.kg-try:focus { outline: none; }
+.kg-try .kg-sec-head { align-items: flex-start; }
+.kg-try-close { flex: none; min-height: 44px; padding: 0 14px; font-size: 14px; }
+.kg-try-note { margin: -6px 0 0; font-size: 13px; line-height: 1.55; color: var(--text-2); }
+.kg-try-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.kg-try-top { position: sticky; top: var(--head-h); z-index: 20; display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-areas: "look cmd" "tabs tabs"; gap: 10px 12px; margin: 0 calc(-1 * var(--gutter)); padding: 12px var(--gutter) 10px; border-bottom: 1px solid var(--line); background: var(--bg); box-shadow: 0 14px 24px -18px rgba(0, 0, 0, .9); }
+.kg-try-look { grid-area: look; min-width: 0; }
+.kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
+.kg-try-stage[aria-busy="true"] > svg { opacity: .82; transition: opacity .2s ease; }
+.kg-try-cmd { grid-area: cmd; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.kg-try-label { font-size: 12px; font-weight: 700; color: var(--accent-text); }
+.kg-try-line { margin: 0; max-height: calc(1.45em * 3 + 18px); overflow-y: auto; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--panel-2); font-size: 14px; font-weight: 800; line-height: 1.45; letter-spacing: -.01em; color: var(--text); -webkit-user-select: all; user-select: all; }
+.kg-try-line.is-empty { font-size: 12.5px; font-weight: 500; color: var(--text-3); -webkit-user-select: none; user-select: none; }
+.kg-try-actions { display: flex; gap: 6px; }
+.kg-try-actions .btn { min-height: 44px; padding: 0 12px; gap: 6px; font-size: 14px; }
+.kg-try-copy { flex: 1 1 auto; }
+.kg-try-reset { flex: 0 1 auto; }
+.kg-try-sum { margin: 0; font-size: 12.5px; line-height: 1.4; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.kg-try-hint { margin: -2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--accent-text); }
+.kg-try-hint:empty { display: none; }
+.kg-try-tabs { grid-area: tabs; display: flex; gap: 6px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); }
+.kg-try-tabs::-webkit-scrollbar { display: none; }
+.kg-try-tab { min-height: 40px; padding: 0 13px; }
+.kg-try-n { display: inline-grid; place-items: center; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font-size: 11px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.kg-try-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 100px), 1fr)); gap: 18px 10px; }
+.kg-try-tile { position: relative; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.kg-try-media { position: relative; overflow: hidden; margin-bottom: 4px; border: 1px solid var(--line); border-radius: var(--r-md); transition: border-color .2s ease, box-shadow .2s ease; }
+.kg-try-tile:hover .kg-try-media { border-color: var(--line-2); }
+.kg-try-tile.is-on .kg-try-media { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.kg-try-tile.is-off .kg-try-media .kg-stage > svg { opacity: .55; }
+.kg-try-badge { position: absolute; z-index: 3; top: 6px; left: 6px; padding: 2px 7px; border-radius: 999px; background: rgba(11, 11, 15, .72); color: var(--text); font-size: 11px; font-weight: 800; line-height: 1.5; }
+.kg-try-badge:empty { display: none; }
+.kg-try-tile.is-tried .kg-try-badge { background: var(--accent); color: var(--accent-ink); }
+.kg-try-code { font-size: 12px; font-weight: 800; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kg-try-place { font-weight: 600; }
+.kg-try-tile.is-on .kg-try-code { color: var(--accent-text); }
+.kg-try-pick { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; padding: 0; border: 0; background: none; color: var(--text); text-align: left; font-size: 13px; font-weight: 600; line-height: 1.35; letter-spacing: -.02em; }
+/* 칸 전체를 누를 수 있게: 이름 단추가 칸을 덮는다 */
+.kg-try-pick::after { content: ""; position: absolute; z-index: 4; inset: -4px; border-radius: var(--r-md); }
+.kg-try-pick:focus-visible { outline: none; }
+.kg-try-pick:focus-visible::after { outline: 2px solid var(--text); outline-offset: 0; }
+.kg-try-price { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 6px; font-size: 13px; }
+.kg-try-price b { font-weight: 800; font-variant-numeric: tabular-nums; }
+.kg-try-price .kg-chip { padding: 1px 6px; font-size: 11px; }
 .kg-copy-box:empty { display: none; }
 .kg-copy-box { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 460px; }
 .kg-copy-input { width: 100%; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--panel); font-size: 14px; color: var(--text); }
@@ -453,6 +499,13 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--accent); outline-of
   .kg-worn { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 20px 14px; }
   .kg-items { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 18px; }
   .kg-result { grid-template-columns: 72px minmax(0, 1fr) auto; }
+  /* 입혀 보기: 왼쪽에 붙은 칸(미리 보기 · 채팅 한 줄 · 탭) + 오른쪽 옷 칸. 미리 보기는 화면 높이에 맞춰 줄어 왼쪽 칸이 화면 안에 들어온다 */
+  .kg-try-note { margin-top: -10px; font-size: 14px; }
+  .kg-try-body { display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 28px; align-items: start; }
+  .kg-try-top { top: calc(var(--head-h) + 16px); grid-template-columns: minmax(0, 1fr); grid-template-areas: "look" "cmd" "tabs"; gap: 14px; margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--r-xl); background: var(--panel); box-shadow: none; }
+  .kg-try-look { justify-self: center; width: min(100%, max(150px, calc((100vh - 430px) * .75))); }
+  .kg-try-tabs { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
+  .kg-try-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 24px 14px; }
 }
 @container fp (min-width: 960px) {
   .fp > * { --gutter: 40px; }
@@ -480,6 +533,8 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--accent); outline-of
   .kg-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .kg-results > .note, .kg-results > .empty, .kg-results > .error-box { grid-column: 1 / -1; }
   .kg-worn { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 24px 18px; }
+  .kg-try-body { grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 44px; }
+  .kg-try-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 28px 16px; }
   .kg-items { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 44px 20px; }
   .kg-rank { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px; padding: 0; border: 0; border-radius: 0; background: none; }
   .kg-rank li { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "art art" "name count" "bar bar"; row-gap: 10px; padding: 0; border: 0; }

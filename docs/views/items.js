@@ -7,6 +7,7 @@
 import { h, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, titleUntil, titleImageUrl } from '../lib/kiugi-draw.js';
+import { CLOSET_CMD } from '../lib/try-on.js';
 import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
 import { seasonBadge } from './kiugi.js';
 import { itemArt } from './cards.js';
@@ -38,7 +39,8 @@ export const REWARD_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? 
 export const TITLE_WORD = '칭호';
 export const TITLE_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 이번 시즌 출석 ${rule.minAttendance}번` : ''}부터 살 수 있어요. 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요(시즌 1에 얻으면 시즌 2까지).`;
 // 채팅에 칠 글(번호를 누르면 복사): "!옷장 상의 11"(2026-10-09 먼치킨 0.15.66 — 사기·입기는 어느 방송에서나 !옷장 으로 통일, DJ 캐릭터 이름이 필요 없다)
-export const CLOSET_CMD = '!옷장';
+//  여러 벌을 한 줄로("!옷장 상의11 하의3")는 캐릭터 페이지 입혀 보기(lib/try-on.js closetLine)
+export { CLOSET_CMD };
 export const chatHint = (code) => `${CLOSET_CMD} ${String(code).replace(/^(\D+?)(\d+)$/, '$1 $2')}`;
 export async function copyCode(code) {
   const hint = chatHint(code);

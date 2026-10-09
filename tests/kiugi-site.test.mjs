@@ -383,7 +383,7 @@ test('화면 글: 첫 화면 4단계(칭호 달기), 옷 도감·캐릭터 페�
   assert.match(items, /codeButton\(it\.code\)/, '옷 번호는 누르면 복사되는 단추'); assert.match(items, /codeButton\(t\.code, \{ accent: true \}\)/, '칭호 번호도');
   assert.match(items, /'시즌 칭호'/);
   const character = await src('views/character.js');
-  assert.match(character, /itemCodeOf\(catalog, seasonId, w\.id\)/); assert.match(character, /copyCode\(code\)/, '"!옷장 상의 11" 로 복사'); assert.match(character, /import \{ copyCode, chatHint, titleEffects \} from '\.\/items\.js'/);
+  assert.match(character, /itemCodeOf\(catalog, seasonId, w\.id\)/); assert.match(character, /copyCode\(code\)/, '"!옷장 상의 11" 로 복사'); assert.match(character, /import \{ copyCode, chatHint, titleEffects(, \w+)* \} from '\.\/items\.js'/);
   assert.match(character, /titleList\(catalog, data\.titles\)/); assert.match(character, /titles\.slice\(0, 1\)/, '단 칭호 하나');
   assert.match(await src('views/kiugi.js'), /시즌 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요/);
 });
