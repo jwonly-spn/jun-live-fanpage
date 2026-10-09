@@ -3,7 +3,7 @@
 // 저장하기(2026-10-09 사용자: "저장하기 버튼을 따로"): 캐릭터 그림 바로 아래 따로 있는 단추 하나 — 캐릭터 + 배경 + "아이디#이름" 이 든 1080×1350 PNG(lib/kiugi-save.js).
 //  하트·링크 복사 단추 줄과 섞지 않는다(휴대폰에서는 넓게, PC 에서는 보통 너비).
 // 입혀 보기(2026-10-09 사용자: "옷을 눌러 미리 입혀 보고, 마음에 들면 !옷장 상의11 하의3 같은 채팅을 한 번에 복사"): "입은 옷" 제목 옆 단추로 여는 칸.
-//  묶음 탭(시즌 목록 categories) · 옷 칸(그림·번호·이름·값·레벨, 입은 옷은 "입는 중") · 누르면 미리 보기에 입혀 보고 다시 누르면 벗긴다 · 원래대로.
+//  묶음 탭(시즌 목록 categories) · 옷 칸(그림·번호·이름·값, 입은 옷은 "입는 중" — 옷에는 레벨 조건이 없다, 2026-10-10) · 누르면 미리 보기에 입혀 보고 다시 누르면 벗긴다 · 원래대로.
 //  규칙(lib/try-on.js — 먼치킨 !옷장 과 같게): 칸마다 한 벌, 한벌옷 ↔ 상의·하의, 왕관이 머리 장식을 가림, 한 번에 8벌까지.
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
@@ -87,12 +87,12 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, level, app }) {
     const mine = have.has(it.id);
     const badge = h('span', { class: 'kg-try-badge', 'aria-hidden': 'true' });
     const btn = h('button', { type: 'button', class: 'kg-try-pick', 'aria-pressed': 'false', onclick: () => pick(it.id),
-      'aria-label': `${it.code} ${it.name} · ${fmt(it.price)}냥 · Lv.${it.level}부터${mine ? ' · 지금 입는 중' : ''}` }, it.name);
+      'aria-label': `${it.code} ${it.name} · ${fmt(it.price)}냥${mine ? ' · 지금 입는 중' : ''}` }, it.name);
     const li = h('li', { class: 'kg-try-tile' + (mine ? ' is-worn' : '') },
       h('div', { class: 'kg-try-media', 'aria-hidden': 'true' }, itemArt(catalog, it.id, { base: app.base, label: it.name, gender, dj: dj.character, tall }), badge),
       h('span', { class: 'kg-try-code', 'aria-hidden': 'true' }, it.code, it.place ? h('span', { class: 'kg-try-place' }, ` · ${it.place}`) : null),
       btn,
-      h('span', { class: 'kg-try-price', 'aria-hidden': 'true' }, h('b', null, `${fmt(it.price)}냥`), h('span', { class: 'kg-chip' }, `Lv.${it.level}+`)));
+      h('span', { class: 'kg-try-price', 'aria-hidden': 'true' }, h('b', null, `${fmt(it.price)}냥`)));
     tiles.set(it.id, { li, btn, badge });
     return li;
   };
@@ -151,7 +151,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, level, app }) {
     copyBtn.disabled = !line; resetBtn.disabled = !tried.length;
     const total = tryTotal(tried, catalog, { worn });
     sum.textContent = tried.length
-      ? [`${total.count}벌`, `합계 ${fmt(total.price)}냥`, total.level > 1 ? `Lv.${total.level}부터` : null, tried.length >= TRY_MAX ? `한 번에 ${TRY_MAX}벌까지` : null].filter(Boolean).join(' · ')
+      ? [`${total.count}벌`, `합계 ${fmt(total.price)}냥`, tried.length >= TRY_MAX ? `한 번에 ${TRY_MAX}벌까지` : null].filter(Boolean).join(' · ')
       : '지금 입은 모습이에요';
     hint.textContent = tryNotes(worn, tried, catalog).join(' · ');
     if (draw) paint(look, codes);

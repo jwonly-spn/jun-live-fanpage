@@ -2,7 +2,7 @@
 //  지금 입은 옷 + 입혀 본 옷 → 미리 보기 모습, 방송 채팅 한 줄("!옷장 상의11 하의3 신발2"). DOM 없이(노드 시험에서 그대로 불러 쓴다).
 // 먼치킨(0.15.66 + 여러 벌 !옷장) 규칙과 같게 — 봇 kiugi.mjs putOn·dressOf·#items:
 //  · 한 줄에 번호 여러 개: "!옷장" + 띄어쓰기 하나로 나눈 번호(번호 안에는 띄어쓰기 없음 — itemCodeOf 글 그대로: 한벌N·상의N·하의N·신발N·악세N·배경N), 한 번에 8벌까지.
-//  · 적은 차례대로 가진 옷은 입기만(냥을 쓰지 않음), 없는 옷은 사서 입는다. 냥·레벨이 모자란 옷은 빼고 나머지만.
+//  · 적은 차례대로 가진 옷은 입기만(냥을 쓰지 않음), 없는 옷은 사서 입는다. 냥이 모자란 옷은 빼고 나머지만(옷에는 레벨 조건이 없다 — 2026-10-10 먼치킨 값 통일).
 //  · 칸마다 한 벌(악세사리는 머리·얼굴·목·손·왕관·날개·오라 자리마다 하나). 한벌옷을 입으면 상의·하의는 가려지고(기록에는 남는다),
 //    상의·하의를 입으면 한벌옷을 벗는다. 왕관(악세11)을 쓰면 머리 장식은 가려진다. 배경은 장면 하나.
 import { itemCodeOf, OLD_REWARD_IDS } from './kiugi-draw.js';
@@ -11,7 +11,7 @@ import { itemCodeOf, OLD_REWARD_IDS } from './kiugi-draw.js';
 export const CLOSET_CMD = '!옷장';
 // 한 줄에 번호 몇 개까지(먼치킨 CLOSET_MULTI_MAX 와 같게)
 export const TRY_MAX = 8;
-export const TRY_NOTE = '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이나 레벨이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지';
+export const TRY_NOTE = '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지';
 export const TRY_FULL = `한 번에 ${TRY_MAX}벌까지 입혀 볼 수 있어요. 다른 옷을 하나 빼고 골라 주세요.`;
 export const TRY_COPIED = '복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 입어요';
 export const CROWN_NOTE = '왕관을 쓰면 머리 장식은 가려져요';
@@ -84,11 +84,11 @@ export function closetLine(codes) {
   const list = (Array.isArray(codes) ? codes : []).map((c) => String(c ?? '').normalize('NFC').replace(/\s+/g, '')).filter((c) => CODE.test(c)).slice(0, TRY_MAX);
   return list.length ? `${CLOSET_CMD} ${list.join(' ')}` : '';
 }
-// 입혀 본 옷 값: {count(벌), price(합계 냥 — 지금 입은 옷은 가진 옷이라 빼고), level(살 옷 가운데 가장 높은 레벨, 없으면 0)}
+// 입혀 본 옷 값: {count(벌), price(합계 냥 — 지금 입은 옷은 가진 옷이라 빼고)}. 옷에는 레벨 조건이 없어(2026-10-10) 레벨은 세지 않는다.
 export function tryTotal(tried, catalog, { worn = null } = {}) {
   const have = wornIds(worn);
   const all = (Array.isArray(tried) ? tried : []).map((x) => currentId(idOf(x))).filter((id) => catalog?.items?.[id]), buy = all.filter((id) => !have.has(id));
-  return { count: all.length, price: buy.reduce((n, id) => n + (Number(catalog.items[id].price) || 0), 0), level: buy.reduce((n, id) => Math.max(n, Number(catalog.items[id].level) || 1), 0) };
+  return { count: all.length, price: buy.reduce((n, id) => n + (Number(catalog.items[id].price) || 0), 0) };
 }
 // 미리 보기에 알릴 것(입혀 본 옷이 가려져 보이지 않을 때)
 export function tryNotes(worn, tried, catalog) {

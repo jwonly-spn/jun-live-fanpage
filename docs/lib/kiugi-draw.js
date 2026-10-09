@@ -7,9 +7,10 @@ export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 
 // 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림·옷 도감에 쓰는 것
-//  items: {옷id: {slot, season, name, price, level, tier?, tierName?, reward?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
-//   값·레벨은 먼치킨(rules.mjs)과 같게: 시즌 옷은 등급표(tiers)의 price·level, 시즌 보상은 보상 값과 보상 규칙의 최소 레벨
-//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code}], rewardRule:{minLevel, minAttendance, lasts}}} · last: 마지막 시즌 id
+//  items: {옷id: {slot, cat, number?, season, name, style?, price, reward?, level?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
+//   값은 먼치킨(rules.mjs)과 같게(2026-10-10 값 통일): 시즌 옷은 묶음(categories)마다 값 하나(price) — 옷에는 레벨 조건이 없다(level 칸 없음, 예전 등급표 tiers 는 없앴다).
+//   style = 느낌 이름(시즌 목록 styles: 귀여움·멋짐·장난). 칸이 있는 예전 모양 시즌 보상만 보상 값과 보상 규칙의 최소 레벨(level).
+//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code,price}], rewardRule:{minLevel, minAttendance, lasts}}} · last: 마지막 시즌 id
 //  그림 V3·V4(2026-10-09): 옷은 묶음(categories — V4 는 한벌옷·상의·하의·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
 //  titles: {칭호id: {id, season, number, name, icon, perk, desc, price, level, minAttendance}} — 2026-10-09 사용자 "시즌 보상은 칭호로 통일":
 //   시즌 보상(seasonRewards)에 칸(slot)이 없으면 칭호(입지 않는다). 얻은 시즌과 다음 시즌까지 효과(rewardRule.lasts = 2). 칸이 있는 예전 목록의 보상은 예전처럼 옷.
@@ -28,12 +29,13 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
     const id = raw?.season?.id;
     if (typeof id !== 'string' || !id) continue;
     last = id;
-    const tiers = raw.tiers && typeof raw.tiers === 'object' ? raw.tiers : {};
+    const styles = raw.styles && typeof raw.styles === 'object' ? raw.styles : {};
     const rule = raw.seasonRewardRule && typeof raw.seasonRewardRule === 'object' ? raw.seasonRewardRule : {};
     // 시즌 칭호는 먼치킨 규칙(KIUGI_RULES.titleShop.minLevel)과 같게 Lv.10 — 시즌 목록에 값이 없어도 Lv.1 로 보이지 않게
     const minLevel = Number(rule.minLevel) || TITLE_MIN_LEVEL;
     const slots = (Array.isArray(raw.slots) ? raw.slots : []).filter((s) => s?.id).map((s) => ({ id: s.id, name: s.name || s.id, cat: s.cat || s.id }));
-    const categories = (Array.isArray(raw.categories) && raw.categories.length ? raw.categories : slots).filter((c) => c?.id).map((c) => ({ id: c.id, name: c.name || c.id, code: c.code || c.name || c.id }));
+    const categories = (Array.isArray(raw.categories) && raw.categories.length ? raw.categories : slots).filter((c) => c?.id).map((c) => ({ id: c.id, name: c.name || c.id, code: c.code || c.name || c.id, price: Math.max(0, Number(c.price) || 0) }));
+    const catPrice = new Map(categories.map((c) => [c.id, c.price]));
     seasons[id] = {
       id, name: raw.season.name || id, endsAt: raw.season.endsAt || null,
       expressions: Array.isArray(raw.expressions) ? raw.expressions : [],
@@ -42,8 +44,8 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
     };
     for (const it of Array.isArray(raw.items) ? raw.items : []) {
       if (!it?.id) continue;
-      const t = tiers[it.tier] || {}, cat = it.cat || slots.find((s) => s.id === it.slot)?.cat || it.slot;
-      items[it.id] = { slot: it.slot, cat, ...(Number.isInteger(it.number) ? { number: it.number } : {}), season: id, name: it.name, tier: it.tier, tierName: t.name || it.tier, price: Number(t.price) || 0, level: Number(t.level) || 1 };
+      const cat = it.cat || slots.find((s) => s.id === it.slot)?.cat || it.slot, style = typeof styles[it.style] === 'string' ? styles[it.style] : '';
+      items[it.id] = { slot: it.slot, cat, ...(Number.isInteger(it.number) ? { number: it.number } : {}), season: id, name: it.name, ...(style ? { style } : {}), price: catPrice.get(cat) || 0 };
     }
     (Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []).forEach((r, i) => {
       if (!r?.id) return;

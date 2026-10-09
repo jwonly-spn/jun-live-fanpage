@@ -124,17 +124,18 @@ test('지금 입은 옷: 누르면 원래 옷으로 되돌린다(명령 없음),
   assert.deepEqual(back, ['top_02']);
   assert.equal(itemShown(applyTryOn(worn, back, c), 'top_02', c), true);
   assert.equal(closetLine(tryCodes(back, c, 's1')), '!옷장 상의2');
-  assert.deepEqual(tryTotal(back, c, { worn }), { count: 1, price: 0, level: 0 }, '입은 옷은 값을 세지 않는다');
+  assert.deepEqual(tryTotal(back, c, { worn }), { count: 1, price: 0 }, '입은 옷은 값을 세지 않는다');
   // 입은 왕관 아래 머리 장식은 다시 입어도 가려진다 → 더하지 않는다
   assert.deepEqual(toggleTry([], 'acc2_03', c, { worn: { crown: 'acc2_11', head: 'acc2_03' } }), []);
 });
 
 test('합계(tryTotal)·알림(tryNotes)·안내 글', async () => {
   const c = await catalog();
-  // 상의11 일반 150(Lv.1) + 하의5 희귀 1,200(Lv.6) + 악세11 전설 2,300(Lv.8)
-  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'acc2_11'], c), { count: 3, price: 3650, level: 8 });
-  assert.deepEqual(tryTotal([], c), { count: 0, price: 0, level: 0 });
-  assert.deepEqual(tryTotal(['top_11', 'no-such'], c, { worn: { top: 'top_11' } }), { count: 1, price: 0, level: 0 });
+  // 2026-10-10 먼치킨 값 통일(묶음마다 값 하나, 옷에는 레벨 조건 없음): 상의11 500 + 하의5 500 + 악세11 300 + 한벌2 2,000 + 배경3 400
+  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'acc2_11'], c), { count: 3, price: 1300 });
+  assert.deepEqual(tryTotal(['outfit_02', 'background_03'], c), { count: 2, price: 2400 });
+  assert.deepEqual(tryTotal([], c), { count: 0, price: 0 });
+  assert.deepEqual(tryTotal(['top_11', 'no-such'], c, { worn: { top: 'top_11' } }), { count: 1, price: 0 });
   // 왕관과 머리 장식을 함께 고르면(또는 왕관을 쓴 채 머리 장식을) → 왕관이 머리 장식을 가린다는 알림
   assert.deepEqual(tryNotes({}, ['acc2_11', 'acc2_01'], c), [CROWN_NOTE]);
   assert.deepEqual(tryNotes({ crown: 'acc2_11' }, ['acc2_02'], c), [CROWN_NOTE]);
@@ -142,7 +143,7 @@ test('합계(tryTotal)·알림(tryNotes)·안내 글', async () => {
   assert.deepEqual(tryNotes({ crown: 'acc2_11' }, ['top_01'], c), []);
   assert.deepEqual(tryNotes({}, ['acc2_12', 'acc2_01'], c), [], '날개는 아무것도 가리지 않는다');
   // 먼치킨이 못 산 옷은 빼고 나머지만 산다(코디네이터 2026-10-09)
-  assert.equal(TRY_NOTE, '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이나 레벨이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지');
+  assert.equal(TRY_NOTE, '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지');
   assert.equal(TRY_COPIED, '복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 입어요');
 });
 
@@ -160,6 +161,8 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   assert.match(character, /'원래대로'/); assert.match(character, /TRY_NOTE/); assert.match(character, /toast\(TRY_FULL/);
   assert.match(character, /itemGroups\(catalog, sid\)/, '탭 = 시즌 목록 묶음');
   assert.match(character, /'입는 중'/);
+  // 옷에는 레벨 조건이 없다(2026-10-10): 입혀 보기 옷 칸·합계에 Lv 글이 없다
+  assert.doesNotMatch(character, /it\.level|total\.level/);
   const { TRY_TITLE, TRY_EMPTY, tryOnPanel } = await import('../docs/views/character.js');
   assert.equal(TRY_TITLE, '입혀 보기'); assert.match(TRY_EMPTY, /채팅 한 줄/);
   // DJ 캐릭터나 옷 목록이 없으면 단추도 칸도 없다(DOM 없이 바로 돌아온다)
