@@ -1,4 +1,4 @@
-// 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V4: 한벌옷·상의·하의·신발·악세사리·배경) — 옷 그림·번호(상의1)·이름·값(냥)·몇 레벨부터·악세사리 자리·입은 사람 수. 시즌 보상은 따로.
+// 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V5: 한벌옷·상의·하의·신발·악세사리·배경 — 상의·하의는 20벌씩) — 옷 그림·번호(상의1)·이름·값(냥)·몇 레벨부터·악세사리 자리·입은 사람 수. 시즌 보상은 따로.
 // 이름·값·레벨은 사이트에 복사된 시즌 목록(docs/kiugi/season-*.json, 먼치킨과 같은 값)에서, 입은 사람 수는 메인 페이지 자료(home.items)에서.
 // 입은 사람 수는 메인 페이지에 보이는 방송(main)만 센다. 옷 그림은 여자·남자 캐릭터용을 단추로 바꿔 본다(같은 번호 옷의 남녀 몸 버전).
 // 묶음 이름·차례는 시즌 목록(categories)에서 그대로 읽는다 — 묶음이 바뀌어도(상의·하의 등) 이 화면은 고치지 않아도 된다.
@@ -26,7 +26,7 @@ export function itemGroups(catalog, seasonId, counts = new Map()) {
   return { groups, rewards, rule: season.rewardRule };
 }
 export const wearLine = (n) => (n > 0 ? `${fmt(n)}명이 입고 있어요` : '아직 입은 사람이 없어요');
-// 묶음 단위(한벌옷 5벌 · 상의·하의 10벌 · 신발 10켤레 · 배경 10장 · 그 밖 10개)
+// 묶음 단위(한벌옷 5벌 · 상의·하의 20벌 · 신발 10켤레 · 배경 10장 · 그 밖 10개 — 개수는 시즌 목록에서 센다)
 export const unit = (slot) => (['outfit', 'top', 'bottom'].includes(slot) ? '벌' : slot === 'shoes' ? '켤레' : slot === 'bg' ? '장' : '개');
 export const REWARD_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 출석 ${rule.minAttendance}번` : ''}부터 살 수 있고, 시즌이 끝나도 남아요. 사면 캐릭터가 바로 입어요(오라·날개·왕관을 함께 입을 수 있고, 왕관을 쓰면 머리 장식은 가려져요).`;
 

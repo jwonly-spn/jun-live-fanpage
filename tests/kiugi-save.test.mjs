@@ -3,11 +3,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { characterSvg, layersOf, svgUrls, SIZE } from '../docs/kiugi/kiugi-art.js';
-import { ART } from '../docs/kiugi/kiugi-v4-data.js';
+import { readFileSync } from 'node:fs';
+import { characterSvg, layersOf, svgUrls, hairColorOf, SIZE } from '../docs/kiugi/kiugi-art.js';
+import hairColor, { svgFilter, recolor, PALETTE } from '../docs/kiugi/kiugi-hair-color.js';
+import { ART } from '../docs/kiugi/kiugi-v5-data.js';
 import { buildCatalog, characterMarkup, expressionFor } from '../docs/lib/kiugi-draw.js';
 import {
-  characterPlan, planSteps, planUrls, artUrl, paintPlan, coverRect, labelParts, levelParts, levelText, saveFileName, saveMode,
+  characterPlan, planSteps, planUrls, artUrl, paintPlan, tintedHair, tintKey, TINT_CACHE_MAX, coverRect, labelParts, levelParts, levelText, saveFileName, saveMode,
   SAVE_W, SAVE_H, SAVE_LAYOUT, SITE_MARK, SITE_DOMAIN, UNOFFICIAL_MARK, SAVE_LABEL, renderSaveImage, saveCharacterImage, canvasBlob,
 } from '../docs/lib/kiugi-save.js';
 
@@ -32,6 +34,8 @@ const WORN = [
   { top: 'top_01', bottom: 'bottom_01', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'shadow-wings' },
   { outfit: 'outfit_07', shoes: 'shoe_03', head: 'accessory_01', bg: 'halloween-night' }, // V4 에서 지운 옷·예전 배경 → 그리지 않는다
   { head: 'acc2_01' }, // 높은 모자 → 둥실 하트가 옆으로
+  { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04' }, // 새 상의·하의(V5 11~20) — 하의 19 는 밑단이 있다
+  { top: 'top_11', bottom: 'bottom_13', bg: 'background_02' },
 ];
 const EXPR = [{ level: 1, parts: [] }, { level: 7, parts: ['exp-floating-hearts', 'exp-blush'] }, { level: 10, parts: ['eyes:heart', 'exp-blush', 'exp-floating-hearts', 'mouth:grin'] }];
 const each = (fn) => { for (const dj of DJS) for (const worn of WORN) for (const ex of EXPR) fn(dj, { worn }, ex); };
@@ -81,7 +85,10 @@ test('같은 그림 파일·마스크·머리색·표정 겹치기: characterSvg
     const label = JSON.stringify([dj.name, look.worn, ex.level]);
     assert.deepEqual(f.images, [...body.matchAll(/<image href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&')), label + ' 보이는 그림 차례');
     assert.deepEqual(f.masks, [...defs.matchAll(/<mask [^>]*><image href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, '&')), label + ' 마스크 차례');
-    assert.deepEqual(f.colors, [...defs.matchAll(/flood-color="([^"]+)"/g)].map((m) => m[1]), label + ' 머리색');
+    // 머리색: 계획의 색(팔레트 열쇠) = DJ 캐릭터 머리색, SVG 의 머리 필터 = 같은 색의 svgFilter 표(tone-map-v1) — 예전 곱하기(flood) 없음
+    assert.deepEqual(f.colors, [hairColorOf(dj)], label + ' 머리색');
+    const fid = /<filter id="(kg[a-z0-9]+_hair)"/.exec(defs)[1];
+    assert.ok(defs.includes(svgFilter(fid, f.colors[0], SIZE)), label + ' 머리 필터 = 같은 표'); assert.doesNotMatch(defs, /flood-color|multiply/);
     // 마스크 종류: 지우기(inv) 마스크 수 = erase 수, 밑단(keep) = hem 수
     const kinds = [...defs.matchAll(/<mask id="kg[a-z0-9]+_(\w+)"[^>]*><image [^>]*filter="url\(#kg[a-z0-9]+_(inv|keep)\)"/g)].map((m) => m[2]);
     const want = []; const walk = (ops) => { for (const op of ops) { if (op.kind === 'layer') walk(op.ops); if (op.kind === 'erase') want.push('inv'); if (op.kind === 'hem') want.push('keep'); } }; walk(plan.ops);
@@ -109,10 +116,10 @@ test('그림 주소: 사이트 BASE 아래, 화면 SVG(characterMarkup)가 받�
     const urls = planUrls(characterPlan(dj, { worn }, ex), B);
     const page = svgUrls(characterMarkup(c, dj, worn, 10, { seasonId: 's1', base: B, stage: null }));
     assert.deepEqual([...urls].sort(), [...page].sort(), JSON.stringify(worn));
-    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/v4\/[a-z0-9_]+\.png\?v=[0-9a-f]{12}$/);
+    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/v5\/[a-z0-9_]+\.png\?v=[0-9a-f]{12}$/);
   }
-  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/'), '/kiugi/v4/female_body.png?v=0123456789ab');
-  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/x'), '/x/kiugi/v4/female_body.png?v=0123456789ab');
+  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/'), '/kiugi/v5/female_body.png?v=0123456789ab');
+  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/x'), '/x/kiugi/v5/female_body.png?v=0123456789ab');
   // 배경은 맨 앞(잘라 채우기로 따로 그린다)
   const withBg = characterPlan(DJS[0], { worn: WORN[1] }, null);
   assert.equal(withBg.background.id, 'background_01');
@@ -120,7 +127,7 @@ test('그림 주소: 사이트 BASE 아래, 화면 SVG(characterMarkup)가 받�
   assert.equal(characterPlan(DJS[0], { worn: WORN[2] }, null).background, null);
 });
 
-test('캔버스에 그리기(paintPlan): 머리색 = multiply 뒤 머리 알파로 자르기, 지우기 마스크 = destination-out, 밑단 = destination-in, 몸 칸은 따로 그려 한 번에', () => {
+test('캔버스에 그리기(paintPlan): 머리색 = 물들인 1024 머리 캔버스(tone-map-v1)를 그대로, 지우기 마스크 = destination-out, 밑단 = destination-in, 몸 칸은 따로 그려 한 번에', () => {
   const log = [];
   const fake = (name) => ({
     name, canvas: { name }, globalCompositeOperation: 'source-over',
@@ -135,15 +142,15 @@ test('캔버스에 그리기(paintPlan): 머리색 = multiply 뒤 머리 알파�
   globalThis.Path2D ??= class { constructor(d) { this.d = d; } };
   const plan = characterPlan(DJS[1], { worn: WORN[5] }, EXPR[1]);
   const root = fake('root');
-  paintPlan(root, plan.ops, { get: (m) => m.file, layer: () => fake('L' + (++n)) });
+  const tints = [];
+  paintPlan(root, plan.ops, { get: (m) => m.file, layer: () => fake('L' + (++n)), tint: (m, color) => { tints.push([m.file, color]); return `T:${m.file}:${color}`; } });
   const draws = log.filter((x) => x[1] === 'draw');
-  // 뒷머리: 그리기 → multiply 로 칠하기 → destination-in 으로 같은 그림 → 바탕에 올리기
-  const backHair = 'male_hair_05_back.png';
-  const i = draws.findIndex((x) => x[2] === backHair);
-  assert.equal(draws[i][3], 'source-over');
-  assert.ok(log.some((x) => x[0] === draws[i][0] && x[1] === 'fillRect' && x[2] === 'multiply'));
-  assert.deepEqual(draws[i + 1].slice(2, 4), [backHair, 'destination-in']);
-  assert.deepEqual(draws[i + 2].slice(0, 4), ['root', 'draw', draws[i][0], 'source-over']);
+  // 뒷머리·앞머리: 물들인 머리 캔버스(tint)를 바탕에 1024 그대로 한 번 — 곱하기·자르기를 다시 하지 않는다
+  assert.deepEqual(tints, [['male_hair_05_back.png', 'brown'], ['male_hair_05_front.png', 'brown']], '앞·뒷머리 같은 색');
+  for (const hair of ['male_hair_05_back.png', 'male_hair_05_front.png']) assert.deepEqual(draws.find((x) => x[2] === `T:${hair}:brown`), ['root', 'draw', `T:${hair}:brown`, 'source-over', `0,0,${SIZE},${SIZE}`]);
+  assert.ok(!draws.some((x) => x[2] === 'male_hair_05_back.png' || x[2] === 'male_hair_05_front.png'), '회색 머리를 그대로 그리지 않는다');
+  assert.ok(!log.some((x) => x[1] === 'fillRect' && x[2] === 'multiply'), '예전 곱하기 없음');
+  assert.ok(draws.findIndex((x) => x[2] === 'T:male_hair_05_back.png:brown') < draws.findIndex((x) => x[0] === 'root' && /^L/.test(x[2])), '뒷머리는 몸 칸보다 먼저');
   // 몸 칸: 몸 → 하의 지우기(destination-out) → 하의 → 상의 지우기 → 상의 → 신발 지우기 → 신발 → 밑단(하의를 마스크로 잘라 다시)
   const body = draws.find((x) => x[2] === 'male_body.png')[0];
   const inBody = draws.filter((x) => x[0] === body).map((x) => [x[2], x[3]]);
@@ -160,6 +167,26 @@ test('캔버스에 그리기(paintPlan): 머리색 = multiply 뒤 머리 알파�
   assert.ok(log.some((x) => x[0] === 'root' && x[1] === 'stroke' && x[2] === 4));
   // 모든 그림은 1024 캔버스 전체 크기로
   for (const d of draws.filter((x) => x[0] !== 'root' || !String(x[2]).startsWith('L'))) if (String(d[2]).endsWith('.png')) assert.equal(d[4], `0,0,${SIZE},${SIZE}`);
+});
+
+test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고 패키지 recolor(RGB 만 표로·알파 그대로) → putImageData · packageId·판·그림 해시·색으로 몇 장만 기억', () => {
+  const made = [];
+  const px = new Uint8ClampedArray([160, 160, 160, 255, 160, 160, 160, 40, 0, 0, 0, 0, 90, 90, 90, 128]);
+  const doc = { createElement: () => { const c = { width: 0, height: 0, puts: [], draws: [] }; c.getContext = () => ({ drawImage: (im, ...a) => c.draws.push([im, a.join(',')]), getImageData: () => ({ data: new Uint8ClampedArray(px) }), putImageData: (d, x, y) => c.puts.push([[...d.data], x, y]) }); made.push(c); return c; } };
+  const cache = new Map(), asset = { id: 'female_hair_09_back', v: '0123456789ab', file: 'female_hair_09_back.png' };
+  const c = tintedHair(doc, 'IMG', asset, 'blond', cache);
+  assert.deepEqual([c.width, c.height], [SIZE, SIZE]); assert.deepEqual(c.draws, [['IMG', `0,0,${SIZE},${SIZE}`]]);
+  assert.deepEqual(c.puts, [[[...recolor(px, 'blond')], 0, 0]]);
+  const out = c.puts[0][0];
+  assert.deepEqual(out.slice(0, 8), [232, 200, 122, 255, 232, 200, 122, 40], '회색 160 = 금발 대표색 #E8C87A, 반투명 가장자리도 같은 색 · 알파 그대로');
+  assert.deepEqual(out.slice(8, 12), [0, 0, 0, 0], '투명은 그대로'); assert.equal(out[15], 128);
+  assert.equal(tintedHair(doc, 'IMG', asset, 'blond', cache), c, '같은 머리·같은 색은 다시 만들지 않는다');
+  assert.equal(tintKey(asset, 'blond'), `${ART.packageId}:tone-map-v1:female_hair_09_back:0123456789ab:blond`); assert.equal(hairColor.VERSION, 'tone-map-v1');
+  for (const k of ['black', 'pink', 'sky', 'silver']) tintedHair(doc, 'IMG', asset, k, cache);
+  assert.equal(cache.size, TINT_CACHE_MAX); assert.equal(c.width, 0, '오래된 것부터 비운다(캔버스 메모리 돌려주기)');
+  assert.deepEqual(Object.keys(PALETTE), ['black', 'brown', 'light', 'blond', 'pink', 'purple', 'sky', 'silver']);
+  const save = readFileSync(new URL('../docs/lib/kiugi-save.js', import.meta.url), 'utf8').replace(/^\s*\/\/.*$/gm, '');
+  assert.doesNotMatch(save, /multiply|tintColor|HAIR_COLORS/, '예전 곱하기 없음');
 });
 
 test('배치(1080×1350): 배경은 잘라 채우기, 캐릭터(날개·오라·왕관·둥실 하트 포함)는 그림 안·아래 띠 위, 글 줄은 띠 안에 차례로', () => {

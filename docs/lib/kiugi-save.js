@@ -3,16 +3,20 @@
 //   그 위에 캐릭터를 크게 가운데(발밑에 옅은 그림자), 아래 반투명 어두운 띠에 "아이디#이름"(앞은 크게, #이름은 작고 옅게) ·
 //   "Lv.N · 시즌" · 하트 수 · "스푼 DJ 키우기 · 키우기.com" · 비공식 표시.
 //  캐릭터는 kiugi-art.js 와 같은 규칙으로 캔버스에 직접 그린다 — SVG 를 그림으로 캔버스에 올리면 SVG 안의 바깥 그림 파일(href)을 읽지 못한다.
-//   그릴 차례·마스크·머리색은 kiugi-art.js 의 함수(resolveLook·partOf·normalizeLook·tintColor)로 정한다(시험이 layersOf·characterSvg 와 같은지 본다).
+//   그릴 차례·마스크는 kiugi-art.js 의 함수(resolveLook·partOf·normalizeLook)로 정한다(시험이 layersOf·characterSvg 와 같은지 본다).
+//   머리색(그림 V5, 2026-10-09 — 패키지 머리색_수정연결가이드 tone-map-v1): 회색 머리를 1024 임시 캔버스에 그려 getImageData 로 읽고
+//    kiugi-hair-color.js 의 recolor(RGB 만 256단계 표로, 알파는 원본 그대로)를 한 뒤 putImageData — 패키지 renderer.js 와 같은 방법.
+//    예전의 곱하기(multiply fillRect + destination-in)는 없앴다. 물들인 머리는 packageId·판(tone-map-v1)·그림 id·해시·색으로 몇 장만 기억해 둔다.
 //   그림 파일은 사이트와 같은 주소(같은 출처)라 캔버스가 막히지 않고, 화면이 이미 받아 둔 그림(preloadImage)을 그대로 쓴다.
 //  저장(사용자 10/9 "저장하기 버튼을 따로" — 누르면 바로 저장, 따로 "공유" 단추는 없다):
 //   PC·안드로이드 → 바로 내려받기(<a download> — 안드로이드는 갤러리의 다운로드 앨범에 들어간다).
 //   바로 내려받을 수 없는 곳(아이폰·아이패드 — 사진 앱에 넣을 수 없다, 앱 안 브라우저(카카오톡 등)) → 파일을 담은 공유 창(“이미지 저장”을 고른다).
 //   공유 창도 안 되면(예전 아이폰·앱 안 브라우저) → 그림을 보여 주고 길게 눌러 저장.
 // DOM·캔버스는 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 그릴 차례·배치·글·파일 이름을 시험한다).
-import { ART } from '../kiugi/kiugi-v4-data.js';
+import { ART } from '../kiugi/kiugi-v5-data.js';
+import hairColor, { recolor } from '../kiugi/kiugi-hair-color.js';
 import { normalizeLook } from '../kiugi/kiugi-look.js';
-import { SIZE, partOf, resolveLook, tintColor, HAIR_COLORS, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
+import { SIZE, partOf, resolveLook, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
 import { preloadImage } from './kiugi-draw.js';
 import { h, icon, toast } from './dom.js';
 
@@ -65,11 +69,11 @@ function floatingHearts(g, tall) {
 const tallHead = (R) => Boolean(R.rewards.front || (R.acc.head && R.acc.head.box && R.acc.head.box[1] < 110));
 
 // DJ 캐릭터 + 입은 옷({worn}) + 레벨 표정 → {background(배경 그림 또는 null), ops:[{step, kind, …}]}
-//  kind: image(그대로) · tint(머리색 곱하기, 알파 그대로) · layer(몸 칸 — 따로 그려 한 번에 올린다) · erase(몸 칸 지우기 마스크) · hem(밑단: 그 옷을 마스크 알파로 잘라 다시) · blush · hearts
+//  kind: image(그대로) · tint(머리색 명도 표 tone-map-v1, 알파 그대로) · layer(몸 칸 — 따로 그려 한 번에 올린다) · erase(몸 칸 지우기 마스크) · hem(밑단: 그 옷을 마스크 알파로 잘라 다시) · blush · hearts
 export function characterPlan(dj = {}, look = {}, expression = null) {
   const L = normalizeLook(dj), g = L.gender, R = resolveLook(look, g);
   const parts = new Set(Array.isArray(expression?.parts) ? expression.parts : []);
-  const color = tintColor(HAIR_COLORS[L.hairColor] || HAIR_COLORS.brown);
+  const color = L.hairColor; // 팔레트 열쇠(blond 등 — normalizeLook 이 예전 값도 열쇠로 맞춘다)
   const ops = [];
   const img = (step, a) => { if (a) ops.push({ step, kind: 'image', src: a }); };
   const tint = (step, a) => { if (a) ops.push({ step, kind: 'tint', src: a, color }); };
@@ -119,23 +123,37 @@ export function planUrls(plan, base = '/') {
   return out;
 }
 
-// 캔버스에 그리기(ctx 는 1024 좌표 — 그리는 쪽이 줄이고 늘리는 변환을 걸어 둔다). get(그림 정보) → 받아 둔 그림, layer() → 같은 크기·같은 변환의 빈 캔버스 ctx
+// 머리 물들이기(패키지 renderer.js tinted 와 같은 방법): 회색 머리 그림을 1024 캔버스에 그려 픽셀을 읽고 recolor(RGB 만 표로, 알파 그대로) → putImageData.
+//  같은 머리·같은 색은 다시 만들지 않는다(packageId · 판 · 그림 id · 해시 · 색으로 몇 장만 기억 — 휴대폰 메모리를 아끼게 오래된 것부터 비운다).
+export const TINT_CACHE_MAX = 4;
+const TINTS = new Map();
+export const tintKey = (asset, color) => [ART.packageId, hairColor.VERSION, asset.id, asset.v, color].join(':');
+export function tintedHair(doc, img, asset, color, cache = TINTS) {
+  const key = tintKey(asset, color);
+  if (cache.has(key)) { const c = cache.get(key); cache.delete(key); cache.set(key, c); return c; }
+  const c = canvasOf(doc, SIZE, SIZE), x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(img, 0, 0, SIZE, SIZE);
+  const px = x.getImageData(0, 0, SIZE, SIZE);
+  px.data.set(recolor(px.data, color));
+  x.putImageData(px, 0, 0);
+  cache.set(key, c);
+  while (cache.size > TINT_CACHE_MAX) { const [k, old] = cache.entries().next().value; cache.delete(k); free(old); }
+  return c;
+}
+
+// 캔버스에 그리기(ctx 는 1024 좌표 — 그리는 쪽이 줄이고 늘리는 변환을 걸어 둔다). get(그림 정보) → 받아 둔 그림, layer() → 같은 크기·같은 변환의 빈 캔버스 ctx,
+//  tint(그림 정보, 색) → 물들인 1024 머리 캔버스(tintedHair)
 //  마스크: 지우기 = destination-out(그때까지 몸 칸에 그린 것 × (1 − 마스크 알파)), 밑단 = destination-in(그 옷 × 마스크 알파) — SVG <mask mask-type="alpha"> 와 같다.
-//  머리색: 머리 그림 위에 색을 multiply 로 칠하고 머리 그림 알파로 다시 자른다(destination-in) — SVG feFlood·feBlend multiply·feComposite in 과 같은 셈.
-export function paintPlan(ctx, ops, { get, layer }) {
+//  머리색: 물들인 머리 캔버스를 그대로 올린다(SVG 의 feComponentTransfer 명도 표 필터와 같은 표 — 다른 곱하기·자르기를 다시 하지 않는다).
+export function paintPlan(ctx, ops, { get, layer, tint }) {
   const blit = (to, from) => { to.save(); to.setTransform(1, 0, 0, 1, 0, 0); to.globalCompositeOperation = 'source-over'; to.drawImage(from.canvas, 0, 0); to.restore(); };
   const full = (c, im) => c.drawImage(im, 0, 0, SIZE, SIZE);
   for (const op of ops) {
     if (op.kind === 'image') full(ctx, get(op.src));
-    else if (op.kind === 'tint') {
-      const t = layer(), im = get(op.src);
-      full(t, im);
-      t.globalCompositeOperation = 'multiply'; t.fillStyle = op.color; t.fillRect(0, 0, SIZE, SIZE);
-      t.globalCompositeOperation = 'destination-in'; full(t, im);
-      blit(ctx, t);
-    } else if (op.kind === 'layer') {
+    else if (op.kind === 'tint') full(ctx, tint(op.src, op.color));
+    else if (op.kind === 'layer') {
       const t = layer();
-      paintPlan(t, op.ops, { get, layer });
+      paintPlan(t, op.ops, { get, layer, tint });
       blit(ctx, t);
     } else if (op.kind === 'erase') {
       ctx.save(); ctx.globalCompositeOperation = 'destination-out'; full(ctx, get(op.mask)); ctx.restore();
@@ -218,7 +236,7 @@ function drawCharacter(doc, plan, images, base, s) {
   const px = Math.ceil(SIZE * s), made = [];
   const layer = () => { const c = canvasOf(doc, px, px), x = c.getContext('2d'); x.setTransform(s, 0, 0, s, 0, 0); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; made.push(c); return x; };
   const ctx = layer();
-  paintPlan(ctx, plan.ops, { get: (m) => images.get(artUrl(m, base)), layer });
+  paintPlan(ctx, plan.ops, { get: (m) => images.get(artUrl(m, base)), layer, tint: (m, color) => tintedHair(doc, images.get(artUrl(m, base)), m, color) });
   for (const c of made.slice(1)) free(c);
   return ctx.canvas;
 }

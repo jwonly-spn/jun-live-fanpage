@@ -1,29 +1,34 @@
-// DJ 키우기 그림(그림 V4, 2026-10-09 오후 — Codex 패키지 DJ_V3_20261009_V4_BG10: V4 캐릭터 198 + 공통 배경 10). 방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
-// 그림 파일: app/public/kiugi/v4/*.png(tools/import-kiugi-v4.mjs 가 패키지에서 해시를 확인해 복사), 목록은 kiugi-v4-data.js(만든 파일).
-// 규칙(패키지 기술연결가이드·renderer.js 를 그대로 옮김):
+// DJ 키우기 그림(그림 V5, 2026-10-09 저녁 — Codex 패키지 DJ_V3_20261009_V5_CLOTH20: 캐릭터 238 + 공통 배경 10, 상의·하의 디자인 20개씩). 방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
+// 그림 파일: app/public/kiugi/v5/*.png(tools/import-kiugi-v5.mjs 가 패키지에서 해시를 확인해 복사), 목록은 kiugi-v5-data.js(만든 파일), 머리색은 kiugi-hair-color.js(패키지 hair-color.mjs 그대로).
+// 규칙(패키지 기술연결가이드·renderer.js·머리색_수정연결가이드를 그대로 옮김):
 //  · 모든 PNG 는 같은 1024×1024 캔버스의 (0,0)에 그대로 겹친다. 그림마다 잘라 내거나 가운데 맞추지 않는다(화면 크기는 캔버스 전체를 줄일 뿐).
-//  · 순서: 배경(공통, 불투명) → 보상 오라(aura) → 보상 날개(back) → 뒷머리(머리색 곱하기) →
+//  · 순서: 배경(공통, 불투명) → 보상 오라(aura) → 보상 날개(back) → 뒷머리(머리색 명도 표) →
 //    [몸 칸: 기준 몸 → 한벌옷이면 (한벌옷 몸 지우기 마스크 → 한벌옷), 아니면 (하의 지우기 → 하의 → 상의 지우기 → 상의) →
 //     신발을 골랐으면 (신발 지우기 → 신발 → 한벌옷 또는 하의에 밑단 마스크가 있으면 그 마스크로 잘라 낸 밑단을 신발 위에)] →
-//    몸 칸 → 눈 → 코 → 입 → 앞머리(머리색 곱하기) → 악세사리(자리마다 하나) → 보상 왕관(front).
+//    몸 칸 → 눈 → 코 → 입 → 앞머리(머리색 명도 표) → 악세사리(자리마다 하나) → 보상 왕관(front).
 //  · 한벌옷을 입으면 상의·하의는 그리지 않는다(기록에는 남아 한벌옷을 벗으면 다시 보인다). 상의·하의를 입으면 한벌옷을 벗는다(엔진이 정한다).
 //  · 왕관(보상 01)을 쓰면 머리 자리 악세사리만 가린다(얼굴·목·손은 그대로). 보상은 층(오라·날개·왕관)마다 하나, 셋을 함께 쓸 수 있다.
 //  · 마스크는 흰 그림의 알파만 쓰고 몸 칸만 지운다(뒷머리·날개·오라를 지우지 않는다). SVG 에서는 <mask> 안에서 알파를 뒤집거나(지우기) 그대로(밑단) 쓴다.
 //    마스크 그림은 필터로 흰색으로 맞춰 두어 알파 마스크·밝기 마스크 어느 쪽으로 읽혀도 같은 값이 된다.
-//  · 머리만 색을 입힌다(회색 × 색 ÷ 255, 알파 그대로). 몸·옷·눈·보상에는 곱하지 않는다.
+//  · 머리만 색을 입힌다(tone-map-v1): 회색 머리의 R·G·B 를 색마다 정한 256단계 표로 바꾸고 알파는 원본 그대로(feComponentTransfer table · feFuncA identity · sRGB).
+//    앞·뒷머리는 같은 필터(같은 표) 하나를 쓴다. 예전 곱하기 필터(feFlood·feBlend multiply·feComposite)는 없앴고 다른 필터·CSS 색과 겹치지 않는다. 몸·옷·눈·보상에는 쓰지 않는다.
 //  · 머리·눈·코·입은 캐릭터 성별 전용 그림(반대 성별 id 를 쓰지 않는다). 옷·신발·악세사리·보상은 디자인 번호(pair)를 지키고 캐릭터 성별의 몸 버전을 고른다.
-//  · 그림 주소 뒤에 ?v=<해시 앞 12자> 를 붙여 예전 그림이 캐시에 남지 않게 한다(마스크도 마스크 파일 해시).
-// 옷 id 는 패키지의 pair 그대로: outfit_01~05(한벌옷) · top_01~10(상의) · bottom_01~10(하의) · shoe2_01~10(신발) · acc2_01~10(악세사리).
+//  · 그림 주소는 /kiugi/v5/(패키지 판 폴더) + ?v=<해시 앞 12자> — 예전 그림(V4 의 뒷머리 13장 등)이 캐시에 남지 않는다(마스크도 마스크 파일 해시).
+// 옷 id 는 패키지의 pair 그대로: outfit_01~05(한벌옷) · top_01~20(상의) · bottom_01~20(하의) · shoe2_01~10(신발) · acc2_01~10(악세사리).
+//  번호는 두 자리로 읽고, 그 번호의 그림이 목록(kiugi-v5-data.js)에 있을 때만 옷으로 본다(상의·하의 11~20 도 01~10 과 똑같이).
 //  시즌 보상은 시즌 목록 id(pumpkin-crown·shadow-wings·moonlight-aura) 또는 패키지 pair(reward_01~03) 모두 받는다.
 // 입은 옷 = {outfit, top, bottom, shoes, head, face, neck, hand, crown, wings, aura, bg}. 배경 background_01~10 은 남녀가 같은 그림(성별을 바꿔도 그대로).
 //  예전(V2) 칸 bg 의 옛 배경 id(halloween-night 등)는 그리지 않는다.
 // 그리지 않는 것: V4 에서 지운 옛 id(의상 outfit_06~10 · 신발 shoe_* · 악세사리 accessory_* — 새 그림에 이어 붙이지 않는다), 예전(V2) 옷 id, 칸과 맞지 않는 옷.
 // 레벨 표정: 눈·코·입은 DJ 가 고른 것을 그대로 쓰고, 볼 발그레·둥실 하트만 얼굴 기준점에 맞춰 겹친다.
-import {ART} from './kiugi-v4-data.js';
-import {normalizeLook, HAIR_COLORS, HAIR_SWATCHES, hairSwatch, HAIR_SWATCH_GRAY, LOOK_DEFAULT} from './kiugi-look.js';
-export {HAIR_COLORS, HAIR_SWATCHES, hairSwatch, HAIR_SWATCH_GRAY};
+import {ART} from './kiugi-v5-data.js';
+import hairColor, {svgFilter} from './kiugi-hair-color.js';
+import {normalizeLook, HAIR_COLORS, HAIR_COLOR_NAMES, HAIR_SWATCHES, hairSwatch, hairColorKey, LOOK_DEFAULT} from './kiugi-look.js';
+export {HAIR_COLORS, HAIR_COLOR_NAMES, HAIR_SWATCHES, hairSwatch, hairColorKey};
 
-export const ART_VERSION = 'v4';
+export const ART_VERSION = 'v5';
+// 머리색 방식 판(캐시·시험용): 패키지 hair-color 의 VERSION('tone-map-v1')
+export const HAIR_TONE_VERSION = hairColor.VERSION;
 export const SIZE = 1024;
 const BODY = Object.freeze({f: 'female', m: 'male'});
 const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -45,7 +50,8 @@ export const REWARD_ART = Object.freeze({'pumpkin-crown': Object.freeze({number:
 // 악세사리를 겹치는 차례(앞머리 위): 목 → 손 → 얼굴 → 머리
 export const ACCESSORY_ORDER = Object.freeze(['neck', 'hand', 'face', 'head']);
 const PREFIX_CATEGORY = Object.freeze({outfit: 'outfit', top: 'top', bottom: 'bottom', shoe2: 'shoe', acc2: 'accessory', reward: 'reward', background: 'background'});
-const PAIR = /^(outfit|top|bottom|shoe2|acc2|reward|background)_(0[1-9]|10)$/;
+// 두 자리 번호(01~99)로 읽고, 실제 그림 목록에 그 종류·번호가 있는지로 확인한다(상의·하의 11~20 — 번호 범위를 여기 적지 않는다)
+const PAIR = /^(outfit|top|bottom|shoe2|acc2|reward|background)_(\d{2})$/;
 // 옷 id(pair 또는 시즌 보상 id) → {category, number} · 모르는 id(V4 에서 지운 옛 id 포함 — 그림이 없으면) 면 null
 export function pairOf(id) {
   const s = String(id ?? '');
@@ -117,11 +123,11 @@ export function layersOf(dj = {}, look = {}) {
 
 let SEQ = 0;
 const image = (a, extra = '') => `<image href="${esc(assetUrl(a))}" x="0" y="0" width="${SIZE}" height="${SIZE}"${extra}/>`;
-// 머리색 곱하기(패키지 renderer.js 와 같은 셈): 머리 그림 위에 색을 multiply 로 칠하고(feFlood + feBlend multiply) 머리 그림의 알파로 다시 자른다(feComposite in).
-//  불투명한 곳은 원본 × 색 ÷ 255, 반투명 가장자리도 캔버스와 같은 값이 된다. 알파는 그대로.
-export const tintColor = (hex) => (/^#[0-9a-f]{6}$/i.test(String(hex)) ? String(hex).toUpperCase() : HAIR_COLORS.brown);
-const tintFilter = (id, hex) => `<filter id="${id}hair" x="0" y="0" width="${SIZE}" height="${SIZE}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">` +
-  `<feFlood flood-color="${tintColor(hex)}" result="c"/><feBlend in="SourceGraphic" in2="c" mode="multiply" result="m"/><feComposite in="m" in2="SourceGraphic" operator="in"/></filter>`;
+// 머리색(tone-map-v1, 패키지 머리색_수정연결가이드 "SVG 게임 연결" 그대로): svgFilter(id + 'hair', 색, 1024)
+//  = sRGB 에서 feComponentTransfer 의 R·G·B 만 256단계 표(table)로 바꾸고 feFuncA identity 로 원본 투명도를 그대로 둔다(회색 머리 그림은 R=G=B 라 캔버스 recolor 와 같은 표).
+//  색은 팔레트 열쇠(blond 등). 모르는 값이면 갈색(normalizeLook 이 먼저 열쇠로 맞춘다).
+export const hairColorOf = (dj = {}) => normalizeLook(dj).hairColor;
+const tintFilter = (id, color) => svgFilter(id + 'hair', hairColorKey(color) || LOOK_DEFAULT.hairColor, SIZE);
 // 마스크 그림 필터: inv = 흰색 + 알파 뒤집기(1−a, 지우기) · keep = 흰색 + 알파 그대로(밑단 남기기)
 const maskFilters = (id) => `<filter id="${id}inv" x="0" y="0" width="${SIZE}" height="${SIZE}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 -1 1"/></filter>` +
   `<filter id="${id}keep" x="0" y="0" width="${SIZE}" height="${SIZE}" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 1 0"/></filter>`;
@@ -150,12 +156,12 @@ const VIEWS = Object.freeze({full: `0 0 ${SIZE} ${SIZE}`, bust: '341 12 342 342'
 
 // 캐릭터 한 장. dj = DJ 캐릭터({gender, hair, hairColor, eyes, nose, mouth} — 예전 V2 값도 받는다), look = {worn:{칸:옷id}, trick:{item,slot}(1시간 장난 분장 — 그 칸을 덮는다)},
 // expression = 레벨 표정({parts}). options: transparent(바탕 없음) · solid(바탕 색) · label(접근성 이름) · view('full'|'bust'|viewBox 글).
-// items·art 는 예전(V2) 호출과 맞추려고 받기만 한다(V4 는 kiugi-v4-data.js 의 표로 그린다).
+// items·art 는 예전(V2) 호출과 맞추려고 받기만 한다(V5 는 kiugi-v5-data.js 의 표로 그린다).
 export function characterSvg(dj = {}, look = {}, {expression = null, transparent = false, solid = 'var(--kg-stage,#EFE9F8)', label = '', view = 'full'} = {}) {
   const L = normalizeLook(dj), g = L.gender, id = 'kg' + (++SEQ).toString(36) + '_', R = resolveLook(look, g);
   const bodyA = partOf('body', g, 1), back = partOf('hair', g, L.hair, 'back'), front = partOf('hair', g, L.hair, 'front');
   const parts = new Set(Array.isArray(expression?.parts) ? expression.parts : []);
-  const defs = [tintFilter(id, HAIR_COLORS[L.hairColor] || HAIR_COLORS.brown)];
+  const defs = [tintFilter(id, L.hairColor)];
   const tint = ` filter="url(#${id}hair)"`;
   let masks = false;
   // 몸 칸(뒷머리·날개·오라를 지우지 않게 따로 묶는다). 지우기 마스크는 그때까지 몸 칸에 그린 것 전부를 감싼다(캔버스 destination-out 과 같다).

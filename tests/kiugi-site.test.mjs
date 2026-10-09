@@ -27,22 +27,25 @@ test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고
   assert.equal(KIUGI_DEMO.slug, DEMO_KIUGI_SLUG);
 });
 
-test('사이트에 복사한 키우기 파일(그림 V4): 그림 스크립트·모양 규칙·그림 목록·시즌 목록·manifest, 예전 V3·V2 그림 폴더는 없다', async () => {
+test('사이트에 복사한 키우기 파일(그림 V5): 그림 스크립트·모양 규칙·머리색(tone-map-v1)·그림 목록·시즌 목록·manifest, 예전 V4·V3·V2 그림 폴더는 없다', async () => {
   const manifest = await read('manifest.json');
-  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); assert.equal(manifest.files.v4.length, 289, '파츠 208(캐릭터 198 + 배경 10) + 마스크 81'); assert.equal(manifest.files.s1, undefined); assert.equal(manifest.files.v3, undefined, '예전 V3 그림(V4 에서 지운 옷 포함)은 사이트에서도 뺐다');
+  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); assert.equal(manifest.files.v5.length, 379, '파츠 248(캐릭터 238 + 배경 10) + 마스크 131'); assert.equal(manifest.files.v4, undefined, '예전 V4 그림(가장자리 정리 전 뒷머리 포함)은 뺐다'); assert.equal(manifest.files.s1, undefined); assert.equal(manifest.files.v3, undefined, '예전 V3 그림(V4 에서 지운 옷 포함)은 사이트에서도 뺐다');
   const s1 = await read('season-s1.json');
-  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'v4'); assert.equal(s1.items.length, 55);
-  for (const name of ['kiugi-art.js', 'kiugi-look.js', 'kiugi-v4-data.js']) await readFile(new URL('../docs/kiugi/' + name, import.meta.url));
+  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'v5'); assert.equal(s1.items.length, 75, '한벌옷 5 · 상의 20 · 하의 20 · 신발 10 · 악세 10 · 배경 10');
+  for (const name of ['kiugi-art.js', 'kiugi-look.js', 'kiugi-hair-color.js', 'kiugi-v5-data.js', 'v5/hair-color-luts.json']) await readFile(new URL('../docs/kiugi/' + name, import.meta.url));
+  await assert.rejects(readFile(new URL('../docs/kiugi/kiugi-v4-data.js', import.meta.url)));
   await assert.rejects(readFile(new URL('../docs/kiugi/kiugi-v3-data.js', import.meta.url)));
   await assert.rejects(readFile(new URL('../docs/kiugi/s1/adjust.json', import.meta.url)));
 });
 
-test('옷 표·레벨 표정(그림 V4): 한벌옷·상의·하의·신발·악세사리(묶음·번호)와 시즌 보상, 입은 옷 칸(보상 왕관·날개·오라는 뒤에), 모르는 시즌은 마지막 시즌 표정', async () => {
+test('옷 표·레벨 표정(그림 V5): 한벌옷·상의·하의·신발·악세사리(묶음·번호)와 시즌 보상, 입은 옷 칸(보상 왕관·날개·오라는 뒤에), 모르는 시즌은 마지막 시즌 표정', async () => {
   const c = await catalog();
   assert.deepEqual(c.items.outfit_02, { slot: 'outfit', cat: 'outfit', number: 2, season: 's1', name: '크림슨 나이트 간호사', tier: 'fine', tierName: '고급', price: 600, level: 3 }, '값·레벨은 등급표에서(먼치킨 rules.mjs 와 같게)');
   assert.deepEqual(c.items.acc2_03, { slot: 'head', cat: 'acc', number: 3, season: 's1', name: '유령의 야근 머리띠', tier: 'basic', tierName: '기본', price: 50, level: 1 });
   assert.deepEqual(c.items.top_05, { slot: 'top', cat: 'top', number: 5, season: 's1', name: '미드나잇 블랙 집업', tier: 'fine', tierName: '고급', price: 600, level: 3 });
   assert.deepEqual(c.items['pumpkin-crown'], { slot: 'crown', season: 's1', name: '황금 호박 왕관', reward: true, price: 15000, level: 10 });
+  assert.deepEqual(c.items.top_17, { slot: 'top', cat: 'top', number: 17, season: 's1', name: '스모키 라일락 트위드 재킷', tier: 'rare', tierName: '희귀', price: 2000, level: 6 }, '새 상의 11~20');
+  assert.deepEqual(c.items.bottom_15, { slot: 'bottom', cat: 'bottom', number: 15, season: 's1', name: '블랙스완 새틴 롱스커트', tier: 'fine', tierName: '고급', price: 600, level: 3 }, '새 하의 11~20');
   for (const old of ['outfit_07', 'shoe_03', 'accessory_01']) assert.equal(c.items[old], undefined, old + ' — V4 에서 지운 옷');
   assert.deepEqual(c.items['moonlight-aura'], { slot: 'aura', season: 's1', name: '달빛 오라', reward: true, price: 15000, level: 10 });
   assert.deepEqual(c.seasons.s1.rewardRule, { minLevel: 10, minAttendance: 20 });
@@ -58,13 +61,13 @@ test('옷 표·레벨 표정(그림 V4): 한벌옷·상의·하의·신발·악�
 });
 
 test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 주소에 맞게: style→fill, 그림 파일은 BASE/kiugi/v3 아래, 마스크는 속성으로', async () => {
-  assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/v4/a.png?v=0123456789ab"/><g style="opacity:.5"/></svg>', B),
-    '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/v4/a.png?v=0123456789ab"/><g/></svg>');
+  assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/v5/a.png?v=0123456789ab"/><g style="opacity:.5"/></svg>', B),
+    '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/v5/a.png?v=0123456789ab"/><g/></svg>');
   const c = await catalog();
   // 예전 판 먼치킨이 올린 DJ 캐릭터(V2 값 long·skin)도 가장 비슷한 V3 그림으로
   const svg = characterMarkup(c, { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { outfit: 'outfit_03', top: 'top_01', shoes: 'shoe2_02', head: 'acc2_01', face: '<script>', aura: 'moonlight-aura' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
   assert.doesNotMatch(svg, / style="/); assert.match(svg, new RegExp(`fill="${STAGE}"`));
-  for (const f of ['female_body', 'female_hair_02_back', 'female_hair_02_front', 'outfit_03_female', 'outfit_03_female_cut', 'shoe2_02_female', 'shoe2_02_female_cut', 'acc2_01_female', 'reward_03_female']) assert.match(svg, new RegExp(`href="/jun-live-fanpage/kiugi/v4/${f}\\.png\\?v=[0-9a-f]{12}"`), f);
+  for (const f of ['female_body', 'female_hair_02_back', 'female_hair_02_front', 'outfit_03_female', 'outfit_03_female_cut', 'shoe2_02_female', 'shoe2_02_female_cut', 'acc2_01_female', 'reward_03_female']) assert.match(svg, new RegExp(`href="/jun-live-fanpage/kiugi/v5/${f}\\.png\\?v=[0-9a-f]{12}"`), f);
   assert.doesNotMatch(svg, /top_01_female/, '한벌옷이 상의를 덮는다');
   assert.match(svg, /mask="url\(#kg[a-z0-9]+_outfitc\)"/); assert.match(svg, /mask-type="alpha"/);
   assert.doesNotMatch(svg, /href="\/kiugi\//);
@@ -72,14 +75,14 @@ test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 �
   assert.doesNotMatch(svg, /<script/, '이상한 옷 id 는 그리지 않는다');
   assert.match(svg, /^<svg viewBox="0 0 1024 1024"/);
   // 옷 한 벌(도감): 기본 캐릭터가 그 옷만 입은 모습, 성별 버전, 시즌 보상은 배지, 예전 옷은 이름 자리 표시
-  assert.match(itemMarkup(c, 'outfit_05', { base: B, gender: 'm' }), /kiugi\/v4\/outfit_05_male\.png/);
-  assert.match(itemMarkup(c, 'top_05', { base: B }), /kiugi\/v4\/top_05_female\.png/);
-  assert.match(itemMarkup(c, 'pumpkin-crown', { base: B, gender: 'm' }), /kiugi\/v4\/reward_01_male\.png/, '시즌 보상도 그림(V4)');
+  assert.match(itemMarkup(c, 'outfit_05', { base: B, gender: 'm' }), /kiugi\/v5\/outfit_05_male\.png/);
+  assert.match(itemMarkup(c, 'top_05', { base: B }), /kiugi\/v5\/top_05_female\.png/);
+  assert.match(itemMarkup(c, 'pumpkin-crown', { base: B, gender: 'm' }), /kiugi\/v5\/reward_01_male\.png/, '시즌 보상도 그림(V5)');
   assert.match(itemMarkup(c, 'witch-hat', { base: B }), />witch-hat</);
   assert.doesNotMatch(itemMarkup(c, 'shoe_03', { base: B }), /<image/, 'V4 에서 지운 옛 신발은 이름 자리 표시');
   // 배경(BG10): 맨 아래 장면(남녀 같은 그림), 옷 도감 칸은 장면 전체
   const withBg = characterMarkup(c, { gender: 'm' }, { bg: 'background_03', top: 'top_02' }, 1, { base: B, stage: null });
-  assert.match(withBg, /href="\/jun-live-fanpage\/kiugi\/v4\/background_03\.png\?v=[0-9a-f]{12}"[^>]*data-step="background"/);
+  assert.match(withBg, /href="\/jun-live-fanpage\/kiugi\/v5\/background_03\.png\?v=[0-9a-f]{12}"[^>]*data-step="background"/);
   assert.ok(withBg.indexOf('data-step="background"') < withBg.indexOf('data-step="hair.back"'));
   assert.match(itemMarkup(c, 'background_03', { base: B }), /viewBox="0 0 1024 1024"/);
   assert.doesNotMatch(characterMarkup(c, { gender: 'f' }, { bg: 'halloween-night' }, 1, { base: B }), /background_/, '예전(V2) 배경 id 는 그리지 않는다');
@@ -207,7 +210,7 @@ test('첫 화면 숫자 칸(시즌 번호·남은 날, 한국 날짜)과 캐릭�
 test('옷 도감 묶음(그림 V4): 한벌옷·상의·하의·신발·악세사리 차례로, 번호(한벌1·상의3·악세3)·값·레벨·악세사리 자리·입은 사람 수, 시즌 보상은 따로', async () => {
   const c = await catalog();
   const { groups, rewards, rule } = itemGroups(c, 's1', new Map([['outfit_02', 4]]));
-  assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['한벌옷', '한벌', 5], ['상의', '상의', 10], ['하의', '하의', 10], ['신발', '신발', 10], ['악세사리', '악세', 10], ['배경', '배경', 10]]);
+  assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['한벌옷', '한벌', 5], ['상의', '상의', 20], ['하의', '하의', 20], ['신발', '신발', 10], ['악세사리', '악세', 10], ['배경', '배경', 10]]);
   assert.deepEqual(groups[5].items.find((x) => x.id === 'background_08'), { id: 'background_08', name: '네온 유령 세탁소', price: 50, level: 1, tierName: '기본', count: 0, code: '배경8' });
   assert.deepEqual(groups[0].items.find((x) => x.id === 'outfit_02'), { id: 'outfit_02', name: '크림슨 나이트 간호사', price: 600, level: 3, tierName: '고급', count: 4, code: '한벌2' });
   assert.deepEqual(groups[2].items.find((x) => x.id === 'bottom_05'), { id: 'bottom_05', name: '벨벳 이클립스 랩스커트', price: 2000, level: 6, tierName: '희귀', count: 0, code: '하의5' });

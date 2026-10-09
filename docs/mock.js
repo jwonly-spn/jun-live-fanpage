@@ -19,18 +19,19 @@ const fail = (status, error, extra = {}) => ({ status, json: { error, ...extra }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const kstDay = (t) => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
 
-// 입은 옷(그림 V4 옷 id = 패키지 pair: outfit_01~05 한벌옷 · top_01~10 상의 · bottom_01~10 하의 · shoe2_01~10 신발 · acc2_01~10 악세사리
+// 입은 옷(그림 V5 옷 id = 패키지 pair: outfit_01~05 한벌옷 · top_01~20 상의 · bottom_01~20 하의 · shoe2_01~10 신발 · acc2_01~10 악세사리
 //  — 자리는 머리·얼굴·목·손 중 그 악세사리 자리, 시즌 보상은 crown·wings·aura 칸, 배경 background_01~10 은 bg 칸 — 남녀 같은 배경). 먼치킨이 올리는 모양 그대로: 한벌옷에 가려진 상의·하의, 왕관에 가려진 머리 장식은 올리지 않는다.
 //  마지막 줄은 예전 판이 올린 자료 흉내 — V4 에서 지운 옷(의상 07·신발 shoe_03·악세사리 accessory_01)과 예전(V2) 배경 id 라 그리지 않는다.
 const OUTFITS = [
-  { top: 'top_05', bottom: 'bottom_03', shoes: 'shoe2_04', face: 'acc2_04', bg: 'background_01', crown: 'pumpkin-crown', wings: 'shadow-wings', aura: 'moonlight-aura' },
+  { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04', bg: 'background_01', crown: 'pumpkin-crown', wings: 'shadow-wings', aura: 'moonlight-aura' },
   { outfit: 'outfit_03', shoes: 'shoe2_06', neck: 'acc2_06' },
-  { top: 'top_06', bottom: 'bottom_09', shoes: 'shoe2_03', head: 'acc2_01', hand: 'acc2_10', bg: 'background_05' },
+  { top: 'top_11', bottom: 'bottom_12', shoes: 'shoe2_03', head: 'acc2_01', hand: 'acc2_10', bg: 'background_05' },
   { outfit: 'outfit_04', shoes: 'shoe2_02', face: 'acc2_05' },
-  { top: 'top_01', bottom: 'bottom_01', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'shadow-wings' },
-  { top: 'top_09', bottom: 'bottom_06', shoes: 'shoe2_10', head: 'acc2_03', bg: 'background_10' },
+  { top: 'top_14', bottom: 'bottom_16', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'shadow-wings' },
+  { top: 'top_20', bottom: 'bottom_18', shoes: 'shoe2_10', head: 'acc2_03', bg: 'background_10' },
+  { top: 'top_05', bottom: 'bottom_03', shoes: 'shoe2_06' },
   {}, { outfit: 'outfit_02', hand: 'acc2_09', shoes: 'shoe2_05' },
-  { top: 'top_03', bottom: 'bottom_05', shoes: 'shoe2_01', head: 'acc2_02' },
+  { top: 'top_12', bottom: 'bottom_15', shoes: 'shoe2_01', head: 'acc2_02' },
   { outfit: 'outfit_07', shoes: 'shoe_03', head: 'accessory_01', bg: 'halloween-night' },
 ];
 // DJ 캐릭터(그림 V3 값: 머리·눈·코·입 번호 1~10). 젤리는 일부러 예전(V2) 값 — 예전 판 먼치킨이 올린 자료도 가장 비슷한 V3 그림으로 그리는지 보려고.
