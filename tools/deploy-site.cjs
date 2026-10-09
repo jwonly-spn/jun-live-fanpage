@@ -33,7 +33,8 @@ async function gh(route, init = {}) {
   const risky = spawnSync('cmd', ['/c', 'dir', '/s', '/b', ROOT], {encoding: 'utf8'}).stdout.split(/\r?\n/).filter(p => /(\.pem|\.env|관리자키|secret)/i.test(p));
   if (risky.length) throw Error('비밀 파일로 보이는 파일이 있어요: ' + risky.join(', '));
   if (!fs.existsSync(path.join(ROOT, '.git'))) { git('init', '-b', 'main'); }
-  fs.writeFileSync(path.join(ROOT, '.gitignore'), 'node_modules/\n*.log\n.DS_Store\n.claude/\n');
+  // 확인/ = 화면 확인 사진(수십 MB) — 저장소에 올리지 않는다(2026-10-09).
+  fs.writeFileSync(path.join(ROOT, '.gitignore'), 'node_modules/\n*.log\n.DS_Store\n.claude/\n확인/\n');
   git('add', '-A');
   const status = git('status', '--porcelain');
   if (status) git('-c', 'user.name=JUN LIVE', '-c', 'user.email=jwonly-spn@users.noreply.github.com', 'commit', '-q', '-m', process.argv[2] || 'Update fan page site');
