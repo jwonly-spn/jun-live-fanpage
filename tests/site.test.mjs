@@ -51,7 +51,7 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
     assert.equal(r.status, 0, r.stderr);
   }
   assert.deepEqual((await readdir(docs + 'views')).sort(), ['cards.js', 'character.js', 'common.js', 'intro.js', 'items.js', 'kiugi.js']);
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'route.js', 'text.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-save.js', 'route.js', 'text.js']);
   for (const f of await siteScripts()) {
     const src = await text(f);
     assert.doesNotMatch(src, /views\/(fan|studio|mobile|story|forms|photos)|lib\/(config|days|device|image|photo|samples)\.js/, f);

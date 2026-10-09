@@ -1,9 +1,12 @@
-// 캐릭터 페이지(k/<주소>/<아이디 앞 부분>): 무대 위 큰 캐릭터 · 아이디 · 레벨과 표정 · 정보 칸 · 하트(하루 한 번) · 입은 옷(칸마다, 빈 칸도) · DJ 페이지 링크 · 링크 복사.
+// 캐릭터 페이지(k/<주소>/<아이디 앞 부분>): 무대 위 큰 캐릭터(바로 아래 저장하기) · 아이디 · 레벨과 표정 · 정보 칸 · 하트(하루 한 번) · 입은 옷(칸마다, 빈 칸도) · DJ 페이지 링크 · 링크 복사.
 // 애정도 숫자는 보이지 않는다. 하트 열쇠는 이 브라우저 저장소에만 둔다(lib/hearts.js). 로그인 없음.
+// 저장하기(2026-10-09 사용자: "저장하기 버튼을 따로"): 캐릭터 그림 바로 아래 따로 있는 단추 하나 — 캐릭터 + 배경 + "아이디#이름" 이 든 1080×1350 PNG(lib/kiugi-save.js).
+//  하트·링크 복사 단추 줄과 섞지 않는다(휴대폰에서는 넓게, PC 에서는 보통 너비).
 import { h, icon, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, wornList, expressionFor } from '../lib/kiugi-draw.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
+import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
 import { art, itemArt, copyLink, idText } from './cards.js';
 
@@ -23,6 +26,23 @@ export function loadoutSlots(catalog, seasonId, worn) {
   const out = slots.map((s) => bySlot.get(s.id) || { slot: s.id, slotName: s.name, id: null, name: '', ...(cover(s.id) ? { covered: cover(s.id) } : {}) });
   for (const w of list) if (!slots.some((s) => s.id === w.slot)) out.push(w);
   return out;
+}
+
+// "저장하기" 단추: 누르면 그림을 만드는 동안 "만드는 중…"(두 번 눌러도 한 번만), 끝나면 바로 내려받기(아이폰은 공유 창 — lib/kiugi-save.js). 실패하면 알림.
+//  card() → 그때의 캐릭터 정보(하트 수는 누른 때 것).
+export function saveButton(card, { base = '/' } = {}) {
+  const label = h('span', { class: 'kg-save-label' }, SAVE_LABEL);
+  const btn = h('button', { type: 'button', class: 'btn btn-line kg-save-btn' }, icon('download', { size: 19 }), label);
+  let busy = false;
+  btn.addEventListener('click', async () => {
+    if (busy) return;
+    busy = true;
+    btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.classList.add('is-busy'); label.textContent = SAVE_BUSY;
+    try { await saveCharacterImage(card(), { base, returnTo: btn }); }
+    catch (e) { console.error(e); toast(SAVE_FAILED, 'error'); }
+    finally { busy = false; btn.disabled = false; btn.removeAttribute('aria-busy'); btn.classList.remove('is-busy'); label.textContent = SAVE_LABEL; }
+  });
+  return btn;
 }
 
 export async function renderCharacter(root, route, app) {
@@ -47,8 +67,9 @@ export async function renderCharacter(root, route, app) {
   const storage = browserStorage();
   const key = heartKey(dj.slug, data.id, seasonId);
   const fmtN = (n) => Number(n || 0).toLocaleString('ko-KR');
-  const count = h('b', { class: 'kg-heart-num', 'aria-live': 'polite', 'aria-label': `하트 ${fmtN(data.hearts)}개` }, fmtN(data.hearts));
-  const setCount = (n) => { count.textContent = fmtN(n); count.setAttribute('aria-label', `하트 ${fmtN(n)}개`); };
+  let hearts = Number(data.hearts) || 0;
+  const count = h('b', { class: 'kg-heart-num', 'aria-live': 'polite', 'aria-label': `하트 ${fmtN(hearts)}개` }, fmtN(hearts));
+  const setCount = (n) => { hearts = Number(n) || 0; count.textContent = fmtN(n); count.setAttribute('aria-label', `하트 ${fmtN(n)}개`); };
   const status = h('p', { class: 'form-status', role: 'status', 'aria-live': 'polite' });
   const copyBox = h('div', { class: 'kg-copy-box' });
   const heartLabel = h('span', null, HEART_SEND);
@@ -68,13 +89,16 @@ export async function renderCharacter(root, route, app) {
   });
 
   const level = Number(data.level) || 1;
-  const expression = expressionFor(catalog, seasonId, level).name;
+  const look = expressionFor(catalog, seasonId, level), expression = look.name;
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
+  // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
+  const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts }), { base: app.base }) : null;
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
         h('div', { class: 'kg-hero-art' },
-          art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' })),
+          art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' }),
+          saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
           h('h1', { class: 'display kg-char-id' }, ...idText(data.id)),
