@@ -19,10 +19,10 @@ test('채팅 한 줄(closetLine): "!옷장" + 띄어쓰기 하나로 나눈 번�
   assert.equal(CLOSET_CMD, '!옷장'); assert.equal(ITEMS_CMD, CLOSET_CMD, '옷 도감의 번호 복사도 같은 명령');
   assert.equal(TRY_MAX, 8);
   assert.equal(closetLine(['상의11', '하의3', '신발2']), '!옷장 상의11 하의3 신발2');
-  assert.equal(closetLine(['한벌2']), '!옷장 한벌2');
+  assert.equal(closetLine(['한벌2']), '!옷장 한벌 2', '한 벌이면 띄어 쓴다(먼치킨 0.15.70 — 붙여 쓴 하나는 목록 쪽)');
   assert.equal(closetLine([]), ''); assert.equal(closetLine(null), '');
   assert.equal(closetLine(['상의 11', ' 악세12 ']), '!옷장 상의11 악세12', '번호 안 띄어쓰기는 붙인다');
-  assert.equal(closetLine(['<script>', '', null, '상의', '11', 'top11', '배경4']), '!옷장 배경4', '번호 모양이 아닌 것은 뺀다');
+  assert.equal(closetLine(['<script>', '', null, '상의', '11', 'top11', '배경4']), '!옷장 배경 4', '번호 모양이 아닌 것은 뺀다');
   const ten = Array.from({ length: 10 }, (_, i) => `상의${i + 1}`);
   assert.equal(closetLine(ten), `!옷장 ${ten.slice(0, 8).join(' ')}`);
   assert.equal(closetLine(ten).split(' ').length, 9, '명령 + 번호 8개');
@@ -38,7 +38,8 @@ test('모든 옷 번호가 채팅 한 줄 모양(묶음 글 + 숫자, 띄어쓰�
   for (const id of ids) {
     const code = itemCodeOf(c, 's1', id);
     assert.match(code, /^(한벌|상의|하의|신발|악세|배경)\d{1,2}$/, id);
-    assert.equal(closetLine([code]), `!옷장 ${code}`, id);
+    assert.equal(closetLine([code]), `!옷장 ${code.replace(/^(\D+?)(\d+)$/, '$1 $2')}`, id + '(한 벌이면 띄어 쓴다 — 먼치킨 0.15.70)');
+    assert.equal(closetLine([code, code]), `!옷장 ${code} ${code}`, id + '(여러 벌이면 붙여 쓴다)');
   }
   assert.deepEqual(tryCodes(['top_11', 'bottom_03', 'shoe2_02', 'no-such', 'title-halloween-insa'], c, 's1'), ['상의11', '하의3', '신발2'], '번호 없는 것(모르는 옷·칭호)은 뺀다');
 });
@@ -123,7 +124,7 @@ test('지금 입은 옷: 누르면 원래 옷으로 되돌린다(명령 없음),
   const back = toggleTry([], 'top_02', c, { worn });
   assert.deepEqual(back, ['top_02']);
   assert.equal(itemShown(applyTryOn(worn, back, c), 'top_02', c), true);
-  assert.equal(closetLine(tryCodes(back, c, 's1')), '!옷장 상의2');
+  assert.equal(closetLine(tryCodes(back, c, 's1')), '!옷장 상의 2');
   assert.deepEqual(tryTotal(back, c, { worn }), { count: 1, price: 0 }, '입은 옷은 값을 세지 않는다');
   // 입은 왕관 아래 머리 장식은 다시 입어도 가려진다 → 더하지 않는다
   assert.deepEqual(toggleTry([], 'acc2_03', c, { worn: { crown: 'acc2_11', head: 'acc2_03' } }), []);

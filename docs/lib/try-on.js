@@ -79,9 +79,11 @@ export const canTry = (tried, item, catalog, { worn = null } = {}) => !step(trie
 // 입혀 본 옷 → 채팅 번호(상의11 …, 번호 없는 옷은 뺀다)
 export const tryCodes = (tried, catalog, seasonId) => (Array.isArray(tried) ? tried : []).map((x) => itemCodeOf(catalog, seasonId, idOf(x))).filter(Boolean);
 // 번호들 → 방송 채팅 한 줄: "!옷장 상의11 하의3 신발2"(번호 안 띄어쓰기 없음, 한 번에 TRY_MAX 개까지). 번호가 없으면 ''.
+//  한 벌이면 "!옷장 상의 11"(띄어 쓴다): 먼치킨 0.15.70 부터 "!옷장 상의11" 처럼 하나만 붙여 쓰면 목록 쪽(상의 11쪽)이라서다(2026-10-10 쪽 나누기).
 const CODE = /^[가-힣]+\d{1,3}$/;
 export function closetLine(codes) {
   const list = (Array.isArray(codes) ? codes : []).map((c) => String(c ?? '').normalize('NFC').replace(/\s+/g, '')).filter((c) => CODE.test(c)).slice(0, TRY_MAX);
+  if (list.length === 1) return `${CLOSET_CMD} ${list[0].replace(/^(\D+?)(\d+)$/, '$1 $2')}`;
   return list.length ? `${CLOSET_CMD} ${list.join(' ')}` : '';
 }
 // 입혀 본 옷 값: {count(벌), price(합계 냥 — 지금 입은 옷은 가진 옷이라 빼고)}. 옷에는 레벨 조건이 없어(2026-10-10) 레벨은 세지 않는다.
