@@ -18,9 +18,9 @@ const catalog = async () => {
   return buildCatalog(await Promise.all(manifest.seasons.map(read)), { files: manifest.files, adjust: {} });
 };
 
-test('남자 앞머리 7·10 다시 그린 그림(2026-10-10 Codex FRONTFIX1 — 볼·턱까지 내려와 수염처럼 보이던 가닥 삭제): 남자 앞머리는 모두 광대뼈 높이에서 끝나고, 그림 주소 ?v= 가 새 해시', async () => {
+test('남자 앞머리 7·10 다시 그린 그림(2026-10-10 Codex FRONTFIX1 — 볼·턱까지 내려와 수염처럼 보이던 가닥 삭제, 2026-10-11 DAILY46 에도 그대로): 남자 앞머리는 모두 광대뼈 높이에서 끝나고, 그림 주소 ?v= 가 새 해시', async () => {
   const { ART } = await import('../docs/kiugi/kiugi-v5-data.js');
-  assert.equal(ART.packageId, 'DJ_V3_20261009_V5_CLOTH20_FRONTFIX1');
+  assert.match(ART.packageId, /^DJ_V3_20261011_DAILY46(_[A-Z0-9]+)*$/, '같은 구성으로 고친 판(…_FIX1 등)도 그대로');
   const front = ART.assets.filter((a) => a.category === 'hair' && a.layer === 'front' && a.body === 'male');
   assert.equal(front.length, 10);
   for (const a of front) assert.ok(a.box[3] <= 262, `${a.id} 아래 끝 ${a.box[3]}`);
@@ -38,9 +38,10 @@ test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고
 
 test('사이트에 복사한 키우기 파일(그림 V5): 그림 스크립트·모양 규칙·머리색(tone-map-v1)·그림 목록·시즌 목록·manifest, 예전 V4·V3·V2 그림 폴더는 없다', async () => {
   const manifest = await read('manifest.json');
-  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); assert.equal(manifest.files.v5.length, 379, '파츠 248(캐릭터 238 + 배경 10) + 마스크 131'); assert.equal(manifest.files.v4, undefined, '예전 V4 그림(가장자리 정리 전 뒷머리 포함)은 뺐다'); assert.equal(manifest.files.s1, undefined); assert.equal(manifest.files.v3, undefined, '예전 V3 그림(V4 에서 지운 옷 포함)은 사이트에서도 뺐다');
+  assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json')); const { ART } = await import('../docs/kiugi/kiugi-v5-data.js'); assert.equal(ART.assets.length, 294); assert.equal(manifest.files.v5.length, ART.assets.length + ART.assets.filter((a) => a.cut).length + ART.assets.filter((a) => a.hem).length, '파츠 294(캐릭터 284 + 배경 10) + 마스크(DAILY46 은 183 — 모두 477)'); assert.equal(manifest.files.v4, undefined, '예전 V4 그림(가장자리 정리 전 뒷머리 포함)은 뺐다'); assert.equal(manifest.files.s1, undefined); assert.equal(manifest.files.v3, undefined, '예전 V3 그림(V4 에서 지운 옷 포함)은 사이트에서도 뺐다');
   const s1 = await read('season-s1.json');
-  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'v5'); assert.equal(s1.items.length, 78, '한벌옷 5 · 상의 20 · 하의 20 · 신발 10 · 악세 13(11~13 = 왕관·날개·오라) · 배경 10');
+  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'v5'); assert.equal(s1.items.length, 101, '한벌옷 5 · 상의 30 · 하의 30 · 신발 10 · 악세 16(11~13 = 왕관·날개·오라, 14~16 = 펜던트·손목시계·미니백) · 배경 10');
+  for (const f of ['top_30_male.png', 'bottom_27_female.png', 'bottom_21_male_hem.png', 'accessory_11_female.png', 'accessory_13_male.png']) assert.ok(manifest.files.v5.includes(f), f);
   // 시즌 칭호 5개(입는 칸 없음): 배지 그림은 titles/<id>.png — manifest 의 titles 목록과 파일이 모두 있다
   assert.equal(s1.seasonRewards.length, 5);
   for (const r of s1.seasonRewards) { assert.equal(r.slot, undefined, r.id + ' 칸 없음(칭호)'); assert.equal(r.image, `titles/${r.id}.png`, r.id); }
@@ -254,10 +255,10 @@ test('첫 화면 숫자 칸(시즌 번호·남은 날, 한국 날짜)과 캐릭�
 const PERKS = ['채팅으로 받는 냥 한도 1.5배', '받는 냥 +10%', '이벤트 보상 2배 (5% 확률)'];
 const TITLE_NAMES = ['할로윈 인싸', '여장남자', '남장여자', '사탕내놧', '키우기장인'];
 
-test('옷 도감 묶음(그림 V5): 한벌옷·상의·하의·신발·악세사리(13 — 왕관·날개·오라 포함)·배경 차례로, 번호(한벌1·상의3·악세11)·값(묶음마다 하나 — 레벨 조건 없음)·느낌·악세사리 자리·입은 사람 수, 시즌 칭호는 따로', async () => {
+test('옷 도감 묶음(그림 V5·DAILY46): 한벌옷·상의·하의·신발·악세사리(16 — 왕관·날개·오라·펜던트·손목시계·미니백 포함)·배경 차례로, 번호(한벌1·상의3·악세11)·값(묶음마다 하나 — 레벨 조건 없음)·느낌·악세사리 자리·입은 사람 수, 시즌 칭호는 따로', async () => {
   const c = await catalog();
   const { groups, rewards, titles, rule } = itemGroups(c, 's1', new Map([['outfit_02', 4], ['acc2_12', 7]]));
-  assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['한벌옷', '한벌', 5], ['상의', '상의', 20], ['하의', '하의', 20], ['신발', '신발', 10], ['악세사리', '악세', 13], ['배경', '배경', 10]]);
+  assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['한벌옷', '한벌', 5], ['상의', '상의', 30], ['하의', '하의', 30], ['신발', '신발', 10], ['악세사리', '악세', 16], ['배경', '배경', 10]]);
   // 2026-10-10 값 통일: 묶음 제목 옆 "각 N냥"(묶음 안 값이 모두 같다)
   assert.deepEqual(groups.map((g) => [g.price, groupPrice(g)]), [[2000, 2000], [500, 500], [500, 500], [500, 500], [300, 300], [400, 400]]);
   assert.equal(groupPrice({ items: [{ price: 300 }, { price: 500 }] }), 0, '값이 다르면 0'); assert.equal(groupPrice({ items: [] }), 0);
@@ -266,14 +267,17 @@ test('옷 도감 묶음(그림 V5): 한벌옷·상의·하의·신발·악세사
   assert.deepEqual(groups[2].items.find((x) => x.id === 'bottom_05'), { id: 'bottom_05', name: '벨벳 이클립스 랩스커트', price: 500, style: '멋짐', count: 0, code: '하의5' });
   assert.deepEqual(groups[4].items.find((x) => x.id === 'acc2_04'), { id: 'acc2_04', name: '자정의 와인 안경', price: 300, style: '멋짐', count: 0, code: '악세4', place: '얼굴 장식' });
   for (const g of groups) for (const it of g.items) { assert.equal(it.level, undefined, it.id + ' 레벨 조건 없음'); assert.equal(it.tierName, undefined, it.id); }
-  // 악세11~13: 먼치킨 채팅 상점과 같은 번호(악세11·악세12·악세13), 자리 이름 왕관·날개·오라
+  // 악세11~13: 먼치킨 채팅 상점과 같은 번호(악세11·악세12·악세13), 자리 이름 왕관·날개·오라 · 악세14~16(2026-10-11 DAILY46): 펜던트·미니백은 목, 손목시계는 손
   const acc = groups[4].items;
-  assert.deepEqual(acc.slice(-3), [
+  assert.deepEqual(acc.slice(-6), [
     { id: 'acc2_11', name: '황금 호박 왕관', price: 300, style: '멋짐', count: 0, code: '악세11', place: '왕관' },
     { id: 'acc2_12', name: '그림자 날개', price: 300, style: '멋짐', count: 7, code: '악세12', place: '날개' },
     { id: 'acc2_13', name: '달빛 오라', price: 300, style: '귀여움', count: 0, code: '악세13', place: '오라' },
+    { id: 'acc2_14', name: '실버 스타 펜던트', price: 300, style: '멋짐', count: 0, code: '악세14', place: '목 장식' },
+    { id: 'acc2_15', name: '미드나잇 손목시계', price: 300, style: '멋짐', count: 0, code: '악세15', place: '손 장식' },
+    { id: 'acc2_16', name: '크림 체인 미니백', price: 300, style: '귀여움', count: 0, code: '악세16', place: '목 장식' },
   ]);
-  assert.deepEqual(acc.map((x) => x.code), Array.from({ length: 13 }, (_, i) => `악세${i + 1}`), '번호 차례 그대로');
+  assert.deepEqual(acc.map((x) => x.code), Array.from({ length: 16 }, (_, i) => `악세${i + 1}`), '번호 차례 그대로(악세14~16 = DAILY46)');
   // 모든 옷 번호 = itemCodeOf(캐릭터 페이지가 쓰는 것)와 같은 글, 겹치지 않는다
   const codes = groups.flatMap((g) => g.items.map((x) => [x.id, x.code]));
   for (const [id, code] of codes) assert.equal(itemCodeOf(c, 's1', id), code, id);
@@ -390,7 +394,7 @@ test('화면 글: 첫 화면 4단계(칭호 달기), 옷 도감·캐릭터 페�
   assert.match(intro, /h\('ol', \{ class: 'kg-steps four' \}/);
   const steps = [...intro.matchAll(/step\('(\d)', '([^']+)'/g)].map((m) => [m[1], m[2]]);
   assert.deepEqual(steps, [['1', '아이디 만들기'], ['2', '냥 모으기'], ['3', '옷 입히기'], ['4', '칭호 달기']]);
-  assert.match(intro, /'!옷장 상의 11'\)/); assert.match(intro, /'!옷장 칭호'\)/); assert.match(intro, /Lv\.10이 되면 시즌 칭호를 살 수 있어요/); assert.doesNotMatch(intro, /상점 칭호|!먼치 상의/, '예전 명령 안내 없음');
+  assert.match(intro, /'!옷장 상의11 하의3'\)/); assert.match(intro, /'!옷장 칭호 1'\)/); assert.match(intro, /입혀 보기/); assert.doesNotMatch(intro, /!옷장 상의2|한 쪽씩|몇 벌씩/, '없앤 옷장 목록 명령(2026-10-11) 안내 없음'); assert.match(intro, /Lv\.10이 되면 시즌 칭호를 살 수 있어요/); assert.doesNotMatch(intro, /상점 칭호|!먼치 상의/, '예전 명령 안내 없음');
   const css = await src('styles.css');
   for (const cls of ['kg-steps.four', 'kg-item-code.accent', 'kg-worn-code', 'kg-char-title', 'kg-char-title-img', 'kg-title-list', 'kg-title-media', 'kg-title-img', 'kg-title-word', 'kg-title-effects', 'kg-title-until']) assert.match(css, new RegExp(`\\.${cls.replace('.', '\\.')}[\\s{.:,\\[]`), cls);
   const items = await src('views/items.js');

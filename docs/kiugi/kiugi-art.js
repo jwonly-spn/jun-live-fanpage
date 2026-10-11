@@ -1,5 +1,6 @@
 // DJ 키우기 그림(그림 V5, 2026-10-09 저녁 — Codex 패키지 DJ_V3_20261009_V5_CLOTH20: 캐릭터 238 + 공통 배경 10, 상의·하의 디자인 20개씩;
-//  2026-10-10 남자 앞머리 7·10 만 다시 그린 _FRONTFIX1 — 그리는 규칙은 그대로). 방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
+//  2026-10-10 남자 앞머리 7·10 만 다시 그린 _FRONTFIX1 · 2026-10-11 데일리룩 DJ_V3_20261011_DAILY46: 캐릭터 284 — 상의·하의 30개씩 + 악세사리 3개 — 그리는 규칙은 그대로).
+//  방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
 // 그림 파일: app/public/kiugi/v5/*.png(tools/import-kiugi-v5.mjs 가 패키지에서 해시를 확인해 복사), 목록은 kiugi-v5-data.js(만든 파일), 머리색은 kiugi-hair-color.js(패키지 hair-color.mjs 그대로).
 // 규칙(패키지 기술연결가이드·renderer.js·머리색_수정연결가이드를 그대로 옮김):
 //  · 모든 PNG 는 같은 1024×1024 캔버스의 (0,0)에 그대로 겹친다. 그림마다 잘라 내거나 가운데 맞추지 않는다(화면 크기는 캔버스 전체를 줄일 뿐).
@@ -15,10 +16,13 @@
 //    앞·뒷머리는 같은 필터(같은 표) 하나를 쓴다. 예전 곱하기 필터(feFlood·feBlend multiply·feComposite)는 없앴고 다른 필터·CSS 색과 겹치지 않는다. 몸·옷·눈·보상에는 쓰지 않는다.
 //  · 머리·눈·코·입은 캐릭터 성별 전용 그림(반대 성별 id 를 쓰지 않는다). 옷·신발·악세사리·보상은 디자인 번호(pair)를 지키고 캐릭터 성별의 몸 버전을 고른다.
 //  · 그림 주소는 /kiugi/v5/(패키지 판 폴더) + ?v=<해시 앞 12자> — 예전 그림(V4 의 뒷머리 13장 등)이 캐시에 남지 않는다(마스크도 마스크 파일 해시).
-// 옷 id 는 패키지의 pair 그대로: outfit_01~05(한벌옷) · top_01~20(상의) · bottom_01~20(하의) · shoe2_01~10(신발) · acc2_01~10(악세사리).
-//  번호는 두 자리로 읽고, 그 번호의 그림이 목록(kiugi-v5-data.js)에 있을 때만 옷으로 본다(상의·하의 11~20 도 01~10 과 똑같이).
+// 옷 id 는 패키지의 pair 그대로: outfit_01~05(한벌옷) · top_01~30(상의) · bottom_01~30(하의) · shoe2_01~10(신발) · acc2_01~10(악세사리).
+//  번호는 두 자리로 읽고, 그 번호의 그림이 목록(kiugi-v5-data.js)에 있을 때만 옷으로 본다(상의·하의 11~30 도 01~10 과 똑같이).
 //  악세11~13(acc2_11 왕관 · acc2_12 날개 · acc2_13 오라, 2026-10-09 사용자 "시즌 보상은 전부 악세사리로"): 예전 시즌 보상 그림 reward_01~03 을 그대로 쓴다
 //   (같은 층·같은 차례 — 오라·날개는 몸 뒤, 왕관은 맨 위이고 머리 장식을 가린다). 그림 목록(만든 파일)은 바꾸지 않고 ACC_REWARD_ART 로 잇는다.
+//  악세14~16(acc2_14 실버 스타 펜던트 목 · acc2_15 미드나잇 손목시계 손 · acc2_16 크림 체인 미니백 목, 2026-10-11 DAILY46): 패키지 그림은 accessory_11~13 이다.
+//   앱 번호 11~13 은 이미 왕관·날개·오라라(산 사람이 있다) 앱 번호를 14~16 으로 두고 ACC_DAILY_ART 로 그림 번호 11~13 에 잇는다.
+//   그림 pair 이름(accessory_11)은 옷 id 로 받지 않는다(옛 V3 악세사리 accessory_01~10 처럼 그리지 않는다).
 //  예전 시즌 보상 id(pumpkin-crown·shadow-wings·moonlight-aura)와 패키지 pair(reward_01~03)도 그대로 받는다(사이트에 남은 예전 올림·예전 기록).
 // 입은 옷 = {outfit, top, bottom, shoes, head, face, neck, hand, crown, wings, aura, bg}. 배경 background_01~10 은 남녀가 같은 그림(성별을 바꿔도 그대로).
 //  예전(V2) 칸 bg 의 옛 배경 id(halloween-night 등)는 그리지 않는다.
@@ -52,19 +56,24 @@ export const REWARD_SLOT_LAYER = Object.freeze({aura: 'aura', wings: 'back', cro
 export const REWARD_ART = Object.freeze({'pumpkin-crown': Object.freeze({number: 1, slot: 'crown'}), 'shadow-wings': Object.freeze({number: 2, slot: 'wings'}), 'moonlight-aura': Object.freeze({number: 3, slot: 'aura'})});
 // 왕관·날개·오라 악세사리(악세11~13) → 같은 보상 그림 번호·칸
 export const ACC_REWARD_ART = Object.freeze({acc2_11: Object.freeze({number: 1, slot: 'crown'}), acc2_12: Object.freeze({number: 2, slot: 'wings'}), acc2_13: Object.freeze({number: 3, slot: 'aura'})});
+// 데일리룩 악세사리(악세14~16, DAILY46) → 패키지 악세사리 그림 번호(accessory_11~13)·자리
+export const ACC_DAILY_ART = Object.freeze({acc2_14: Object.freeze({number: 11, slot: 'neck'}), acc2_15: Object.freeze({number: 12, slot: 'hand'}), acc2_16: Object.freeze({number: 13, slot: 'neck'})});
 // 악세사리를 겹치는 차례(앞머리 위): 목 → 손 → 얼굴 → 머리
 export const ACCESSORY_ORDER = Object.freeze(['neck', 'hand', 'face', 'head']);
 const PREFIX_CATEGORY = Object.freeze({outfit: 'outfit', top: 'top', bottom: 'bottom', shoe2: 'shoe', acc2: 'accessory', reward: 'reward', background: 'background'});
-// 두 자리 번호(01~99)로 읽고, 실제 그림 목록에 그 종류·번호가 있는지로 확인한다(상의·하의 11~20 — 번호 범위를 여기 적지 않는다)
+// 두 자리 번호(01~99)로 읽고, 실제 그림 목록에 그 종류·번호가 있는지로 확인한다(상의·하의 11~30 — 번호 범위를 여기 적지 않는다)
 const PAIR = /^(outfit|top|bottom|shoe2|acc2|reward|background)_(\d{2})$/;
 // 옷 id(pair 또는 시즌 보상 id) → {category, number} · 모르는 id(V4 에서 지운 옛 id 포함 — 그림이 없으면) 면 null
+//  acc2_ 는 1~10 만 그림 번호 그대로(11~13 은 보상 그림, 14~16 은 데일리룩 그림 11~13 — 위 두 표). 그 밖의 acc2_ 번호는 그림이 있어도 옷이 아니다.
 export function pairOf(id) {
   const s = String(id ?? '');
   if (Object.hasOwn(REWARD_ART, s)) return {category: 'reward', number: REWARD_ART[s].number};
   if (Object.hasOwn(ACC_REWARD_ART, s)) return {category: 'reward', number: ACC_REWARD_ART[s].number};
+  if (Object.hasOwn(ACC_DAILY_ART, s)) return partOf('accessory', 'f', ACC_DAILY_ART[s].number) ? {category: 'accessory', number: ACC_DAILY_ART[s].number} : null;
   const m = PAIR.exec(s);
   if (!m) return null;
   const category = PREFIX_CATEGORY[m[1]], number = Number(m[2]);
+  if (m[1] === 'acc2' && number > 10) return null;
   return partOf(category, 'f', number) ? {category, number} : null;
 }
 // 입은 칸의 옷 → 이 성별 몸 버전 그림(칸과 맞지 않으면 null — 예: 악세사리를 다른 자리에 적은 줄, 날개를 왕관 칸에 적은 줄)

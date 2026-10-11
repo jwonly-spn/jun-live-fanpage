@@ -79,7 +79,8 @@ export const canTry = (tried, item, catalog, { worn = null } = {}) => !step(trie
 // 입혀 본 옷 → 채팅 번호(상의11 …, 번호 없는 옷은 뺀다)
 export const tryCodes = (tried, catalog, seasonId) => (Array.isArray(tried) ? tried : []).map((x) => itemCodeOf(catalog, seasonId, idOf(x))).filter(Boolean);
 // 번호들 → 방송 채팅 한 줄: "!옷장 상의11 하의3 신발2"(번호 안 띄어쓰기 없음, 한 번에 TRY_MAX 개까지). 번호가 없으면 ''.
-//  한 벌이면 "!옷장 상의 11"(띄어 쓴다): 먼치킨 0.15.70 부터 "!옷장 상의11" 처럼 하나만 붙여 쓰면 목록 쪽(상의 11쪽)이라서다(2026-10-10 쪽 나누기).
+//  한 벌이면 "!옷장 상의 11"(띄어 쓴다): 먼치킨 0.15.70~0.15.72 에서 "!옷장 상의11" 처럼 하나만 붙여 쓰면 목록 쪽이었고, 목록 명령을 없앤 뒤(2026-10-11)에도
+//  붙여 쓴 하나는 예전 버릇으로 옷을 사 버리지 않게 사지 않고 설명만 한다 — 사는 한 벌은 늘 띄어 쓴다.
 const CODE = /^[가-힣]+\d{1,3}$/;
 export function closetLine(codes) {
   const list = (Array.isArray(codes) ? codes : []).map((c) => String(c ?? '').normalize('NFC').replace(/\s+/g, '')).filter((c) => CODE.test(c)).slice(0, TRY_MAX);

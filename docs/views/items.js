@@ -1,4 +1,4 @@
-// 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V5: 한벌옷·상의·하의·신발·악세사리·배경 — 상의·하의는 20벌씩) — 옷 그림·번호(상의1)·이름·값(냥)·느낌·악세사리 자리·입은 사람 수. 시즌 칭호는 따로.
+// 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V5: 한벌옷·상의·하의·신발·악세사리·배경 — 상의·하의는 30벌씩 — 2026-10-11 DAILY46) — 옷 그림·번호(상의1)·이름·값(냥)·느낌·악세사리 자리·입은 사람 수. 시즌 칭호는 따로.
 // 이름·값은 사이트에 복사된 시즌 목록(docs/kiugi/season-*.json, 먼치킨과 같은 값)에서, 입은 사람 수는 메인 페이지 자료(home.items)에서.
 // 2026-10-10 먼치킨 값 통일: 값은 묶음마다 하나(한벌옷 2,000 · 상의·하의·신발 500 · 악세사리 300 · 배경 400 · 칭호 3,000), 옷에는 레벨 조건이 없다(Lv 표시는 칭호에만 — Lv.10).
 // 입은 사람 수는 메인 페이지에 보이는 방송(main)만 센다. 옷 그림은 여자·남자 캐릭터용을 단추로 바꿔 본다(같은 번호 옷의 남녀 몸 버전).
@@ -36,7 +36,7 @@ export function itemGroups(catalog, seasonId, counts = new Map()) {
 export const wearLine = (n) => (n > 0 ? `${fmt(n)}명이 입고 있어요` : '아직 입은 사람이 없어요');
 // 묶음 안 옷 값이 모두 같으면 그 값(묶음 제목 옆 "각 500냥"), 다르면 0
 export const groupPrice = (g) => { const set = new Set((g?.items || []).map((it) => Number(it.price) || 0)); return set.size === 1 ? [...set][0] : 0; };
-// 묶음 단위(한벌옷 5벌 · 상의·하의 20벌 · 신발 10켤레 · 배경 10장 · 그 밖 10개 — 개수는 시즌 목록에서 센다)
+// 묶음 단위(한벌옷 5벌 · 상의·하의 30벌 · 신발 10켤레 · 배경 10장 · 그 밖 10개 — 개수는 시즌 목록에서 센다)
 export const unit = (slot) => (['outfit', 'top', 'bottom'].includes(slot) ? '벌' : slot === 'shoes' ? '켤레' : slot === 'bg' ? '장' : '개');
 export const REWARD_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 출석 ${rule.minAttendance}번` : ''}부터 살 수 있고, 시즌이 끝나도 남아요. 사면 캐릭터가 바로 입어요(오라·날개·왕관을 함께 입을 수 있고, 왕관을 쓰면 머리 장식은 가려져요).`;
 // 시즌 칭호(먼치킨 채팅의 "칭호1"과 같은 번호)
@@ -71,7 +71,7 @@ export async function renderItems(root, app) {
       h('div', { class: 'kg-wrap' },
         h('section', { class: 'kg-hero small' },
           h('div', { class: 'kg-hero-copy' }, badge, h('h1', { class: 'display' }, '옷 도감'),
-            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 옷은 레벨과 관계없이 냥만 있으면 살 수 있어요. 번호는 방송 채팅의 !옷장 과 같아요 — 방송 채팅에 !옷장 상의 11 처럼 치면 사서 바로 입어요(번호를 누르면 복사돼요). 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
+            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 옷은 레벨과 관계없이 냥만 있으면 살 수 있어요. 방송 채팅에는 옷 목록이 나오지 않으니 여기서 골라요 — 번호를 누르면 명령어(!옷장 상의 11)가 복사되고, 방송 채팅에 붙여 넣으면 사서 바로 입어요. 여러 벌은 내 캐릭터 페이지의 입혀 보기에서 한 줄로 복사해요. 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
     main,
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
   const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), kiugiApi.home().catch(() => null)]);

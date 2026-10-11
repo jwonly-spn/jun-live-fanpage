@@ -19,7 +19,7 @@ test('채팅 한 줄(closetLine): "!옷장" + 띄어쓰기 하나로 나눈 번�
   assert.equal(CLOSET_CMD, '!옷장'); assert.equal(ITEMS_CMD, CLOSET_CMD, '옷 도감의 번호 복사도 같은 명령');
   assert.equal(TRY_MAX, 8);
   assert.equal(closetLine(['상의11', '하의3', '신발2']), '!옷장 상의11 하의3 신발2');
-  assert.equal(closetLine(['한벌2']), '!옷장 한벌 2', '한 벌이면 띄어 쓴다(먼치킨 0.15.70 — 붙여 쓴 하나는 목록 쪽)');
+  assert.equal(closetLine(['한벌2']), '!옷장 한벌 2', '한 벌이면 띄어 쓴다(먼치킨 0.15.70~ — 붙여 쓴 하나는 사지 않고 설명만)');
   assert.equal(closetLine([]), ''); assert.equal(closetLine(null), '');
   assert.equal(closetLine(['상의 11', ' 악세12 ']), '!옷장 상의11 악세12', '번호 안 띄어쓰기는 붙인다');
   assert.equal(closetLine(['<script>', '', null, '상의', '11', 'top11', '배경4']), '!옷장 배경 4', '번호 모양이 아닌 것은 뺀다');
@@ -34,7 +34,7 @@ test('모든 옷 번호가 채팅 한 줄 모양(묶음 글 + 숫자, 띄어쓰�
   const c = await catalog();
   const { groups } = itemGroups(c, 's1');
   const ids = groups.flatMap((g) => g.items.map((it) => it.id));
-  assert.equal(ids.length, 78);
+  assert.equal(ids.length, 101);
   for (const id of ids) {
     const code = itemCodeOf(c, 's1', id);
     assert.match(code, /^(한벌|상의|하의|신발|악세|배경)\d{1,2}$/, id);
