@@ -20,11 +20,12 @@ const catalog = async () => {
 
 test('남자 앞머리 7·10 다시 그린 그림(2026-10-10 Codex FRONTFIX1 — 볼·턱까지 내려와 수염처럼 보이던 가닥 삭제, 2026-10-11 DAILY46 에도 그대로): 남자 앞머리는 모두 광대뼈 높이에서 끝나고, 그림 주소 ?v= 가 새 해시', async () => {
   const { ART } = await import('../docs/kiugi/kiugi-v5-data.js');
-  assert.match(ART.packageId, /^DJ_V3_20261011_DAILY46(_[A-Z0-9]+)*$/, '같은 구성으로 고친 판(…_FIX1 등)도 그대로');
+  assert.match(ART.packageId, /^DJ_V3_202610\d\d_DAILY46(_[A-Z0-9]+)*$/, '같은 구성으로 고친 판(…_FIX1·10/12 FIX4 등)도 그대로');
   const front = ART.assets.filter((a) => a.category === 'hair' && a.layer === 'front' && a.body === 'male');
   assert.equal(front.length, 10);
   for (const a of front) assert.ok(a.box[3] <= 262, `${a.id} 아래 끝 ${a.box[3]}`);
-  assert.deepEqual(['male_hair_07_front', 'male_hair_10_front'].map((id) => ART.assets.find((a) => a.id === id).v), ['11215e473968', '9043926fd36d']);
+  // 2026-10-12 DAILY46_FIX4: 머리 40장 가장자리 정리로 해시가 다시 바뀜(가닥이 내려오지 않는 것은 위 box 검사가 지킨다)
+  assert.deepEqual(['male_hair_07_front', 'male_hair_10_front'].map((id) => ART.assets.find((a) => a.id === id).v), ['34d10f8d7479', '928fb5a64858']);
 });
 
 test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고 다시 읽기', () => {
