@@ -133,9 +133,9 @@ test('지금 입은 옷: 누르면 원래 옷으로 되돌린다(명령 없음),
 
 test('합계(tryTotal)·알림(tryNotes)·안내 글', async () => {
   const c = await catalog();
-  // 2026-10-10 먼치킨 값 통일(묶음마다 값 하나, 옷에는 레벨 조건 없음): 상의11 500 + 하의5 500 + 악세11 300 + 한벌2 2,000 + 배경3 400
-  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'acc2_11'], c), { count: 3, price: 1300 });
-  assert.deepEqual(tryTotal(['outfit_02', 'background_03'], c), { count: 2, price: 2400 });
+  // 2026-10-10 먼치킨 값 통일(묶음마다 값 하나, 옷에는 레벨 조건 없음) → 2026-10-14 상향: 상의11 700 + 하의5 700 + 악세11 400 + 한벌2 2,500 + 배경3 500
+  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'acc2_11'], c), { count: 3, price: 1800 });
+  assert.deepEqual(tryTotal(['outfit_02', 'background_03'], c), { count: 2, price: 3000 });
   assert.deepEqual(tryTotal([], c), { count: 0, price: 0 });
   assert.deepEqual(tryTotal(['top_11', 'no-such'], c, { worn: { top: 'top_11' } }), { count: 1, price: 0 });
   // 왕관과 머리 장식을 함께 고르면(또는 왕관을 쓴 채 머리 장식을) → 왕관이 머리 장식을 가린다는 알림

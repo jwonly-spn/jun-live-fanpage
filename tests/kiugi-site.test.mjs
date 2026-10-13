@@ -56,26 +56,26 @@ test('사이트에 복사한 키우기 파일(그림 V5): 그림 스크립트·�
 
 test('옷 표·레벨 표정(그림 V5): 한벌옷·상의·하의·신발·악세사리(묶음·번호, 악세11~13 = 왕관·날개·오라), 입은 옷 칸(시즌 칸 차례), 모르는 시즌은 마지막 시즌 표정', async () => {
   const c = await catalog();
-  // 값은 묶음마다 하나(먼치킨 rules.mjs 와 같게 — 2026-10-10 값 통일): 한벌옷 2,000 · 상의·하의·신발 500 · 악세사리 300 · 배경 400. 옷에는 레벨 조건이 없다(level·등급 칸 없음).
-  assert.deepEqual(c.items.outfit_02, { slot: 'outfit', cat: 'outfit', number: 2, season: 's1', name: '크림슨 나이트 간호사', style: '귀여움', price: 2000 }, '값은 묶음 값(먼치킨 rules.mjs 와 같게)');
-  assert.deepEqual(c.items.acc2_03, { slot: 'head', cat: 'acc', number: 3, season: 's1', name: '유령의 야근 머리띠', style: '장난', price: 300 });
-  assert.deepEqual(c.items.acc2_04, { slot: 'face', cat: 'acc', number: 4, season: 's1', name: '자정의 와인 안경', style: '멋짐', price: 300 });
-  assert.deepEqual(c.items.top_05, { slot: 'top', cat: 'top', number: 5, season: 's1', name: '미드나잇 블랙 집업', style: '멋짐', price: 500 });
-  assert.deepEqual(c.items.top_17, { slot: 'top', cat: 'top', number: 17, season: 's1', name: '스모키 라일락 트위드 재킷', style: '멋짐', price: 500 }, '새 상의 11~20');
-  assert.deepEqual(c.items.bottom_15, { slot: 'bottom', cat: 'bottom', number: 15, season: 's1', name: '블랙스완 새틴 롱스커트', style: '멋짐', price: 500 }, '새 하의 11~20');
-  // 예전 시즌 보상(왕관·날개·오라)은 악세사리 악세11~13 — 칸 crown·wings·aura, 다른 악세사리와 같은 300냥, 보상 표시(reward) 없음
-  assert.deepEqual(c.items.acc2_11, { slot: 'crown', cat: 'acc', number: 11, season: 's1', name: '황금 호박 왕관', style: '멋짐', price: 300 });
-  assert.deepEqual(c.items.acc2_12, { slot: 'wings', cat: 'acc', number: 12, season: 's1', name: '그림자 날개', style: '멋짐', price: 300 });
-  assert.deepEqual(c.items.acc2_13, { slot: 'aura', cat: 'acc', number: 13, season: 's1', name: '달빛 오라', style: '귀여움', price: 300 });
-  const PRICE = { outfit: 2000, top: 500, bottom: 500, shoes: 500, acc: 300, bg: 400 };
+  // 값은 묶음마다 하나(먼치킨 rules.mjs 와 같게 — 2026-10-10 값 통일, 2026-10-14 산책을 더하며 상향): 한벌옷 2,500 · 상의·하의·신발 700 · 악세사리 400 · 배경 500. 옷에는 레벨 조건이 없다(level·등급 칸 없음).
+  assert.deepEqual(c.items.outfit_02, { slot: 'outfit', cat: 'outfit', number: 2, season: 's1', name: '크림슨 나이트 간호사', style: '귀여움', price: 2500 }, '값은 묶음 값(먼치킨 rules.mjs 와 같게)');
+  assert.deepEqual(c.items.acc2_03, { slot: 'head', cat: 'acc', number: 3, season: 's1', name: '유령의 야근 머리띠', style: '장난', price: 400 });
+  assert.deepEqual(c.items.acc2_04, { slot: 'face', cat: 'acc', number: 4, season: 's1', name: '자정의 와인 안경', style: '멋짐', price: 400 });
+  assert.deepEqual(c.items.top_05, { slot: 'top', cat: 'top', number: 5, season: 's1', name: '미드나잇 블랙 집업', style: '멋짐', price: 700 });
+  assert.deepEqual(c.items.top_17, { slot: 'top', cat: 'top', number: 17, season: 's1', name: '스모키 라일락 트위드 재킷', style: '멋짐', price: 700 }, '새 상의 11~20');
+  assert.deepEqual(c.items.bottom_15, { slot: 'bottom', cat: 'bottom', number: 15, season: 's1', name: '블랙스완 새틴 롱스커트', style: '멋짐', price: 700 }, '새 하의 11~20');
+  // 예전 시즌 보상(왕관·날개·오라)은 악세사리 악세11~13 — 칸 crown·wings·aura, 다른 악세사리와 같은 값, 보상 표시(reward) 없음
+  assert.deepEqual(c.items.acc2_11, { slot: 'crown', cat: 'acc', number: 11, season: 's1', name: '황금 호박 왕관', style: '멋짐', price: 400 });
+  assert.deepEqual(c.items.acc2_12, { slot: 'wings', cat: 'acc', number: 12, season: 's1', name: '그림자 날개', style: '멋짐', price: 400 });
+  assert.deepEqual(c.items.acc2_13, { slot: 'aura', cat: 'acc', number: 13, season: 's1', name: '달빛 오라', style: '귀여움', price: 400 });
+  const PRICE = { outfit: 2500, top: 700, bottom: 700, shoes: 700, acc: 400, bg: 500 };
   for (const [id, it] of Object.entries(c.items)) { assert.equal(it.price, PRICE[it.cat], id); assert.equal(it.level, undefined, id + ' 레벨 조건 없음'); assert.equal(it.tier, undefined, id); }
   for (const old of ['pumpkin-crown', 'shadow-wings', 'moonlight-aura']) assert.equal(c.items[old], undefined, old + ' — 시즌 보상 옷이 아니다(악세11~13 으로 바뀜)');
   assert.ok(!Object.values(c.items).some((it) => it.reward), '이 시즌에는 보상 옷이 없다(시즌 보상 = 칭호)');
   for (const old of ['outfit_07', 'shoe_03', 'accessory_01']) assert.equal(c.items[old], undefined, old + ' — V4 에서 지운 옷');
   assert.equal(c.seasons.s1.rewardRule.lasts, 2, '칭호는 얻은 시즌과 다음 시즌까지'); assert.equal(c.seasons.s1.rewardRule.minAttendance, 0, '칭호는 출석 조건 없음');
   assert.deepEqual(c.seasons.s1.slots.map((s) => s.id), ['outfit', 'top', 'bottom', 'shoes', 'head', 'face', 'neck', 'hand', 'crown', 'wings', 'aura', 'bg']);
-  assert.deepEqual(c.seasons.s1.categories.map((s) => [s.id, s.code, s.price]), [['outfit', '한벌', 2000], ['top', '상의', 500], ['bottom', '하의', 500], ['shoes', '신발', 500], ['acc', '악세', 300], ['bg', '배경', 400]]);
-  assert.deepEqual(c.items.background_04, { slot: 'bg', cat: 'bg', number: 4, season: 's1', name: '벨벳 고딕 홀', style: '멋짐', price: 400 });
+  assert.deepEqual(c.seasons.s1.categories.map((s) => [s.id, s.code, s.price]), [['outfit', '한벌', 2500], ['top', '상의', 700], ['bottom', '하의', 700], ['shoes', '신발', 700], ['acc', '악세', 400], ['bg', '배경', 500]]);
+  assert.deepEqual(c.items.background_04, { slot: 'bg', cat: 'bg', number: 4, season: 's1', name: '벨벳 고딕 홀', style: '멋짐', price: 500 });
   assert.deepEqual(wornList(c, 's1', { bg: 'background_04', aura: 'acc2_13', hand: 'acc2_10', crown: 'acc2_11', outfit: 'outfit_01', head: 'witch-hat', top: 'no-such', shoes: 'shoe_03', wings: 'acc2_12' }).map((w) => [w.slotName, w.name]),
     [['한벌옷', '체크메이트 블랙 캣'], ['손 장식', '막차 호박 랜턴'], ['왕관', '황금 호박 왕관'], ['날개', '그림자 날개'], ['오라', '달빛 오라'], ['배경', '벨벳 고딕 홀']], '시즌 칸 순서(왕관·날개·오라는 손 장식 뒤·배경 앞), 목록에 없는 옷(예전 V2 옷·V4 에서 지운 V3 신발 등)은 뺀다');
   assert.equal(slotName(c, 's1', 'neck'), '목 장식'); assert.equal(slotName(c, 's1', 'crown'), '왕관');
@@ -260,23 +260,23 @@ test('옷 도감 묶음(그림 V5·DAILY46): 한벌옷·상의·하의·신발·
   const c = await catalog();
   const { groups, rewards, titles, rule } = itemGroups(c, 's1', new Map([['outfit_02', 4], ['acc2_12', 7]]));
   assert.deepEqual(groups.map((g) => [g.name, g.code, g.items.length]), [['한벌옷', '한벌', 5], ['상의', '상의', 30], ['하의', '하의', 30], ['신발', '신발', 10], ['악세사리', '악세', 16], ['배경', '배경', 10]]);
-  // 2026-10-10 값 통일: 묶음 제목 옆 "각 N냥"(묶음 안 값이 모두 같다)
-  assert.deepEqual(groups.map((g) => [g.price, groupPrice(g)]), [[2000, 2000], [500, 500], [500, 500], [500, 500], [300, 300], [400, 400]]);
+  // 2026-10-10 값 통일(2026-10-14 상향): 묶음 제목 옆 "각 N냥"(묶음 안 값이 모두 같다)
+  assert.deepEqual(groups.map((g) => [g.price, groupPrice(g)]), [[2500, 2500], [700, 700], [700, 700], [700, 700], [400, 400], [500, 500]]);
   assert.equal(groupPrice({ items: [{ price: 300 }, { price: 500 }] }), 0, '값이 다르면 0'); assert.equal(groupPrice({ items: [] }), 0);
-  assert.deepEqual(groups[5].items.find((x) => x.id === 'background_08'), { id: 'background_08', name: '네온 유령 세탁소', price: 400, style: '장난', count: 0, code: '배경8' });
-  assert.deepEqual(groups[0].items.find((x) => x.id === 'outfit_02'), { id: 'outfit_02', name: '크림슨 나이트 간호사', price: 2000, style: '귀여움', count: 4, code: '한벌2' });
-  assert.deepEqual(groups[2].items.find((x) => x.id === 'bottom_05'), { id: 'bottom_05', name: '벨벳 이클립스 랩스커트', price: 500, style: '멋짐', count: 0, code: '하의5' });
-  assert.deepEqual(groups[4].items.find((x) => x.id === 'acc2_04'), { id: 'acc2_04', name: '자정의 와인 안경', price: 300, style: '멋짐', count: 0, code: '악세4', place: '얼굴 장식' });
+  assert.deepEqual(groups[5].items.find((x) => x.id === 'background_08'), { id: 'background_08', name: '네온 유령 세탁소', price: 500, style: '장난', count: 0, code: '배경8' });
+  assert.deepEqual(groups[0].items.find((x) => x.id === 'outfit_02'), { id: 'outfit_02', name: '크림슨 나이트 간호사', price: 2500, style: '귀여움', count: 4, code: '한벌2' });
+  assert.deepEqual(groups[2].items.find((x) => x.id === 'bottom_05'), { id: 'bottom_05', name: '벨벳 이클립스 랩스커트', price: 700, style: '멋짐', count: 0, code: '하의5' });
+  assert.deepEqual(groups[4].items.find((x) => x.id === 'acc2_04'), { id: 'acc2_04', name: '자정의 와인 안경', price: 400, style: '멋짐', count: 0, code: '악세4', place: '얼굴 장식' });
   for (const g of groups) for (const it of g.items) { assert.equal(it.level, undefined, it.id + ' 레벨 조건 없음'); assert.equal(it.tierName, undefined, it.id); }
   // 악세11~13: 먼치킨 채팅 상점과 같은 번호(악세11·악세12·악세13), 자리 이름 왕관·날개·오라 · 악세14~16(2026-10-11 DAILY46): 펜던트·미니백은 목, 손목시계는 손
   const acc = groups[4].items;
   assert.deepEqual(acc.slice(-6), [
-    { id: 'acc2_11', name: '황금 호박 왕관', price: 300, style: '멋짐', count: 0, code: '악세11', place: '왕관' },
-    { id: 'acc2_12', name: '그림자 날개', price: 300, style: '멋짐', count: 7, code: '악세12', place: '날개' },
-    { id: 'acc2_13', name: '달빛 오라', price: 300, style: '귀여움', count: 0, code: '악세13', place: '오라' },
-    { id: 'acc2_14', name: '실버 스타 펜던트', price: 300, style: '멋짐', count: 0, code: '악세14', place: '목 장식' },
-    { id: 'acc2_15', name: '미드나잇 손목시계', price: 300, style: '멋짐', count: 0, code: '악세15', place: '손 장식' },
-    { id: 'acc2_16', name: '크림 체인 미니백', price: 300, style: '귀여움', count: 0, code: '악세16', place: '목 장식' },
+    { id: 'acc2_11', name: '황금 호박 왕관', price: 400, style: '멋짐', count: 0, code: '악세11', place: '왕관' },
+    { id: 'acc2_12', name: '그림자 날개', price: 400, style: '멋짐', count: 7, code: '악세12', place: '날개' },
+    { id: 'acc2_13', name: '달빛 오라', price: 400, style: '귀여움', count: 0, code: '악세13', place: '오라' },
+    { id: 'acc2_14', name: '실버 스타 펜던트', price: 400, style: '멋짐', count: 0, code: '악세14', place: '목 장식' },
+    { id: 'acc2_15', name: '미드나잇 손목시계', price: 400, style: '멋짐', count: 0, code: '악세15', place: '손 장식' },
+    { id: 'acc2_16', name: '크림 체인 미니백', price: 400, style: '귀여움', count: 0, code: '악세16', place: '목 장식' },
   ]);
   assert.deepEqual(acc.map((x) => x.code), Array.from({ length: 16 }, (_, i) => `악세${i + 1}`), '번호 차례 그대로(악세14~16 = DAILY46)');
   // 모든 옷 번호 = itemCodeOf(캐릭터 페이지가 쓰는 것)와 같은 글, 겹치지 않는다
