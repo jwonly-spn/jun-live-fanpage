@@ -2,6 +2,7 @@
 // 사이트 보안 규칙(CSP: 인라인 style 금지)과 사이트 주소(BASE) 때문에 그린 SVG 글을 조금 고친다(cspSafeSvg).
 // DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 그대로 불러 쓴다).
 import { characterSvg, itemSvg, svgUrls } from '../kiugi/kiugi-art.js';
+import { formatDate } from './text.js';
 
 export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
@@ -10,7 +11,8 @@ const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 //  items: {옷id: {slot, cat, number?, season, name, style?, price, reward?, level?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
 //   값은 먼치킨(rules.mjs)과 같게(2026-10-10 값 통일): 시즌 옷은 묶음(categories)마다 값 하나(price) — 옷에는 레벨 조건이 없다(level 칸 없음, 예전 등급표 tiers 는 없앴다).
 //   style = 느낌 이름(시즌 목록 styles: 귀여움·멋짐·장난). 칸이 있는 예전 모양 시즌 보상만 보상 값과 보상 규칙의 최소 레벨(level).
-//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code,price}], rewardRule:{minLevel, minAttendance, lasts}}} · last: 마지막 시즌 id
+//  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code,price}], rewardRule:{minLevel, minAttendance, lasts, opensAt}}} · last: 마지막 시즌 id
+//   rewardRule.opensAt = 칭호 상점이 열리는 때(ms — 시즌 목록 seasonRewardRule.opensAt, 없으면 season.rewardShopOpensAt · 모르면 null = 처음부터 열림). 먼치킨은 그때부터 시즌 끝까지 칭호를 판다.
 //  그림 V3·V4(2026-10-09): 옷은 묶음(categories — V4 는 한벌옷·상의·하의·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
 //  titles: {칭호id: {id, season, number, name, icon, perk, desc, price, level, minAttendance}} — 2026-10-09 사용자 "시즌 보상은 칭호로 통일":
 //   시즌 보상(seasonRewards)에 칸(slot)이 없으면 칭호(입지 않는다). 얻은 시즌과 다음 시즌까지 효과(rewardRule.lasts = 2). 칸이 있는 예전 목록의 보상은 예전처럼 옷.
@@ -22,6 +24,12 @@ const currentId = (id) => OLD_REWARD_IDS[id] || id;
 const perksOf = (r) => (Array.isArray(r?.perks) ? r.perks : String(r?.perk || '').split(/\n| · /)).map((s) => String(s).trim()).filter(Boolean);
 // 칭호 효과가 남는 마지막 시즌 이름("시즌2까지"): 얻은 시즌의 차례(1부터) + lasts − 1
 export const titleUntil = (catalog, seasonId, lasts = 2) => { const i = Object.keys(catalog?.seasons || {}).indexOf(seasonId); return `시즌${(i < 0 ? 0 : i) + Math.max(1, lasts)}까지`; };
+// 때 글(ISO 또는 ms) → ms, 읽지 못하면 null
+const timeOf = (v) => { const t = typeof v === 'number' ? v : typeof v === 'string' && v ? Date.parse(v) : NaN; return Number.isFinite(t) ? t : null; };
+// 칭호 상점이 열렸는가(여는 때를 모르면 열린 것으로 본다)
+export const titleShopOpen = (rule, now = Date.now()) => !rule?.opensAt || now >= rule.opensAt;
+// 칭호 상점이 아직 열리지 않았으면 여는 날 글("10월 30일" — 한국 날짜, 해가 다르면 "2027년 1월 1일"), 열렸거나 모르면 ''
+export const titleOpenDate = (rule, now = Date.now()) => (titleShopOpen(rule, now) ? '' : formatDate(new Date(rule.opensAt).toISOString(), now));
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
   const items = {}, seasons = {}, titles = {};
   let last = null;
@@ -40,7 +48,7 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
       id, name: raw.season.name || id, endsAt: raw.season.endsAt || null,
       expressions: Array.isArray(raw.expressions) ? raw.expressions : [],
       slots: slots.map(({ id: sid, name }) => ({ id: sid, name })), categories,
-      rewardRule: { minLevel, minAttendance: Number(rule.minAttendance) || 0, lasts: Number(rule.lasts) || 2 },
+      rewardRule: { minLevel, minAttendance: Number(rule.minAttendance) || 0, lasts: Number(rule.lasts) || 2, opensAt: timeOf(rule.opensAt ?? raw.season.rewardShopOpensAt) },
     };
     for (const it of Array.isArray(raw.items) ? raw.items : []) {
       if (!it?.id) continue;

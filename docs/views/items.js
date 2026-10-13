@@ -1,13 +1,13 @@
 // 옷 도감(items): 이번 시즌 옷을 묶음마다(그림 V5: 한벌옷·상의·하의·신발·악세사리·배경 — 상의·하의는 30벌씩 — 2026-10-11 DAILY46) — 옷 그림·번호(상의1)·이름·값(냥)·느낌·악세사리 자리·입은 사람 수. 시즌 칭호는 따로.
 // 이름·값은 사이트에 복사된 시즌 목록(docs/kiugi/season-*.json, 먼치킨과 같은 값)에서, 입은 사람 수는 메인 페이지 자료(home.items)에서.
-// 2026-10-10 먼치킨 값 통일: 값은 묶음마다 하나(한벌옷 2,000 · 상의·하의·신발 500 · 악세사리 300 · 배경 400 · 칭호 3,000), 옷에는 레벨 조건이 없다(Lv 표시는 칭호에만 — Lv.10).
+// 2026-10-10 먼치킨 값 통일: 값은 묶음마다 하나(시즌 목록 categories 의 price — 이 화면에는 값을 적어 두지 않는다), 옷에는 레벨 조건이 없다(Lv 표시는 칭호에만 — Lv.10).
 // 입은 사람 수는 메인 페이지에 보이는 방송(main)만 센다. 옷 그림은 여자·남자 캐릭터용을 단추로 바꿔 본다(같은 번호 옷의 남녀 몸 버전).
 // 묶음 이름·차례는 시즌 목록(categories)에서 그대로 읽는다 — 묶음이 바뀌어도(상의·하의 등) 이 화면은 고치지 않아도 된다.
 // 2026-10-09 사용자 "키우기.com 이랑 방송 채팅창에서 보여지는 상품 번호를 같게 해서 바로 번호로 구매": 번호(상의11·칭호1)는 먼치킨 채팅 상점과 같은 글이고, 누르면 복사된다.
 //  "시즌 보상은 칭호로 통일": 황금 호박 왕관·그림자 날개·달빛 오라는 악세사리(악세11~13)로, 시즌 칭호는 그림 없이 따로(얻은 시즌과 다음 시즌까지 효과).
 import { h, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, titleUntil, titleImageUrl } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate } from '../lib/kiugi-draw.js';
 import { CLOSET_CMD } from '../lib/try-on.js';
 import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
 import { seasonBadge } from './kiugi.js';
@@ -34,14 +34,17 @@ export function itemGroups(catalog, seasonId, counts = new Map()) {
   return { groups, rewards, titles, rule: season.rewardRule };
 }
 export const wearLine = (n) => (n > 0 ? `${fmt(n)}명이 입고 있어요` : '아직 입은 사람이 없어요');
-// 묶음 안 옷 값이 모두 같으면 그 값(묶음 제목 옆 "각 500냥"), 다르면 0
+// 묶음 안 옷 값이 모두 같으면 그 값(묶음 제목 옆 "각 N냥"), 다르면 0
 export const groupPrice = (g) => { const set = new Set((g?.items || []).map((it) => Number(it.price) || 0)); return set.size === 1 ? [...set][0] : 0; };
 // 묶음 단위(한벌옷 5벌 · 상의·하의 30벌 · 신발 10켤레 · 배경 10장 · 그 밖 10개 — 개수는 시즌 목록에서 센다)
 export const unit = (slot) => (['outfit', 'top', 'bottom'].includes(slot) ? '벌' : slot === 'shoes' ? '켤레' : slot === 'bg' ? '장' : '개');
 export const REWARD_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 출석 ${rule.minAttendance}번` : ''}부터 살 수 있고, 시즌이 끝나도 남아요. 사면 캐릭터가 바로 입어요(오라·날개·왕관을 함께 입을 수 있고, 왕관을 쓰면 머리 장식은 가려져요).`;
-// 시즌 칭호(먼치킨 채팅의 "칭호1"과 같은 번호)
+// 시즌 칭호(먼치킨 채팅의 "칭호1"과 같은 번호). 칭호 상점이 열리기 전이면 여는 날(rewardRule.opensAt — 시즌 1은 10월 30일)도 알린다.
 export const TITLE_WORD = '칭호';
-export const TITLE_NOTE = (rule) => `Lv.${rule.minLevel}${rule.minAttendance ? ` · 이번 시즌 출석 ${rule.minAttendance}번` : ''}부터 살 수 있어요. 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요(시즌 1에 얻으면 시즌 2까지).`;
+export const TITLE_NOTE = (rule, now = Date.now()) => {
+  const date = titleOpenDate(rule, now);
+  return `Lv.${rule.minLevel}${rule.minAttendance ? ` · 이번 시즌 출석 ${rule.minAttendance}번` : ''}부터 살 수 있어요${date ? `(${date}부터 팔아요)` : ''}. 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요(시즌 1에 얻으면 시즌 2까지).`;
+};
 // 채팅에 칠 글(번호를 누르면 복사): "!옷장 상의 11"(2026-10-09 먼치킨 0.15.66 — 사기·입기는 어느 방송에서나 !옷장 으로 통일, DJ 캐릭터 이름이 필요 없다)
 //  여러 벌을 한 줄로("!옷장 상의11 하의3")는 캐릭터 페이지 입혀 보기(lib/try-on.js closetLine)
 export { CLOSET_CMD };
@@ -86,6 +89,8 @@ export async function renderItems(root, app) {
     { value: fmt(total), label: '이번 시즌 옷' },
     titles.length ? { value: fmt(titles.length), label: '시즌 칭호' } : rewards.length ? { value: fmt(rewards.length), label: '시즌 보상' } : null]));
   let gender = 'f', pick = 'all';
+  // 칭호 상점이 열리기 전이면 칭호 칸마다 여는 날("10월 30일부터")
+  const openDate = rule ? titleOpenDate(rule) : '';
   // 전신 의상 묶음(outfit)은 세로 칸으로 크게, 나머지는 정사각형
   const itemCard = (it, reward = false, tall = false) => h('li', { class: 'kg-item' + (reward ? ' reward' : '') },
     h('div', { class: 'kg-item-media' },
@@ -105,14 +110,15 @@ export async function renderItems(root, app) {
     h('div', { class: 'kg-item-body' },
       h('b', { class: 'kg-item-name' }, t.name),
       titleEffects(t),
-      h('span', { class: 'kg-item-price' }, h('b', null, `${fmt(t.price)}냥`), h('span', { class: 'kg-chip' }, `Lv.${t.level}+`), t.minAttendance ? h('span', { class: 'kg-chip' }, `출석 ${fmt(t.minAttendance)}번`) : null)));
+      h('span', { class: 'kg-item-price' }, h('b', null, `${fmt(t.price)}냥`), h('span', { class: 'kg-chip' }, `Lv.${t.level}+`), t.minAttendance ? h('span', { class: 'kg-chip' }, `출석 ${fmt(t.minAttendance)}번`) : null,
+        openDate ? h('span', { class: 'kg-chip soon' }, `${openDate}부터`) : null)));
   const rewardGroup = rewards.length ? { slot: 'reward', name: '시즌 보상', items: rewards, reward: true } : null;
   const titleGroup = titles.length ? { slot: 'title', name: '시즌 칭호', items: titles, title: true } : null;
   const all = [...groups, ...(rewardGroup ? [rewardGroup] : []), ...(titleGroup ? [titleGroup] : [])];
   // replaceChildren 에 null 을 넘기면 "null" 글자가 생기므로 빈 것은 뺀다
   const paint = () => list.replaceChildren(...[
     ...(groups.length ? all.filter((g) => pick === 'all' || g.slot === pick) : [{ name: '옷', items: [], empty: true }]).map((g) => h('section', { class: 'kg-sec' + (g.reward ? ' kg-rewards' : g.title ? ' kg-titles' : '') },
-      g.title ? secHead('시즌 칭호', `${TITLE_NOTE(rule)} 방송 채팅에 ${chatHint(`${TITLE_WORD}1`)} 처럼 번호를 쳐요.`)
+      g.title ? secHead('시즌 칭호', `${TITLE_NOTE(rule)} 방송 채팅에 ${chatHint(`${TITLE_WORD}1`)} 처럼 번호를 쳐요. 내 캐릭터 페이지의 입혀 보기에서 옷과 함께 달아 보고 한 줄로 복사할 수도 있어요.`)
         : g.reward ? secHead('시즌 보상', REWARD_NOTE(rule))
         : secHead(g.name, g.empty ? '' : `${g.items.length}${unit(g.slot)}${groupPrice(g) ? ` · 각 ${fmt(groupPrice(g))}냥` : ''}${g.code ? ` · 방송 채팅에 ${chatHint(`${g.code}1`)} 처럼 번호를 쳐요` : ''}`),
       g.empty ? h('p', { class: 'empty' }, '옷 목록을 불러오지 못했어요.')

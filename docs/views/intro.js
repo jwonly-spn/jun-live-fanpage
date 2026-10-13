@@ -5,7 +5,7 @@
 import { h, icon } from '../lib/dom.js';
 import { buildPath, DEMO_KIUGI_SLUG } from '../lib/route.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, slotName } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, slotName, titleOpenDate } from '../lib/kiugi-draw.js';
 import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, rail, BRAND } from './common.js';
 import { seasonLine, dDay } from './kiugi.js';
 import { characterCard, djCard, art, itemArt, heartCount, idText, baseOf } from './cards.js';
@@ -135,17 +135,20 @@ async function recentSection(ctx) {
   const { track, controls } = rail(cards(home.recent, home, ctx), { label: '새로 꾸민 캐릭터', className: 'sm' });
   return section('', secHead('새로 꾸민 캐릭터', '방금 옷을 갈아입은 캐릭터예요.', controls), track);
 }
-// 이렇게 키워요(채팅 예시의 "먼치"는 DJ마다 다른 캐릭터 이름)
-function howSection() {
+// 이렇게 키워요(채팅 예시의 "먼치"는 DJ마다 다른 캐릭터 이름). body 는 글 또는 [글, 명령어 칸, …]
+//  2026-10-14: 냥 모으기에 !산책(10분에 한 번 산책을 다녀와 냥을 받는다), 칭호 달기에 상점 여는 날(시즌 목록 — 열리기 전에만)과 입혀 보기에서 달아 보기
+function howSection(ctx) {
+  const cmd = (t) => h('code', { class: 'kg-cmd' }, t);
   const step = (n, title, body, bubble, tag = '채팅') => h('li', { class: 'kg-step' },
     h('span', { class: 'kg-step-n', 'aria-hidden': 'true' }, n), h('b', null, title), h('p', null, body),
     bubble ? h('span', { class: 'kg-bubble' }, h('span', { class: 'kg-bubble-tag' }, tag), h('span', { class: 'kg-bubble-text' }, bubble)) : null);
+  const opens = titleOpenDate(ctx?.catalog?.seasons?.[ctx?.catalog?.last]?.rewardRule);
   return section('kg-how', secHead('이렇게 키워요', 'DJ 방송 채팅에서 바로 할 수 있어요.'),
     h('ol', { class: 'kg-steps four' },
       step('1', '아이디 만들기', '방송 채팅에 아이디를 만들면 이번 시즌 동안 그 이름으로 보여요.', '!아이디 밤톨'),
-      step('2', '냥 모으기', '채팅·좋아요·하트·후원·출석으로 냥이 모여요. 애정도가 오르면 레벨이 오르고 표정이 바뀌어요.', '!먼치', '내 캐릭터 보기'),
+      step('2', '냥 모으기', ['채팅·좋아요·하트·후원·출석으로 냥이 모여요. 10분에 한 번 ', cmd('!산책'), '으로 산책을 다녀와도 냥을 받아요. 애정도가 오르면 레벨이 오르고 표정이 바뀌어요.'], '!먼치', '내 캐릭터 보기'),
       step('3', '옷 입히기', '옷은 여기 키우기.com에서 골라요. 옷 도감이나 내 캐릭터 페이지의 "입혀 보기"에서 직접 입어 보고, 마음에 드는 옷의 명령어를 복사해 방송 채팅에 붙여 넣으면 바로 사서 입어요. 방송 채팅에는 옷 목록이 나오지 않아요.', '!옷장 상의11 하의3'),
-      step('4', '칭호 달기', 'Lv.10이 되면 시즌 칭호를 살 수 있어요. 칭호가 있으면 받는 냥이 늘어나고, 다음 시즌까지 효과가 있어요. 칭호 번호도 옷 도감에서 복사해요.', '!옷장 칭호 1')),
+      step('4', '칭호 달기', `Lv.10이 되면 시즌 칭호를 살 수 있어요${opens ? `(${opens}부터 팔아요)` : ''}. 칭호가 있으면 받는 냥이 늘어나고, 다음 시즌까지 효과가 있어요. 칭호 번호는 옷 도감에서 복사하고, 입혀 보기에서 옷과 함께 달아 볼 수도 있어요.`, '!옷장 칭호 1')),
     h('p', { class: 'note' }, '예시의 "먼치"는 DJ마다 다른 캐릭터 이름이에요.'));
 }
 // 많이 입은 옷 TOP 5(막대는 1등 기준)
