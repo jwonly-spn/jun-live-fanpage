@@ -308,6 +308,29 @@ test('칭호(titles): 먼치킨이 올린 단 칭호가 캐릭터·1~3등·찾�
   noSecrets(person); noSecrets(page); noSecrets(home);
 });
 
+test('펫(2026-10-15): 만난 펫 단계(pets)와 함께하는 펫(pet)이 캐릭터·1~3등·찾기에, 메인 카드에는 함께하는 펫만 · 이상한 값은 빠지고 펫이 없으면 칸이 없다', async () => {
+  assert.deepEqual(v.petsField({ pets: { ghost: 2, pumpkin: 1, Bad: 3, bat: 6, mummy: 1.5 }, pet: { id: 'ghost', stage: 2 } }), { pets: { ghost: 2, pumpkin: 1 }, pet: { id: 'ghost', stage: 2 } });
+  assert.deepEqual(v.petsField({ pets: { ghost: 2 }, pet: { id: 'ghost', stage: 3 } }), { pets: { ghost: 2 } }, '단계가 다른 함께하는 펫은 빼다');
+  assert.deepEqual(v.petsField({ pet: { id: 'ghost', stage: 2 } }), {});
+  const w = world();
+  const k = w.approve();
+  const slug = (await w.upload(k, PAYLOAD([
+    PERSON('밤톨', 900, { worn: { top: 'top_11' }, pets: { ghost: 2, pumpkin: 1 }, pet: { id: 'ghost', stage: 2 }, counts: { ghost: 7 } }),
+    PERSON('사탕요정', 500, { worn: { top: 'top_12' } }),
+  ]))).json.slug;
+  const person = (await body(await w.get(`person?slug=${slug}&id=${enc('밤톨')}`))).json;
+  assert.deepEqual([person.pets, person.pet], [{ ghost: 2, pumpkin: 1 }, { id: 'ghost', stage: 2 }]);
+  assert.ok(!('counts' in person), '보낸 줄의 다른 칸은 버린다');
+  const other = (await body(await w.get(`person?slug=${slug}&id=${enc('사탕요정')}`))).json;
+  assert.ok(!('pets' in other) && !('pet' in other));
+  const page = (await body(await w.get('page?slug=' + slug))).json;
+  assert.deepEqual(page.top.map((p) => p.pet ?? null), [{ id: 'ghost', stage: 2 }, null]);
+  assert.deepEqual((await body(await w.get(`find?slug=${slug}&q=${enc('밤톨')}`))).json.results[0].pets, { ghost: 2, pumpkin: 1 });
+  const home = (await body(await w.get('home'))).json;
+  assert.deepEqual(home.recent.map((c) => [c.id, c.pet ?? null, 'pets' in c]), [['밤톨#먼치', { id: 'ghost', stage: 2 }, false], ['사탕요정#먼치', null, false]]);
+  noSecrets(person); noSecrets(page); noSecrets(home);
+});
+
 test('전체 찾기(search): 전체 아이디는 캐릭터 이름 열쇠로 바로, 앞 부분은 같은 사람 먼저·들어 있는 사람 다음, 10명까지', async () => {
   const { w, A, B, C } = await threeDjs();
   await w.heart(B, '밤톨', TOKEN(1));

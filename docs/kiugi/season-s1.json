@@ -199,6 +199,23 @@
       {"emoji": "🐺", "texts": ["수줍은 늑대인간이 꼬리를 흔들며 사탕을 줬어요"]},
       {"emoji": "🦇", "texts": ["길 잃은 박쥐에게 길을 알려 줬더니 사탕을 물어 왔어요"]}
     ],
+    "pets": [
+      {"id": "pumpkin", "name": "호박", "emoji": "🎃", "ability": "cooldown_reset", "values": [1, 2, 4, 7, 12],
+       "names": ["호박씨", "새싹 호박", "꼬마 잭오랜턴", "잭오랜턴", "호박 대왕"], "keys": ["잭오랜턴"],
+       "texts": ["데굴데굴 굴러와 사탕을 나눠 줬어요", "호박 바구니에서 사탕을 꺼내 줬어요"]},
+      {"id": "ghost", "name": "유령", "emoji": "👻", "ability": "double_reward", "values": [1, 2, 4, 7, 12],
+       "names": ["안개 방울", "꼬마 유령", "장난 유령", "망토 유령", "유령 왕"], "keys": [],
+       "texts": ["몰래 다가와 사탕을 쥐여 줬어요", "숨바꼭질을 하고 사탕을 나눠 줬어요"]},
+      {"id": "bat", "name": "박쥐", "emoji": "🦇", "ability": "choice_bonus", "values": [1, 2, 4, 7, 12],
+       "names": ["아기 박쥐", "꼬마 박쥐", "밤하늘 박쥐", "달빛 박쥐", "뱀파이어 박쥐"], "keys": [],
+       "texts": ["날갯짓하며 사탕을 물어다 줬어요", "거꾸로 매달려 사탕을 떨어뜨려 줬어요"]},
+      {"id": "blackcat", "name": "검은 고양이", "emoji": "🐈‍⬛", "ability": "golden_bonus", "values": [1, 2, 4, 7, 12],
+       "names": ["아기 냥이", "꼬마 마녀 냥이", "마녀 고양이", "달빛 마녀 고양이", "대마녀 고양이"], "keys": ["고양이", "냥이"],
+       "texts": ["발밑에 사탕을 두고 갔어요", "꼬리를 살랑이며 사탕을 물어 왔어요"]},
+      {"id": "mummy", "name": "미라 강아지", "emoji": "🐶", "ability": "miss_guard", "values": [2, 4, 7, 11, 16],
+       "names": ["붕대 강아지", "꼬마 미라", "미라 강아지", "파라오 강아지", "황금 파라오"], "keys": ["미라", "강아지", "파라오"],
+       "texts": ["붕대 사이에 숨긴 사탕을 꺼내 줬어요", "꼬리를 흔들며 사탕 봉지를 물어 왔어요"]}
+    ],
     "scare": [
       "🦇 박쥐 떼가 날아올라 깜짝! 사탕을 떨어뜨렸어요",
       "👀 수풀 속 눈빛에 놀라 뛰어서 돌아왔어요",
@@ -212,25 +229,36 @@
       "✨ 호박 왕이 오늘의 손님이라며 황금 사탕을 줬어요!",
       "✨ 별똥별이 떨어진 자리에서 황금 사탕이 반짝였어요!"
     ],
+    "animals": [
+      {"id": "street-cat", "name": "길고양이", "emoji": "🐈", "texts": ["길고양이가 잠깐 바라보더니 사탕 하나를 툭 밀어 줬어요", "길고양이가 발밑을 한 바퀴 돌고 사탕을 두고 갔어요"]},
+      {"id": "puppy", "name": "꼬마 강아지", "emoji": "🐕", "texts": ["강아지가 꼬리를 흔들며 사탕 봉지를 물어 왔어요", "강아지와 눈이 마주쳐 인사했더니 사탕을 나눠 줬어요"]},
+      {"id": "pigeon", "name": "자판기 앞 비둘기", "emoji": "🐦", "texts": ["비둘기가 자판기 앞을 지키다 사탕 하나를 양보했어요", "비둘기와 눈싸움을 하다 이겨서 사탕을 받았어요"]},
+      {"id": "squirrel", "name": "간식을 찾는 다람쥐", "emoji": "🐿️", "texts": ["다람쥐가 숨겨 둔 사탕을 하나 나눠 줬어요", "다람쥐가 볼에 가득 문 사탕을 하나 떨어뜨렸어요"]},
+      {"id": "owl", "name": "밤 부엉이", "emoji": "🦉", "texts": ["나뭇가지 위 부엉이가 부엉부엉 사탕을 떨어뜨려 줬어요"]},
+      {"id": "raccoon", "name": "장난꾸러기 너구리", "emoji": "🦝", "texts": ["너구리가 사탕을 훔치려다 들켜서 반을 돌려줬어요"]},
+      {"id": "hedgehog", "name": "호박 위 고슴도치", "emoji": "🦔", "texts": ["호박 위에서 졸던 고슴도치 가시에 사탕이 꽂혀 있었어요"]},
+      {"id": "white-cat", "name": "새벽의 흰 고양이", "emoji": "✨🐈", "rare": true, "texts": ["흰 고양이가 앞장서 걷다가 사탕 주머니 앞에서 멈췄어요", "흰 고양이가 곁에 잠시 앉았다가 사탕을 두고 사라졌어요"]},
+      {"id": "fox", "name": "달빛 여우", "emoji": "🦊", "rare": true, "texts": ["달빛 여우가 꼬리로 숨겨 둔 사탕 더미를 가리켰어요"]}
+    ],
     "choices": [
       {"id": "fork", "name": "안개 낀 갈림길", "emoji": "🌫", "text": "길이 둘로 갈라졌어요. 어느 쪽으로 갈까요?", "options": [
-        {"label": "촛불 켜진 오두막", "outcomes": [{"weight": 60, "text": "마녀 할머니가 따뜻한 수프와 사탕을 줬어요", "min": 30, "max": 50}, {"weight": 40, "text": "문이 쾅! 닫혀서 사탕 하나만 받았어요", "min": 5, "max": 10}]},
-        {"label": "호박밭 지름길", "outcomes": [{"weight": 50, "text": "숨겨진 사탕 더미를 발견했어요!", "min": 35, "max": 60}, {"weight": 50, "text": "호박 덩굴에 걸려 넘어졌어요… 사탕 몇 개만", "min": 5, "max": 10}]}]},
+        {"label": "촛불 켜진 오두막", "outcomes": [{"weight": 50, "result": "double", "text": "마녀 할머니가 따뜻한 수프와 사탕을 듬뿍 줬어요!"}, {"weight": 50, "result": "none", "text": "문이 쾅! 닫혀서 빈손으로 돌아왔어요…"}]},
+        {"label": "호박밭 지름길", "outcomes": [{"weight": 50, "result": "double", "text": "숨겨진 사탕 더미를 발견했어요!"}, {"weight": 50, "result": "none", "text": "호박 덩굴에 걸려 넘어져 사탕을 다 쏟았어요…"}]}]},
       {"id": "door", "name": "낡은 대문", "emoji": "🚪", "text": "낡은 대문이 스르륵 열렸어요.", "options": [
-        {"label": "똑똑 두드리기", "outcomes": [{"weight": 70, "text": "'트릭 오어 트릿!' 집주인이 사탕을 듬뿍 줬어요", "min": 30, "max": 45}, {"weight": 30, "text": "아무도 없네요… 문 앞 사탕 하나만", "min": 5, "max": 10}]},
-        {"label": "살금살금 들어가기", "outcomes": [{"weight": 40, "text": "식탁 위 사탕 단지를 발견했어요!", "min": 50, "max": 80}, {"weight": 60, "text": "집주인 유령에게 들켜 허겁지겁 도망쳤어요", "min": 3, "max": 8}]}]},
+        {"label": "똑똑 두드리기", "outcomes": [{"weight": 50, "result": "double", "text": "'트릭 오어 트릿!' 집주인이 사탕을 듬뿍 줬어요!"}, {"weight": 50, "result": "none", "text": "아무도 없네요… 빈손으로 돌아왔어요"}]},
+        {"label": "살금살금 들어가기", "outcomes": [{"weight": 50, "result": "double", "text": "식탁 위 사탕 단지를 발견했어요!"}, {"weight": 50, "result": "none", "text": "집주인 유령에게 들켜 허겁지겁 도망쳤어요…"}]}]},
       {"id": "soup", "name": "마녀의 수프 냄비", "emoji": "🧪", "text": "보글보글 끓는 마녀의 수프 냄비를 발견했어요.", "options": [
-        {"label": "한 숟갈 맛보기", "outcomes": [{"weight": 50, "text": "달콤한 사탕 맛 수프였어요!", "min": 30, "max": 50}, {"weight": 50, "text": "으악, 박쥐 날개 맛… 입가심 사탕만", "min": 5, "max": 10}]},
-        {"label": "재료 넣어 주기", "outcomes": [{"weight": 1, "text": "마녀가 고맙다며 사탕을 나눠 줬어요", "min": 15, "max": 25}]}]},
+        {"label": "한 숟갈 맛보기", "outcomes": [{"weight": 50, "result": "double", "text": "달콤한 사탕 맛 수프였어요!"}, {"weight": 50, "result": "none", "text": "으악, 박쥐 날개 맛… 입맛만 버렸어요"}]},
+        {"label": "재료 넣어 주기", "outcomes": [{"weight": 50, "result": "double", "text": "마녀가 고맙다며 사탕을 잔뜩 나눠 줬어요!"}, {"weight": 50, "result": "none", "text": "재료를 잘못 넣어 냄비가 펑! 아무것도 못 받았어요"}]}]},
       {"id": "cats", "name": "검은 고양이 두 마리", "emoji": "🐱", "text": "검은 고양이 두 마리가 서로 따라오라고 해요.", "options": [
-        {"label": "왼쪽 고양이", "outcomes": [{"weight": 50, "text": "고양이가 숨은 사탕 가게로 데려다줬어요!", "min": 30, "max": 50}, {"weight": 50, "text": "고양이가 담장 위로 사라졌어요… 길에서 사탕 하나", "min": 5, "max": 10}]},
-        {"label": "오른쪽 고양이", "outcomes": [{"weight": 50, "text": "고양이 친구들의 사탕 파티에 끼었어요!", "min": 30, "max": 50}, {"weight": 50, "text": "고양이가 하품만 하고 잠들었어요… 사탕 하나", "min": 5, "max": 10}]}]},
-      {"id": "troll", "name": "다리 위 트롤", "emoji": "🌉", "text": "다리 앞 트롤이 수수께끼를 내요. 밤에만 웃는 채소는?", "options": [
-        {"label": "호박!", "outcomes": [{"weight": 60, "text": "정답! 트롤이 박수를 치며 사탕을 줬어요", "min": 30, "max": 50}, {"weight": 40, "text": "땡! 트롤이 웃기만 해요… 사탕 하나", "min": 5, "max": 10}]},
-        {"label": "모르겠어요", "outcomes": [{"weight": 1, "text": "솔직해서 좋다며 트롤이 사탕을 줬어요", "min": 15, "max": 25}]}]},
+        {"label": "왼쪽 고양이", "outcomes": [{"weight": 50, "result": "double", "text": "고양이가 숨은 사탕 가게로 데려다줬어요!"}, {"weight": 50, "result": "none", "text": "고양이가 담장 위로 사라졌어요…"}]},
+        {"label": "오른쪽 고양이", "outcomes": [{"weight": 50, "result": "double", "text": "고양이 친구들의 사탕 파티에 끼었어요!"}, {"weight": 50, "result": "none", "text": "고양이가 하품만 하고 잠들었어요…"}]}]},
+      {"id": "troll", "name": "다리 위 트롤", "emoji": "🌉", "text": "다리 앞 트롤이 동전을 던지며 앞면 뒷면을 맞혀 보래요.", "options": [
+        {"label": "앞면", "outcomes": [{"weight": 50, "result": "double", "text": "맞혔어요! 트롤이 박수를 치며 사탕을 듬뿍 줬어요"}, {"weight": 50, "result": "none", "text": "틀렸어요… 트롤이 웃기만 해요"}]},
+        {"label": "뒷면", "outcomes": [{"weight": 50, "result": "double", "text": "맞혔어요! 트롤이 사탕 자루를 통째로 줬어요"}, {"weight": 50, "result": "none", "text": "틀렸어요… 트롤이 다리를 막고 비켜 주지 않아요"}]}]},
       {"id": "carousel", "name": "혼자 도는 회전목마", "emoji": "🎡", "text": "멈춰 있던 회전목마가 혼자 돌기 시작했어요.", "options": [
-        {"label": "올라타기", "outcomes": [{"weight": 40, "text": "한 바퀴 돌자 하늘에서 사탕 비가 내렸어요!", "min": 50, "max": 80}, {"weight": 60, "text": "어지러워서 사탕을 다 떨어뜨렸어요…", "min": 3, "max": 8}]},
-        {"label": "구경만 하기", "outcomes": [{"weight": 1, "text": "꼬마 유령들이 손을 흔들며 사탕을 던져 줬어요", "min": 15, "max": 25}]}]}
+        {"label": "올라타기", "outcomes": [{"weight": 50, "result": "double", "text": "한 바퀴 돌자 하늘에서 사탕 비가 내렸어요!"}, {"weight": 50, "result": "none", "text": "어지러워서 사탕을 다 떨어뜨렸어요…"}]},
+        {"label": "구경만 하기", "outcomes": [{"weight": 50, "result": "double", "text": "꼬마 유령들이 손을 흔들며 사탕을 잔뜩 던져 줬어요!"}, {"weight": 50, "result": "none", "text": "구경만 하다 회전목마가 멈춰 버렸어요…"}]}]}
     ]
   }
 }

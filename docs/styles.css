@@ -325,6 +325,21 @@ a { color: inherit; }
 .kg-copy-btn { flex: 0 1 auto; min-height: 54px; }
 /* 저장하기(lib/kiugi-save.js): 캐릭터 그림 바로 아래 따로 있는 단추 하나 — 휴대폰은 그림 너비 그대로, PC 는 보통 너비로 가운데. 만드는 동안 그림이 깜박인다. */
 .kg-save-row { display: flex; justify-content: center; margin-top: 12px; }
+/* 펫(2026-10-15): 함께하는 펫은 캐릭터 무대 오른쪽 아래 작은 표, 펫 칸은 시즌 펫 차례대로(못 만난 펫은 흐리게). 그림이 오기 전에는 그림 글자 */
+.kg-hero-stage { position: relative; }
+.kg-pet-badge { position: absolute; right: 12px; bottom: 12px; display: flex; align-items: center; gap: 8px; max-width: calc(100% - 24px); padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); box-shadow: 0 10px 24px -14px rgba(0,0,0,.6); }
+.kg-pet-badge .kg-pet-emoji { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: var(--bg-2, rgba(255,255,255,.06)); font-size: 26px; line-height: 1; }
+.kg-pet-name { display: flex; flex-direction: column; min-width: 0; font-size: 13px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kg-pet-name i { font-style: normal; font-size: 11px; color: var(--accent); letter-spacing: 1px; }
+.kg-pets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.kg-pet { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 14px 6px 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel); text-align: center; }
+.kg-pet .kg-pet-emoji { font-size: 36px; line-height: 1.1; }
+.kg-pet b { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.35; overflow-wrap: anywhere; }
+.kg-pet-stage { font-size: 12px; color: var(--accent); }
+.kg-pet.is-active { border-color: var(--accent); }
+.kg-pet.is-unmet .kg-pet-emoji { filter: grayscale(1) brightness(.35); }
+.kg-pet.is-unmet b, .kg-pet.is-unmet .kg-pet-stage { color: var(--text-3); }
+@media (max-width: 560px) { .kg-pets { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .kg-save-btn { flex: 1 1 auto; min-height: 52px; font-size: 16px; }
 .kg-save-btn.is-busy svg { animation: kg-blink 1s ease-in-out infinite; }
 @keyframes kg-blink { 50% { opacity: .3; } }

@@ -94,9 +94,11 @@ export function heroSection(ctx) {
       .map((c) => ({ c, character: look.get(c.slug), href: ctx.app.link({ name: 'character', slug: c.slug, base: baseOf(c.id) }) }));
     const list = top.length ? top : (home.djs || []).slice(0, 3).map((d) => ({ c: { id: `${d.name} 키우기`, worn: {}, level: 1 }, character: d.character, href: ctx.app.link({ name: 'kiugi', slug: d.slug }) }));
     if (!list.length) { solo(); return; }
-    // 1등을 가운데에 크게(읽는 차례는 1·2·3등)
+    // 1등을 가운데에 크게(읽는 차례는 1·2·3등). 셋이 겹쳐 서는 무대라 입은 "배경"은 빼고 그린다
+    //  (2026-10-15 사용자 "키우기 사이트 화면 깨진다" — 배경을 입은 캐릭터가 네모 그림째로 서로 겹쳐 보였다)
+    const noBg = (worn) => { const { bg, ...rest } = worn || {}; return rest; };
     cast.replaceChildren(...list.map((x, i) => ilink(x.href, { class: 'kg-cast-one' + (i === 0 ? ' lead' : i === 1 ? ' left' : ' right'), 'aria-label': `${top.length ? `${i + 1}등 ` : ''}${x.c.id} 보기` },
-      art(ctx.catalog, x.character, x.c.worn, x.c.level, { seasonId, base: ctx.app.base, eager: true, kind: 'bare' }))));
+      art(ctx.catalog, x.character, noBg(x.c.worn), x.c.level, { seasonId, base: ctx.app.base, eager: true, kind: 'bare' }))));
     const lead = list[0];
     if (lead && top.length) {
       caption.replaceChildren(ilink(lead.href, { class: 'kg-cast-tag' },

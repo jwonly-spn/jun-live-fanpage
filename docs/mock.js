@@ -56,7 +56,11 @@ function pagesNow() {
       const id = `${base}#${dj.character.name}`;
       // 단 칭호(먼치킨이 올리는 모양 — 지금 효과가 있는 단 칭호 하나): 1·2등과 몇 사람만
       const titles = i === 0 ? ['title-halloween-insa'] : i === 1 ? ['title-candy-plz'] : i === 6 ? ['title-kiugi-master'] : [];
-      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ch: t - (i * 3 + d) * 1700e3 };
+      // 펫(2026-10-15 — 먼치킨이 올리는 모양: 만난 펫 단계 · 함께하는 펫): 1~3등만
+      const petSets = [[{ ghost: 3, pumpkin: 2, bat: 1 }, 'ghost'], [{ blackcat: 2 }, 'blackcat'], [{ mummy: 1, pumpkin: 1 }, 'mummy']];
+      const pk = i < 3 ? petSets[(i + d) % 3] : null;
+      const petsOut = pk ? { pets: pk[0], pet: { id: pk[1], stage: pk[0][pk[1]] } } : {};
+      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ...petsOut, ch: t - (i * 3 + d) * 1700e3 };
     });
     return { slug: dj.slug, name: dj.character.name, character: dj.character, season: SEASON, people, count: people.length, updatedAt: new Date(t - (d + 1) * 300e3).toISOString() };
   });
@@ -102,7 +106,7 @@ export async function handle(method, path, q = {}, body = {}) {
       if (!key) return fail(400, BAD_QUERY);
       const p = page.people.find((x) => target(x.k, key) === key);
       if (!p) return fail(404, NO_PERSON);
-      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
+      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
     }
     case 'GET kiugi/home': {
       const pages = pagesNow();

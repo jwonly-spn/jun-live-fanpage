@@ -30,8 +30,14 @@ const timeOf = (v) => { const t = typeof v === 'number' ? v : typeof v === 'stri
 export const titleShopOpen = (rule, now = Date.now()) => !rule?.opensAt || now >= rule.opensAt;
 // 칭호 상점이 아직 열리지 않았으면 여는 날 글("10월 30일" — 한국 날짜, 해가 다르면 "2027년 1월 1일"), 열렸거나 모르면 ''
 export const titleOpenDate = (rule, now = Date.now()) => (titleShopOpen(rule, now) ? '' : formatDate(new Date(rule.opensAt).toISOString(), now));
+// 펫(2026-10-15): 시즌 목록 walk.pets → {id: {id, season, name, emoji, names:[단계 이름 ×5]}}. 먼치킨이 보낸 pets {id: 단계}·pet {id, stage} 를 이 표로 읽는다.
+//  펫 그림(Codex 패키지)이 오기 전에는 그림 글자(emoji)로 보인다.
+const petsOfSeason = (raw, season) => (Array.isArray(raw?.walk?.pets) ? raw.walk.pets : [])
+  .filter((p) => typeof p?.id === 'string' && /^[a-z]{1,20}$/.test(p.id) && Array.isArray(p.names) && p.names.length === 5)
+  .map((p) => ({ id: p.id, season, name: String(p.name || p.id), emoji: String(p.emoji || '🐾'), names: p.names.map(String) }));
+export const petStage = (pet, stage) => (pet && Number.isInteger(stage) && stage >= 1 && stage <= 5 ? pet.names[stage - 1] : pet?.name || '');
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
-  const items = {}, seasons = {}, titles = {};
+  const items = {}, seasons = {}, titles = {}, pets = {};
   let last = null;
   for (const raw of Array.isArray(raws) ? raws : []) {
     const id = raw?.season?.id;
@@ -55,13 +61,14 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
       const cat = it.cat || slots.find((s) => s.id === it.slot)?.cat || it.slot, style = typeof styles[it.style] === 'string' ? styles[it.style] : '';
       items[it.id] = { slot: it.slot, cat, ...(Number.isInteger(it.number) ? { number: it.number } : {}), season: id, name: it.name, ...(style ? { style } : {}), price: catPrice.get(cat) || 0 };
     }
+    for (const p of petsOfSeason(raw, id)) pets[p.id] = p;
     (Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []).forEach((r, i) => {
       if (!r?.id) return;
       if (r.slot) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true, price: Number(r.price) || 0, level: minLevel };
       else titles[r.id] = { id: r.id, season: id, number: i + 1, name: r.name || r.id, image: typeof r.image === 'string' && /^[a-z0-9/_-]+\.png$/.test(r.image) ? r.image : '', perks: perksOf(r).length ? perksOf(r) : perksOf(rule), desc: r.desc || '', price: Number(r.price) || 0, level: minLevel, minAttendance: Number(rule.minAttendance) || 0 };
     });
   }
-  return { items, titles, seasons, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
+  return { items, titles, seasons, pets, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
 }
 
 // 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 왕관·날개·오라 — 은 여기서. 그림 V4 부터 보상도 캐릭터가 입는다)

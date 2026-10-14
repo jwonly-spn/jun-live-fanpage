@@ -11,7 +11,7 @@
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage } from '../lib/kiugi-draw.js';
 import { copyCode, chatHint, titleEffects, itemGroups } from './items.js';
 import { applyTryOn, toggleTry, canTry, itemShown, wornIds, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN } from '../lib/try-on.js';
@@ -30,6 +30,32 @@ export const HEART_SEND = '하트 보내기';
 //  2026-10-09: 왕관·날개·오라는 악세사리(악세11~13) — 시즌 칸(crown·wings·aura)에 들어 있다. 입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!옷장 상의 11" 이 복사된다(0.15.66 — !옷장 으로 통일).
 //  칭호(지금 효과가 있는 것)는 아이디 아래에.
 export const COVERED = Object.freeze({ outfit: '한벌옷이 덮고 있어요', crown: '왕관이 가려요' });
+// 펫(2026-10-15 사용자 "키우기.com 에서 자기 펫도 직접 볼 수 있게"): 먼치킨이 보낸 pets {id: 단계}·pet {id, stage} → 시즌 펫 차례대로
+//  [{id, emoji, name(단계 이름 — 못 만났으면 기본 이름), stage(0 = 못 만남), active}]. 시즌 목록에 펫이 없으면 빈 목록(펫 칸을 그리지 않는다).
+export function petList(catalog, data) {
+  const got = data?.pets && typeof data.pets === 'object' ? data.pets : {}, active = data?.pet?.id;
+  return Object.values(catalog?.pets || {}).map((p) => {
+    const stage = Number.isInteger(got[p.id]) && got[p.id] >= 1 && got[p.id] <= 5 ? got[p.id] : 0;
+    return { id: p.id, emoji: p.emoji, name: stage ? petStage(p, stage) : p.name, stage, active: stage > 0 && p.id === active };
+  });
+}
+const stars = (n) => '★'.repeat(n);
+function petBadge(pet) {
+  if (!pet) return null;
+  return h('div', { class: 'kg-pet-badge', title: `함께하는 펫 ${pet.name} ${stars(pet.stage)}` },
+    h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, pet.emoji),
+    h('span', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))));
+}
+function petSection(pets) {
+  if (!pets.length) return null;
+  const met = pets.filter((p) => p.stage > 0).length;
+  return h('section', { class: 'kg-sec' },
+    secHead('펫', met ? `방송에서 !산책 하다 만난 펫 ${met}마리예요. 만날수록 ★5까지 자라요.` : '아직 만난 펫이 없어요. 방송에서 !산책 하다 보면 할로윈 펫을 만나요.'),
+    h('ul', { class: 'kg-pets' }, ...pets.map((p) => h('li', { class: 'kg-pet' + (p.stage ? '' : ' is-unmet') + (p.active ? ' is-active' : '') },
+      h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, p.emoji),
+      h('b', null, p.stage ? p.name : '???'),
+      h('span', { class: 'kg-pet-stage' }, p.stage ? stars(p.stage) + (p.active ? ' · 함께' : '') : `아직 못 만난 ${p.name}`)))));
+}
 export function loadoutSlots(catalog, seasonId, worn) {
   const list = wornList(catalog, seasonId, worn);
   const slots = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
@@ -326,11 +352,14 @@ export async function renderCharacter(root, route, app) {
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
   // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
   const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts }), { base: app.base }) : null;
+  const pets = petList(catalog, data), buddy = pets.find((p) => p.active) || null;
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
         h('div', { class: 'kg-hero-art' },
-          art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' }),
+          h('div', { class: 'kg-hero-stage' },
+            art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' }),
+            petBadge(buddy)),
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
@@ -363,10 +392,11 @@ export async function renderCharacter(root, route, app) {
         }))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     tryOn?.section,
+    petSection(pets),
     h('section', { class: 'kg-banner' },
       h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기의 다른 캐릭터`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),
       ilink(djLink, { class: 'btn btn-line' }, `${dj.name} 키우기 보기`, icon('arrow', { size: 16 })))].filter(Boolean));
-  shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요.'));
+  shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·펫·하트만 보여요.'));
   if (tryOn && location.hash === '#try') tryOn.open({ scroll: false });
 }
 

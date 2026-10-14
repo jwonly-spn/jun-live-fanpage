@@ -105,8 +105,22 @@ export function titles(value: unknown): string[] {
   }
   return out;
 }
+// 펫(2026-10-15 사용자 "키우기.com 에서 자기 펫도 직접 볼 수 있게"): pets {펫 id(영문 소문자 1~20자): 단계 1~5}(10개까지) ·
+//  pet {id, stage} 함께하는 펫 — pets 에 같은 단계로 있을 때만. 만난 횟수는 앱이 보내지 않는다. 펫이 없으면 두 칸 다 없다.
+export const PETS_MAX = 10;
+const PET_ID = /^[a-z]{1,20}$/;
+export function petsField(value: unknown): { pets?: Record<string, number>; pet?: { id: string; stage: number } } {
+  const pets: Record<string, number> = {};
+  if (isObject(value) && isObject(value.pets)) {
+    for (const [id, stage] of Object.entries(value.pets).slice(0, PETS_MAX)) if (PET_ID.test(id) && Number.isSafeInteger(stage) && (stage as number) >= 1 && (stage as number) <= 5) pets[id] = stage as number;
+  }
+  if (!Object.keys(pets).length) return {};
+  const raw = isObject(value) && isObject(value.pet) ? value.pet : null;
+  const pet = raw && typeof raw.id === 'string' && pets[raw.id] === raw.stage ? { id: raw.id, stage: raw.stage as number } : null;
+  return { pets, ...(pet ? { pet } : {}) };
+}
 // ch = 이 사람이 마지막으로 새로 나타나거나 옷을 바꾼 때(서버 시각). "새로 꾸민 캐릭터" 순서에만 쓰고 밖으로 내보내지 않는다.
-export type Person = { id: string; level: number; love: number; worn: Record<string, string>; titles?: string[]; k: string; ch?: number };
+export type Person = { id: string; level: number; love: number; worn: Record<string, string>; titles?: string[]; pets?: Record<string, number>; pet?: { id: string; stage: number }; k: string; ch?: number };
 // 청취자 한 줄 → {id, level, love, worn, titles?, k}. 이 칸만 새로 만들어 담는다(보낸 줄의 다른 칸은 버린다). 칭호가 없으면 titles 칸도 없다.
 // 모양이 이상한 줄(아이디 모양이 아니거나 뒤 이름이 이 캐릭터가 아님 등)은 그 줄만 뺀다(한 사람 때문에 전체가 막히지 않게).
 export function person(value: unknown, characterName: string): Person | null {
@@ -116,19 +130,20 @@ export function person(value: unknown, characterName: string): Person | null {
   if (!id || !Number.isSafeInteger(level) || (level as number) < 1 || (level as number) > LEVEL_MAX) return null;
   if (!Number.isSafeInteger(love) || (love as number) < 0 || (love as number) > LOVE_MAX) return null;
   const t = titles(value.titles);
-  return { id, level: level as number, love: love as number, worn: worn(value.worn), ...(t.length ? { titles: t } : {}), k: searchKey(id) };
+  return { id, level: level as number, love: love as number, worn: worn(value.worn), ...(t.length ? { titles: t } : {}), ...petsField(value), k: searchKey(id) };
 }
 const titlesOf = (p: { titles?: unknown }) => { const t = titles(p.titles); return t.length ? { titles: t } : {}; };
-// 밖으로 내보내는 한 사람: {rank, id, level, worn, titles?, hearts?}. 애정도 숫자는 SHOW_LOVE 가 true 일 때만(스푼 답을 기다리는 동안 숨김 — 순서는 그대로 애정도 순).
-export function publicPerson(p: Pick<Person, 'id' | 'level' | 'love' | 'worn' | 'titles'>, rank: number, hearts?: number) {
-  const out: Record<string, unknown> = { rank, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p) };
+// 밖으로 내보내는 한 사람: {rank, id, level, worn, titles?, pets?, pet?, hearts?}. 애정도 숫자는 SHOW_LOVE 가 true 일 때만(스푼 답을 기다리는 동안 숨김 — 순서는 그대로 애정도 순).
+export function publicPerson(p: Pick<Person, 'id' | 'level' | 'love' | 'worn' | 'titles' | 'pets' | 'pet'>, rank: number, hearts?: number) {
+  const out: Record<string, unknown> = { rank, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petsField(p) };
   if (SHOW_LOVE) out.love = p.love;
   if (hearts !== undefined) out.hearts = hearts;
   return out;
 }
-// 메인 페이지·전체 찾기의 카드 한 장: {slug, djName, id, level, worn, titles?, hearts}
-export const card = (p: Pick<Person, 'id' | 'level' | 'worn' | 'titles'>, slug: string, djName: string, hearts: number) =>
-  ({ slug, djName, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), hearts });
+// 메인 페이지·전체 찾기의 카드 한 장: {slug, djName, id, level, worn, titles?, pet?, hearts} — 카드에는 함께하는 펫만
+const petOf = (p: { pets?: unknown; pet?: unknown }) => { const f = petsField(p); return f.pet ? { pet: f.pet } : {}; };
+export const card = (p: Pick<Person, 'id' | 'level' | 'worn' | 'titles' | 'pets' | 'pet'>, slug: string, djName: string, hearts: number) =>
+  ({ slug, djName, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petOf(p), hearts });
 
 // 캐릭터 이름 열쇠(사이트 전체에서 하나만): NFC + 영문 소문자
 export const nameKeyOf = (name: string) => String(name ?? '').normalize('NFC').toLowerCase();
@@ -153,7 +168,7 @@ export function snapshot(value: unknown) {
   const unique = people.filter((p) => (seen.has(p.k) ? false : (seen.add(p.k), true)));
   const kept = unique.slice(0, MAX_PEOPLE);
   // top 은 서버 안에 저장하는 모양(애정도 포함). 밖으로는 pageOut 이 SHOW_LOVE 에 맞춰 내보낸다.
-  const top = kept.slice(0, TOP).map((p, i) => ({ rank: i + 1, id: p.id, level: p.level, love: p.love, worn: p.worn, ...titlesOf(p) }));
+  const top = kept.slice(0, TOP).map((p, i) => ({ rank: i + 1, id: p.id, level: p.level, love: p.love, worn: p.worn, ...titlesOf(p), ...petsField(p) }));
   return { enabled: true as const, name: ch.name, nameKey: nameKeyOf(ch.name), main: value.main !== false, character: ch, season: se, people: kept, top, count: kept.length };
 }
 
@@ -178,7 +193,7 @@ export function summarize(people: Person[]) {
     .filter(({ p }) => Object.keys(p.worn || {}).length > 0 && Number.isSafeInteger(p.ch))
     .sort((a, b) => (b.p.ch as number) - (a.p.ch as number) || a.i - b.i)
     .slice(0, HOME_RECENT)
-    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ch: p.ch }));
+    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ...petsField(p), ch: p.ch }));
   return { recent, items };
 }
 

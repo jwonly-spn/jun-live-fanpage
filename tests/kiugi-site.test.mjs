@@ -185,7 +185,8 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   assert.doesNotMatch(JSON.stringify(home), /"love"|"ch"|"k"|nickname/);
   const person = await handle('GET', 'kiugi/person', { slug: 'cuky2345', id: '귤껍질' });
   assert.equal(person.status, 200);
-  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'hearts', 'id', 'level', 'season', 'titles', 'worn']);
+  // 펫(2026-10-15): 체험 모드 1~3등은 만난 펫(pets)·함께하는 펫(pet)이 있다
+  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'hearts', 'id', 'level', 'pet', 'pets', 'season', 'titles', 'worn']);
   assert.equal(person.json.id, '귤껍질#쿠키'); assert.equal(person.json.dj.name, '쿠키');
   // 캐릭터(person)는 서버처럼 titles 를 늘 배열로(단 칭호 하나 또는 빈 배열)
   assert.deepEqual(person.json.titles, ['title-halloween-insa']);
