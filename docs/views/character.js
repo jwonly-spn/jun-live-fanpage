@@ -61,7 +61,8 @@ function petSection(pets, base) {
   if (!pets.length) return null;
   const met = pets.filter((p) => p.stage > 0).length;
   return h('section', { class: 'kg-sec' },
-    secHead('펫', met ? `방송에서 !산책 하다 만난 펫 ${met}마리예요. 만날수록 ★5까지 자라요.` : '아직 만난 펫이 없어요. 방송에서 !산책 하다 보면 할로윈 펫을 만나요.'),
+    // 2026-10-15: 펫 잡기(!잡기)·냥 진화(!펫진화)도 알린다
+    secHead('펫', met ? `방송에서 만난 펫 ${met}마리예요. 만날수록 ★5까지 자라고, !펫진화 이름 으로 냥을 내고 진화할 수도 있어요.` : '아직 만난 펫이 없어요. 방송에서 !산책 하거나 펫이 나타났을 때 !잡기 로 할로윈 펫을 만나요.'),
     h('ul', { class: 'kg-pets' }, ...pets.map((p) => h('li', { class: 'kg-pet' + (p.stage ? '' : ' is-unmet') + (p.active ? ' is-active' : '') },
       h('span', { class: 'kg-pet-frame' }, petImage(p, base)),
       h('b', null, p.stage ? p.name : '???'),
