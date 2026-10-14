@@ -29,26 +29,50 @@ export function heartCount(n, { className = '' } = {}) {
 // 움직임은 모두 styles.css 의 CSS 애니메이션(transform·opacity — 그림을 다시 그리지 않는다, 자바스크립트 반복 없음).
 // 효과 자리는 캔버스 1024 기준 퍼센트(눈 482·540/230, 아래 눈꺼풀 241, 가슴 511/385, 발 바닥 956 — 남녀 같은 자리)라 칸 크기와 관계없이 같은 곳.
 // 숨쉬기는 카드마다 박자를 조금씩 어긋나게(kg-b0~4 — 칸이 여럿이어도 한꺼번에 숨쉬지 않게). 동작 줄이기 설정이면 모두 멈춘다(styles.css).
-// 모션 효과: [클래스(첫 낱말 = kg-fx-<이름>), 글자]. 모르는 모션은 효과 없이 숨쉬기만.
+// 모션 효과: [클래스(첫 낱말 = kg-fx-<이름>), 그림]. 그림은 Codex 효과 그림(2026-10-15 패키지 DJ_MOTION_S1_20261015_BLINK_FX — kiugi/motion/fx_*.png, 256² 투명).
+//  모르는 모션은 효과 없이 숨쉬기만. 울기의 눈물 시작은 우는 눈 그림(<눈>_cry.png)에 있고, 떨어지는 방울만 fx_tear.
 const FX = Object.freeze({
-  dance: { around: [['note n1', '♪'], ['note n2', '♫'], ['note n3', '♬'], ['note n4', '♪']] },
-  heart: { body: [['rise r1', '💕'], ['rise r2', '💗'], ['rise r3', '💖'], ['chest', '💗']] },
-  cry: { body: [['stream e1', ''], ['stream e2', ''], ['tear e1 d1', ''], ['tear e1 d2', ''], ['tear e2 d1', ''], ['tear e2 d2', '']] },
-  squat: { body: [['sweat', '💦']] },
-  trash: { body: [['orbit o1', '⭐'], ['orbit o2', '💫'], ['orbit o3', '⭐']], around: [['trash k1', '🥫'], ['trash k2', '🍌'], ['trash k3', '📰'], ['trash k4', '🧦'], ['trash k5', '🍂'], ['pop', '💢']] },
-  kkang: { around: [['spark s1', '✨'], ['spark s2', '✨'], ['spark s3', '✨']] },
+  dance: { around: [['note n1', 'fx_note_1'], ['note n2', 'fx_note_2'], ['note n3', 'fx_note_2'], ['note n4', 'fx_note_1']] },
+  heart: { body: [['rise r1', 'fx_heart_2'], ['rise r2', 'fx_heart_1'], ['rise r3', 'fx_heart_2'], ['chest', 'fx_heart_1']] },
+  cry: { body: [['tear e1 d1', 'fx_tear_2'], ['tear e1 d2', 'fx_tear_1'], ['tear e2 d1', 'fx_tear_2'], ['tear e2 d2', 'fx_tear_1']] },
+  squat: { body: [['sweat', 'fx_sweat']] },
+  trash: { body: [['dizzy', 'fx_dizzy']], around: [['trash k1', 'fx_trash_can'], ['trash k2', 'fx_trash_banana'], ['trash k3', 'fx_trash_paper'], ['trash k4', 'fx_trash_sock'], ['trash k5', 'fx_trash_fishbone'], ['pop', 'fx_anger']] },
+  kkang: { around: [['spark s1', 'fx_sparkle_1'], ['spark s2', 'fx_sparkle_2'], ['spark s3', 'fx_sparkle_1']] },
 });
 export const MOTION_FX = Object.keys(FX);
 export const MOTION_EFFECTS = FX;
-const fxNodes = (list) => (list || []).map(([cls, text]) => h('span', { class: cls.split(' ').map((c, i) => (i ? c : 'kg-fx-' + c)).join(' ') }, text));
+// 모션 그림이 있는 곳(사이트 주소 앞부분 + kiugi/motion/) — 캐릭터 그림의 눈 주소에서 앞부분을 따온다(없으면 사이트 맨 앞)
+const motionDir = (prefix) => `${prefix || '/'}kiugi/motion/`;
+const fxNodes = (list, prefix) => (list || []).map(([cls, name]) => h('span', { class: cls.split(' ').map((c, i) => (i ? c : 'kg-fx-' + c)).join(' ') },
+  h('img', { src: motionDir(prefix) + name + '.png', alt: '', decoding: 'async', draggable: 'false' })));
+// 눈 깜빡임·우는 눈(2026-10-15 Codex 패키지 — kiugi/motion/<원래 눈>_closed.png · _cry.png, 원래 눈과 같은 1024 캔버스·자리):
+//  원래 눈(kg-eye-open)은 그대로 두고 그 뒤에 감은 눈·우는 눈을 같은 자리에 더한다. 한 번에 하나만 보인다(styles.css — 감은 눈이 보일 때 열린 눈은 숨긴다, 덧그리지 않는다).
+function addEyeStates(svg) {
+  const open = svg?.querySelector?.('image[data-step="eyes"]');
+  if (!open) return null;
+  const href = open.getAttribute('href') || open.getAttribute('xlink:href') || '';
+  const m = /^(.*?)kiugi\/v5\/((?:female|male)_eyes_\d\d)\.png/.exec(href);
+  if (!m) return null;
+  open.classList.add('kg-eye-open');
+  let at = open;
+  for (const state of ['closed', 'cry']) {
+    const img = open.cloneNode(false);
+    img.setAttribute('href', `${motionDir(m[1])}${m[2]}_${state}.png`);
+    img.removeAttribute('xlink:href');
+    img.setAttribute('class', 'kg-eye-' + state);
+    img.removeAttribute('data-step');
+    at.after(img); at = img;
+  }
+  return m[1];
+}
 // 캐릭터 칸(.kg-actor)의 모션을 바꾼다: id = 모션 id(시즌 목록에서 확인한 것) 또는 null(숨쉬기만). 다시 그리지 않고 클래스·효과만 바꾼다.
 export function setActorMotion(actor, id = null) {
   if (!actor) return;
   for (const c of [...actor.classList]) if (c.startsWith('m-')) actor.classList.remove(c);
   if (id) actor.classList.add('m-' + id);
-  const fx = (id && FX[id]) || {};
-  actor.querySelector('.kg-fx.on-body')?.replaceChildren(...fxNodes(fx.body));
-  actor.querySelector('.kg-fx.around')?.replaceChildren(...fxNodes(fx.around));
+  const fx = (id && FX[id]) || {}, prefix = actor.dataset?.kgPrefix || '/';
+  actor.querySelector('.kg-fx.on-body')?.replaceChildren(...fxNodes(fx.body, prefix));
+  actor.querySelector('.kg-fx.around')?.replaceChildren(...fxNodes(fx.around, prefix));
 }
 // 무대 안 캐릭터 칸의 모션 바꾸기(아직 그리는 중이면 아무것도 하지 않는다 — 다 그린 뒤 그때의 모션으로 그린다)
 export const setStageMotion = (stage, id = null) => setActorMotion(stage?.querySelector?.(':scope > .kg-actor'), id);
@@ -58,9 +82,10 @@ export function actorNodes(markup, { motion = null } = {}) {
   const { scene, body } = splitScene(markup);
   const art = svgNode(body);
   if (!art) return null;
+  const prefix = addEyeStates(art);
   const backdrop = scene ? svgNode(scene) : null;
   backdrop?.classList.add('kg-scene');
-  const actor = h('div', { class: `kg-actor kg-b${breath++ % 5}` },
+  const actor = h('div', { class: `kg-actor kg-b${breath++ % 5}`, ...(prefix !== null ? { 'data-kg-prefix': prefix } : {}) },
     h('div', { class: 'kg-body' }, art, h('span', { class: 'kg-fx on-body', 'aria-hidden': 'true' })),
     h('span', { class: 'kg-fx around', 'aria-hidden': 'true' }));
   setActorMotion(actor, motion);

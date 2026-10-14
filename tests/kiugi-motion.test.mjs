@@ -4,6 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
 import { buildCatalog, characterMarkup, itemMarkup, splitScene, motionOf, motionList, motionDoing } from '../docs/lib/kiugi-draw.js';
 import { motionLine, motionCommand, MOTION_CMD, MOTION_OFF, MOTION_COPIED } from '../docs/lib/try-on.js';
 import { motionPriceText, MOTION_NOTE } from '../docs/views/items.js';
@@ -92,15 +93,25 @@ test('모션 효과 표(views/cards.js): 시즌 목록의 모든 모션에 움�
     assert.match(css, new RegExp(`\\.kg-actor\\.m-${m.id} > \\.kg-body \\{ animation: kg-m-${m.id} `), m.id + ' 몸 움직임');
     assert.match(css, new RegExp(`@keyframes kg-m-${m.id} \\{`), m.id + ' 키프레임');
   }
-  for (const [id, fx] of Object.entries(MOTION_EFFECTS)) for (const [cls] of [...(fx.body || []), ...(fx.around || [])]) {
+  for (const [id, fx] of Object.entries(MOTION_EFFECTS)) for (const [cls, img] of [...(fx.body || []), ...(fx.around || [])]) {
     const [first, ...rest] = cls.split(' ');
     assert.match(css, new RegExp(`\\.kg-fx-${first}[\\s{.:,]`), `${id}: .kg-fx-${first}`);
     for (const r of rest) assert.match(css, new RegExp(`\\.kg-fx-${first}\\.${r}[\\s{.:,]`), `${id}: .kg-fx-${first}.${r}`);
+    // 효과 그림은 Codex 패키지(DJ_MOTION_S1)의 fx_*.png — 사이트에 있어야 한다
+    assert.match(img, /^fx_[a-z_0-9]+$/, `${id}: 그림 이름 ${img}`);
+    assert.ok(existsSync(new URL(`../docs/kiugi/motion/${img}.png`, import.meta.url)), `${id}: kiugi/motion/${img}.png`);
   }
   // 울기 눈물은 두 눈(캔버스 눈 482·540 → 47%·53% 근처, 아래 눈꺼풀 241 → 23.5% 근처)에서
   const left = (sel) => Number(new RegExp(`\\.${sel.replace('.', '\\.')} \\{ left: ([0-9.]+)%`).exec(css)?.[1]);
-  for (const e of ['kg-fx-tear.e1', 'kg-fx-stream.e1']) assert.ok(left(e) > 46 && left(e) < 48, e);
-  for (const e of ['kg-fx-tear.e2', 'kg-fx-stream.e2']) assert.ok(left(e) > 52 && left(e) < 54, e);
+  assert.ok(left('kg-fx-tear.e1') > 46 && left('kg-fx-tear.e1') < 48, 'kg-fx-tear.e1');
+  assert.ok(left('kg-fx-tear.e2') > 52 && left('kg-fx-tear.e2') < 54, 'kg-fx-tear.e2');
+  // 눈 깜빡임·울기 눈: 남녀 눈 10종마다 감은 눈·우는 눈 그림이 있고, 한 번에 한 눈만 보인다(원래 눈은 그대로 둠)
+  for (const g of ['female', 'male']) for (let i = 1; i <= 10; i++) for (const st of ['closed', 'cry']) {
+    const f = `${g}_eyes_${String(i).padStart(2, '0')}_${st}.png`;
+    assert.ok(existsSync(new URL(`../docs/kiugi/motion/${f}`, import.meta.url)), f);
+  }
+  assert.match(css, /\.kg-eye-closed, ?\.kg-eye-cry \{ ?opacity: ?0;? ?\}/, '감은 눈·우는 눈은 처음엔 숨김');
+  assert.match(css, /\.kg-actor\.m-cry \.kg-eye-cry \{ ?opacity: ?1;? ?\}/, '울기 모션에서만 우는 눈');
 });
 
 test('움직임 모양(styles.css): 발끝 기준 숨쉬기 · 카드마다 박자 어긋남 · transform·opacity 만 움직임 · 동작 줄이기면 멈추고 효과 숨김 · 펫 통통', async () => {
