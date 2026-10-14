@@ -395,6 +395,9 @@ a { color: inherit; }
 .kg-try-actions .btn { min-height: 44px; padding: 0 12px; gap: 6px; font-size: 14px; }
 .kg-try-copy { flex: 1 1 auto; }
 .kg-try-reset { flex: 0 1 auto; }
+/* 맨몸부터(2026-10-15 — !다벗기): 켜면 주황 테두리 */
+.kg-try-bare { flex: 0 1 auto; }
+.kg-try-bare[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); background: rgba(255, 122, 47, .1); }
 .kg-try-sum { margin: 0; font-size: 12.5px; line-height: 1.4; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .kg-try-hint { margin: -2px 0 0; font-size: 12.5px; line-height: 1.4; color: var(--accent-text); }
 .kg-try-hint:empty { display: none; }

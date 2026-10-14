@@ -158,11 +158,11 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   assert.match(character, /tryOn\?\.section,/, '입은 옷 칸 바로 아래');
   assert.match(character, /\]\.filter\(Boolean\)\);/, '빈 칸(null)을 넣지 않는다');
   assert.match(character, /'aria-controls': 'try'/); assert.match(character, /'aria-expanded'/); assert.match(character, /'aria-pressed'/);
-  assert.match(character, /line = tryLine\(tried, catalog, sid, \{ title, wornTitle \}\)/, '채팅 한 줄 = 옷 번호 + 맨 끝 칭호 번호');
+  assert.match(character, /line = tryLine\(tried, catalog, sid, \{ title, wornTitle, bare \}\)/, '채팅 한 줄 = 옷 번호 + 맨 끝 칭호 번호(맨몸부터면 !옷장 다벗기 …)');
   assert.match(character, /copyText\(line\)/); assert.match(character, /toast\(copiedText\(/);
   assert.match(character, /selectNodeContents\(lineEl\)/, '복사가 안 되면 글을 골라 둔다');
   assert.match(character, /'원래대로'/); assert.match(character, /tryNote\(\{ titles: titles\.length > 0, rule \}\)/); assert.match(character, /toast\(TRY_FULL/);
-  assert.match(character, /tried = \[\]; title = null; sync\(\);/, '원래대로는 고른 칭호도 뺀다');
+  assert.match(character, /tried = \[\]; title = null; bare = false; sync\(\);/, '원래대로는 고른 칭호도 빼고 맨몸부터도 끈다');
   assert.match(character, /itemGroups\(catalog, sid\)/, '탭 = 시즌 목록 묶음');
   assert.match(character, /'입는 중'/);
   // 옷에는 레벨 조건이 없다(2026-10-10): 입혀 보기 옷 칸·합계에 Lv 글이 없다
@@ -284,8 +284,8 @@ test('캐릭터 페이지 입혀 보기의 칭호 탭: 옷 묶음 뒤 "칭호" �
   assert.match(character, /'다는 중'/); assert.match(character, /'달아 봄'/);
   assert.match(character, /titleOpenDate\(rule\)/, '여는 날은 시즌 목록에서'); assert.match(character, /`\$\{openDate\}부터`/);
   assert.match(character, /shownTitle\(catalog, title, wornTitle\)/, '미리 보기 배지 = 고른 칭호, 없으면 단 칭호');
-  assert.match(character, /tryTotal\(tried, catalog, \{ worn, title, wornTitle \}\)/); assert.match(character, /tryNotes\(worn, tried, catalog, \{ title, wornTitle, level \}\)/);
-  assert.match(character, /canTry\(tried, id, catalog, \{ worn, title, wornTitle \}\)/); assert.match(character, /canTitle\(tried, title, id, catalog, \{ wornTitle \}\)/);
+  assert.match(character, /tryTotal\(tried, catalog, \{ worn, title, wornTitle \}\)/); assert.match(character, /tryNotes\(base\(\), tried, catalog, \{ title, wornTitle, level \}\)/);
+  assert.match(character, /canTry\(tried, id, catalog, \{ worn: base\(\), title, wornTitle \}\)/); assert.match(character, /canTitle\(tried, title, id, catalog, \{ wornTitle \}\)/);
   const { TITLE_TAB } = await import('../docs/views/character.js');
   assert.equal(TITLE_TAB, 'title');
   const c = await catalog();
@@ -306,4 +306,34 @@ test('냥 모으기 안내에 !산책(첫 화면·DJ 키우기 페이지), 화�
   // 값은 시즌 목록(docs/kiugi/season-*.json)에서만 — 화면 글에 옷 값·무료 냥 숫자를 박아 두지 않는다
   for (const f of ['views/intro.js', 'views/kiugi.js', 'views/items.js', 'views/character.js', 'views/cards.js', 'views/common.js', 'lib/try-on.js', 'index.html'])
     assert.doesNotMatch(await src(f), /[0-9],?[0-9]{3}냥|[0-9]{3}냥|하루 [0-9,]+냥|무료 냥/, f);
+});
+
+test('맨몸부터(2026-10-15 — 먼치킨 0.15.84 !다벗기): 입은 옷을 모두 벗긴 모습(배경만 남김)에서 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 …"(고른 것이 없으면 "!다벗기") · 벗긴 옷은 가진 옷이라 값에 들지 않는다', async () => {
+  const { bareWorn, BARE_KEEP, UNDRESS_CMD, UNDRESS_WORD, BARE_NOTE } = await import('../docs/lib/try-on.js');
+  const c = await catalog(), sid = c.last;
+  assert.deepEqual([...BARE_KEEP], ['bg']); assert.equal(UNDRESS_CMD, '!다벗기'); assert.equal(UNDRESS_WORD, '다벗기'); assert.match(BARE_NOTE, /맨몸/);
+  const worn = { outfit: 'outfit_01', shoes: 'shoe2_06', head: 'acc2_03', bg: 'background_02' };
+  assert.deepEqual(bareWorn(worn), { bg: 'background_02' }, '배경만 남는다');
+  assert.deepEqual(bareWorn({ top: 'top_02' }), {});
+  assert.deepEqual(bareWorn(null), {});
+  // 채팅 한 줄
+  assert.equal(closetLine([], { bare: true }), '!다벗기', '고른 것이 없으면 모두 벗기만');
+  assert.equal(closetLine(['상의11'], { bare: true }), '!옷장 다벗기 상의11', '한 벌도 붙여 쓴다(다벗기 뒤의 번호는 사기·입기로 읽는다)');
+  assert.equal(closetLine(['상의11', '하의3', '칭호2'], { bare: true }), '!옷장 다벗기 상의11 하의3 칭호2');
+  // 맨몸에서 입혀 보기: 입던 신발을 다시 고르면 "가진 옷"(값 0), 새 상의만 값
+  const base = bareWorn(worn), tried = press(c, ['shoe2_06', 'top_05'], base);
+  assert.deepEqual(tried, ['shoe2_06', 'top_05'], '맨몸에서는 입던 옷도 다시 고른다');
+  assert.deepEqual(applyTryOn(base, tried, c), { bg: 'background_02', shoes: 'shoe2_06', top: 'top_05' });
+  assert.equal(tryLine(tried, c, sid, { bare: true }), '!옷장 다벗기 신발6 상의5');
+  assert.deepEqual(tryTotal(tried, c, { worn }), { count: 2, price: c.items.top_05.price }, '입던 신발은 가진 옷이라 값에 들지 않는다');
+  assert.equal(tryLine(tried, c, sid), '!옷장 신발6 상의5', '맨몸부터를 끄면 예전처럼');
+  // 복사 알림
+  assert.match(copiedText({ bare: true }), /옷을 모두 벗어요/);
+  assert.match(copiedText({ bare: true, clothes: 2 }), /모두 벗고 고른 것만 입어요/);
+  // 화면: 맨몸부터 단추 · 원래대로가 끈다 · 바탕은 base()
+  const src = await readFile(new URL('../docs/views/character.js', import.meta.url), 'utf8');
+  assert.match(src, /class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false'/);
+  assert.match(src, /onclick: \(\) => \{ tried = \[\]; title = null; bare = false; sync\(\); \}/);
+  assert.match(src, /tryLine\(tried, catalog, sid, \{ title, wornTitle, bare \}\)/);
+  assert.match(src, /have\.has\(id\) \? '가진 옷' : ''/);
 });

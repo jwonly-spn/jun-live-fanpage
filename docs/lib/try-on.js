@@ -29,6 +29,12 @@ const idOf = (item) => (typeof item === 'string' ? item : item?.id ?? null);
 // 옷 id → 칸(시즌 목록에 없는 옷·칭호는 null)
 export const slotOfItem = (catalog, id) => catalog?.items?.[currentId(id)]?.slot || null;
 
+// 맨몸부터(2026-10-15 사용자 "아예 맨몸에서부터 시작하게 !다벗기"): 먼치킨 !다벗기 처럼 입은 옷·악세사리를 모두 벗긴 모습(배경은 그대로 — 몸에 입는 것이 아니다)에서
+//  골라 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 상의11 하의3"(고른 것이 없으면 "!다벗기"). 지금 입은 옷은 가진 옷이라 값에 넣지 않는다(다시 입기만).
+export const UNDRESS_WORD = '다벗기';
+export const UNDRESS_CMD = '!다벗기';
+export const BARE_KEEP = Object.freeze(['bg']);
+export const BARE_NOTE = '맨몸이에요 · 옷을 눌러 입혀 보세요';
 // 입은 옷(서버가 보낸 {칸: 옷id}) → 새 객체. 0.15.62 이하가 올린 예전 보상 id(pumpkin-crown 등)는 악세11~13 id 로. 모르는 옷 id 는 그대로 둔다(그림이 알아서 뺀다).
 export function wornLook(worn) {
   const out = {};
@@ -38,6 +44,12 @@ export function wornLook(worn) {
 }
 // 지금 입은 옷 id 모음
 export const wornIds = (worn) => new Set(Object.values(wornLook(worn)));
+// 맨몸부터: 입은 옷에서 배경(BARE_KEEP)만 남긴 모습
+export function bareWorn(worn) {
+  const look = wornLook(worn), out = {};
+  for (const s of BARE_KEEP) if (look[s]) out[s] = look[s];
+  return out;
+}
 
 // 같이 입을 수 없는 두 옷인가(입힐 옷 칸 slot · 다른 옷 칸 other): 같은 칸, 한벌옷 ↔ 상의·하의
 const clashes = (slot, other) => other === slot || (slot === 'outfit' && TOPS.has(other)) || (TOPS.has(slot) && other === 'outfit');
@@ -117,17 +129,20 @@ export function canTitle(tried, title, id, catalog, { wornTitle = null } = {}) {
   return (Array.isArray(tried) ? tried.length : 0) < TRY_MAX;
 }
 // 방송 채팅 한 줄: 입혀 본 옷 번호 + 맨 끝에 골라 둔 칭호 번호("!옷장 상의11 하의3 칭호2", 칭호만이면 "!옷장 칭호 2"). 옷이 많아도 칭호 자리는 남긴다.
-export function tryLine(tried, catalog, seasonId, { title = null, wornTitle = null } = {}) {
+//  bare(맨몸부터): "!옷장 다벗기 상의11 하의3 칭호2", 고른 것이 없으면 "!다벗기".
+export function tryLine(tried, catalog, seasonId, { title = null, wornTitle = null, bare = false } = {}) {
   const code = titleCode(catalog, pickedTitle(catalog, title, wornTitle));
   const codes = tryCodes(tried, catalog, seasonId).slice(0, code ? TRY_MAX - 1 : TRY_MAX);
-  return closetLine(code ? [...codes, code] : codes);
+  return closetLine(code ? [...codes, code] : codes, { bare });
 }
 // 번호들 → 방송 채팅 한 줄: "!옷장 상의11 하의3 신발2"(번호 안 띄어쓰기 없음, 한 번에 TRY_MAX 개까지). 번호가 없으면 ''.
 //  한 벌이면 "!옷장 상의 11"(띄어 쓴다): 먼치킨 0.15.70~0.15.72 에서 "!옷장 상의11" 처럼 하나만 붙여 쓰면 목록 쪽이었고, 목록 명령을 없앤 뒤(2026-10-11)에도
 //  붙여 쓴 하나는 예전 버릇으로 옷을 사 버리지 않게 사지 않고 설명만 한다 — 사는 한 벌은 늘 띄어 쓴다.
+//  bare: "!옷장 다벗기 …"(먼치킨 0.15.84 — 다벗기 뒤의 번호는 하나여도 붙여 써도 된다), 번호가 없으면 "!다벗기".
 const CODE = /^[가-힣]+\d{1,3}$/;
-export function closetLine(codes) {
+export function closetLine(codes, { bare = false } = {}) {
   const list = (Array.isArray(codes) ? codes : []).map((c) => String(c ?? '').normalize('NFC').replace(/\s+/g, '')).filter((c) => CODE.test(c)).slice(0, TRY_MAX);
+  if (bare) return list.length ? `${CLOSET_CMD} ${UNDRESS_WORD} ${list.join(' ')}` : UNDRESS_CMD;
   if (list.length === 1) return `${CLOSET_CMD} ${list[0].replace(/^(\D+?)(\d+)$/, '$1 $2')}`;
   return list.length ? `${CLOSET_CMD} ${list.join(' ')}` : '';
 }
@@ -162,6 +177,7 @@ export function tryNote({ titles = false, rule = null, now = Date.now() } = {}) 
     date ? `칭호는 ${date}부터 팔고, Lv.${min}이 되어야 살 수 있어요` : `칭호는 Lv.${min}이 되어야 살 수 있어요`,
     `옷과 칭호를 합쳐 한 번에 ${TRY_MAX}개까지`].join(' · ');
 }
-// 복사했을 때 알림: 옷만 · 칭호만 · 둘 다
-export const copiedText = ({ clothes = 0, title = false } = {}) =>
-  (title ? `복사했어요 · 방송 채팅에 붙여 넣으면 ${clothes ? '옷을 사서 입고 칭호도 달아요' : '칭호를 사서 바로 달아요'}` : TRY_COPIED);
+// 복사했을 때 알림: 옷만 · 칭호만 · 둘 다 · 맨몸부터(bare)
+export const copiedText = ({ clothes = 0, title = false, bare = false } = {}) =>
+  (bare ? `복사했어요 · 방송 채팅에 붙여 넣으면 ${clothes || title ? '옷을 모두 벗고 고른 것만 입어요' : '옷을 모두 벗어요'}`
+    : title ? `복사했어요 · 방송 채팅에 붙여 넣으면 ${clothes ? '옷을 사서 입고 칭호도 달아요' : '칭호를 사서 바로 달아요'}` : TRY_COPIED);

@@ -8,12 +8,14 @@
 //  칭호 탭(2026-10-14 사용자: "입혀 보기에서 칭호도 고르게"): 옷 묶음 뒤에 "칭호" — 배지 그림·번호(칭호2)·이름·값·Lv.10(상점이 열리기 전이면 "10월 30일부터").
 //   하나만 고른다(다른 칭호를 누르면 바뀌고, 다시 누르면 뺀다). 지금 단 칭호는 "다는 중"(입은 옷처럼 — 살 것이 없다). 고른 칭호(없으면 단 칭호)는 미리 보기 위에 배지로,
 //   채팅 한 줄 맨 끝에 번호("!옷장 상의11 하의3 칭호2", 칭호만이면 "!옷장 칭호 2"), 값은 합계에.
+//  맨몸부터(2026-10-15 사용자 "아예 맨몸에서부터 시작하게 !다벗기"): 단추를 켜면 입은 옷을 모두 벗긴 모습(배경은 그대로)에서 입혀 보고 "!옷장 다벗기 상의11 하의3"
+//   (고른 것이 없으면 "!다벗기")을 복사한다. 벗긴 옷은 "가진 옷"이라 다시 골라도 값에 들지 않는다. "원래대로"는 맨몸부터도 끈다.
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage } from '../lib/kiugi-draw.js';
 import { copyCode, chatHint, titleEffects, itemGroups } from './items.js';
-import { applyTryOn, toggleTry, canTry, itemShown, wornIds, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
+import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN } from '../lib/try-on.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
@@ -108,7 +110,10 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const wornTitle = wornTitleOf(catalog, wearing), openDate = titleOpenDate(rule);
   // 탭 = 옷 묶음들 + (칭호가 있는 시즌이면) 칭호
   const tabList = [...groups, ...(titles.length ? [{ slot: TITLE_TAB, name: '칭호', items: titles, title: true }] : [])];
-  let tried = [], title = null, tab = groups[0].slot, built = false, line = '';
+  // bare: 맨몸부터(2026-10-15 — 먼치킨 !다벗기) — 입은 옷을 모두 벗긴 모습(배경은 그대로)에서 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 …"
+  let tried = [], title = null, tab = groups[0].slot, built = false, line = '', bare = false;
+  // 지금 미리 보기의 바탕(맨몸부터면 배경만 남긴 입은 옷)과 그 옷 id
+  const base = () => (bare ? bareWorn(worn) : worn), onNow = () => wornIds(base());
   const openLabel = h('span', null, TRY_TITLE);
   const openBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-open', 'aria-expanded': 'false', 'aria-controls': 'try' }, icon('hanger', { size: 19 }), openLabel);
   const section = h('section', { class: 'kg-sec kg-try', id: 'try', hidden: true, tabindex: '-1', 'aria-labelledby': 'try-title' });
@@ -120,14 +125,17 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const lookEl = h('div', { class: 'kg-try-look' }, titleTag, stage);
   const lineEl = h('p', { class: 'kg-try-line is-empty', id: 'try-line' }, TRY_EMPTY);
   const copyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-copy', disabled: true, 'aria-describedby': 'try-line', onclick: () => copyLine() }, icon('copy', { size: 18 }), h('span', null, '복사'));
-  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { tried = []; title = null; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
+  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
+  // 맨몸부터: 누르면 켜고 끄기(켜면 입은 옷이 모두 벗겨진 모습에서 시작 — 고른 옷은 그대로 둔다)
+  const bareBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false', title: '입은 옷을 모두 벗긴 모습에서 입혀 봐요 (!다벗기)',
+    onclick: () => { bare = !bare; sync(); } }, icon('hanger', { size: 18 }), h('span', null, '맨몸부터'));
   const sum = h('p', { class: 'kg-try-sum', role: 'status', 'aria-live': 'polite' });
   const hint = h('p', { class: 'kg-try-hint' });
   const tabs = h('div', { class: 'kg-try-tabs', role: 'group', 'aria-label': titles.length ? '옷·칭호 묶음 고르기' : '옷 묶음 고르기' });
   const gridHost = h('div', { class: 'kg-try-grid-host' });
   const top = h('div', { class: 'kg-try-top' },
     lookEl,
-    h('div', { class: 'kg-try-cmd' }, h('span', { class: 'kg-try-label' }, '채팅에 붙여 넣기'), lineEl, h('div', { class: 'kg-try-actions' }, copyBtn, resetBtn), sum, hint),
+    h('div', { class: 'kg-try-cmd' }, h('span', { class: 'kg-try-label' }, '채팅에 붙여 넣기'), lineEl, h('div', { class: 'kg-try-actions' }, copyBtn, resetBtn, bareBtn), sum, hint),
     tabs);
   const lists = new Map(), tiles = new Map(), titleTiles = new Map(), tabBtns = new Map();
 
@@ -197,7 +205,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const paint = (look, codes) => {
     stage.setAttribute('aria-busy', 'true');
     let markup = null;
-    try { markup = characterMarkup(catalog, dj.character, look, level, { seasonId, base: app.base, label: codes.length ? `입혀 본 모습: ${codes.join(', ')}` : '지금 입은 모습', stage: null }); } catch (e) { console.error(e); }
+    try { markup = characterMarkup(catalog, dj.character, look, level, { seasonId, base: app.base, label: codes.length ? `입혀 본 모습: ${codes.join(', ')}` : bare ? '맨몸' : '지금 입은 모습', stage: null }); } catch (e) { console.error(e); }
     if (!markup) { stage.replaceChildren(h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요')); stage.removeAttribute('aria-busy'); return; }
     paintMarkup(stage, markup, { fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요') })
       .then((done) => { if (done) stage.removeAttribute('aria-busy'); })
@@ -217,13 +225,15 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   };
   // 입혀 본 옷·고른 칭호가 바뀌면: 옷·칭호 칸 표시 · 탭의 고른 수 · 채팅 한 줄 · 합계 · 알림 · 칭호 배지 · 미리 보기
   function sync({ paint: draw = true } = {}) {
-    const look = applyTryOn(worn, tried, catalog), codes = tryCodes(tried, catalog, sid), picked = pickedTitle(catalog, title, wornTitle);
+    const now = onNow(), look = applyTryOn(base(), tried, catalog), codes = tryCodes(tried, catalog, sid), picked = pickedTitle(catalog, title, wornTitle);
     for (const [id, t] of tiles) {
-      const isTried = tried.includes(id), on = isTried || (have.has(id) && itemShown(look, id, catalog));
+      const isTried = tried.includes(id), on = isTried || (now.has(id) && itemShown(look, id, catalog));
       t.btn.setAttribute('aria-pressed', String(on));
-      t.li.classList.toggle('is-on', on); t.li.classList.toggle('is-tried', isTried && !have.has(id)); t.li.classList.toggle('is-off', have.has(id) && !on);
-      t.badge.textContent = have.has(id) ? '입는 중' : isTried ? '입혀 봄' : '';
+      t.li.classList.toggle('is-on', on); t.li.classList.toggle('is-tried', isTried && !have.has(id)); t.li.classList.toggle('is-off', now.has(id) && !on);
+      // 맨몸부터에서 벗긴 옷은 "가진 옷"(다시 입어도 냥이 들지 않는다)
+      t.badge.textContent = now.has(id) ? '입는 중' : isTried ? '입혀 봄' : have.has(id) ? '가진 옷' : '';
     }
+    bareBtn.setAttribute('aria-pressed', String(bare)); bareBtn.classList.toggle('is-on', bare);
     for (const [id, t] of titleTiles) {
       const isPicked = id === picked, on = isPicked || (!picked && id === wornTitle);
       t.btn.setAttribute('aria-pressed', String(on));
@@ -236,16 +246,17 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
       badge.textContent = String(n); badge.hidden = !n;
       b.setAttribute('aria-label', n ? (g.title ? `${g.name}, 달아 본 칭호 1개` : `${g.name}, 입혀 본 옷 ${n}벌`) : g.name);
     }
-    line = tryLine(tried, catalog, sid, { title, wornTitle });
+    line = tryLine(tried, catalog, sid, { title, wornTitle, bare });
     lineEl.textContent = line || TRY_EMPTY;
     lineEl.classList.toggle('is-empty', !line);
-    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked;
+    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked && !bare;
+    // 값: 지금 입은 옷은 가진 옷이라 빼고 센다(맨몸부터로 벗긴 옷을 다시 입어도 냥이 들지 않는다)
     const total = tryTotal(tried, catalog, { worn, title, wornTitle }), used = tried.length + (picked ? 1 : 0);
     sum.textContent = used
       ? [total.count ? `${total.count}벌` : null, picked ? '칭호 1개' : null, `합계 ${fmt(total.price)}냥`,
         used >= TRY_MAX ? (picked ? `옷과 칭호를 합쳐 ${TRY_MAX}개까지` : `한 번에 ${TRY_MAX}벌까지`) : null].filter(Boolean).join(' · ')
-      : '지금 입은 모습이에요';
-    hint.textContent = tryNotes(worn, tried, catalog, { title, wornTitle, level }).join(' · ');
+      : bare ? BARE_NOTE : '지금 입은 모습이에요';
+    hint.textContent = tryNotes(base(), tried, catalog, { title, wornTitle, level }).join(' · ');
     showBadge();
     keepTab();
     if (draw) paint(look, codes);
@@ -260,10 +271,10 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   }
   // 옷 누르기: 입혀 보기 / 벗기기 / 입은 옷으로 되돌리기
   const pick = (id) => {
-    const look = applyTryOn(worn, tried, catalog);
-    if (!tried.includes(id) && have.has(id) && itemShown(look, id, catalog)) { toast('지금 입고 있는 옷이에요'); return; }
-    if (!canTry(tried, id, catalog, { worn, title, wornTitle })) { toast(TRY_FULL, 'error'); return; }
-    tried = toggleTry(tried, id, catalog, { worn, title, wornTitle });
+    const look = applyTryOn(base(), tried, catalog);
+    if (!tried.includes(id) && onNow().has(id) && itemShown(look, id, catalog)) { toast('지금 입고 있는 옷이에요'); return; }
+    if (!canTry(tried, id, catalog, { worn: base(), title, wornTitle })) { toast(TRY_FULL, 'error'); return; }
+    tried = toggleTry(tried, id, catalog, { worn: base(), title, wornTitle });
     sync();
   };
   // 칭호 누르기: 달아 보기 / 빼기 / 다른 칭호로 바꾸기 / 단 칭호로 되돌리기(캐릭터 그림은 그대로라 다시 그리지 않는다)
@@ -276,7 +287,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   // 복사: 클립보드(안 되면 숨은 글 칸) → 그래도 안 되면 채팅 한 줄 글을 골라 두고 길게 눌러 복사하라고 알린다
   const copyLine = async () => {
     if (!line) return;
-    if (await copyText(line)) { toast(copiedText({ clothes: tryCodes(tried, catalog, sid).length, title: Boolean(pickedTitle(catalog, title, wornTitle)) })); return; }
+    if (await copyText(line)) { toast(copiedText({ clothes: tryCodes(tried, catalog, sid).length, title: Boolean(pickedTitle(catalog, title, wornTitle)), bare })); return; }
     try { const sel = getSelection(), r = document.createRange(); r.selectNodeContents(lineEl); sel.removeAllRanges(); sel.addRange(r); } catch { /* 고르기도 안 되는 브라우저 */ }
     toast('복사하지 못했어요. 위 채팅 글을 길게 눌러 복사해 주세요.', 'error');
   };
