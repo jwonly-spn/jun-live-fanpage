@@ -7,7 +7,7 @@
 //  "시즌 보상은 칭호로 통일": 황금 호박 왕관·그림자 날개·달빛 오라는 악세사리(악세11~13)로, 시즌 칭호는 그림 없이 따로(얻은 시즌과 다음 시즌까지 효과).
 import { h, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate, motionList } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate, motionList, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { CLOSET_CMD, motionCommand, MOTION_OFF } from '../lib/try-on.js';
 import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
 import { seasonBadge } from './kiugi.js';
@@ -95,7 +95,9 @@ export async function renderItems(root, app) {
   const counts = new Map((home?.items || []).map((x) => [x.id, x.count]));
   const { groups, rewards, titles, rule } = itemGroups(catalog, seasonId, counts);
   // 모션(2026-10-15): 시즌 목록 motions — 옷처럼 칸마다 움직이는 예시 캐릭터(기본 캐릭터, 여자·남자 단추를 따른다)
-  const motions = groups.length ? motionList(catalog, seasonId) : [];
+  //  모션이 보이지 않는 동안(MOTIONS_READY false)은 모션 칸 대신 "업데이트 대기 중" 한 줄만(전체를 볼 때 맨 아래)
+  const motions = groups.length && MOTIONS_READY ? motionList(catalog, seasonId) : [];
+  const motionWait = groups.length && !MOTIONS_READY && motionList(catalog, seasonId).length > 0;
   const season = catalog.seasons[seasonId];
   const seasonInfo = home?.season || (season ? { id: seasonId, name: season.name, endsAt: season.endsAt } : null);
   badge.replaceChildren(seasonBadge(seasonInfo));
@@ -151,6 +153,7 @@ export async function renderItems(root, app) {
         : secHead(g.name, g.empty ? '' : `${g.items.length}${unit(g.slot)}${groupPrice(g) ? ` · 각 ${fmt(groupPrice(g))}냥` : ''}${g.code ? ` · 방송 채팅에 ${chatHint(`${g.code}1`)} 처럼 번호를 쳐요` : ''}`),
       g.empty ? h('p', { class: 'empty' }, '옷 목록을 불러오지 못했어요.')
         : h('ul', { class: 'kg-items' + (g.title ? ' kg-title-list' : '') }, ...g.items.map((it) => (g.title ? titleCard(it) : g.motion ? motionCard(it) : itemCard(it, Boolean(g.reward), g.slot === 'outfit')))))),
+    motionWait && pick === 'all' ? h('section', { class: 'kg-sec kg-motions' }, secHead('모션', MOTION_WAIT)) : null,
     home ? null : h('p', { class: 'note' }, '지금은 입은 사람 수를 불러오지 못했어요. 이름·값만 보여요.')].filter(Boolean));
   // 묶음 고르기(전체 · 의상 · 신발 … · 시즌 칭호)
   const filterBtn = (v, label, n) => h('button', { type: 'button', class: 'kg-filter', 'aria-pressed': String(v === pick), dataset: { v },

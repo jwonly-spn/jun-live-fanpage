@@ -2,7 +2,7 @@
 // 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 // 카드 모양(styles.css): 패션 앱 상품 카드 — 위는 부드러운 무대 위 캐릭터(세로 3:4로 잘라 크게), 아래는 글 세 줄(어느 방송 · 아이디 · 레벨과 하트).
 import { h, icon, toast } from '../lib/dom.js';
-import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf } from '../lib/kiugi-draw.js';
+import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, MOTIONS_READY } from '../lib/kiugi-draw.js';
 import { ilink, medal } from './common.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
@@ -118,7 +118,7 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
 export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null } = {}) {
   const cls = 'char' + (kind ? ' ' + kind : '');
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: motionOf(catalog, motion)?.id || null });
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null });
 }
 // 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
 export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {

@@ -13,7 +13,7 @@
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage, motionOf, motionList, motionDoing } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage, motionOf, motionList, motionDoing, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { copyCode, chatHint, titleEffects, itemGroups, motionPriceText } from './items.js';
 import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN,
@@ -73,6 +73,7 @@ function petSection(pets, base) {
 export function motionGuide(catalog, seasonId) {
   const list = motionList(catalog, seasonId);
   if (!list.length) return null;
+  if (!MOTIONS_READY) return h('p', { class: 'kg-motion-guide' }, h('b', null, '모션'), ' ' + MOTION_WAIT);
   const cmd = (t) => h('code', { class: 'kg-cmd' }, t), price = motionPriceText(list);
   return h('p', { class: 'kg-motion-guide' }, h('b', null, '모션'), ' 방송 채팅에 ', cmd(motionCommand(list[0])), ` 처럼 치면 사서 바로 해요${price ? `(${price})` : ''}. 멈출 때는 `, cmd(MOTION_OFF), ' 를 쳐요. 아래 입혀 보기에서 미리 볼 수 있어요.');
 }
@@ -126,7 +127,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   // 탭 = 옷 묶음들 + (칭호가 있는 시즌이면) 칭호
   const tabList = [...groups, ...(titles.length ? [{ slot: TITLE_TAB, name: '칭호', items: titles, title: true }] : [])];
   // + (모션이 있는 시즌이면) 모션 — 지금 하는 모션(nowMotion)과 미리 보는 모션(pickMotion)
-  const motions = motionList(catalog, sid), nowMotion = motionOf(catalog, motion)?.id || null;
+  const motions = MOTIONS_READY ? motionList(catalog, sid) : [], nowMotion = MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null;
   let pickMotion = nowMotion;
   if (motions.length) tabList.push({ slot: MOTION_TAB, name: '모션', items: motions, motion: true });
   // bare: 맨몸부터(2026-10-15 — 먼치킨 !다벗기) — 입은 옷을 모두 벗긴 모습(배경은 그대로)에서 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 …"
@@ -440,7 +441,7 @@ export async function renderCharacter(root, route, app) {
   const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts }), { base: app.base }) : null;
   const pets = petList(catalog, data), buddy = pets.find((p) => p.active) || null;
   // 모션(2026-10-15): 지금 하는 모션(시즌 목록에 있는 것만) — 무대 캐릭터가 그 모션을 하고, 레벨 옆에 "💃 춤추는 중"
-  const motion = motionOf(catalog, data.motion);
+  const motion = MOTIONS_READY ? motionOf(catalog, data.motion) : null;
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },

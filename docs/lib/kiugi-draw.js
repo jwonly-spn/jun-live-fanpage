@@ -77,6 +77,10 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
   return { items, titles, seasons, pets, motions, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
 }
 
+// 모션 보이기 스위치(2026-10-15 사용자: 관절별로 나눈 그림(Codex)이 "다 되기 전까지 사이트에서 모션 없애 업데이트 대기중이라고만").
+//  false 면 캐릭터는 모션을 하지 않고(숨쉬기·눈 깜빡임만), 모션이 보이던 자리에는 MOTION_WAIT 한 줄만. 관절별 그림이 들어오면 true.
+export const MOTIONS_READY = false;
+export const MOTION_WAIT = '업데이트 대기 중이에요';
 // 모션 id → 시즌 목록의 모션(모르는 id·빈 값은 null)
 export const motionOf = (catalog, id) => (typeof id === 'string' && catalog?.motions && Object.hasOwn(catalog.motions, id) ? catalog.motions[id] : null);
 // 그 시즌의 모션 목록(시즌 목록 차례). 그 시즌에 모션이 없으면 모든 시즌의 모션.

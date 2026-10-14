@@ -142,7 +142,7 @@ test('움직임 모양(styles.css): 발끝 기준 숨쉬기 · 카드마다 박�
 test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·안내 한 줄 · 입혀 보기 모션 탭(따로 복사) · 옷 도감 모션 칸 · 카드는 숨쉬기만', async () => {
   const character = await src('views/character.js'), items = await src('views/items.js'), cards = await src('views/cards.js'), kiugi = await src('views/kiugi.js'), intro = await src('views/intro.js');
   // 캐릭터 페이지
-  assert.match(character, /const motion = motionOf\(catalog, data\.motion\);/, '모르는 모션은 모션 없음');
+  assert.match(character, /const motion = MOTIONS_READY \? motionOf\(catalog, data\.motion\) : null;/, '모르는 모션은 모션 없음(스위치가 꺼져 있으면 늘 없음)');
   assert.match(character, /eager: true, motion: motion\?\.id, kind: 'hero' \}\)/, '무대 캐릭터가 그 모션을 한다');
   assert.match(character, /motion \? h\('span', \{ class: 'kg-motion-chip' \}/); assert.match(character, /motionGuide\(catalog, seasonId\)/);
   // 입혀 보기: 모션 탭 · 미리 보기 캐릭터가 고른 모션 · 따로 복사(MOTION_COPIED) · 탭 id 가 옷 묶음과 겹치지 않는다
@@ -159,10 +159,21 @@ test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·�
   assert.match(items, /onclick: \(\) => copyMotion\(m\)/);
   // 카드·DJ 페이지·메인은 숨쉬기만(art 에 motion 을 넘기지 않는다), 옷 한 벌 그림은 움직이지 않는다
   assert.match(cards, /lazyStage\(\(\) => itemMarkup\(catalog, id, \{ base, label, gender, dj \}\), label, \{ kind: tall \? 'item tall' : 'item' \}\)/);
-  assert.match(cards, /actor: true, motion: motionOf\(catalog, motion\)\?\.id \|\| null/);
+  assert.match(cards, /actor: true, motion: MOTIONS_READY \? motionOf\(catalog, motion\)\?\.id \|\| null : null/);
   for (const [name, s] of [['kiugi.js', kiugi], ['intro.js', intro]]) assert.doesNotMatch(s, /[{,] motion:/, name);
   // 화면 글에 모션 값을 적어 두지 않는다(시즌 목록에서 — "N냥" 숫자 글 없음)
   for (const s of [character, items, cards, await src('lib/try-on.js')]) assert.doesNotMatch(s, /[0-9],?[0-9]{3}냥/);
+});
+
+test('모션 업데이트 대기(2026-10-15 사용자 "다 되기 전까지 사이트에서 모션 없애 업데이트 대기중이라고만"): 스위치가 꺼져 있으면 모션 대신 대기 한 줄', async () => {
+  const { MOTIONS_READY, MOTION_WAIT } = await import('../docs/lib/kiugi-draw.js');
+  assert.equal(MOTIONS_READY, false, '관절별 그림이 들어오기 전까지 꺼 둔다');
+  assert.equal(MOTION_WAIT, '업데이트 대기 중이에요');
+  const character = await src('views/character.js'), items = await src('views/items.js');
+  assert.match(character, /if \(!MOTIONS_READY\) return h\('p', \{ class: 'kg-motion-guide' \}, h\('b', null, '모션'\), ' ' \+ MOTION_WAIT\);/, '캐릭터 페이지 안내 한 줄');
+  assert.match(character, /const motions = MOTIONS_READY \? motionList\(catalog, sid\) : \[\]/, '입혀 보기 모션 탭 없음');
+  assert.match(items, /const motions = groups\.length && MOTIONS_READY \? motionList\(catalog, seasonId\) : \[\];/, '옷 도감 모션 칸 없음');
+  assert.match(items, /motionWait && pick === 'all' \? h\('section', \{ class: 'kg-sec kg-motions' \}, secHead\('모션', MOTION_WAIT\)\) : null/, '옷 도감 맨 아래 대기 한 줄');
 });
 
 test('체험 모드: 모션을 하는 지어낸 캐릭터(모션마다 한 명) · 사이트가 모르는 모션 id 는 숨쉬기만', async () => {
