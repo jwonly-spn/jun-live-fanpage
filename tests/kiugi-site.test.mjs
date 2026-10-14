@@ -407,3 +407,25 @@ test('화면 글: 첫 화면 4단계(칭호 달기), 옷 도감·캐릭터 페�
   assert.match(character, /titleList\(catalog, data\.titles\)/); assert.match(character, /titles\.slice\(0, 1\)/, '단 칭호 하나');
   assert.match(await src('views/kiugi.js'), /시즌 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요/);
 });
+
+test('펫 그림(2026-10-15 Codex DJ_PET_S1_20261015_HALLOWEEN): 시즌 펫 5종 × 5단계 그림이 pets/<시즌>/ 에 있고, 함께하는 펫·펫 칸이 그 그림을 쓴다(못 만난 펫은 1단계 그림 실루엣)', async () => {
+  const cat = await catalog();
+  const { petList, petImageUrl } = await import('../docs/views/character.js');
+  const pets = Object.values(cat.pets);
+  assert.equal(pets.length, 5);
+  for (const p of pets) for (let s = 1; s <= 5; s++) {
+    const url = petImageUrl({ ...p, stage: s }, s, B);
+    assert.equal(url, `${B}pets/s1/pet_${p.id}_${s}.png`);
+    const png = await readFile(new URL(`../docs/pets/s1/pet_${p.id}_${s}.png`, import.meta.url));
+    assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20), png[25]], [512, 512, 6], '512×512 RGBA');
+  }
+  const list = petList(cat, { pets: { ghost: 3, bat: 1 }, pet: { id: 'ghost', stage: 3 } });
+  const ghost = list.find((p) => p.id === 'ghost'), cat2 = list.find((p) => p.id === 'blackcat');
+  assert.deepEqual([ghost.stage, ghost.active, ghost.season], [3, true, 's1']);
+  assert.equal(petImageUrl(ghost, ghost.stage, B), `${B}pets/s1/pet_ghost_3.png`);
+  assert.equal(cat2.stage, 0);
+  assert.equal(petImageUrl(cat2, cat2.stage, B), `${B}pets/s1/pet_blackcat_1.png`, '못 만난 펫은 1단계 그림(실루엣)');
+  const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
+  assert.match(css, /\.kg-pet\.is-unmet \.kg-pet-img \{ filter: brightness\(0\) invert\(1\);/);
+  assert.match(css, /\.kg-pet-buddy \{ position: absolute; right: 1%; bottom: 1\.5%;/);
+});

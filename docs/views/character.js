@@ -36,23 +36,32 @@ export function petList(catalog, data) {
   const got = data?.pets && typeof data.pets === 'object' ? data.pets : {}, active = data?.pet?.id;
   return Object.values(catalog?.pets || {}).map((p) => {
     const stage = Number.isInteger(got[p.id]) && got[p.id] >= 1 && got[p.id] <= 5 ? got[p.id] : 0;
-    return { id: p.id, emoji: p.emoji, name: stage ? petStage(p, stage) : p.name, stage, active: stage > 0 && p.id === active };
+    return { id: p.id, season: p.season, emoji: p.emoji, name: stage ? petStage(p, stage) : p.name, stage, active: stage > 0 && p.id === active };
   });
 }
 const stars = (n) => '★'.repeat(n);
-function petBadge(pet) {
-  if (!pet) return null;
-  return h('div', { class: 'kg-pet-badge', title: `함께하는 펫 ${pet.name} ${stars(pet.stage)}` },
-    h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, pet.emoji),
-    h('span', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))));
+// 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라
+//  단계가 오를수록 커 보인다(따로 늘리지 않는다). 못 만난 펫은 1단계 그림 모양만 옅게(실루엣 — styles.css). 그림을 못 읽으면 그림 글자(emoji)로.
+export const petImageUrl = (pet, stage, base = '') => `${base}pets/${pet.season}/pet_${pet.id}_${Math.min(5, Math.max(1, stage || 1))}.png`;
+function petImage(pet, base, { cls = '', eager = false } = {}) {
+  const img = h('img', { class: 'kg-pet-img' + (cls ? ' ' + cls : ''), src: petImageUrl(pet, pet.stage, base), alt: '', width: 512, height: 512, decoding: 'async', ...(eager ? {} : { loading: 'lazy' }) });
+  img.addEventListener('error', () => img.replaceWith(h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, pet.emoji)), { once: true });
+  return img;
 }
-function petSection(pets) {
+// 함께하는 펫: 캐릭터 오른쪽 아래에 서서 캐릭터를 바라본다(그림 아래에 이름·★)
+function petBuddy(pet, base) {
+  if (!pet) return null;
+  return h('figure', { class: 'kg-pet-buddy', title: `함께하는 펫 ${pet.name} ${stars(pet.stage)}` },
+    petImage(pet, base, { eager: true }),
+    h('figcaption', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))));
+}
+function petSection(pets, base) {
   if (!pets.length) return null;
   const met = pets.filter((p) => p.stage > 0).length;
   return h('section', { class: 'kg-sec' },
     secHead('펫', met ? `방송에서 !산책 하다 만난 펫 ${met}마리예요. 만날수록 ★5까지 자라요.` : '아직 만난 펫이 없어요. 방송에서 !산책 하다 보면 할로윈 펫을 만나요.'),
     h('ul', { class: 'kg-pets' }, ...pets.map((p) => h('li', { class: 'kg-pet' + (p.stage ? '' : ' is-unmet') + (p.active ? ' is-active' : '') },
-      h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, p.emoji),
+      h('span', { class: 'kg-pet-frame' }, petImage(p, base)),
       h('b', null, p.stage ? p.name : '???'),
       h('span', { class: 'kg-pet-stage' }, p.stage ? stars(p.stage) + (p.active ? ' · 함께' : '') : `아직 못 만난 ${p.name}`)))));
 }
@@ -359,7 +368,7 @@ export async function renderCharacter(root, route, app) {
         h('div', { class: 'kg-hero-art' },
           h('div', { class: 'kg-hero-stage' },
             art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' }),
-            petBadge(buddy)),
+            petBuddy(buddy, app.base)),
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
@@ -392,7 +401,7 @@ export async function renderCharacter(root, route, app) {
         }))
         : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
     tryOn?.section,
-    petSection(pets),
+    petSection(pets, app.base),
     h('section', { class: 'kg-banner' },
       h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기의 다른 캐릭터`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),
       ilink(djLink, { class: 'btn btn-line' }, `${dj.name} 키우기 보기`, icon('arrow', { size: 16 })))].filter(Boolean));

@@ -357,7 +357,7 @@ test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장�
   const src = await readFile(new URL('../docs/views/character.js', import.meta.url), 'utf8');
   assert.match(src, /import \{ saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED \} from '\.\.\/lib\/kiugi-save\.js'/);
   // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래
-  assert.match(src, /kind: 'hero' \}\),\s*petBadge\(buddy\)\),\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
+  assert.match(src, /kind: 'hero' \}\),\s*petBuddy\(buddy, app\.base\)\),\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
   assert.match(src, /h\('div', \{ class: 'kg-heart-row' \}, heartBtn,\s*h\('button', \{ type: 'button', class: 'btn btn-line kg-copy-btn', onclick: \(\) => copyLink\(url, copyBox\) \}, icon\('link', \{ size: 18 \}\), '링크 복사'\)\),/, '하트·링크 복사 줄은 예전 그대로(저장 단추를 섞지 않는다)');
   assert.match(src, /expression: look, seasonName: data\.season\?\.name \|\| '', hearts/, '화면과 같은 표정·시즌·지금 하트 수');
   const { saveButton } = await import('../docs/views/character.js');
