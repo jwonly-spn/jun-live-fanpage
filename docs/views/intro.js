@@ -3,7 +3,6 @@
 // 없는 주소(notfound)와 마친 팬페이지 주소(ended)도 맨 위에 안내 상자를 붙여 여기서 보여 준다.
 // 첫 화면 아래 칸은 목록(LANDING_SECTIONS)으로 그린다 — 칸을 더하거나 빼려면 목록만 고치면 된다.
 import { h, icon } from '../lib/dom.js';
-import { buildPath, DEMO_KIUGI_SLUG } from '../lib/route.js';
 import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, slotName, titleOpenDate } from '../lib/kiugi-draw.js';
 import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, rail, BRAND } from './common.js';
@@ -179,18 +178,11 @@ async function djsSection(ctx) {
   return section('', secHead('키우기 중인 DJ', 'DJ 캐릭터를 누르면 그 방송의 키우기 페이지로 가요.'),
     home.djs?.length ? h('div', { class: 'kg-grid kg-djs' }, ...home.djs.map((d) => djCard(d, { app: ctx.app, catalog: ctx.catalog, seasonId }))) : h('p', { class: 'empty' }, '아직 키우기를 연 DJ가 없어요.'));
 }
-// 예시와 알림
-function aboutSection(ctx) {
-  const demo = buildPath(ctx.app.base, { name: 'kiugi', slug: DEMO_KIUGI_SLUG }) + '?demo=1';
-  return h('section', { class: 'kg-banner' },
-    h('div', { class: 'kg-banner-text' }, h('b', null, 'DJ 키우기 페이지는 이렇게 생겼어요'), h('p', null, '예시 페이지의 캐릭터와 아이디는 모두 지어낸 것이에요.')),
-    ilink(demo, { class: 'btn btn-line' }, '예시 페이지 보기', icon('arrow', { size: 16 })));
-}
-
 // 첫 화면 아래 칸 목록(차례대로). 칸 = (ctx) => 요소 | null | Promise<요소 | null>.
 // ctx = {app, heading, home: () => Promise(메인 자료, 한 번만 받음), catalog(시즌 목록)}.
 // 서버에서 받아 오는 칸은 Promise 를 돌려주면 자리를 먼저 잡아 두었다가 받은 뒤에 채운다(실패하면 칸을 뺀다).
-export const LANDING_SECTIONS = [searchSection, popularSection, recentSection, howSection, topItemsSection, djsSection, aboutSection];
+// 예시 페이지 칸("DJ 키우기 페이지는 이렇게 생겼어요 · 예시 페이지 보기")은 2026-10-15 뺐다(사용자 "지어낸 캐릭터들 다 삭제") — 실제 사이트에는 진짜 DJ·캐릭터만.
+export const LANDING_SECTIONS = [searchSection, popularSection, recentSection, howSection, topItemsSection, djsSection];
 
 function mount(main, make, ctx) {
   let out;

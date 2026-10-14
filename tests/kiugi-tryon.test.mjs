@@ -153,7 +153,7 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
   const character = await src('views/character.js');
   assert.match(character, /from '\.\.\/lib\/try-on\.js'/);
-  assert.match(character, /const tryOn = tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app \}\)/, '단 칭호도 넘긴다');
+  assert.match(character, /const tryOn = tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy \}\)/, '단 칭호도 넘긴다');
   assert.match(character, /secHead\('입은 옷', [^\n]+, tryOn\?\.openBtn \|\| null\)/, '"입은 옷" 제목 옆 단추');
   assert.match(character, /tryOn\?\.section,/, '입은 옷 칸 바로 아래');
   assert.match(character, /\]\.filter\(Boolean\)\);/, '빈 칸(null)을 넣지 않는다');

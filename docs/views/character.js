@@ -100,7 +100,8 @@ export const TRY_TITLE = '입혀 보기';
 export const TRY_EMPTY = '옷을 누르면 여기에 채팅 한 줄이 생겨요';
 // 칭호 탭(옷 묶음 id 와 겹치지 않는 이름)
 export const TITLE_TAB = 'title';
-export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app }) {
+// pet(2026-10-15 사용자 "펫이 여기 같이 나와야 한다 귀엽고 이쁘게"): 함께하는 펫 — 미리 보기 오른쪽 아래에 같이 선다(옷과 상관없이 그대로)
+export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app, pet = null }) {
   const sid = catalog?.seasons?.[seasonId] ? seasonId : catalog?.last;
   const { groups, titles = [], rule = null } = itemGroups(catalog, sid);
   if (!dj?.character || !groups.length) return null;
@@ -122,7 +123,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const badgeImg = h('img', { class: 'kg-try-title-img', alt: '', decoding: 'async' });
   const badgeWord = h('b', { class: 'kg-title-word' });
   const titleTag = h('div', { class: 'kg-try-title', hidden: true });
-  const lookEl = h('div', { class: 'kg-try-look' }, titleTag, stage);
+  const lookEl = h('div', { class: 'kg-try-look' + (pet ? ' has-pet' : '') }, titleTag, stage, petBuddy(pet, app.base));
   const lineEl = h('p', { class: 'kg-try-line is-empty', id: 'try-line' }, TRY_EMPTY);
   const copyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-copy', disabled: true, 'aria-describedby': 'try-line', onclick: () => copyLine() }, icon('copy', { size: 18 }), h('span', null, '복사'));
   const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
@@ -398,7 +399,7 @@ export async function renderCharacter(root, route, app) {
           h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요. 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
           status, copyBox))));
   // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다)
-  const tryOn = tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app });
+  const tryOn = tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy });
   main.replaceChildren(...[
     h('section', { class: 'kg-sec' },
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.', tryOn?.openBtn || null),

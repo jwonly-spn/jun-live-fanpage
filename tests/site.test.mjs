@@ -84,13 +84,13 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
     assert.doesNotMatch(src, /먼치킨 키우기/, f + ': 예전 사이트 이름 없음');
   }
   const intro = await text('views/intro.js');
-  assert.match(intro, /\?demo=1/);
+  assert.doesNotMatch(intro, /\?demo=1/, '실제 사이트에는 예시 페이지 링크가 없다(2026-10-15)');
   assert.match(intro, /팬페이지 서비스를 마쳤어요/);
   for (const title of ['지금 인기 있는 캐릭터', '새로 꾸민 캐릭터', '이렇게 키워요', '많이 입은 옷 TOP 5', '키우기 중인 DJ', '아이디로 찾기']) assert.ok(intro.includes(title), title);
   // 메인: 밤하늘 첫 화면(heroSection) 아래 칸 목록 — 찾기 · 인기 · 새로 꾸민 · 이렇게 키워요 · 옷 TOP 5 · DJ · 예시
   const { LANDING_SECTIONS, EMPTY_POPULAR, HERO_TEXT, heroSection } = await import('../docs/views/intro.js');
   assert.equal(typeof heroSection, 'function');
-  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['searchSection', 'popularSection', 'recentSection', 'howSection', 'topItemsSection', 'djsSection', 'aboutSection']);
+  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['searchSection', 'popularSection', 'recentSection', 'howSection', 'topItemsSection', 'djsSection'], '예시 페이지 칸은 2026-10-15 뺐다');
   assert.match(EMPTY_POPULAR, /첫 하트/);
   assert.match(HERO_TEXT, /하트/);
 });

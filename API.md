@@ -25,7 +25,7 @@
 - 하트: 사이트가 이 브라우저 저장소(localStorage)에 무작위 열쇠(32자, `kg_heart_token`)를 만들어 두고 `POST heart`에 실어 보낸다. 오늘 보낸 캐릭터는 `kg_hearted`에 기억해 "♥ 오늘 하트 보냈어요"로 보여 준다(저장소가 막혀 있으면 이번 창에서만).
 - 옷 도감: 이름·값·레벨은 사이트에 복사된 시즌 목록 `docs/kiugi/season-*.json`(먼치킨 `rules.mjs`와 같게 — 시즌 옷은 등급표 `tiers`의 price·level, 시즌 보상은 보상 값과 `seasonRewardRule.minLevel`), 입은 사람 수는 `GET home`의 `items`(메인에 보이는 방송만).
 - 그림: 화면 가까이 온 카드만 그린다(그림 파일이 1024px라 휴대폰 메모리를 아끼려고).
-- 체험: `?demo=1`(localhost 에서는 늘) — `docs/mock.js`가 모든 길을 흉내 낸다. 지어낸 DJ 캐릭터 먼치(`nyangdj7`)·쿠키(`cuky2345`)·젤리(`jery2468`), 닫힌 페이지 `shutpg22`.
+- 체험: 이 PC 미리 보기(localhost)에서만(2026-10-15 — 실제 사이트에서는 켜지지 않는다, `?demo=0` 으로 끔) — `docs/mock.js`가 모든 길을 흉내 낸다. 지어낸 DJ 캐릭터 먼치(`nyangdj7`)·쿠키(`cuky2345`)·젤리(`jery2468`), 닫힌 페이지 `shutpg22`.
 
 ## DJ 키우기 — Edge Function `kiugi`
 

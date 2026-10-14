@@ -1,14 +1,14 @@
 // 시작점: 주소를 읽고 알맞은 화면을 그린다(history.pushState 방식, 새로고침 없이 이동).
 // 화면: 메인(먼치킨 키우기) · 옷 도감(items) · DJ 키우기 페이지(k/<주소>) · 캐릭터 페이지(k/<주소>/<아이디 앞 부분>).
 import { computeBase, parseRoute, buildPath } from './lib/route.js';
-import { isDemo } from './api.js';
 
 const BASE = computeBase(new URL(import.meta.url).pathname);
 const root = document.getElementById('app');
 
 const app = {
   base: BASE,
-  link: (route) => buildPath(BASE, route) + (isDemo() && !['localhost', '127.0.0.1'].includes(location.hostname) ? '?demo=1' : ''),
+  // 체험 모드(예시 캐릭터)는 이 PC 미리 보기(localhost)에서만이라 주소에 ?demo=1 을 붙이지 않는다(2026-10-15)
+  link: (route) => buildPath(BASE, route),
   navigate(href, { replace = false } = {}) {
     if (replace) history.replaceState(null, '', href); else history.pushState(null, '', href);
     render({ scroll: true });

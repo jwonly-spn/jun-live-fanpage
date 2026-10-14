@@ -386,6 +386,9 @@ a { color: inherit; }
 .kg-try-title .kg-title-word { font-size: 15px; text-align: center; }
 .kg-try-look.has-title .kg-try-stage > svg { width: 115%; height: 86.25%; left: -7.5%; top: 15%; }
 .kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
+/* 입혀 보기 미리 보기의 함께하는 펫(2026-10-15): 캐릭터 무대처럼 오른쪽 아래에 */
+.kg-try-look .kg-pet-buddy { z-index: 2; right: 0; bottom: 1%; width: 40%; }
+.kg-try-look .kg-pet-name { font-size: 11px; padding: 3px 10px; }
 .kg-try-stage[aria-busy="true"] > svg { opacity: .82; transition: opacity .2s ease; }
 .kg-try-cmd { grid-area: cmd; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .kg-try-label { font-size: 12px; font-weight: 700; color: var(--accent-text); }

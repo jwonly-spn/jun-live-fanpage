@@ -1,18 +1,17 @@
-// 서버와 이야기하기(API.md "DJ 키우기 페이지"). 체험 모드(?demo=1, localhost)에서는 mock.js가 대신 답한다.
+// 서버와 이야기하기(API.md "DJ 키우기 페이지"). 체험 모드(이 PC 미리 보기 — localhost)에서는 mock.js가 대신 답한다.
 // 로그인 없음. 올리는 쪽은 DJ의 먼치킨(봇 프로그램)이고, 사이트는 읽기와 하트 보내기만 한다.
 
 export const API_KEY = 'sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD';
 // DJ 키우기 서버: 메인·DJ 페이지·캐릭터·찾기·하트
 export const KIUGI_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/';
 
+// 체험 모드(지어낸 예시 DJ·캐릭터)는 이 PC 의 미리 보기(localhost)에서만(2026-10-15 사용자 "이런 거 너가 만든 거 같은데 얘네도 다 삭제해라"):
+//  예전에는 실제 사이트에서도 ?demo=1 로 켜지고 이 탭이 그 표시를 기억해, 진짜 키우기.com 에 예시 캐릭터가 보였다. 실제 사이트는 늘 진짜 서버만 쓰고, 남아 있는 표시도 지운다.
+const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 export function isDemo() {
-  try {
-    const q = new URLSearchParams(location.search);
-    if (q.get('demo') === '1') sessionStorage.setItem('fp_demo', '1');
-    if (q.get('demo') === '0') sessionStorage.removeItem('fp_demo');
-    if (sessionStorage.getItem('fp_demo') === '1') return true;
-  } catch { /* 무시 */ }
-  return ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname) && new URLSearchParams(location.search).get('demo') !== '0';
+  const local = LOCAL_HOSTS.includes(location.hostname);
+  try { if (!local) sessionStorage.removeItem('fp_demo'); } catch { /* 무시 */ }
+  return local && new URLSearchParams(location.search).get('demo') !== '0';
 }
 
 export class ApiError extends Error {
