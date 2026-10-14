@@ -36,8 +36,13 @@ const petsOfSeason = (raw, season) => (Array.isArray(raw?.walk?.pets) ? raw.walk
   .filter((p) => typeof p?.id === 'string' && /^[a-z]{1,20}$/.test(p.id) && Array.isArray(p.names) && p.names.length === 5)
   .map((p) => ({ id: p.id, season, name: String(p.name || p.id), emoji: String(p.emoji || '🐾'), names: p.names.map(String) }));
 export const petStage = (pet, stage) => (pet && Number.isInteger(stage) && stage >= 1 && stage <= 5 ? pet.names[stage - 1] : pet?.name || '');
+// 모션(2026-10-15 사용자 "청취자들이 모션을 살 수 있게 — 춤·손하트·울기·스쿼트 …"): 시즌 목록 motions → {id: {id, season, name, emoji, price, desc}}.
+//  이름·값은 시즌 목록에서만(화면 글에 적어 두지 않는다). 먼치킨이 보낸 사람의 motion(모션 id)은 이 표에 있을 때만 쓴다(모르는 id = 모션 없음).
+const motionsOfSeason = (raw, season) => (Array.isArray(raw?.motions) ? raw.motions : [])
+  .filter((m) => typeof m?.id === 'string' && /^[a-z][a-z0-9-]{0,23}$/.test(m.id) && typeof m.name === 'string' && m.name.trim())
+  .map((m) => ({ id: m.id, season, name: m.name.trim(), emoji: String(m.emoji || '✨'), price: Math.max(0, Number(m.price) || 0), desc: String(m.desc || '') }));
 export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
-  const items = {}, seasons = {}, titles = {}, pets = {};
+  const items = {}, seasons = {}, titles = {}, pets = {}, motions = {};
   let last = null;
   for (const raw of Array.isArray(raws) ? raws : []) {
     const id = raw?.season?.id;
@@ -62,14 +67,26 @@ export function buildCatalog(raws = [], art = { files: {}, adjust: {} }) {
       items[it.id] = { slot: it.slot, cat, ...(Number.isInteger(it.number) ? { number: it.number } : {}), season: id, name: it.name, ...(style ? { style } : {}), price: catPrice.get(cat) || 0 };
     }
     for (const p of petsOfSeason(raw, id)) pets[p.id] = p;
+    for (const m of motionsOfSeason(raw, id)) motions[m.id] = m;
     (Array.isArray(raw.seasonRewards) ? raw.seasonRewards : []).forEach((r, i) => {
       if (!r?.id) return;
       if (r.slot) items[r.id] = { slot: r.slot, season: id, name: r.name, reward: true, price: Number(r.price) || 0, level: minLevel };
       else titles[r.id] = { id: r.id, season: id, number: i + 1, name: r.name || r.id, image: typeof r.image === 'string' && /^[a-z0-9/_-]+\.png$/.test(r.image) ? r.image : '', perks: perksOf(r).length ? perksOf(r) : perksOf(rule), desc: r.desc || '', price: Number(r.price) || 0, level: minLevel, minAttendance: Number(rule.minAttendance) || 0 };
     });
   }
-  return { items, titles, seasons, pets, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
+  return { items, titles, seasons, pets, motions, last, art: { files: art?.files || {}, adjust: art?.adjust || {} } };
 }
+
+// 모션 id → 시즌 목록의 모션(모르는 id·빈 값은 null)
+export const motionOf = (catalog, id) => (typeof id === 'string' && catalog?.motions && Object.hasOwn(catalog.motions, id) ? catalog.motions[id] : null);
+// 그 시즌의 모션 목록(시즌 목록 차례). 그 시즌에 모션이 없으면 모든 시즌의 모션.
+export function motionList(catalog, seasonId) {
+  const all = Object.values(catalog?.motions || {}), mine = all.filter((m) => m.season === seasonId);
+  return mine.length ? mine : all;
+}
+// "춤추는 중"처럼 지금 하는 모션 한마디(캐릭터 페이지 칩). 모르는 모션은 "<이름> 하는 중".
+const DOING = Object.freeze({ dance: '춤추는 중', heart: '손하트 하는 중', cry: '우는 중', squat: '스쿼트 하는 중', trash: '쓰레기 맞는 중', kkang: '깡 춤 추는 중' });
+export const motionDoing = (m) => (m ? DOING[m.id] || `${m.name} 하는 중` : '');
 
 // 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 왕관·날개·오라 — 은 여기서. 그림 V4 부터 보상도 캐릭터가 입는다)
 const SLOT_FALLBACK = { crown: '왕관', wings: '날개', aura: '오라' };
@@ -125,6 +142,18 @@ export function characterMarkup(catalog, character, worn, level, { seasonId = nu
     { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage || STAGE, transparent: stage === null, label });
   return cspSafeSvg(svg, base);
 }
+// 캐릭터 그림 글 → {scene, body}(2026-10-15 사용자 "캐릭터들이 2D 게임 대기 모션처럼 숨쉬듯이"): 캐릭터만 움직이고 바탕은 가만히 있게 둘로 나눈다.
+//  scene = 바탕 사각형·입은 배경(background) 만 든 SVG(없으면 null) · body = 나머지(오라·날개·머리·몸·옷·얼굴·악세사리 — 숨쉬기·모션으로 움직인다).
+//  둘 다 같은 viewBox 라 같은 칸에 겹치면 원래 그림과 같다. 나눌 것이 없으면 그대로(scene null).
+export function splitScene(markup) {
+  const s = String(markup ?? ''), open = /^<svg [^>]*>/.exec(s), end = s.indexOf('</defs>');
+  if (!open || end < 0) return { scene: null, body: s };
+  const at = end + '</defs>'.length;
+  const back = /^(?:<rect [^>]*\/>)?(?:<image [^>]*data-step="background"[^>]*\/>)?/.exec(s.slice(at))[0];
+  if (!back) return { scene: null, body: s };
+  const box = / viewBox="[^"]*"/.exec(open[0])?.[0] || '';
+  return { scene: `<svg${box} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${back}</svg>`, body: s.slice(0, at) + s.slice(at + back.length) };
+}
 // 옷 한 벌만(글): 옷 도감·입은 옷 칸. 그림 V4: 기본 캐릭터(그 성별)가 그 옷(시즌 보상 포함)만 입은 모습을 옷이 있는 곳에 맞춰(옷 그림은 자르지 않는다).
 //  gender 'm' 이면 같은 번호 옷의 남자 몸 버전. dj(DJ 캐릭터)를 주면 성별이 같을 때 그 얼굴·머리로. 모르는 옷(예전 판이 올린 지운 옷 등)은 이름 자리 표시.
 export function itemMarkup(catalog, id, { base = '/', label = '', gender = 'f', dj = null } = {}) {
@@ -151,8 +180,9 @@ export async function paintMarkup(stage, markup, { load = preloadImage, make = s
   const failed = [];
   await Promise.all(svgUrls(markup).map((u) => Promise.resolve().then(() => load(u)).catch(() => { failed.push(u); })));
   if (PAINTED.get(stage) !== seq) return false;
-  const node = make(markup);
-  stage.replaceChildren(...(node ? [node] : fallback ? [fallback] : []));
+  // make 는 요소 하나 또는 요소 목록(캐릭터 무대: 바탕 SVG + 움직이는 캐릭터 칸 — views/cards.js actorNodes)
+  const node = make(markup), nodes = Array.isArray(node) ? node.filter(Boolean) : node ? [node] : [];
+  stage.replaceChildren(...(nodes.length ? nodes : fallback ? [fallback] : []));
   if (failed.length) stage.dataset.kgArtError = String(failed.length); else delete stage.dataset.kgArtError;
   return true;
 }

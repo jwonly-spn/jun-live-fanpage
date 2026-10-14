@@ -43,6 +43,8 @@ const DJS = [
   { slug: 'jery2468', character: { name: '젤리', gender: 'f', hair: 'f_twin', hairColor: 'sky', skin: 's1', eyes: 'happy', nose: 'dot', mouth: 'cat' },
     bases: ['달무리', '사탕요정', '여름밤', '꿀호떡'] },
 ];
+// 모션 id(시즌 목록 motions 와 같은 것)
+const MOTIONS = ['dance', 'cry', 'trash', 'heart', 'kkang', 'squat'];
 // 처음 하트(체험용): "<slug>|<찾기 열쇠>" → 수
 const SEED_HEARTS = { 'nyangdj7|밤톨#먼치': 12, 'nyangdj7|사탕요정#먼치': 5, 'nyangdj7|달무리#먼치': 2, 'nyangdj7|먼치팬#먼치': 1, 'cuky2345|귤껍질#쿠키': 9, 'cuky2345|여름밤#쿠키': 4, 'jery2468|달무리#젤리': 7, 'jery2468|사탕요정#젤리': 3 };
 
@@ -60,7 +62,9 @@ function pagesNow() {
       const petSets = [[{ ghost: 3, pumpkin: 2, bat: 1 }, 'ghost'], [{ blackcat: 2 }, 'blackcat'], [{ mummy: 1, pumpkin: 1 }, 'mummy']];
       const pk = i < 3 ? petSets[(i + d) % 3] : null;
       const petsOut = pk ? { pets: pk[0], pet: { id: pk[1], stage: pk[0][pk[1]] } } : {};
-      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ...petsOut, ch: t - (i * 3 + d) * 1700e3 };
+      // 모션(2026-10-15 — 먼치킨이 올리는 모양: 지금 하는 모션 id 하나): 앞 여섯 명은 모션마다 한 명씩, 여덟째는 사이트가 모르는 모션(새 판 먼치킨 흉내 — 숨쉬기만)
+      const motion = i < 6 ? MOTIONS[(i + d) % MOTIONS.length] : i === 7 ? 'moonwalk' : null;
+      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ...petsOut, ...(motion ? { motion } : {}), ch: t - (i * 3 + d) * 1700e3 };
     });
     return { slug: dj.slug, name: dj.character.name, character: dj.character, season: SEASON, people, count: people.length, updatedAt: new Date(t - (d + 1) * 300e3).toISOString() };
   });
@@ -68,8 +72,8 @@ function pagesNow() {
 const hearts = new Map(Object.entries(SEED_HEARTS));
 const votes = new Set();
 const heartsOf = (slug, k) => hearts.get(`${slug}|${k}`) || 0;
-const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), hearts: heartsOf(slug, p.k) });
-const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), hearts: heartsOf(page.slug, p.k) });
+const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(slug, p.k) });
+const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k) });
 const target = (k, key) => (key.includes('#') ? k : baseOf(k));
 const pageOf = (slug) => pagesNow().find((p) => p.slug === slug) || null;
 function queryKey(value) {
@@ -106,7 +110,7 @@ export async function handle(method, path, q = {}, body = {}) {
       if (!key) return fail(400, BAD_QUERY);
       const p = page.people.find((x) => target(x.k, key) === key);
       if (!p) return fail(404, NO_PERSON);
-      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
+      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
     }
     case 'GET kiugi/home': {
       const pages = pagesNow();

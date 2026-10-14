@@ -9,7 +9,7 @@
 //  먼치킨은 옷을 먼저 사고 입힌 뒤 칭호를 한다 — 가진 칭호는 달기만, 없으면 사서 단다. 한 줄에 칭호는 하나만, 옷과 칭호를 합쳐 TRY_MAX 개까지.
 //  칭호는 상점이 열린 때(rewardRule.opensAt — 시즌 1은 10월 30일)부터 시즌 끝까지 팔고, Lv.10 이 되어야 산다(값은 시즌 목록 price).
 //  지금 단 칭호(서버가 보낸 data.titles[0])는 입은 옷처럼 "다는 중" — 고를 것이 없고 값도 세지 않는다.
-import { itemCodeOf, titleOpenDate, OLD_REWARD_IDS } from './kiugi-draw.js';
+import { itemCodeOf, titleOpenDate, OLD_REWARD_IDS, motionOf } from './kiugi-draw.js';
 
 // 채팅 명령(views/items.js 의 chatHint 도 이것을 쓴다)
 export const CLOSET_CMD = '!옷장';
@@ -177,6 +177,21 @@ export function tryNote({ titles = false, rule = null, now = Date.now() } = {}) 
     date ? `칭호는 ${date}부터 팔고, Lv.${min}이 되어야 살 수 있어요` : `칭호는 Lv.${min}이 되어야 살 수 있어요`,
     `옷과 칭호를 합쳐 한 번에 ${TRY_MAX}개까지`].join(' · ');
 }
+// ---- 모션(2026-10-15 사용자 "청취자들이 모션을 살 수 있게 — 무릎 꿇고 울기·춤·손하트·스쿼트 …") ----
+//  방송 채팅 "!모션 춤"(모션 이름 그대로 — 사서 바로 해요) · "!모션 끄기"(그만해요). 옷 한 줄과는 따로 복사한다(먼치킨 명령이 다르다).
+//  모션은 한 번에 하나. 값은 시즌 목록(motions[].price)에서.
+export const MOTION_CMD = '!모션';
+export const MOTION_OFF = `${MOTION_CMD} 끄기`;
+export const motionCommand = (m) => (m?.name ? `${MOTION_CMD} ${m.name}` : '');
+// 입혀 보기의 모션 한 줄: 고른 모션(pick — 모션 id, null = 모션 없이)이 지금 하는 모션(now)과 같으면 ''(명령이 필요 없다),
+//  모션 없이를 고르면 "!모션 끄기", 아니면 "!모션 <이름>". 모르는 id 는 모션 없음으로 본다.
+export function motionLine(catalog, pick, now = null) {
+  const p = motionOf(catalog, pick), n = motionOf(catalog, now);
+  if ((p?.id || null) === (n?.id || null)) return '';
+  return p ? motionCommand(p) : MOTION_OFF;
+}
+export const MOTION_COPIED = (line) => (line === MOTION_OFF ? '복사했어요 · 방송 채팅에 붙여 넣으면 모션을 멈춰요' : '복사했어요 · 방송 채팅에 붙여 넣으면 모션을 사서 바로 해요');
+
 // 복사했을 때 알림: 옷만 · 칭호만 · 둘 다 · 맨몸부터(bare)
 export const copiedText = ({ clothes = 0, title = false, bare = false } = {}) =>
   (bare ? `복사했어요 · 방송 채팅에 붙여 넣으면 ${clothes || title ? '옷을 모두 벗고 고른 것만 입어요' : '옷을 모두 벗어요'}`

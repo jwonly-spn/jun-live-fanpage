@@ -70,6 +70,20 @@ test('칭호(0.15.63~): 옷 id 모양만 3개까지 겹치지 않게 싣고, 없
   assert.deepEqual(sum.recent.find((x) => x.id === '밤톨#먼치').titles, ['title-pumpkin-king']);
 });
 
+// 모션(2026-10-15): 지금 모션 id 하나(영문 소문자 1~20자)만 싣고, 없거나 모양이 틀리면 칸이 없다 · 1~3등·카드·한 사람 내보내기·새로 꾸민 줄에도
+test('모션(0.15.86~): motion 은 영문 소문자 id 하나만, 이상하면 칸이 없다 · 1~3등·카드·한 사람 내보내기에도', () => {
+  assert.deepEqual(v.motionField({ motion: 'dance' }), { motion: 'dance' });
+  for (const bad of ['Dance', 'dance!', '', 'a'.repeat(21), 3, null, ['dance'], { id: 'dance' }]) assert.deepEqual(v.motionField({ motion: bad }), {}, JSON.stringify(bad));
+  const s = v.snapshot(PAYLOAD([PERSON('밤톨', 500, { motion: 'kkang' }), PERSON('사탕요정', 10, { motion: '<b>' })]));
+  assert.equal(s.people[0].motion, 'kkang');
+  assert.equal(Object.hasOwn(s.people[1], 'motion'), false, '모양이 틀리면 칸도 없다');
+  assert.equal(s.top[0].motion, 'kkang');
+  assert.equal(v.publicPerson(s.people[0], 1).motion, 'kkang');
+  assert.equal(Object.hasOwn(v.publicPerson(s.people[1], 2), 'motion'), false);
+  assert.equal(v.card(s.people[0], 'abcdefgh', '먼치', 0).motion, 'kkang');
+  const sum = v.summarize(v.withChanges(s.people.map((p) => ({ ...p, worn: { top: 'top_01' } })), [], 1));
+  assert.equal(sum.recent.find((x) => x.id === '밤톨#먼치').motion, 'kkang');
+});
 test('검사(v2): 판 번호·캐릭터 이름·시즌·끄기·쉬는 중·인원 상한', () => {
   assert.deepEqual(v.snapshot({ enabled: false, extra: 1 }), { enabled: false });
   assert.throws(() => v.snapshot({ ...PAYLOAD(), v: 1 }), /업데이트/, 'v1(스푼 이름을 올리던 판)은 받지 않는다');
@@ -208,7 +222,7 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal((await w.get('page?slug=nope')).status, 404);
   assert.equal((await w.get('page?slug=abcdefgh')).status, 404);
   r = await body(await w.get('health'));
-  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true });
+  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true });
   assert.equal((await w.handle(new Request(BASE + 'page', { method: 'OPTIONS' }))).status, 204);
   // 주소마다 찾기는 1분에 30번
   for (let i = 0; i < 29; i++) await find(w, slug, '밤', '9.9.9.9');

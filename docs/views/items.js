@@ -7,11 +7,11 @@
 //  "시즌 보상은 칭호로 통일": 황금 호박 왕관·그림자 날개·달빛 오라는 악세사리(악세11~13)로, 시즌 칭호는 그림 없이 따로(얻은 시즌과 다음 시즌까지 효과).
 import { h, toast } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate } from '../lib/kiugi-draw.js';
-import { CLOSET_CMD } from '../lib/try-on.js';
+import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate, motionList } from '../lib/kiugi-draw.js';
+import { CLOSET_CMD, motionCommand, MOTION_OFF } from '../lib/try-on.js';
 import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
 import { seasonBadge } from './kiugi.js';
-import { itemArt } from './cards.js';
+import { itemArt, art } from './cards.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 
@@ -57,6 +57,19 @@ export async function copyCode(code) {
 // 칭호 효과 줄(첫 줄 "시즌2까지" 굵게, 다음 줄마다 효과 하나) — 캐릭터 페이지도 같이 쓴다
 export const titleEffects = (t) => h('ul', { class: 'kg-title-effects' },
   t.until ? h('li', { class: 'kg-title-until' }, t.until) : null, ...(t.perks || []).map((p) => h('li', null, p)));
+// 모션 값 글(2026-10-15): 모션 값이 모두 같으면 "하나에 N냥"(값은 시즌 목록 motions[].price), 다르면 ''
+export const motionPriceText = (list) => { const set = new Set((list || []).map((m) => Number(m.price) || 0)); return set.size === 1 && [...set][0] ? `하나에 ${fmt([...set][0])}냥` : ''; };
+// 옷 도감 모션 칸 설명: 몇 가지 · 값 · 명령(시즌 첫 모션 이름) · 끄기 · 한 번에 하나
+export const MOTION_NOTE = (list) => {
+  const price = motionPriceText(list);
+  return `${list.length}가지${price ? ` · ${price}` : ''} · 방송 채팅에 ${motionCommand(list[0])} 처럼 치면 내 캐릭터가 사서 바로 그 모션을 해요. 모션은 한 번에 하나이고, 멈출 때는 ${MOTION_OFF} 를 쳐요. 명령을 누르면 복사돼요.`;
+};
+// 모션 명령 복사("!모션 춤")
+export async function copyMotion(m) {
+  const line = motionCommand(m);
+  try { await navigator.clipboard.writeText(line); toast(`${line} 복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 해요`); }
+  catch { toast(`방송 채팅에 ${line} 처럼 쳐요`); }
+}
 const codeButton = (code, { accent = false } = {}) => h('button', { type: 'button', class: 'kg-item-code' + (accent ? ' accent' : ''), title: `번호 복사 · ${chatHint(code)}`, 'aria-label': `${code} 번호 복사`, onclick: () => copyCode(code) }, code);
 
 export async function renderItems(root, app) {
@@ -81,13 +94,16 @@ export async function renderItems(root, app) {
   const seasonId = home?.season?.id || catalog.last;
   const counts = new Map((home?.items || []).map((x) => [x.id, x.count]));
   const { groups, rewards, titles, rule } = itemGroups(catalog, seasonId, counts);
+  // 모션(2026-10-15): 시즌 목록 motions — 옷처럼 칸마다 움직이는 예시 캐릭터(기본 캐릭터, 여자·남자 단추를 따른다)
+  const motions = groups.length ? motionList(catalog, seasonId) : [];
   const season = catalog.seasons[seasonId];
   const seasonInfo = home?.season || (season ? { id: seasonId, name: season.name, endsAt: season.endsAt } : null);
   badge.replaceChildren(seasonBadge(seasonInfo));
   const total = groups.reduce((n, g) => n + g.items.length, 0);
   if (total) stats.replaceChildren(...statTiles([
     { value: fmt(total), label: '이번 시즌 옷' },
-    titles.length ? { value: fmt(titles.length), label: '시즌 칭호' } : rewards.length ? { value: fmt(rewards.length), label: '시즌 보상' } : null]));
+    titles.length ? { value: fmt(titles.length), label: '시즌 칭호' } : rewards.length ? { value: fmt(rewards.length), label: '시즌 보상' } : null,
+    motions.length ? { value: fmt(motions.length), label: '모션' } : null]));
   let gender = 'f', pick = 'all';
   // 칭호 상점이 열리기 전이면 칭호 칸마다 여는 날("10월 30일부터")
   const openDate = rule ? titleOpenDate(rule) : '';
@@ -112,17 +128,29 @@ export async function renderItems(root, app) {
       titleEffects(t),
       h('span', { class: 'kg-item-price' }, h('b', null, `${fmt(t.price)}냥`), h('span', { class: 'kg-chip' }, `Lv.${t.level}+`), t.minAttendance ? h('span', { class: 'kg-chip' }, `출석 ${fmt(t.minAttendance)}번`) : null,
         openDate ? h('span', { class: 'kg-chip soon' }, `${openDate}부터`) : null)));
+  // 모션 카드(2026-10-15): 기본 캐릭터가 그 모션을 하는 무대 · 명령 복사 단추("!모션 춤") · 그림 글자·이름·한 줄 설명·값(시즌 목록)
+  const motionCard = (m) => h('li', { class: 'kg-item kg-motion' },
+    h('div', { class: 'kg-item-media' },
+      art(catalog, { gender }, {}, 1, { seasonId, base: app.base, label: `${m.name} 모션 예시`, kind: 'motion', motion: m.id }),
+      h('button', { type: 'button', class: 'kg-item-code accent', title: `${motionCommand(m)} 복사`, 'aria-label': `${motionCommand(m)} 복사`, onclick: () => copyMotion(m) }, motionCommand(m))),
+    h('div', { class: 'kg-item-body' },
+      h('span', { class: 'kg-item-sub' }, h('span', { 'aria-hidden': 'true' }, m.emoji), ' 모션'),
+      h('b', { class: 'kg-item-name' }, m.name),
+      m.desc ? h('span', { class: 'kg-motion-desc' }, m.desc) : null,
+      h('span', { class: 'kg-item-price' }, h('b', null, `${fmt(m.price)}냥`))));
   const rewardGroup = rewards.length ? { slot: 'reward', name: '시즌 보상', items: rewards, reward: true } : null;
   const titleGroup = titles.length ? { slot: 'title', name: '시즌 칭호', items: titles, title: true } : null;
-  const all = [...groups, ...(rewardGroup ? [rewardGroup] : []), ...(titleGroup ? [titleGroup] : [])];
+  const motionGroup = motions.length ? { slot: 'motion', name: '모션', items: motions, motion: true } : null;
+  const all = [...groups, ...(rewardGroup ? [rewardGroup] : []), ...(titleGroup ? [titleGroup] : []), ...(motionGroup ? [motionGroup] : [])];
   // replaceChildren 에 null 을 넘기면 "null" 글자가 생기므로 빈 것은 뺀다
   const paint = () => list.replaceChildren(...[
-    ...(groups.length ? all.filter((g) => pick === 'all' || g.slot === pick) : [{ name: '옷', items: [], empty: true }]).map((g) => h('section', { class: 'kg-sec' + (g.reward ? ' kg-rewards' : g.title ? ' kg-titles' : '') },
+    ...(groups.length ? all.filter((g) => pick === 'all' || g.slot === pick) : [{ name: '옷', items: [], empty: true }]).map((g) => h('section', { class: 'kg-sec' + (g.reward ? ' kg-rewards' : g.title ? ' kg-titles' : g.motion ? ' kg-motions' : '') },
       g.title ? secHead('시즌 칭호', `${TITLE_NOTE(rule)} 방송 채팅에 ${chatHint(`${TITLE_WORD}1`)} 처럼 번호를 쳐요. 내 캐릭터 페이지의 입혀 보기에서 옷과 함께 달아 보고 한 줄로 복사할 수도 있어요.`)
         : g.reward ? secHead('시즌 보상', REWARD_NOTE(rule))
+        : g.motion ? secHead('모션', MOTION_NOTE(g.items))
         : secHead(g.name, g.empty ? '' : `${g.items.length}${unit(g.slot)}${groupPrice(g) ? ` · 각 ${fmt(groupPrice(g))}냥` : ''}${g.code ? ` · 방송 채팅에 ${chatHint(`${g.code}1`)} 처럼 번호를 쳐요` : ''}`),
       g.empty ? h('p', { class: 'empty' }, '옷 목록을 불러오지 못했어요.')
-        : h('ul', { class: 'kg-items' + (g.title ? ' kg-title-list' : '') }, ...g.items.map((it) => (g.title ? titleCard(it) : itemCard(it, Boolean(g.reward), g.slot === 'outfit')))))),
+        : h('ul', { class: 'kg-items' + (g.title ? ' kg-title-list' : '') }, ...g.items.map((it) => (g.title ? titleCard(it) : g.motion ? motionCard(it) : itemCard(it, Boolean(g.reward), g.slot === 'outfit')))))),
     home ? null : h('p', { class: 'note' }, '지금은 입은 사람 수를 불러오지 못했어요. 이름·값만 보여요.')].filter(Boolean));
   // 묶음 고르기(전체 · 의상 · 신발 … · 시즌 칭호)
   const filterBtn = (v, label, n) => h('button', { type: 'button', class: 'kg-filter', 'aria-pressed': String(v === pick), dataset: { v },
@@ -132,7 +160,7 @@ export async function renderItems(root, app) {
       if (filters.getBoundingClientRect().top < 120) main.scrollIntoView({ block: 'start' });
     } },
     label, h('span', { class: 'kg-filter-n' }, fmt(n)));
-  if (all.length) filters.replaceChildren(filterBtn('all', '전체', total + rewards.length + titles.length), ...all.map((g) => filterBtn(g.slot, g.name, g.items.length)));
+  if (all.length) filters.replaceChildren(filterBtn('all', '전체', total + rewards.length + titles.length + motions.length), ...all.map((g) => filterBtn(g.slot, g.name, g.items.length)));
   else filters.remove();
   const sexBtn = (v, label) => h('button', { type: 'button', 'aria-pressed': String(v === gender), onclick: () => { gender = v; for (const b of sexes.children) b.setAttribute('aria-pressed', String(b === btns[v])); paint(); } }, label);
   const btns = { f: sexBtn('f', '여자'), m: sexBtn('m', '남자') };

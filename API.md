@@ -53,7 +53,8 @@
   - `totals`: `{djs, people}`.
 - `GET search?q=` (1분 30번, 캐시 30초) → `{results:[카드…10장까지],exact,more}`. 메인에 보이는 페이지만. 전체 아이디(`밤톨#먼치`)는 `name_key`로 그 페이지를 바로 찾고, 앞 부분만이면 모든 방송에서 앞 부분이 같은 사람 먼저·들어 있는 사람 다음(각각 레벨 높은 순).
 - `POST heart` 본문 `{slug, id, token}` → `{hearts, already}`. id = 앞 부분이나 전체 아이디, token = 브라우저가 만든 무작위 32자(base64url). 주소 해시마다 1시간 60번, 열쇠마다 하루 50번(넘으면 429). 사람이 보이는 페이지의 지금 사람 목록에 있어야 한다(없으면 404, 닫힌 페이지 404, 시즌 준비 중이면 409). 같은 날 두 번째부터 `already:true`(수는 그대로).
-- `GET health` → `{service:"jun-live-kiugi",v:2,hearts:true}`
+- `GET health` → `{service:"jun-live-kiugi",v:2,hearts:true,pets:true,motions:true}`
+- 모션(2026-10-15, 함수 v8): 사람 줄에 `motion`(지금 모션 id 하나, 영문 소문자 1~20자 — 시즌 목록 `motions`). 한 사람(`person`)·1~3등·카드·새로 꾸민 줄에 그대로 실린다. 산 모션 목록·값은 받지 않는다. 사이트는 그 모션으로 캐릭터를 움직이고, 모든 캐릭터는 숨쉬기 대기 모션을 한다.
 
 먼치킨(기기 서명, 기기 1분 2번):
 - `POST app` 본문 `{action:"upload",payload,publicKey,timestamp,nonce,signature}`, 서명 문자열 `JUN-LIVE-KIUGI/1\n{action}\n{timestamp}\n{nonce}\n{publicKey}\n{sha256hex(JSON.stringify(payload))}` (ieee-p1363, base64url, 시간 ±60초, 같은 nonce 한 번) → `{ok,enabled,slug,url,count}`

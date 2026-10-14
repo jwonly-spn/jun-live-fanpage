@@ -168,11 +168,11 @@ a { color: inherit; }
 /* 캐릭터 그림은 1024 정사각형 한가운데 세로로 서 있다 → 세로 칸(char)에서는 위아래 끝을 맞추고 양옆 빈 곳만 잘라 크게 보인다(그림 자체는 자르지 않음) */
 .kg-stage { position: relative; isolation: isolate; display: block; width: 100%; aspect-ratio: 1 / 1; overflow: hidden; background: var(--stage); }
 .kg-stage::after { content: ""; position: absolute; z-index: 0; left: 24%; right: 24%; bottom: 3%; height: 6%; border-radius: 50%; background: radial-gradient(closest-side, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0)); pointer-events: none; }
-.kg-stage > svg { position: absolute; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; display: block; animation: kg-fade .45s ease both; }
+.kg-stage > svg, .kg-stage > .kg-actor { position: absolute; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; display: block; animation: kg-fade .45s ease both; }
 .kg-stage.char { aspect-ratio: 3 / 4; }
-.kg-stage.char > svg { width: 138.6667%; height: 104%; left: -19.3333%; top: -2%; }
+.kg-stage.char > svg, .kg-stage.char > .kg-actor { width: 138.6667%; height: 104%; left: -19.3333%; top: -2%; }
 .kg-stage.char.hero { aspect-ratio: 4 / 5; }
-.kg-stage.char.hero > svg { width: 130%; left: -15%; }
+.kg-stage.char.hero > svg, .kg-stage.char.hero > .kg-actor { width: 130%; left: -15%; }
 .kg-stage.bare { background: none; overflow: visible; }
 .kg-stage.bare::after { left: 20%; right: 20%; bottom: 2%; height: 7%; background: radial-gradient(closest-side, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0)); }
 .kg-stage.dj { background: radial-gradient(70% 46% at 50% 0%, rgba(255, 122, 47, .13), transparent 72%), var(--stage); }
@@ -181,6 +181,179 @@ a { color: inherit; }
 .kg-stage.item.tall > svg { width: 133.3333%; left: -16.6667%; }
 .kg-noart { position: absolute; inset: 0; z-index: 1; display: grid; place-items: center; padding: 8px; text-align: center; font-size: 12px; color: var(--text-3); }
 @keyframes kg-fade { from { opacity: 0; } }
+
+/* ---------- 캐릭터 숨쉬기 · 모션(2026-10-15) ----------
+   views/cards.js actorNodes: 무대 = svg.kg-scene(바탕·입은 배경 — 가만히) + .kg-actor(1024 캔버스와 같은 칸) > .kg-body(캐릭터 — 움직임) > svg + .kg-fx.on-body, .kg-fx.around.
+   움직임은 transform·opacity 만(그림을 다시 그리지 않는다). 기준점 = 발 바닥(캔버스 y 956 → 93.4%). 효과 자리는 캔버스 퍼센트·글자 크기는 칸 너비(cqw).
+   모션은 .kg-actor.m-<모션 id>(시즌 목록 motions). 모르는 모션은 숨쉬기 그대로. */
+.kg-actor { container-type: size; }
+.kg-actor > .kg-body { position: absolute; inset: 0; transform-origin: 50% 93.4%; animation: kg-breathe 3.6s ease-in-out infinite; }
+.kg-body > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* 숨쉬기: 숨을 들이쉬면 키가 아주 조금 커지고(발은 그대로) 내쉬면 돌아온다. 칸마다 박자를 어긋나게 */
+@keyframes kg-breathe { 0%, 100% { transform: none; } 50% { transform: scale(.995, 1.013); } }
+.kg-actor.kg-b1 > .kg-body { animation-delay: -.72s; }
+.kg-actor.kg-b2 > .kg-body { animation-delay: -1.44s; }
+.kg-actor.kg-b3 > .kg-body { animation-delay: -2.16s; }
+.kg-actor.kg-b4 > .kg-body { animation-delay: -2.88s; }
+/* 효과(그림 글자·모양): 점(left·top)이 효과의 가운데 */
+.kg-fx { position: absolute; inset: 0; pointer-events: none; }
+:where(.kg-fx) > span { position: absolute; display: block; width: 1em; height: 1em; margin: -.5em 0 0 -.5em; font-size: 5cqw; line-height: 1; text-align: center; white-space: nowrap; opacity: 0; }
+@supports not (width: 1cqw) { .kg-fx { display: none; } }
+
+/* 춤: 좌우로 흔들흔들 + 통통 · 머리 옆으로 음표가 떠오른다 */
+.kg-actor.m-dance > .kg-body { animation: kg-m-dance 1.6s ease-in-out infinite; }
+@keyframes kg-m-dance {
+  0%, 50%, 100% { transform: none; }
+  12.5% { transform: translate(-1.2%, -2.4%) rotate(-2.5deg); }
+  25% { transform: translate(-2%, 0) rotate(-4deg) scale(1.02, .975); }
+  37.5% { transform: translate(-.8%, -2.4%) rotate(-1.5deg); }
+  62.5% { transform: translate(1.2%, -2.4%) rotate(2.5deg); }
+  75% { transform: translate(2%, 0) rotate(4deg) scale(1.02, .975); }
+  87.5% { transform: translate(.8%, -2.4%) rotate(1.5deg); }
+}
+.kg-fx-note { font-size: 6cqw; font-weight: 800; color: #ffd36e; text-shadow: 0 0 .3em rgba(255, 140, 60, .75); animation: kg-fx-note 2.4s ease-out infinite; }
+.kg-fx-note.n1 { left: 35%; top: 22%; }
+.kg-fx-note.n2 { left: 65%; top: 17%; color: #ff9ad5; text-shadow: 0 0 .3em rgba(255, 90, 170, .7); animation-delay: -.6s; }
+.kg-fx-note.n3 { left: 33%; top: 42%; color: #9fdcff; text-shadow: 0 0 .3em rgba(80, 170, 255, .7); animation-delay: -1.2s; }
+.kg-fx-note.n4 { left: 67%; top: 38%; animation-delay: -1.8s; }
+@keyframes kg-fx-note {
+  0% { opacity: 0; transform: translate(0, 0) scale(.6) rotate(-12deg); }
+  15% { opacity: 1; }
+  50% { transform: translate(1.6cqw, -6cqw) scale(1) rotate(8deg); }
+  80% { opacity: .9; }
+  100% { opacity: 0; transform: translate(-1cqw, -12cqw) scale(1.05) rotate(-6deg); }
+}
+
+/* 손하트: 기분 좋게 갸웃갸웃 · 가슴에서 하트가 콩닥이고 위로 퐁퐁 */
+.kg-actor.m-heart > .kg-body { animation: kg-m-heart 1.8s ease-in-out infinite; }
+@keyframes kg-m-heart { 0%, 50%, 100% { transform: none; } 25% { transform: translateY(-1.4%) rotate(-1.8deg); } 75% { transform: translateY(-1.4%) rotate(1.8deg); } }
+.kg-fx-chest { left: 50%; top: 37.6%; font-size: 7cqw; filter: drop-shadow(0 0 .25em rgba(255, 80, 150, .55)); animation: kg-fx-beat .9s ease-in-out infinite; }
+@keyframes kg-fx-beat { 0%, 100% { opacity: 1; transform: scale(.86); } 14% { opacity: 1; transform: scale(1.2); } 28% { opacity: 1; transform: scale(.95); } 42% { opacity: 1; transform: scale(1.1); } 70% { opacity: 1; transform: scale(.9); } }
+.kg-fx-rise { left: 50%; top: 36%; font-size: 4.6cqw; animation: kg-fx-rise-l 2.7s ease-out infinite; }
+.kg-fx-rise.r1 { left: 48.5%; }
+.kg-fx-rise.r2 { left: 51.5%; animation-name: kg-fx-rise-r; animation-delay: -.9s; }
+.kg-fx-rise.r3 { animation-name: kg-fx-rise-w; animation-delay: -1.8s; }
+/* 하트는 얼굴을 가리지 않게 먼저 옆으로 나간 뒤 위로(얼굴 = 캔버스 x 45~57%, y 12~29%) */
+@keyframes kg-fx-rise-l { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 12% { opacity: 1; } 35% { transform: translate(-9cqw, -6cqw) scale(.9) rotate(-10deg); } 70% { opacity: 1; transform: translate(-13cqw, -17cqw) scale(1) rotate(-14deg); } 100% { opacity: 0; transform: translate(-15cqw, -27cqw) scale(1.05) rotate(-6deg); } }
+@keyframes kg-fx-rise-r { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 12% { opacity: 1; } 35% { transform: translate(9cqw, -6cqw) scale(.9) rotate(10deg); } 70% { opacity: 1; transform: translate(13cqw, -16cqw) scale(1) rotate(14deg); } 100% { opacity: 0; transform: translate(15cqw, -26cqw) scale(1.05) rotate(6deg); } }
+@keyframes kg-fx-rise-w { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 12% { opacity: 1; } 35% { transform: translate(11cqw, -1cqw) scale(.85) rotate(8deg); } 70% { opacity: 1; transform: translate(17cqw, -9cqw) scale(.95) rotate(16deg); } 100% { opacity: 0; transform: translate(20cqw, -18cqw) scale(1) rotate(8deg); } }
+
+/* 울기: 어깨를 들썩이며 흐느끼고(조금 웅크린 채) · 두 눈 아래로 눈물 줄기와 방울 */
+.kg-actor.m-cry > .kg-body { animation: kg-m-cry 1.2s ease-in-out infinite; }
+@keyframes kg-m-cry {
+  0%, 44%, 100% { transform: translateY(.4%) scale(1.012, .99); }
+  6% { transform: translate(.55%, -.4%) scale(1.004, 1); }
+  12% { transform: translate(-.55%, .4%) scale(1.012, .99); }
+  18% { transform: translate(.5%, -.4%) scale(1.004, 1); }
+  24% { transform: translate(-.5%, .4%) scale(1.012, .99); }
+  30% { transform: translate(.3%, -.2%); }
+  36% { transform: translate(-.2%, .4%) scale(1.012, .99); }
+}
+.kg-fx-stream { top: 23.8%; width: .8cqw; height: 4.2cqw; margin: 0 0 0 -.4cqw; border-radius: 1cqw; background: linear-gradient(180deg, rgba(215, 243, 255, .9), rgba(140, 210, 255, .5) 55%, rgba(140, 210, 255, 0)); transform-origin: 50% 0; animation: kg-fx-stream 1.2s ease-in-out infinite; }
+.kg-fx-stream.e1 { left: 47.2%; }
+.kg-fx-stream.e2 { left: 52.6%; animation-delay: -.3s; }
+@keyframes kg-fx-stream { 0%, 100% { opacity: .6; transform: scaleY(.8); } 50% { opacity: .9; transform: scaleY(1.05); } }
+.kg-fx-tear { top: 25.5%; width: 1.4cqw; height: 1.4cqw; margin: -.7cqw 0 0 -.7cqw; animation: kg-fx-tear-l 1.1s ease-in infinite; }
+.kg-fx-tear::before { content: ""; position: absolute; inset: 0; border-radius: 0 50% 50% 50%; transform: rotate(45deg); background: radial-gradient(circle at 38% 38%, #fff 0 16%, #bfe8ff 30%, #5ab6f2 100%); box-shadow: 0 0 .5cqw rgba(120, 200, 255, .6); }
+.kg-fx-tear.e1 { left: 46.9%; }
+.kg-fx-tear.e2 { left: 52.9%; animation-name: kg-fx-tear-r; }
+.kg-fx-tear.d1 { animation-delay: 0s; }
+.kg-fx-tear.d2 { animation-delay: -.55s; }
+@keyframes kg-fx-tear-l { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 15% { opacity: 1; transform: translate(0, .4cqw) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-1.4cqw, 10cqw) scale(.85); } }
+@keyframes kg-fx-tear-r { 0% { opacity: 0; transform: translate(0, 0) scale(.5); } 15% { opacity: 1; transform: translate(0, .4cqw) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(1.4cqw, 10cqw) scale(.85); } }
+
+/* 스쿼트: 발은 그대로 쭈그렸다(잠깐 버티고) 쭉 일어난다 · 버틸 때 땀 한 방울 */
+.kg-actor.m-squat > .kg-body { animation: kg-m-squat 1.5s ease-in-out infinite; }
+@keyframes kg-m-squat { 0%, 100% { transform: none; } 40%, 56% { transform: scale(1.05, .87); } 72% { transform: scale(.985, 1.025); } 86% { transform: none; } }
+.kg-fx-sweat { left: 57.6%; top: 17%; font-size: 3.8cqw; animation: kg-fx-sweat 1.5s ease-in-out infinite; }
+@keyframes kg-fx-sweat { 0%, 32% { opacity: 0; transform: translate(0, 0) scale(.4); } 44% { opacity: 1; transform: translate(.6cqw, -.6cqw) scale(1); } 60% { opacity: 1; transform: translate(1.2cqw, 1.4cqw) scale(.95); } 72%, 100% { opacity: 0; transform: translate(1.6cqw, 4cqw) scale(.8); } }
+
+/* 쓰레기 맞기: 위에서 쓰레기가 차례로 떨어져 머리에 맞고 튕겨 나간다(1초에 하나) · 맞을 때마다 움찔, 어질어질 */
+.kg-actor.m-trash > .kg-body { animation: kg-m-trash 1s ease-out infinite; }
+@keyframes kg-m-trash {
+  0%, 100% { transform: none; }
+  7% { transform: translateY(.6%) scale(1.035, .94); }
+  18% { transform: scale(.99, 1.012) rotate(-1.8deg); }
+  38% { transform: rotate(1.8deg); }
+  60% { transform: rotate(-1.2deg); }
+  82% { transform: rotate(.8deg); }
+}
+/* 쓰레기 하나 = 5초 중 1초 동안 떨어져(머리 = 캔버스 y 11.5%) 맞고, 튕겨 나가 사라진다. 다섯 개가 1초씩 어긋나 몸의 1초 박자(움찔)와 맞는다 */
+.kg-fx-trash { top: 11.5%; font-size: 7.2cqw; animation: kg-fx-fall-l 5s linear infinite; }
+.kg-fx-trash.k1 { left: 49%; }
+.kg-fx-trash.k2 { left: 53%; animation-name: kg-fx-fall-r; animation-delay: -1s; }
+.kg-fx-trash.k3 { left: 48%; animation-delay: -2s; }
+.kg-fx-trash.k4 { left: 52%; animation-name: kg-fx-fall-r; animation-delay: -3s; }
+.kg-fx-trash.k5 { left: 50%; animation-delay: -4s; }
+@keyframes kg-fx-fall-l {
+  0% { opacity: 0; transform: translate(.5cqw, -26cqw) rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .9, .55); }
+  3% { opacity: 1; }
+  20% { opacity: 1; transform: translate(0, 0) rotate(70deg); animation-timing-function: cubic-bezier(.1, .6, .4, 1); }
+  29% { transform: translate(-7cqw, -7cqw) rotate(-30deg); animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
+  46% { opacity: 1; transform: translate(-15cqw, 34cqw) rotate(-240deg); }
+  52%, 100% { opacity: 0; transform: translate(-16cqw, 42cqw) rotate(-270deg); }
+}
+@keyframes kg-fx-fall-r {
+  0% { opacity: 0; transform: translate(-.5cqw, -26cqw) rotate(0deg); animation-timing-function: cubic-bezier(.45, 0, .9, .55); }
+  3% { opacity: 1; }
+  20% { opacity: 1; transform: translate(0, 0) rotate(-70deg); animation-timing-function: cubic-bezier(.1, .6, .4, 1); }
+  29% { transform: translate(7cqw, -7cqw) rotate(30deg); animation-timing-function: cubic-bezier(.6, 0, 1, .5); }
+  46% { opacity: 1; transform: translate(15cqw, 34cqw) rotate(240deg); }
+  52%, 100% { opacity: 0; transform: translate(16cqw, 42cqw) rotate(270deg); }
+}
+.kg-fx-pop { left: 59%; top: 13%; font-size: 4.4cqw; animation: kg-fx-pop 2s ease-out infinite; }
+@keyframes kg-fx-pop { 0% { opacity: 0; transform: scale(.3); } 5% { opacity: 1; transform: scale(1.25); } 14% { opacity: 1; transform: scale(1); } 34% { opacity: 1; } 46%, 100% { opacity: 0; transform: scale(.9); } }
+/* 어질어질: 머리 둘레를 도는 별(캐릭터와 같이 움직인다 — 뒤로 돌 때는 작고 옅게) */
+.kg-fx-orbit { left: 51%; top: 13%; font-size: 3.4cqw; animation: kg-fx-orbit 1.2s linear infinite; }
+.kg-fx-orbit.o1 { animation-delay: 0s; }
+.kg-fx-orbit.o2 { animation-delay: -.4s; }
+.kg-fx-orbit.o3 { animation-delay: -.8s; }
+@keyframes kg-fx-orbit {
+  0%, 100% { opacity: 1; transform: translate(9cqw, 0) scale(1); }
+  12.5% { opacity: 1; transform: translate(6.4cqw, 1.4cqw) scale(1.05); }
+  25% { opacity: 1; transform: translate(0, 2cqw) scale(1.1); }
+  37.5% { opacity: 1; transform: translate(-6.4cqw, 1.4cqw) scale(1.05); }
+  50% { opacity: 1; transform: translate(-9cqw, 0) scale(1); }
+  62.5% { opacity: .5; transform: translate(-6.4cqw, -1.4cqw) scale(.8); }
+  75% { opacity: .4; transform: translate(0, -2cqw) scale(.72); }
+  87.5% { opacity: .5; transform: translate(6.4cqw, -1.4cqw) scale(.8); }
+}
+
+/* 깡 춤: 건들건들 느리게 한쪽으로 기울었다가 → 반대쪽으로 탁! 튀어 자세 · 고개 까딱까딱 · 다시 건들건들 걸어 돌아와 자세. 자세 잡을 때 반짝 */
+.kg-actor.m-kkang > .kg-body { animation: kg-m-kkang 2.4s infinite; }
+@keyframes kg-m-kkang {
+  0% { transform: none; animation-timing-function: ease-in-out; }
+  24% { transform: translate(-2.2%, .3%) rotate(-4.5deg) skewX(3deg); animation-timing-function: linear; }
+  31% { transform: translate(-2.4%, .3%) rotate(-5deg) skewX(3deg); animation-timing-function: cubic-bezier(.3, 0, .2, 1); }
+  36% { transform: translate(2.3%, -2.6%) rotate(3deg) skewX(-2deg); animation-timing-function: ease-in; }
+  40% { transform: translate(2.7%, 0) rotate(4.5deg) scale(1.03, .955); animation-timing-function: ease-out; }
+  45% { transform: translate(2.7%, -1.1%) rotate(4.5deg); animation-timing-function: ease-in; }
+  49% { transform: translate(2.7%, 0) rotate(4.5deg) scale(1.01, .98); animation-timing-function: ease-out; }
+  54% { transform: translate(2.7%, -1.1%) rotate(4.5deg); animation-timing-function: ease-in; }
+  58%, 64% { transform: translate(2.7%, 0) rotate(4.5deg); animation-timing-function: ease-in-out; }
+  72% { transform: translate(1.2%, -1.6%) rotate(-1deg) skewX(-4deg); animation-timing-function: ease-in-out; }
+  79% { transform: translate(.3%, 0) rotate(-2deg) skewX(-4deg) scale(1.01, .985); animation-timing-function: ease-in-out; }
+  86% { transform: translate(-.4%, -1.2%) rotate(-3deg) skewX(-2deg); animation-timing-function: ease-out; }
+  90%, 96% { transform: translate(-.5%, 0) rotate(-3deg) scale(1.03, 1); animation-timing-function: ease-in-out; }
+  100% { transform: none; }
+}
+.kg-fx-spark { font-size: 5cqw; animation: kg-fx-spark 2.4s ease-out infinite; }
+.kg-fx-spark.s1 { left: 66%; top: 19%; }
+.kg-fx-spark.s2 { left: 70%; top: 44%; font-size: 3.6cqw; }
+.kg-fx-spark.s3 { left: 33%; top: 27%; font-size: 4cqw; animation-name: kg-fx-spark2; }
+@keyframes kg-fx-spark { 0%, 35% { opacity: 0; transform: scale(0) rotate(0deg); } 40% { opacity: 1; transform: scale(1.25) rotate(20deg); } 52%, 100% { opacity: 0; transform: scale(.5) rotate(50deg); } }
+@keyframes kg-fx-spark2 { 0%, 87% { opacity: 0; transform: scale(0) rotate(0deg); } 92% { opacity: 1; transform: scale(1.2) rotate(-20deg); } 100% { opacity: 0; transform: scale(.5) rotate(-45deg); } }
+
+/* 함께하는 펫: 제자리에서 살짝 들썩이다 가끔 통 뛴다(캐릭터와 다른 박자) */
+.kg-pet-buddy .kg-pet-img { transform-origin: 50% 92%; animation: kg-pet-hop 2.6s ease-in-out infinite; }
+@keyframes kg-pet-hop {
+  0%, 48%, 100% { transform: none; }
+  24% { transform: translateY(-1.5%) scale(1.01, .99); }
+  56% { transform: scale(1.06, .92); }
+  68% { transform: translateY(-11%) scale(.96, 1.05); animation-timing-function: ease-in; }
+  80% { transform: scale(1.05, .93); }
+  88% { transform: none; }
+}
 
 /* ---------- 칸 ---------- */
 .kg-sec { display: flex; flex-direction: column; gap: 18px; min-width: 0; animation: kg-rise .6s var(--ease) both; }
@@ -212,9 +385,9 @@ a { color: inherit; }
 .kg-grid:empty { display: none; }
 .kg-card { display: flex; flex-direction: column; gap: 12px; min-width: 0; color: inherit; text-decoration: none; }
 .kg-card-media { position: relative; isolation: isolate; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); transform: translateZ(0); transition: transform .35s var(--ease), border-color .25s ease, box-shadow .35s var(--ease); }
-.kg-card-media .kg-stage > svg { transition: transform .6s var(--ease); }
+.kg-card-media .kg-stage > svg, .kg-card-media .kg-stage > .kg-actor { transition: transform .6s var(--ease); }
 .kg-card:hover .kg-card-media { transform: translateY(-4px); border-color: var(--line-2); box-shadow: var(--shadow); }
-.kg-card:hover .kg-card-media .kg-stage > svg { transform: scale(1.035); }
+.kg-card:hover .kg-card-media .kg-stage > svg, .kg-card:hover .kg-card-media .kg-stage > .kg-actor { transform: scale(1.035); }
 .kg-card:focus-visible { outline: none; }
 .kg-card:focus-visible .kg-card-media { outline: 2px solid var(--text); outline-offset: 3px; }
 .kg-rank-badge { position: absolute; z-index: 3; top: 10px; left: 10px; }
@@ -384,18 +557,23 @@ a { color: inherit; }
 .kg-try-title { position: absolute; z-index: 2; top: 5%; left: 7%; right: 7%; display: grid; place-items: center; pointer-events: none; }
 .kg-try-title-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .55)); }
 .kg-try-title .kg-title-word { font-size: 15px; text-align: center; }
-.kg-try-look.has-title .kg-try-stage > svg { width: 115%; height: 86.25%; left: -7.5%; top: 15%; }
+.kg-try-look.has-title .kg-try-stage > svg, .kg-try-look.has-title .kg-try-stage > .kg-actor { width: 115%; height: 86.25%; left: -7.5%; top: 15%; }
 .kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
 /* 입혀 보기 미리 보기의 함께하는 펫(2026-10-15): 캐릭터 무대처럼 오른쪽 아래에 */
 .kg-try-look .kg-pet-buddy { z-index: 2; right: 0; bottom: 1%; width: 40%; }
 .kg-try-look .kg-pet-name { font-size: 11px; padding: 3px 10px; }
-.kg-try-stage[aria-busy="true"] > svg { opacity: .82; transition: opacity .2s ease; }
+.kg-try-stage[aria-busy="true"] > svg, .kg-try-stage[aria-busy="true"] > .kg-actor { opacity: .82; transition: opacity .2s ease; }
 .kg-try-cmd { grid-area: cmd; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .kg-try-label { font-size: 12px; font-weight: 700; color: var(--accent-text); }
 .kg-try-line { margin: 0; max-height: calc(1.45em * 3 + 18px); overflow-y: auto; padding: 8px 10px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--panel-2); font-size: 14px; font-weight: 800; line-height: 1.45; letter-spacing: -.01em; color: var(--text); -webkit-user-select: all; user-select: all; }
 .kg-try-line.is-empty { font-size: 12.5px; font-weight: 500; color: var(--text-3); -webkit-user-select: none; user-select: none; }
-.kg-try-actions { display: flex; gap: 6px; }
+/* 단추 줄은 넘치면 다음 줄로(2026-10-15 — 휴대폰에서 "맨몸부터"가 화면 밖으로 나가 옆으로 밀리던 것) */
+.kg-try-actions { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
 .kg-try-actions .btn { min-height: 44px; padding: 0 12px; gap: 6px; font-size: 14px; }
+@media (max-width: 520px) {
+  .kg-try-actions .kg-try-copy { flex: 1 1 100%; }
+  .kg-try-actions .kg-try-reset, .kg-try-actions .kg-try-bare { flex: 1 1 0; }
+}
 .kg-try-copy { flex: 1 1 auto; }
 .kg-try-reset { flex: 0 1 auto; }
 /* 맨몸부터(2026-10-15 — !다벗기): 켜면 주황 테두리 */
@@ -437,6 +615,17 @@ a { color: inherit; }
 .kg-try-title-media .kg-title-img { width: 100%; }
 .kg-try-title-media .kg-title-word { font-size: 17px; }
 .kg-try-tile.is-off .kg-try-title-media .kg-title-img { opacity: .55; }
+/* 모션(2026-10-15): 캐릭터 페이지 레벨 옆 "💃 춤추는 중" · 정보 칸 아래 안내 한 줄 · 입혀 보기 모션 탭(따로 복사하는 한 줄 + 모션 칸) */
+.kg-char-level { flex-wrap: wrap; row-gap: 6px; }
+.kg-motion-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 11px 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-size: 13.5px; font-weight: 700; }
+.kg-motion-guide { margin: -2px 0 0; max-width: 460px; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
+.kg-motion-guide b { margin-right: 4px; color: var(--text); }
+.kg-try-motions { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.kg-try-mcmd { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--panel); }
+.kg-try-motion-media { display: grid; place-items: center; aspect-ratio: 4 / 3; container-type: inline-size; background: radial-gradient(60% 60% at 50% 45%, rgba(124, 92, 255, .18), transparent 72%), var(--stage); }
+.kg-try-motion-emoji { font-size: 34px; font-size: clamp(28px, 30cqw, 64px); line-height: 1; }
+.kg-try-desc { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: 12px; line-height: 1.4; color: var(--text-2); }
+.kg-motion-desc { margin-top: 2px; font-size: 13px; line-height: 1.45; color: var(--text-2); }
 .kg-copy-box:empty { display: none; }
 .kg-copy-box { display: flex; flex-direction: column; gap: 6px; width: 100%; max-width: 460px; }
 .kg-copy-input { width: 100%; min-width: 0; min-height: 44px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--panel); font-size: 14px; color: var(--text); }
@@ -461,9 +650,9 @@ a { color: inherit; }
 .kg-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 12px; }
 .kg-item { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .kg-item-media { position: relative; isolation: isolate; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r-lg); transition: border-color .25s ease, transform .35s var(--ease), box-shadow .35s var(--ease); }
-.kg-item-media .kg-stage > svg { transition: transform .6s var(--ease); }
+.kg-item-media .kg-stage > svg, .kg-item-media .kg-stage > .kg-actor { transition: transform .6s var(--ease); }
 .kg-item:hover .kg-item-media { transform: translateY(-3px); border-color: var(--line-2); box-shadow: var(--shadow); }
-.kg-item:hover .kg-item-media .kg-stage > svg { transform: scale(1.04); }
+.kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: scale(1.04); }
 .kg-item-code { position: absolute; z-index: 3; top: 10px; left: 10px; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: 8px; background: rgba(11, 11, 15, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font-size: 12px; font-weight: 700; line-height: 1.2; color: var(--text); }
 .kg-item-code.accent { border-color: rgba(255, 122, 47, .45); color: var(--accent-text); }
 /* 번호 단추(누르면 복사 — 채팅 상점과 같은 번호). 손가락으로 누르기 쉽게 보이는 것보다 넓게 받는다 */
@@ -594,8 +783,10 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--accent); outline-of
 }
 @media (hover: none) {
   .kg-card:hover .kg-card-media, .kg-item:hover .kg-item-media, .kg-cast-one:hover { transform: none; box-shadow: none; }
-  .kg-card:hover .kg-card-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > svg { transform: none; }
+  .kg-card:hover .kg-card-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > svg, .kg-card:hover .kg-card-media .kg-stage > .kg-actor, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  /* 숨쉬기·모션도 멈추고, 움직여야 보이는 모션 효과(눈물·음표·쓰레기 …)는 숨긴다 */
+  .kg-fx { display: none; }
 }

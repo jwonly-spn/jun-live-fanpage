@@ -153,7 +153,7 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
   const character = await src('views/character.js');
   assert.match(character, /from '\.\.\/lib\/try-on\.js'/);
-  assert.match(character, /const tryOn = tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy \}\)/, '단 칭호도 넘긴다');
+  assert.match(character, /const tryOn = tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy, motion: motion\?\.id \}\)/, '단 칭호·하는 모션도 넘긴다');
   assert.match(character, /secHead\('입은 옷', [^\n]+, tryOn\?\.openBtn \|\| null\)/, '"입은 옷" 제목 옆 단추');
   assert.match(character, /tryOn\?\.section,/, '입은 옷 칸 바로 아래');
   assert.match(character, /\]\.filter\(Boolean\)\);/, '빈 칸(null)을 넣지 않는다');
@@ -333,7 +333,7 @@ test('맨몸부터(2026-10-15 — 먼치킨 0.15.84 !다벗기): 입은 옷을 �
   // 화면: 맨몸부터 단추 · 원래대로가 끈다 · 바탕은 base()
   const src = await readFile(new URL('../docs/views/character.js', import.meta.url), 'utf8');
   assert.match(src, /class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false'/);
-  assert.match(src, /onclick: \(\) => \{ tried = \[\]; title = null; bare = false; sync\(\); \}/);
+  assert.match(src, /onclick: \(\) => \{ pickMotion = nowMotion; tried = \[\]; title = null; bare = false; sync\(\); \}/, '원래대로는 고른 모션도 지금 하는 모션으로');
   assert.match(src, /tryLine\(tried, catalog, sid, \{ title, wornTitle, bare \}\)/);
   assert.match(src, /have\.has\(id\) \? '가진 옷' : ''/);
 });

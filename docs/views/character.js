@@ -13,14 +13,15 @@
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage } from '../lib/kiugi-draw.js';
-import { copyCode, chatHint, titleEffects, itemGroups } from './items.js';
+import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage, motionOf, motionList, motionDoing } from '../lib/kiugi-draw.js';
+import { copyCode, chatHint, titleEffects, itemGroups, motionPriceText } from './items.js';
 import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
-  toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN } from '../lib/try-on.js';
+  toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN,
+  motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { art, itemArt, copyLink, idText } from './cards.js';
+import { art, itemArt, copyLink, idText, actorNodes, setStageMotion } from './cards.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
 function browserStorage() { try { return window.localStorage; } catch { return null; } }
@@ -68,6 +69,13 @@ function petSection(pets, base) {
       h('b', null, p.stage ? p.name : '???'),
       h('span', { class: 'kg-pet-stage' }, p.stage ? stars(p.stage) + (p.active ? ' · 함께' : '') : `아직 못 만난 ${p.name}`)))));
 }
+// 모션 안내(캐릭터 첫 화면 정보 칸 아래 한 줄, 2026-10-15): 방송 채팅 "!모션 춤"(시즌 첫 모션 이름) · 값(시즌 목록) · "!모션 끄기" · 입혀 보기에서 미리 보기. 모션이 없는 시즌이면 null.
+export function motionGuide(catalog, seasonId) {
+  const list = motionList(catalog, seasonId);
+  if (!list.length) return null;
+  const cmd = (t) => h('code', { class: 'kg-cmd' }, t), price = motionPriceText(list);
+  return h('p', { class: 'kg-motion-guide' }, h('b', null, '모션'), ' 방송 채팅에 ', cmd(motionCommand(list[0])), ` 처럼 치면 사서 바로 해요${price ? `(${price})` : ''}. 멈출 때는 `, cmd(MOTION_OFF), ' 를 쳐요. 아래 입혀 보기에서 미리 볼 수 있어요.');
+}
 export function loadoutSlots(catalog, seasonId, worn) {
   const list = wornList(catalog, seasonId, worn);
   const slots = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
@@ -101,8 +109,13 @@ export const TRY_TITLE = '입혀 보기';
 export const TRY_EMPTY = '옷을 누르면 여기에 채팅 한 줄이 생겨요';
 // 칭호 탭(옷 묶음 id 와 겹치지 않는 이름)
 export const TITLE_TAB = 'title';
+// 모션 탭(2026-10-15 사용자 "청취자들이 모션을 살 수 있게"): 칭호 뒤 맨 끝. "모션 없이" + 시즌 모션 — 누르면 미리 보기 캐릭터가 그 모션을 하고,
+//  옷 한 줄과 따로 "!모션 춤"(모션 없이를 고르면 "!모션 끄기")을 복사한다. 지금 하는 모션(서버가 보낸 motion)은 "하는 중" — 미리 보기도 처음엔 그 모션.
+export const MOTION_TAB = 'motion';
+export const MOTION_EMPTY = '모션을 고르면 여기에 채팅 한 줄이 생겨요';
 // pet(2026-10-15 사용자 "펫이 여기 같이 나와야 한다 귀엽고 이쁘게"): 함께하는 펫 — 미리 보기 오른쪽 아래에 같이 선다(옷과 상관없이 그대로)
-export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app, pet = null }) {
+// motion: 지금 하는 모션 id(서버가 보낸 것 — 시즌 목록에 없으면 모션 없음)
+export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app, pet = null, motion = null }) {
   const sid = catalog?.seasons?.[seasonId] ? seasonId : catalog?.last;
   const { groups, titles = [], rule = null } = itemGroups(catalog, sid);
   if (!dj?.character || !groups.length) return null;
@@ -112,6 +125,10 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const wornTitle = wornTitleOf(catalog, wearing), openDate = titleOpenDate(rule);
   // 탭 = 옷 묶음들 + (칭호가 있는 시즌이면) 칭호
   const tabList = [...groups, ...(titles.length ? [{ slot: TITLE_TAB, name: '칭호', items: titles, title: true }] : [])];
+  // + (모션이 있는 시즌이면) 모션 — 지금 하는 모션(nowMotion)과 미리 보는 모션(pickMotion)
+  const motions = motionList(catalog, sid), nowMotion = motionOf(catalog, motion)?.id || null;
+  let pickMotion = nowMotion;
+  if (motions.length) tabList.push({ slot: MOTION_TAB, name: '모션', items: motions, motion: true });
   // bare: 맨몸부터(2026-10-15 — 먼치킨 !다벗기) — 입은 옷을 모두 벗긴 모습(배경은 그대로)에서 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 …"
   let tried = [], title = null, tab = groups[0].slot, built = false, line = '', bare = false;
   // 지금 미리 보기의 바탕(맨몸부터면 배경만 남긴 입은 옷)과 그 옷 id
@@ -127,7 +144,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const lookEl = h('div', { class: 'kg-try-look' + (pet ? ' has-pet' : '') }, titleTag, stage, petBuddy(pet, app.base));
   const lineEl = h('p', { class: 'kg-try-line is-empty', id: 'try-line' }, TRY_EMPTY);
   const copyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-copy', disabled: true, 'aria-describedby': 'try-line', onclick: () => copyLine() }, icon('copy', { size: 18 }), h('span', null, '복사'));
-  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
+  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { pickMotion = nowMotion; tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
   // 맨몸부터: 누르면 켜고 끄기(켜면 입은 옷이 모두 벗겨진 모습에서 시작 — 고른 옷은 그대로 둔다)
   const bareBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false', title: '입은 옷을 모두 벗긴 모습에서 입혀 봐요 (!다벗기)',
     onclick: () => { bare = !bare; sync(); } }, icon('hanger', { size: 18 }), h('span', null, '맨몸부터'));
@@ -179,8 +196,53 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
       same ? h('p', { class: 'kg-try-tab-note' }, h('b', null, `칭호 효과(${g.items[0].until})`), ` ${perks.join(' · ')}`) : null,
       h('ul', { class: 'kg-try-grid is-titles', 'aria-label': '시즌 칭호' }, ...g.items.map(titleTile)));
   };
+  // 모션 탭: 위에 따로 복사하는 한 줄("!모션 춤" — 옷 한 줄과 다른 명령) + "모션 없이"·모션 칸(그림 글자·이름·한 줄 설명·값). 하나만 고른다.
+  const motionTiles = new Map();
+  let mLine = '';
+  const mLineEl = h('p', { class: 'kg-try-line is-empty', id: 'try-motion-line' }, MOTION_EMPTY);
+  const mCopyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-copy', disabled: true, 'aria-describedby': 'try-motion-line', onclick: () => copyMotion() }, icon('copy', { size: 18 }), h('span', null, '복사'));
+  const mSum = h('p', { class: 'kg-try-sum', role: 'status', 'aria-live': 'polite' });
+  const motionTile = (m) => {
+    const id = m?.id || null, mine = id === nowMotion;
+    const badge = h('span', { class: 'kg-try-badge', 'aria-hidden': 'true' });
+    const btn = h('button', { type: 'button', class: 'kg-try-pick', 'aria-pressed': 'false', onclick: () => pickMotionTile(id),
+      'aria-label': m ? `모션 ${m.name} · ${fmt(m.price)}냥${mine ? ' · 지금 하는 중' : ''}` : `모션 없이${mine ? ' · 지금' : ` · ${MOTION_OFF}`}` }, m ? m.name : '모션 없이');
+    const li = h('li', { class: 'kg-try-tile is-motion' + (mine ? ' is-worn' : '') },
+      h('div', { class: 'kg-try-media kg-try-motion-media', 'aria-hidden': 'true' }, h('span', { class: 'kg-try-motion-emoji' }, m ? m.emoji : '🧍'), badge),
+      btn,
+      h('span', { class: 'kg-try-desc', 'aria-hidden': 'true' }, m ? m.desc : '숨쉬기만 해요'),
+      h('span', { class: 'kg-try-price', 'aria-hidden': 'true' }, m ? h('b', null, `${fmt(m.price)}냥`) : h('span', { class: 'kg-chip' }, MOTION_OFF)));
+    motionTiles.set(id, { li, btn, badge });
+    return li;
+  };
+  const motionGrid = (g) => h('div', { class: 'kg-try-motions' },
+    h('p', { class: 'kg-try-tab-note' }, '모션을 누르면 미리 보기 캐릭터가 그 모션을 해요. 옷 채팅과 따로, 이 한 줄을 복사해 방송 채팅에 붙여 넣어요.'),
+    h('div', { class: 'kg-try-mcmd' }, h('span', { class: 'kg-try-label' }, '모션 채팅'), mLineEl, h('div', { class: 'kg-try-actions' }, mCopyBtn), mSum),
+    h('ul', { class: 'kg-try-grid is-motions', 'aria-label': '모션' }, motionTile(null), ...g.items.map(motionTile)));
+  // 모션 누르기: 고르기 / 고른 모션을 다시 누르면 지금 하는 모션으로 되돌리기(미리 보기는 다시 그리지 않고 움직임만 바꾼다)
+  const pickMotionTile = (id) => { pickMotion = id === pickMotion ? nowMotion : id; sync({ paint: false }); };
+  const copyMotion = async () => {
+    if (!mLine) return;
+    if (await copyText(mLine)) { toast(MOTION_COPIED(mLine)); return; }
+    try { const sel = getSelection(), r = document.createRange(); r.selectNodeContents(mLineEl); sel.removeAllRanges(); sel.addRange(r); } catch { /* 고르기도 안 되는 브라우저 */ }
+    toast('복사하지 못했어요. 위 채팅 글을 길게 눌러 복사해 주세요.', 'error');
+  };
+  const syncMotion = () => {
+    for (const [id, t] of motionTiles) {
+      const on = id === pickMotion;
+      t.btn.setAttribute('aria-pressed', String(on));
+      t.li.classList.toggle('is-on', on); t.li.classList.toggle('is-tried', on && id !== nowMotion);
+      t.badge.textContent = id === nowMotion ? (id ? '하는 중' : '지금') : on ? '골라 봄' : '';
+    }
+    mLine = motionLine(catalog, pickMotion, nowMotion);
+    mLineEl.textContent = mLine || MOTION_EMPTY; mLineEl.classList.toggle('is-empty', !mLine); mCopyBtn.disabled = !mLine;
+    const m = motionOf(catalog, pickMotion), now = motionOf(catalog, nowMotion);
+    mSum.textContent = mLine ? (m ? `${m.emoji} ${m.name} · ${fmt(m.price)}냥` : '지금 하는 모션을 멈춰요')
+      : now ? `지금 ${motionDoing(now)}이에요` : '모션을 누르면 미리 볼 수 있어요';
+    setStageMotion(stage, pickMotion);
+  };
   const listOf = (g) => {
-    if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit'))));
+    if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : g.motion ? motionGrid(g) : h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit'))));
     return lists.get(g.slot);
   };
   const showTab = (slot, { scroll = false } = {}) => {
@@ -209,7 +271,8 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
     let markup = null;
     try { markup = characterMarkup(catalog, dj.character, look, level, { seasonId, base: app.base, label: codes.length ? `입혀 본 모습: ${codes.join(', ')}` : bare ? '맨몸' : '지금 입은 모습', stage: null }); } catch (e) { console.error(e); }
     if (!markup) { stage.replaceChildren(h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요')); stage.removeAttribute('aria-busy'); return; }
-    paintMarkup(stage, markup, { fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요') })
+    // 캐릭터는 숨쉬고, 고른 모션(pickMotion — 그림을 다 받은 때의 것)을 한다
+    paintMarkup(stage, markup, { make: (m) => actorNodes(m, { motion: pickMotion }), fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요') })
       .then((done) => { if (done) stage.removeAttribute('aria-busy'); })
       .catch((e) => { console.error(e); stage.removeAttribute('aria-busy'); });
   };
@@ -243,15 +306,16 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
       t.badge.textContent = id === wornTitle ? '다는 중' : isPicked ? '달아 봄' : '';
     }
     for (const g of tabList) {
-      const b = tabBtns.get(g.slot), n = g.title ? (picked ? 1 : 0) : g.items.filter((it) => tried.includes(it.id)).length, badge = b?.querySelector('.kg-try-n');
+      const b = tabBtns.get(g.slot), n = g.title ? (picked ? 1 : 0) : g.motion ? (pickMotion !== nowMotion ? 1 : 0) : g.items.filter((it) => tried.includes(it.id)).length, badge = b?.querySelector('.kg-try-n');
       if (!b) continue;
       badge.textContent = String(n); badge.hidden = !n;
-      b.setAttribute('aria-label', n ? (g.title ? `${g.name}, 달아 본 칭호 1개` : `${g.name}, 입혀 본 옷 ${n}벌`) : g.name);
+      b.setAttribute('aria-label', n ? (g.title ? `${g.name}, 달아 본 칭호 1개` : g.motion ? `${g.name}, 골라 본 모션 있음` : `${g.name}, 입혀 본 옷 ${n}벌`) : g.name);
     }
+    if (motions.length) syncMotion();
     line = tryLine(tried, catalog, sid, { title, wornTitle, bare });
     lineEl.textContent = line || TRY_EMPTY;
     lineEl.classList.toggle('is-empty', !line);
-    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked && !bare;
+    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked && !bare && pickMotion === nowMotion;
     // 값: 지금 입은 옷은 가진 옷이라 빼고 센다(맨몸부터로 벗긴 옷을 다시 입어도 냥이 들지 않는다)
     const total = tryTotal(tried, catalog, { worn, title, wornTitle }), used = tried.length + (picked ? 1 : 0);
     sum.textContent = used
@@ -375,12 +439,14 @@ export async function renderCharacter(root, route, app) {
   // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
   const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts }), { base: app.base }) : null;
   const pets = petList(catalog, data), buddy = pets.find((p) => p.active) || null;
+  // 모션(2026-10-15): 지금 하는 모션(시즌 목록에 있는 것만) — 무대 캐릭터가 그 모션을 하고, 레벨 옆에 "💃 춤추는 중"
+  const motion = motionOf(catalog, data.motion);
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
         h('div', { class: 'kg-hero-art' },
           h('div', { class: 'kg-hero-stage' },
-            art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터`, eager: true, kind: 'hero' }),
+            art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero' }),
             petBuddy(buddy, app.base)),
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
@@ -390,17 +456,19 @@ export async function renderCharacter(root, route, app) {
             t.image ? h('img', { class: 'kg-char-title-img', src: titleImageUrl(t, app.base), alt: `칭호 ${t.name}`, decoding: 'async' }) : h('b', { class: 'kg-title-word' }, t.name),
             titleEffects(t))),
           h('h1', { class: 'display kg-char-id' }, ...idText(data.id)),
-          h('p', { class: 'kg-char-level' }, h('span', { class: 'kg-lv' }, `Lv.${level}`), h('span', null, expression)),
+          h('p', { class: 'kg-char-level' }, h('span', { class: 'kg-lv' }, `Lv.${level}`), h('span', null, expression),
+            motion ? h('span', { class: 'kg-motion-chip' }, h('span', { 'aria-hidden': 'true' }, motion.emoji), motionDoing(motion)) : null),
           h('dl', { class: 'kg-facts' },
             fact('하트', count),
             fact('입은 옷', `${worn.length}벌`),
             fact('시즌', data.season?.name || '—')),
+          motionGuide(catalog, seasonId),
           h('div', { class: 'kg-heart-row' }, heartBtn,
             h('button', { type: 'button', class: 'btn btn-line kg-copy-btn', onclick: () => copyLink(url, copyBox) }, icon('link', { size: 18 }), '링크 복사')),
           h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요. 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
           status, copyBox))));
   // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다)
-  const tryOn = tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy });
+  const tryOn = tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id });
   main.replaceChildren(...[
     h('section', { class: 'kg-sec' },
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.', tryOn?.openBtn || null),

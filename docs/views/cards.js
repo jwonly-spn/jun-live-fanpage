@@ -2,7 +2,7 @@
 // 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 // 카드 모양(styles.css): 패션 앱 상품 카드 — 위는 부드러운 무대 위 캐릭터(세로 3:4로 잘라 크게), 아래는 글 세 줄(어느 방송 · 아이디 · 레벨과 하트).
 import { h, icon, toast } from '../lib/dom.js';
-import { characterMarkup, itemMarkup, expressionFor, paintMarkup } from '../lib/kiugi-draw.js';
+import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf } from '../lib/kiugi-draw.js';
 import { ilink, medal } from './common.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
@@ -22,17 +22,63 @@ export function heartCount(n, { className = '' } = {}) {
     icon('heart', { size: 14, filled: true }), h('span', { 'aria-hidden': 'true' }, fmt(n)));
 }
 
+// ---- 숨쉬기·모션(2026-10-15 사용자 "캐릭터들이 2D 게임 대기 모션처럼 숨쉬듯이" · "청취자들이 모션을 살 수 있게") ----
+// 캐릭터 무대 = .kg-stage > svg.kg-scene(바탕·입은 배경 — 가만히, 없으면 없음) + .kg-actor(무대 그림 칸과 같은 자리·크기 = 1024 캔버스)
+//   .kg-actor > .kg-body(캐릭터 — 숨쉬기 또는 모션, 발끝 기준) > svg + .kg-fx.on-body(캐릭터와 같이 움직이는 효과: 눈물·가슴 하트·땀·머리 둘레 별)
+//             > .kg-fx.around(캐릭터 둘레에 떠 있는 효과: 음표·떨어지는 쓰레기·💢·반짝이)
+// 움직임은 모두 styles.css 의 CSS 애니메이션(transform·opacity — 그림을 다시 그리지 않는다, 자바스크립트 반복 없음).
+// 효과 자리는 캔버스 1024 기준 퍼센트(눈 482·540/230, 아래 눈꺼풀 241, 가슴 511/385, 발 바닥 956 — 남녀 같은 자리)라 칸 크기와 관계없이 같은 곳.
+// 숨쉬기는 카드마다 박자를 조금씩 어긋나게(kg-b0~4 — 칸이 여럿이어도 한꺼번에 숨쉬지 않게). 동작 줄이기 설정이면 모두 멈춘다(styles.css).
+// 모션 효과: [클래스(첫 낱말 = kg-fx-<이름>), 글자]. 모르는 모션은 효과 없이 숨쉬기만.
+const FX = Object.freeze({
+  dance: { around: [['note n1', '♪'], ['note n2', '♫'], ['note n3', '♬'], ['note n4', '♪']] },
+  heart: { body: [['rise r1', '💕'], ['rise r2', '💗'], ['rise r3', '💖'], ['chest', '💗']] },
+  cry: { body: [['stream e1', ''], ['stream e2', ''], ['tear e1 d1', ''], ['tear e1 d2', ''], ['tear e2 d1', ''], ['tear e2 d2', '']] },
+  squat: { body: [['sweat', '💦']] },
+  trash: { body: [['orbit o1', '⭐'], ['orbit o2', '💫'], ['orbit o3', '⭐']], around: [['trash k1', '🥫'], ['trash k2', '🍌'], ['trash k3', '📰'], ['trash k4', '🧦'], ['trash k5', '🍂'], ['pop', '💢']] },
+  kkang: { around: [['spark s1', '✨'], ['spark s2', '✨'], ['spark s3', '✨']] },
+});
+export const MOTION_FX = Object.keys(FX);
+export const MOTION_EFFECTS = FX;
+const fxNodes = (list) => (list || []).map(([cls, text]) => h('span', { class: cls.split(' ').map((c, i) => (i ? c : 'kg-fx-' + c)).join(' ') }, text));
+// 캐릭터 칸(.kg-actor)의 모션을 바꾼다: id = 모션 id(시즌 목록에서 확인한 것) 또는 null(숨쉬기만). 다시 그리지 않고 클래스·효과만 바꾼다.
+export function setActorMotion(actor, id = null) {
+  if (!actor) return;
+  for (const c of [...actor.classList]) if (c.startsWith('m-')) actor.classList.remove(c);
+  if (id) actor.classList.add('m-' + id);
+  const fx = (id && FX[id]) || {};
+  actor.querySelector('.kg-fx.on-body')?.replaceChildren(...fxNodes(fx.body));
+  actor.querySelector('.kg-fx.around')?.replaceChildren(...fxNodes(fx.around));
+}
+// 무대 안 캐릭터 칸의 모션 바꾸기(아직 그리는 중이면 아무것도 하지 않는다 — 다 그린 뒤 그때의 모션으로 그린다)
+export const setStageMotion = (stage, id = null) => setActorMotion(stage?.querySelector?.(':scope > .kg-actor'), id);
+let breath = 0;
+// 캐릭터 그림 글 → 무대에 넣을 요소 [바탕 SVG(없으면 null), 캐릭터 칸]. 읽지 못하면 null(paintMarkup 이 대신 글을 넣는다).
+export function actorNodes(markup, { motion = null } = {}) {
+  const { scene, body } = splitScene(markup);
+  const art = svgNode(body);
+  if (!art) return null;
+  const backdrop = scene ? svgNode(scene) : null;
+  backdrop?.classList.add('kg-scene');
+  const actor = h('div', { class: `kg-actor kg-b${breath++ % 5}` },
+    h('div', { class: 'kg-body' }, art, h('span', { class: 'kg-fx on-body', 'aria-hidden': 'true' })),
+    h('span', { class: 'kg-fx around', 'aria-hidden': 'true' }));
+  setActorMotion(actor, motion);
+  return [backdrop, actor];
+}
+
 let observer = null;
 // 그림 칸: make() 가 SVG 글을 돌려준다. eager 면 바로, 아니면 화면 가까이 왔을 때. kind: 무대 모양(styles.css .kg-stage.<kind>)
 //  그림 V3(2026-10-09): 그림 파일을 모두 받은 뒤 한 번에 넣는다(paintMarkup — 반쯤 그려진 모습이 보이지 않게).
-export function lazyStage(make, label, { eager = false, kind = '' } = {}) {
+//  actor: 캐릭터 그림이면 true — 바탕과 캐릭터를 나눠 캐릭터만 숨쉬게(motion = 모션 id). 옷 한 벌 그림(옷 도감 칸)은 움직이지 않는다.
+export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null } = {}) {
   const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') });
   const noart = () => h('span', { class: 'kg-noart' }, label);
   const draw = () => {
     let markup = null;
     try { markup = make(); } catch (e) { console.error(e); }
     if (!markup) { stage.replaceChildren(noart()); return; }
-    paintMarkup(stage, markup, { fallback: noart() }).catch((e) => { console.error(e); stage.replaceChildren(noart()); });
+    paintMarkup(stage, markup, { fallback: noart(), ...(actor ? { make: (m) => actorNodes(m, { motion }) } : {}) }).catch((e) => { console.error(e); stage.replaceChildren(noart()); });
   };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
   observer ||= new IntersectionObserver((entries) => {
@@ -43,10 +89,11 @@ export function lazyStage(make, label, { eager = false, kind = '' } = {}) {
   return stage;
 }
 // DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대는 styles.css). 캐릭터 칸은 세로(char)로 잘라 크게 보인다. kind: 무대 모양 더하기(hero·bare 등)
-export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '' } = {}) {
+//  캐릭터는 늘 숨쉰다. motion: 그 사람이 하는 모션 id(먼치킨이 보낸 것 — 시즌 목록에 있는 것만, 모르면 숨쉬기만)
+export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null } = {}) {
   const cls = 'char' + (kind ? ' ' + kind : '');
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls });
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: motionOf(catalog, motion)?.id || null });
 }
 // 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
 export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {

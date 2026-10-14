@@ -133,8 +133,10 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
   assert.equal(page.json.top.length, 3); assert.equal(page.json.top[0].rank, 1);
   assert.deepEqual(page.json.top.map((p) => p.id), ['밤톨#먼치', '사탕요정#먼치', '달무리#먼치']);
   // 서버(publicPerson)와 같은 모양: 단 칭호가 있는 사람만 titles 칸이 있다
-  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => k !== 'titles').sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => k !== 'titles' && k !== 'motion').sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
   assert.deepEqual(page.json.top.map((p) => p.titles ?? null), [['title-halloween-insa'], ['title-candy-plz'], null]);
+  // 모션(2026-10-15): 하는 모션이 있는 사람만 motion 칸(모션 id 하나)
+  assert.deepEqual(page.json.top.map((p) => p.motion ?? null), ['dance', 'cry', 'trash']);
   assert.doesNotMatch(JSON.stringify(page.json), /nickname/);
   const closed = await handle('GET', 'kiugi/page', { slug: 'shutpg22' });
   assert.equal(closed.status, 404); assert.equal(closed.json.closed, true);
@@ -142,7 +144,7 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
   const found = (await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: ' 밤 톨 ' })).json;
   assert.deepEqual(found.results.map((p) => p.id), ['밤톨#먼치', '밤톨이네#먼치', '작은밤톨#먼치'], '앞 부분이 같은 사람 먼저, 그다음 들어 있는 사람');
   assert.equal(found.exact, 1);
-  assert.deepEqual(Object.keys(found.results[0]).sort(), ['hearts', 'id', 'level', 'rank', 'titles', 'worn']);
+  assert.deepEqual(Object.keys(found.results[0]).sort(), ['hearts', 'id', 'level', 'motion', 'rank', 'titles', 'worn']);
   assert.deepEqual(found.results[0].titles, ['title-halloween-insa']);
   assert.equal(Object.hasOwn(found.results[1], 'titles'), false, '칭호 없는 사람은 titles 칸이 없다');
   assert.deepEqual((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '사탕요정#먼치' })).json.results.map((p) => p.id), ['사탕요정#먼치'], '전체 아이디로');
@@ -176,7 +178,8 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   assert.ok(home.popular.length > 0 && home.popular.length <= 12);
   assert.ok(home.popular.every((c, i, a) => c.hearts > 0 && (i === 0 || a[i - 1].hearts >= c.hearts)), '하트 많은 순');
   // 카드 모양(서버 card 와 같게): 단 칭호가 있는 사람만 titles 칸
-  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => k !== 'titles').sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
+  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => k !== 'titles' && k !== 'motion').sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
+  assert.equal(home.popular[0].motion, 'dance', '카드에도 하는 모션(사이트 카드는 숨쉬기만)');
   assert.deepEqual(home.popular[0].titles, ['title-halloween-insa'], '1등(밤톨#먼치)은 칭호를 달았다');
   assert.ok(home.popular.some((x) => !Object.hasOwn(x, 'titles')));
   assert.ok(home.recent.length > 0 && home.recent.length <= 8);
@@ -186,7 +189,8 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   const person = await handle('GET', 'kiugi/person', { slug: 'cuky2345', id: '귤껍질' });
   assert.equal(person.status, 200);
   // 펫(2026-10-15): 체험 모드 1~3등은 만난 펫(pets)·함께하는 펫(pet)이 있다
-  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'hearts', 'id', 'level', 'pet', 'pets', 'season', 'titles', 'worn']);
+  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'hearts', 'id', 'level', 'motion', 'pet', 'pets', 'season', 'titles', 'worn']);
+  assert.equal(person.json.motion, 'cry');
   assert.equal(person.json.id, '귤껍질#쿠키'); assert.equal(person.json.dj.name, '쿠키');
   // 캐릭터(person)는 서버처럼 titles 를 늘 배열로(단 칭호 하나 또는 빈 배열)
   assert.deepEqual(person.json.titles, ['title-halloween-insa']);

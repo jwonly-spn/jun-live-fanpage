@@ -160,6 +160,14 @@
     {"id": "title-candy-plz", "name": "사탕내놧", "price": 3000, "image": "titles/title-candy-plz.png"},
     {"id": "title-kiugi-master", "name": "키우기장인", "price": 3000, "image": "titles/title-kiugi-master.png"}
   ],
+  "motions": [
+    {"id": "dance", "name": "춤", "emoji": "💃", "price": 5000, "desc": "좌우로 흔들흔들 통통 춤춰요", "keys": ["댄스", "춤추기"]},
+    {"id": "heart", "name": "손하트", "emoji": "🫶", "price": 5000, "desc": "하트가 퐁퐁 떠올라요", "keys": ["하트"]},
+    {"id": "cry", "name": "울기", "emoji": "😭", "price": 5000, "desc": "눈물을 뚝뚝 흘리며 흐느껴요", "keys": ["눈물", "엉엉"]},
+    {"id": "squat", "name": "스쿼트", "emoji": "🏋️", "price": 5000, "desc": "쭈그렸다 일어났다 운동해요", "keys": ["운동"]},
+    {"id": "trash", "name": "쓰레기 맞기", "emoji": "🗑️", "price": 5000, "desc": "머리 위로 쓰레기가 우수수 떨어져요", "keys": ["쓰레기", "쓰레기맞기"]},
+    {"id": "kkang", "name": "깡 춤", "emoji": "🕺", "price": 5000, "desc": "건들건들 깡 춤을 춰요", "keys": ["깡", "깡춤", "깡춤추기"]}
+  ],
   "seasonRewardRule": {"opensAt": "2026-10-30T00:00:00+09:00", "lasts": 2, "perks": ["채팅으로 받는 냥 한도 1.5배", "받는 냥 +10%", "이벤트 보상 2배 (5% 확률)"], "keeps": "시즌이 끝나도 남는 것은 시즌 칭호뿐 — 칭호는 얻은 시즌과 다음 시즌까지 효과가 있어요"},
   "walk": {
     "name": "할로윈 밤 산책",
