@@ -276,7 +276,7 @@ test('캐릭터(person): 앞 부분·전체 아이디, 하트·시즌·DJ, 없�
   // titles: 단 칭호(0.15.63~) — 캐릭터(person)는 칭호가 없어도 늘 배열로 내보낸다
   const want = { id: '밤톨#먼치', level: 10, worn: { head: 'witch-hat', top: 'bat-blouse' }, titles: [], hearts: 1, season: SEASON, dj: { slug: A, name: '먼치', character: { name: '먼치', gender: 'f', hair: 'bob', hairColor: 'brown', skin: 's2', eyes: 'round', nose: 'dot', mouth: 'smile' } } };
   let r = await body(await w.get(`person?slug=${A}&id=${enc('밤톨')}`));
-  assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=30');
+  assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=10');
   assert.deepEqual(r.json, want);
   assert.deepEqual((await body(await w.get(`person?slug=${A}&id=${enc('밤톨#먼치')}`))).json, want);
   assert.equal((await body(await w.get(`person?slug=${B}&id=${enc('밤톨')}`))).json.id, '밤톨#쿠키');

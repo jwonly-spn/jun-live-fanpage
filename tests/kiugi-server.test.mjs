@@ -176,7 +176,8 @@ test('올리기: 승인된 기기만, v2 만, 처음 올리면 주소를 만들�
   w.clock.now += 61000;
   const once = signed(key, PAYLOAD(), { at: w.clock.now });
   assert.equal((await w.post(once)).status, 200); assert.equal((await w.post(once)).status, 409);
-  // 1분에 2번까지
+  // 1분에 6번까지(2026-10-16 — 예전 2번): 이미 2번 올렸으니 4번 더 되고 그다음은 막힌다
+  for (let i = 0; i < 4; i++) assert.equal((await w.post(signed(key, PAYLOAD(), { at: w.clock.now }))).status, 200);
   assert.equal((await w.post(signed(key, PAYLOAD(), { at: w.clock.now }))).status, 429);
   // 심사용 기기는 올리지 않는다
   const review = deviceKey(); w.store.devices.set(review.id, { state: 'approved', review: true });
@@ -208,7 +209,7 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   const w = world(), key = deviceKey(); w.store.devices.set(key.id, { state: 'approved', review: false });
   const slug = (await body(await w.post(signed(key, PAYLOAD([PERSON('밤톨', 50), PERSON('사탕요정', 300), PERSON('달무리', 120), PERSON('호박꽃', 10)]))))).json.slug;
   let r = await body(await w.get('page?slug=' + slug));
-  assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=30');
+  assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=10');
   assert.deepEqual(Object.keys(r.json).sort(), ['character', 'count', 'name', 'paused', 'season', 'slug', 'top', 'updatedAt']);
   assert.equal(r.json.count, 4); assert.deepEqual(r.json.top.map((p) => [p.rank, p.id]), [[1, '사탕요정#먼치'], [2, '달무리#먼치'], [3, '밤톨#먼치']]); assert.equal(r.json.updatedAt, new Date(T0).toISOString());
   for (const p of r.json.top) assert.deepEqual(Object.keys(p).sort(), ['hearts', 'id', 'level', 'rank', 'worn'], '애정도 숫자는 숨기고 하트 수를 싣는다');

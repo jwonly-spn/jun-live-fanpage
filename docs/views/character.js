@@ -19,7 +19,7 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
-import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
+import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy } from './cards.js';
 
@@ -425,8 +425,11 @@ export async function renderCharacter(root, route, app) {
   const look = expressionFor(catalog, seasonId, level), expression = look.name;
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
   // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
-  const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts }), { base: app.base }) : null;
   const pets = petList(catalog, data), buddy = pets.find((p) => p.active) || null;
+  //  함께하는 펫도 같이 찍는다(2026-10-16 사용자 "펫도 같이 사진 찍게 해 줘")
+  const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts, pet: buddy ? { id: buddy.id, season: buddy.season, stage: buddy.stage } : null }), { base: app.base }) : null;
+  // 앱 안 브라우저에서 "Safari에서 열어 저장하기"로 넘어왔으면(?save=1) 저장하기 단추를 알려 준다
+  hintSaveButton(saveBtn);
   // 모션(2026-10-15): 지금 하는 모션(시즌 목록에 있는 것만) — 무대 캐릭터가 그 모션을 하고, 레벨 옆에 "💃 춤추는 중"
   const motion = MOTIONS_READY ? motionOf(catalog, data.motion) : null;
   night.replaceChildren(

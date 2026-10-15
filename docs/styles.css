@@ -536,6 +536,13 @@ a { color: inherit; }
 .kg-save-img { display: block; width: auto; height: auto; max-width: 100%; max-height: 62vh; margin: 0 auto; border-radius: var(--r-md); background: var(--bg); -webkit-touch-callout: default; -webkit-user-select: auto; user-select: auto; }
 .kg-save-actions { display: flex; gap: 8px; }
 .kg-save-actions .btn { flex: 1 1 0; min-height: 50px; }
+/* 앱 안 브라우저(스푼·카카오톡 — 길게 눌러 저장이 안 되는 곳): 브라우저에서 열어 저장하기(크게) · 주소 복사 · 이미지 복사 */
+.kg-save-out { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 52px; text-decoration: none; font-size: 16px; }
+.kg-save-more:empty { display: none; }
+/* 브라우저에서 ?save=1 로 열렸을 때 저장하기 단추를 잠깐 반짝 */
+.kg-save-btn.kg-save-hint { box-shadow: 0 0 0 3px var(--accent, #ff7a2f); }
+@media (prefers-reduced-motion: no-preference) { .kg-save-btn.kg-save-hint { animation: kg-save-hint 1.4s ease-in-out 4; } }
+@keyframes kg-save-hint { 50% { box-shadow: 0 0 0 8px rgba(255, 122, 47, .35); } }
 .kg-worn { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 10px; }
 .kg-worn-one { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .kg-worn-one .kg-stage { border: 1px solid var(--line); border-radius: var(--r-md); }

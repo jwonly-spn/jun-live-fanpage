@@ -355,7 +355,9 @@ test('저장 방법: PC·안드로이드는 바로 내려받기, 바로 내려�
 
 test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장하기" 단추(하트·링크 복사 줄은 그대로), 모양은 styles.css, 그리기·저장 함수가 있다', async () => {
   const src = await readFile(new URL('../docs/views/character.js', import.meta.url), 'utf8');
-  assert.match(src, /import \{ saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED \} from '\.\.\/lib\/kiugi-save\.js'/);
+  assert.match(src, /import \{ saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED \} from '\.\.\/lib\/kiugi-save\.js'/);
+  assert.match(src, /pet: buddy \? \{ id: buddy\.id, season: buddy\.season, stage: buddy\.stage \} : null/, '함께하는 펫도 같이 찍는다(2026-10-16)');
+  assert.match(src, /hintSaveButton\(saveBtn\)/, '브라우저에서 ?save=1 로 열리면 저장하기를 알려 준다');
   // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래
   assert.match(src, /kind: 'hero' \}\),\s*petBuddy\(buddy, app\.base\)\),\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
   assert.match(src, /h\('div', \{ class: 'kg-heart-row' \}, heartBtn,\s*h\('button', \{ type: 'button', class: 'btn btn-line kg-copy-btn', onclick: \(\) => copyLink\(url, copyBox\) \}, icon\('link', \{ size: 18 \}\), '링크 복사'\)\),/, '하트·링크 복사 줄은 예전 그대로(저장 단추를 섞지 않는다)');
@@ -372,4 +374,43 @@ test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장�
   const index = await readFile(new URL('../docs/index.html', import.meta.url), 'utf8');
   assert.match(index, /img-src 'self' data:;/);
   assert.doesNotMatch(save, /src: URL\.createObjectURL|\.src = URL\.createObjectURL/);
+});
+
+// 2026-10-16: 스푼 같은 앱 안 브라우저(길게 눌러도 저장이 안 뜸) → 브라우저에서 열어 저장하기 · 주소 복사 / 함께하는 펫도 같이 찍기
+import { inAppKind, externalUrl, saveLinkUrl, savePetUrl, placePet, PET_GROUND, OPEN_OUTSIDE } from '../docs/lib/kiugi-save.js';
+test('앱 안 브라우저 알아보기: 아이폰은 UA 에 Safari/ 가 없으면 앱 안, 안드로이드는 ; wv)', () => {
+  const ios = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148';
+  assert.equal(inAppKind(ios), 'ios', '스푼 앱 안(사파리 표시 없음)');
+  assert.equal(inAppKind(ios + ' Version/18.0 Safari/604.1'), '', '사파리');
+  assert.equal(inAppKind(ios + ' CriOS/120.0 Safari/604.1'), '', '아이폰 크롬');
+  assert.equal(inAppKind(ios + ' Safari/604.1 KAKAOTALK 10.0'), 'ios', '카카오톡');
+  assert.equal(inAppKind('Mozilla/5.0 (Linux; Android 14; SM-S918N; wv) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36'), 'android');
+  assert.equal(inAppKind('Mozilla/5.0 (Linux; Android 14; SM-S918N) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36'), '', '안드로이드 크롬');
+  assert.equal(inAppKind('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36'), '');
+  assert.equal(inAppKind('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148', 5), 'ios', '아이패드 앱 안');
+  assert.deepEqual(Object.keys(OPEN_OUTSIDE).sort(), ['android', 'ios']);
+});
+test('바깥 브라우저로 여는 주소: ?save=1 을 붙이고(다른 값은 그대로) 아이폰은 x-safari-, 안드로이드는 intent://', () => {
+  const page = 'https://xn--ok0bp87bn6g.com/k/yfe5n74p/%ED%95%9C%EC%9D%B4%EC%A4%80?x=1#top';
+  assert.equal(saveLinkUrl(page), 'https://xn--ok0bp87bn6g.com/k/yfe5n74p/%ED%95%9C%EC%9D%B4%EC%A4%80?x=1&save=1');
+  assert.equal(externalUrl(page, 'ios'), 'x-safari-https://xn--ok0bp87bn6g.com/k/yfe5n74p/%ED%95%9C%EC%9D%B4%EC%A4%80?x=1&save=1');
+  assert.equal(externalUrl(page, 'android'), 'intent://xn--ok0bp87bn6g.com/k/yfe5n74p/%ED%95%9C%EC%9D%B4%EC%A4%80?x=1&save=1#Intent;scheme=https;end');
+  assert.equal(saveLinkUrl('https://xn--ok0bp87bn6g.com/k/a/b?save=1'), 'https://xn--ok0bp87bn6g.com/k/a/b?save=1', '두 번 붙이지 않는다');
+  assert.equal(externalUrl(page, ''), null); assert.equal(saveLinkUrl('javascript:alert(1)'), null); assert.equal(saveLinkUrl('not a url'), null);
+});
+test('함께하는 펫: 그림 주소(이상한 id·시즌은 그리지 않음)와 자리(캐릭터 오른쪽 같은 바닥선, 둘을 한 무리로 가운데)', () => {
+  assert.equal(savePetUrl({ id: 'ghost', season: 's1', stage: 3 }, '/'), '/pets/s1/pet_ghost_3.png');
+  assert.equal(savePetUrl({ id: 'ghost', season: 's1', stage: 9 }, B), B + 'pets/s1/pet_ghost_5.png', '단계는 1~5');
+  assert.equal(savePetUrl({ id: 'ghost', season: 's1' }, '/'), '/pets/s1/pet_ghost_1.png');
+  assert.equal(savePetUrl({ id: '../x', season: 's1', stage: 1 }), null); assert.equal(savePetUrl({ id: 'ghost', season: 'a/b', stage: 1 }), null); assert.equal(savePetUrl(null), null);
+  // 캐릭터 400px(가운데 340~740) · 펫 상자 200px(펫 캔버스 600 안 200~400) · 발끝 1100
+  const at = placePet({ x0: 340, x1: 740 }, { x0: 200, x1: 400 }, 600, 1100);
+  const overlap = 24, group = 400 + 200 - overlap, left = (SAVE_W - group) / 2;
+  assert.equal(at.dx, Math.round(left - 340), '캐릭터는 왼쪽으로 비켜 선다');
+  assert.equal(at.x + 200, Math.round(left + 400 - overlap), '펫은 캐릭터 오른쪽에 12% 겹쳐');
+  assert.equal(at.y, Math.round(1100 - 600 * PET_GROUND), '펫 바닥선(470/512) = 캐릭터 발끝');
+  assert.ok(at.x + 400 <= SAVE_W - SAVE_LAYOUT.fit.side, '그림 밖으로 나가지 않는다');
+  // 아주 넓으면 오른쪽 여백 안으로
+  const wide = placePet({ x0: 100, x1: 900 }, { x0: 0, x1: 500 }, 500, 1100);
+  assert.ok(wide.x + 500 <= SAVE_W - SAVE_LAYOUT.fit.side);
 });

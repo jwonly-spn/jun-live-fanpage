@@ -18,7 +18,7 @@ import hairColor, { recolor } from '../kiugi/kiugi-hair-color.js';
 import { normalizeLook } from '../kiugi/kiugi-look.js';
 import { SIZE, partOf, resolveLook, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
 import { preloadImage } from './kiugi-draw.js';
-import { h, icon, toast } from './dom.js';
+import { h, icon, toast, copyText } from './dom.js';
 
 export const SAVE_W = 1080;
 export const SAVE_H = 1350;
@@ -224,6 +224,51 @@ export function saveMode({ ua = '', touchPoints = 0, canShareFiles = false } = {
   return 'download';
 }
 
+// 앱 안 브라우저(2026-10-16 사용자: 스푼 앱 안에서 키우기 사이트를 열면 그림을 길게 눌러도 "이미지 저장"이 안 뜬다): 'ios' · 'android' · ''
+//  아이폰 앱 안 브라우저는 UA 에 "Safari/" 가 없다(사파리·크롬·파이어폭스·엣지 앱은 있다). 안드로이드 앱 안 브라우저는 "; wv)".
+const IN_APP = /KAKAOTALK|Instagram|FBAN|FBAV|NAVER\(inapp|\bLine\/|DaumApps/i;
+export function inAppKind(ua = '', touchPoints = 0) {
+  const apple = /iPhone|iPad|iPod/i.test(ua) || (/Macintosh/i.test(ua) && touchPoints > 1);
+  if (apple) return !/Safari\//.test(ua) || IN_APP.test(ua) ? 'ios' : '';
+  if (/Android/i.test(ua)) return /; wv\)/.test(ua) || IN_APP.test(ua) ? 'android' : '';
+  return '';
+}
+// 이 페이지를 저장 안내(?save=1)와 함께 여는 주소
+export function saveLinkUrl(href) {
+  let u; try { u = new URL(href); } catch { return null; }
+  if (!/^https?:$/.test(u.protocol)) return null;
+  u.searchParams.set('save', '1'); u.hash = '';
+  return u.href;
+}
+// 바깥 브라우저로 여는 주소. 아이폰: x-safari-https://…(iOS 17 부터 사파리로 열린다) · 안드로이드: intent://…(기본 브라우저). 앱이 막으면 아무 일도 없다 → 주소 복사.
+export function externalUrl(href, kind) {
+  const link = saveLinkUrl(href);
+  if (!link) return null;
+  const u = new URL(link);
+  if (kind === 'ios') return 'x-safari-' + u.href;
+  if (kind === 'android') return `intent://${u.host}${u.pathname}${u.search}#Intent;scheme=${u.protocol.slice(0, -1)};end`;
+  return null;
+}
+
+// 함께하는 펫(2026-10-16 사용자 "펫도 같이 사진 찍게 해 줘"): 캐릭터 오른쪽에 같은 바닥선으로 서고, 둘을 한 무리로 가운데에 둔다.
+//  펫 그림(pets/<시즌>/pet_<id>_<단계>.png)은 512×512 · 모든 단계가 같은 바닥선(y=470)·같은 배율이라 단계가 오를수록 커 보인다(따로 늘리지 않는다).
+export const PET_GROUND = 470 / 512;
+export const PET_SCALE = 0.66; // 펫 캔버스 = 캐릭터 캔버스(1024 × 1.1 × 줄인 배수)의 0.66배(캐릭터 페이지처럼 펫이 잘 보이게)
+const PET_PART = /^[a-z0-9_-]{1,40}$/;
+export function savePetUrl(pet, base = '/') {
+  if (!pet || !PET_PART.test(String(pet.id || '')) || !PET_PART.test(String(pet.season || ''))) return null;
+  const stage = Math.min(5, Math.max(1, Math.floor(Number(pet.stage)) || 1));
+  return `${base}pets/${pet.season}/pet_${pet.id}_${stage}.png`;
+}
+// charBox: 캐릭터가 그려진 곳(그림 좌표 x0·x1) · petBox: 펫 캔버스 안 알파 상자 · size: 펫 캔버스 크기 · bottom: 발끝 y
+//  → {dx(캐릭터를 옮길 만큼), x, y(펫 캔버스를 놓을 곳)}. 펫은 캐릭터와 12% 겹친다. 그림 옆 여백(fit.side) 안에 들어가게.
+export function placePet(charBox, petBox, size, bottom, { side = SAVE_LAYOUT.fit.side } = {}) {
+  const cw = charBox.x1 - charBox.x0, pw = petBox.x1 - petBox.x0, overlap = Math.round(pw * 0.12);
+  const group = cw + pw - overlap;
+  const left = Math.min(Math.max(side, (SAVE_W - group) / 2), SAVE_W - side - group);
+  return { dx: Math.round(left - charBox.x0), x: Math.round(left + cw - overlap - petBox.x0), y: Math.round(bottom - size * PET_GROUND) };
+}
+
 // ── 그리기(브라우저) ──
 const canvasOf = (doc, w, hgt) => { const c = doc.createElement('canvas'); c.width = w; c.height = hgt; return c; };
 const free = (c) => { try { c.width = 0; c.height = 0; } catch { /* 무시 */ } }; // 아이폰 캔버스 메모리를 바로 돌려준다
@@ -337,11 +382,15 @@ async function fontsReady(doc, text) {
   await Promise.race([wait, new Promise((r) => setTimeout(r, 3000))]);
 }
 
-// card = {id, character(DJ 캐릭터), worn, level, expression(레벨 표정), seasonName, hearts} → 1080×1350 캔버스
+// card = {id, character(DJ 캐릭터), worn, level, expression(레벨 표정), seasonName, hearts, pet({id, season, stage} — 함께하는 펫, 없으면 null)} → 1080×1350 캔버스
 export async function renderSaveImage(card, { base = '/', load = preloadImage, doc = document } = {}) {
   const plan = characterPlan(card.character || {}, { worn: card.worn && typeof card.worn === 'object' ? card.worn : {} }, card.expression);
   const urls = planUrls(plan, base), images = new Map();
   await Promise.all(urls.map(async (u) => { images.set(u, await load(u)); }));
+  // 펫 그림은 못 읽어도 캐릭터만으로 저장한다
+  const petSrc = savePetUrl(card.pet, base);
+  let petImg = null;
+  if (petSrc) { try { petImg = await load(petSrc); } catch { petImg = null; } }
   const lp = levelParts(card.level, card.seasonName);
   await fontsReady(doc, [card.id, lp.lv, lp.season, SITE_MARK, SITE_DOMAIN, UNOFFICIAL_MARK, '·0123456789,'].join(''));
   const L = SAVE_LAYOUT, canvas = canvasOf(doc, SAVE_W, SAVE_H), ctx = canvas.getContext('2d');
@@ -353,15 +402,28 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
   } else drawStage(ctx);
   // 2) 캐릭터를 먼저 그려 실제 크기를 재고(알파 상자) 그림 한가운데 자리를 정한다
   const ch = drawCharacter(doc, plan, images, base, L.char.s);
-  const at = placeCharacter(alphaBox(ch.getContext('2d').getImageData(0, 0, ch.width, ch.height).data, ch.width, ch.height));
+  const chBox = alphaBox(ch.getContext('2d').getImageData(0, 0, ch.width, ch.height).data, ch.width, ch.height);
+  const at = placeCharacter(chBox);
+  // 함께하는 펫: 캐릭터와 같은 비율로 그려 크기를 재고(알파 상자), 캐릭터 오른쪽에 같은 바닥선으로 — 둘을 한 무리로 가운데에
+  let dx = 0, pet = null;
+  if (petImg) {
+    const size = Math.round(SIZE * L.char.s * at.f * PET_SCALE), pc = canvasOf(doc, size, size), px = pc.getContext('2d');
+    px.imageSmoothingEnabled = true; px.imageSmoothingQuality = 'high';
+    px.drawImage(petImg, 0, 0, size, size);
+    const box = alphaBox(px.getImageData(0, 0, size, size).data, size, size);
+    const spot = placePet({ x0: at.x + chBox.x0 * at.f, x1: at.x + chBox.x1 * at.f }, box, size, at.bottom);
+    dx = spot.dx; pet = { canvas: pc, box, ...spot };
+  }
   // 3) 아래 띠로 이어지는 어둠(캐릭터 밑) · 발밑 그림자
   const fade = ctx.createLinearGradient(0, L.fade.from, 0, L.fade.to);
   fade.addColorStop(0, `rgba(${COLOR.bg}, 0)`); fade.addColorStop(1, `rgba(${COLOR.bg}, 0.86)`);
   ctx.fillStyle = fade; ctx.fillRect(0, L.fade.from, SAVE_W, L.fade.to - L.fade.from);
-  ellipseGlow(ctx, L.center.x, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
-  // 4) 캐릭터(줄여야 하면 한 번만 줄인다)
-  ctx.drawImage(ch, at.x, at.y, ch.width * at.f, ch.height * at.f);
+  ellipseGlow(ctx, L.center.x + dx, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
+  if (pet) ellipseGlow(ctx, pet.x + (pet.box.x0 + pet.box.x1) / 2, at.bottom - 4, (pet.box.x1 - pet.box.x0) * 0.42, L.shadow.ry * at.f * 0.8, [[0, 'rgba(0, 0, 0, 0.5)'], [1, 'rgba(0, 0, 0, 0)']]);
+  // 4) 캐릭터(줄여야 하면 한 번만 줄인다) · 그 앞에 펫
+  ctx.drawImage(ch, at.x + dx, at.y, ch.width * at.f, ch.height * at.f);
   free(ch);
+  if (pet) { ctx.drawImage(pet.canvas, pet.x, pet.y); free(pet.canvas); }
   // 5) 아래 띠와 글
   drawBand(ctx, card);
   return canvas;
@@ -386,7 +448,10 @@ function download(blob, name) {
 const shareFile = (file) => navigator.share({ files: [file] });
 
 // 그림을 보여 주는 창(앱 안 브라우저·공유가 안 될 때): 길게 눌러 저장 안내 + (공유가 되면) 저장하기 단추. 닫으면 단추로 초점을 돌려준다.
-function previewSheet({ src, file, alt, returnTo }) {
+//  앱 안 브라우저(스푼·카카오톡 등 — 길게 눌러도 저장이 안 뜨는 곳, 2026-10-16): Safari(브라우저)에서 열어 저장하기 · 주소 복사 · 이미지 복사(되는 곳만).
+function previewSheet({ src, file, blob, alt, returnTo }) {
+  const kind = inAppKind(navigator.userAgent, navigator.maxTouchPoints || 0);
+  if (kind) return inAppSheet({ src, blob, alt, returnTo, kind });
   const canShare = Boolean(file && navigator.canShare?.({ files: [file] }));
   const title = h('h2', { class: 'kg-save-title', id: 'kg-save-title' }, '이미지가 준비됐어요');
   const behind = document.getElementById('app'); // 창이 열린 동안 뒤 화면은 누르거나 Tab 으로 갈 수 없게(inert)
@@ -411,6 +476,52 @@ function previewSheet({ src, file, alt, returnTo }) {
   (save || shut).focus();
   return sheet;
 }
+export const OPEN_OUTSIDE = { ios: 'Safari에서 열어 저장하기', android: '브라우저에서 열어 저장하기' };
+export const IN_APP_NOTE = '앱 안에서는 그림을 길게 눌러도 저장이 안 될 수 있어요. 위 단추를 누르면 이 캐릭터 페이지가 브라우저에서 열려요. 거기서 저장하기를 눌러 주세요.';
+function inAppSheet({ src, blob, alt, returnTo, kind }) {
+  const title = h('h2', { class: 'kg-save-title', id: 'kg-save-title' }, '이미지가 준비됐어요');
+  const behind = document.getElementById('app');
+  const close = () => { sheet.remove(); document.removeEventListener('keydown', onKey); if (behind) behind.inert = false; returnTo?.focus?.(); };
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  const outside = externalUrl(location.href, kind), link = saveLinkUrl(location.href);
+  // 바깥 브라우저 열기: 앱이 막으면 아무 일도 없다 → 1.5초 뒤에도 이 화면이면 주소 복사를 권한다
+  const open = outside ? h('a', {
+    class: 'btn btn-accent kg-save-out', href: outside, rel: 'noopener',
+    onclick: () => { setTimeout(() => { if (document.visibilityState === 'visible' && sheet.isConnected) toast('열리지 않으면 “주소 복사”를 눌러 Safari나 크롬 주소창에 붙여 넣어 주세요.'); }, 1500); },
+  }, icon('share', { size: 18 }), OPEN_OUTSIDE[kind]) : null;
+  const copyLink = link ? h('button', {
+    type: 'button', class: 'btn btn-line',
+    onclick: async () => { const ok = await copyText(link); toast(ok ? '주소를 복사했어요. Safari나 크롬 주소창에 붙여 넣어 열어 주세요.' : '복사하지 못했어요. 그림을 길게 눌러 저장해 보세요.', ok ? 'info' : 'error'); },
+  }, icon('link', { size: 18 }), '주소 복사') : null;
+  const canCopyImage = Boolean(blob && typeof ClipboardItem === 'function' && navigator.clipboard?.write);
+  const copyImage = canCopyImage ? h('button', {
+    type: 'button', class: 'btn btn-line',
+    onclick: async () => {
+      try { await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]); toast('이미지를 복사했어요. 카카오톡 나와의 채팅이나 메모에 붙여 넣은 뒤 저장해 주세요.'); }
+      catch { toast('이 앱에서는 이미지 복사가 안 돼요. 브라우저에서 열어 저장해 주세요.', 'error'); }
+    },
+  }, icon('copy', { size: 18 }), '이미지 복사') : null;
+  const shut = h('button', { type: 'button', class: 'btn btn-line', onclick: close }, '닫기');
+  const sheet = h('div', { class: 'kg-save-sheet', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'kg-save-title', onclick: (e) => { if (e.target === sheet) close(); } },
+    h('div', { class: 'kg-save-card' },
+      title,
+      h('img', { class: 'kg-save-img', src, alt, width: String(SAVE_W), height: String(SAVE_H) }),
+      open,
+      h('p', { class: 'note' }, IN_APP_NOTE),
+      h('div', { class: 'kg-save-actions kg-save-more' }, copyLink, copyImage),
+      h('div', { class: 'kg-save-actions' }, shut)));
+  document.body.append(sheet);
+  if (behind) behind.inert = true;
+  document.addEventListener('keydown', onKey);
+  (open || copyLink || shut).focus();
+  return sheet;
+}
+// 바깥 브라우저에서 ?save=1 로 열렸을 때(캐릭터 페이지): 저장하기 단추로 데려가 알려 준다(공유 창은 누를 때만 열 수 있어 저절로 열지는 않는다)
+export function hintSaveButton(btn, search = location.search) {
+  if (!btn || new URLSearchParams(search).get('save') !== '1') return false;
+  setTimeout(() => { btn.scrollIntoView?.({ block: 'center', behavior: 'smooth' }); btn.classList.add('kg-save-hint'); toast('저장하기를 누르면 사진에 저장돼요'); }, 400);
+  return true;
+}
 
 // 만들고 저장하기. → 'shared' · 'downloaded' · 'preview' · 'cancelled'
 export async function saveCharacterImage(card, { base = '/', returnTo = null } = {}) {
@@ -429,6 +540,6 @@ export async function saveCharacterImage(card, { base = '/', returnTo = null } =
     }
   }
   if (mode === 'download') { download(blob, name); toast(SAVED); return 'downloaded'; }
-  previewSheet({ src: await dataUrlOf(blob), file, alt, returnTo });
+  previewSheet({ src: await dataUrlOf(blob), file, blob, alt, returnTo });
   return 'preview';
 }

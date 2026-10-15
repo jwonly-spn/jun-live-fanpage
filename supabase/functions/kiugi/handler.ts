@@ -77,7 +77,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     await limit(`kg:p:${await ipHash(req)}`, 60, 60);
     const row = await shown(await store.publicPage(slug));
     const hearts = (await heartsFor([row as any])).get(slug);
-    return json(v.pageOut(row, hearts), 200, 'public, max-age=30');
+    return json(v.pageOut(row, hearts), 200, 'public, max-age=10'); // 옷 입힌 것이 빨리 보이게(2026-10-16, 예전 30초)
   }
 
   async function find(url: URL, req: Request) {
@@ -98,7 +98,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const hit = row.season ? v.findOne(row.people, key) : null;
     if (!hit) throw v.fail(404, NO_PERSON);
     const hearts = (await heartsFor([row as any])).get(slug)?.get(hit.p.k) || 0;
-    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=30');
+    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
   }
 
   // 메인 페이지: 지금 시즌 · 인기(하트) 12 · 새로 꾸민 8 · 옷마다 입은 수 · DJ 목록 · 합계
@@ -206,7 +206,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const dev = await store.device(device);
     if (dev?.review) throw v.fail(403, '심사용 먼치킨은 키우기 페이지를 올리지 않아요.');
     if (dev?.state !== 'approved') throw v.fail(403, '먼치킨 사용 승인을 먼저 받아 주세요.');
-    await limit(`kg:u:${device}`, 60, 2, '조금 전에 올렸어요. 1분 뒤에 다시 올려요.');
+    // 1분에 6번까지(2026-10-16 — 먼치킨이 옷·레벨이 바뀌면 15초 뒤 바로 올린다. 예전 2번)
+    await limit(`kg:u:${device}`, 60, 6, '조금 전에 올렸어요. 잠시 뒤에 다시 올려요.');
     if (!await store.nonce('kg:' + device + ':' + b.nonce, at + v.NONCE_MS)) throw v.fail(409, '이미 처리한 요청이에요.');
     if (chance() < 0.05) later(store.cleanNonces(at));
     if (v.bytes(JSON.stringify(b.payload ?? null)) > v.MAX_PAYLOAD_BYTES) throw v.fail(413, '올릴 내용이 너무 커요.');
