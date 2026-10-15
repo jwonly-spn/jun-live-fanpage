@@ -7,7 +7,7 @@ import { kiugiApi } from '../api.js';
 import { loadCatalog, buildCatalog, slotName, titleOpenDate } from '../lib/kiugi-draw.js';
 import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, rail, BRAND } from './common.js';
 import { seasonLine, dDay } from './kiugi.js';
-import { characterCard, djCard, art, itemArt, heartCount, idText, baseOf } from './cards.js';
+import { characterCard, djCard, art, itemArt, heartCount, idText, baseOf, buddyOf, petBuddy } from './cards.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 const NOTICE = {
@@ -96,8 +96,13 @@ export function heroSection(ctx) {
     // 1등을 가운데에 크게(읽는 차례는 1·2·3등). 셋이 겹쳐 서는 무대라 입은 "배경"은 빼고 그린다
     //  (2026-10-15 사용자 "키우기 사이트 화면 깨진다" — 배경을 입은 캐릭터가 네모 그림째로 서로 겹쳐 보였다)
     const noBg = (worn) => { const { bg, ...rest } = worn || {}; return rest; };
-    cast.replaceChildren(...list.map((x, i) => ilink(x.href, { class: 'kg-cast-one' + (i === 0 ? ' lead' : i === 1 ? ' left' : ' right'), 'aria-label': `${top.length ? `${i + 1}등 ` : ''}${x.c.id} 보기` },
-      art(ctx.catalog, x.character, noBg(x.c.worn), x.c.level, { seasonId, base: ctx.app.base, eager: true, kind: 'bare' }))));
+    // 함께하는 펫(2026-10-16 사용자 "메인 화면에서도 보이게"): 1등은 오른쪽 발치 앞, 2·3등은 바깥쪽 발치(styles.css)
+    cast.replaceChildren(...list.map((x, i) => {
+      const pet = top.length && x.character ? buddyOf(ctx.catalog, x.c.pet) : null;
+      return ilink(x.href, { class: 'kg-cast-one' + (i === 0 ? ' lead' : i === 1 ? ' left' : ' right') + (pet ? ' has-pet' : ''), 'aria-label': `${top.length ? `${i + 1}등 ` : ''}${x.c.id} 보기` },
+        art(ctx.catalog, x.character, noBg(x.c.worn), x.c.level, { seasonId, base: ctx.app.base, eager: true, kind: 'bare' }),
+        pet ? petBuddy(pet, ctx.app.base, { label: false }) : null);
+    }));
     const lead = list[0];
     if (lead && top.length) {
       caption.replaceChildren(ilink(lead.href, { class: 'kg-cast-tag' },

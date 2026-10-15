@@ -72,8 +72,9 @@ function pagesNow() {
 const hearts = new Map(Object.entries(SEED_HEARTS));
 const votes = new Set();
 const heartsOf = (slug, k) => hearts.get(`${slug}|${k}`) || 0;
-const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(slug, p.k) });
-const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k) });
+// 서버(lib.ts publicPerson · card)와 같은 모양: 1~3등·찾기 결과는 pets·pet 둘 다, 메인 카드는 함께하는 펫(pet)만
+const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(slug, p.k) });
+const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k) });
 const target = (k, key) => (key.includes('#') ? k : baseOf(k));
 const pageOf = (slug) => pagesNow().find((p) => p.slug === slug) || null;
 function queryKey(value) {

@@ -2,7 +2,7 @@
 // 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 // 카드 모양(styles.css): 패션 앱 상품 카드 — 위는 부드러운 무대 위 캐릭터(세로 3:4로 잘라 크게), 아래는 글 세 줄(어느 방송 · 아이디 · 레벨과 하트).
 import { h, icon, toast } from '../lib/dom.js';
-import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, MOTIONS_READY } from '../lib/kiugi-draw.js';
+import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, MOTIONS_READY } from '../lib/kiugi-draw.js';
 import { ilink, medal } from './common.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
@@ -120,18 +120,47 @@ export function art(catalog, character, worn, level, { seasonId = null, base = '
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
   return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null });
 }
+// ---- 함께하는 펫(캐릭터 페이지 무대 · 입혀 보기 · 메인 카드 · 메인 첫 화면 1등 — 2026-10-16 사용자 "펫 좀 크게 · 메인 화면에서도 보이게") ----
+// 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라
+//  단계가 오를수록 커 보인다(따로 늘리지 않는다). 못 만난 펫은 1단계 그림 모양만 옅게(실루엣 — styles.css). 그림을 못 읽으면 그림 글자(emoji)로.
+export const stars = (n) => '★'.repeat(n);
+export const petImageUrl = (pet, stage, base = '') => `${base}pets/${pet.season}/pet_${pet.id}_${Math.min(5, Math.max(1, stage || 1))}.png`;
+export function petImage(pet, base, { cls = '', eager = false } = {}) {
+  const img = h('img', { class: 'kg-pet-img' + (cls ? ' ' + cls : ''), src: petImageUrl(pet, pet.stage, base), alt: '', width: 512, height: 512, decoding: 'async', ...(eager ? {} : { loading: 'lazy' }) });
+  img.addEventListener('error', () => img.replaceWith(h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, pet.emoji)), { once: true });
+  return img;
+}
+// 먼치킨이 보낸 함께하는 펫 {id, stage} → 그릴 펫 {id, season, emoji, name(단계 이름), stage}. 시즌 목록에 없는 펫·틀린 단계면 null(그리지 않는다).
+export function buddyOf(catalog, pet) {
+  const pets = catalog?.pets, id = pet?.id, stage = pet?.stage;
+  if (!pets || typeof id !== 'string' || !Object.prototype.hasOwnProperty.call(pets, id) || !Number.isInteger(stage) || stage < 1 || stage > 5) return null;
+  const p = pets[id];
+  return { id: p.id, season: p.season, emoji: p.emoji, name: petStage(p, stage), stage };
+}
+// 함께하는 펫: 캐릭터 오른쪽 아래에 선다(styles.css 가 칸마다 크기·자리를 정한다). label 이 true 면 그림 아래 이름·★(캐릭터 페이지),
+//  false 면 그림만(카드·메인 첫 화면 — 작은 칸이라 이름표가 캐릭터를 가리지 않게. 이름은 마우스를 올리면·화면 읽기로).
+export function petBuddy(pet, base, { label = true, eager = true } = {}) {
+  if (!pet) return null;
+  const text = `함께하는 펫 ${pet.name} ${stars(pet.stage)}`;
+  return h('figure', { class: 'kg-pet-buddy' + (label ? '' : ' bare'), title: text, ...(label ? {} : { 'aria-label': text }) },
+    petImage(pet, base, { eager }),
+    label ? h('figcaption', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))) : null);
+}
+
 // 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
 export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {
   return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item' });
 }
 
-// 캐릭터 카드 {slug, djName, id, level, worn, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동 배지)
-// label: 맨 위 작은 줄(없으면 "<DJ> 키우기", showDj 가 false 면 없음)
+// 캐릭터 카드 {slug, djName, id, level, worn, pet?, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동 배지)
+// label: 맨 위 작은 줄(없으면 "<DJ> 키우기", showDj 가 false 면 없음). pet: 함께하는 펫(있으면 그림 오른쪽 아래 — 2026-10-16)
 export function characterCard(c, { app, catalog, character, seasonId, showDj = true, eager = false, rank = null, label = null }) {
   const href = app.link({ name: 'character', slug: c.slug, base: baseOf(c.id) });
+  const pet = character ? buddyOf(catalog, c.pet) : null;
   return ilink(href, { class: 'kg-card' + (rank ? ` ranked r${Math.min(rank, 4)}` : '') },
-    h('div', { class: 'kg-card-media' },
+    h('div', { class: 'kg-card-media' + (pet ? ' has-pet' : '') },
       art(catalog, character, c.worn, c.level, { seasonId, base: app.base, label: `${c.id} 캐릭터`, eager }),
+      pet ? petBuddy(pet, app.base, { label: false, eager }) : null,
       rank ? medal(rank, { className: 'kg-rank-badge', label: `${rank}등` }) : null),
     h('div', { class: 'kg-card-info' },
       label ? h('span', { class: 'kg-card-dj' + (rank === 1 ? ' accent' : '') }, label) : showDj && c.djName ? h('span', { class: 'kg-card-dj' }, `${c.djName} 키우기`) : null,

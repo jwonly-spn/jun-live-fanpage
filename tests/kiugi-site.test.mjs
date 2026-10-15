@@ -133,7 +133,9 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
   assert.equal(page.json.top.length, 3); assert.equal(page.json.top[0].rank, 1);
   assert.deepEqual(page.json.top.map((p) => p.id), ['밤톨#먼치', '사탕요정#먼치', '달무리#먼치']);
   // 서버(publicPerson)와 같은 모양: 단 칭호가 있는 사람만 titles 칸이 있다
-  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => k !== 'titles' && k !== 'motion').sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => !['titles', 'motion', 'pets', 'pet'].includes(k)).sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  // 펫(2026-10-16 — 서버 publicPerson 처럼 1~3등도 pets·pet): 체험 자료는 1~3등만 펫이 있다
+  assert.deepEqual(page.json.top.map((p) => p.pet?.id ?? null), ['ghost', 'blackcat', 'mummy']);
   assert.deepEqual(page.json.top.map((p) => p.titles ?? null), [['title-halloween-insa'], ['title-candy-plz'], null]);
   // 모션(2026-10-15): 하는 모션이 있는 사람만 motion 칸(모션 id 하나)
   assert.deepEqual(page.json.top.map((p) => p.motion ?? null), ['dance', 'cry', 'trash']);
@@ -144,7 +146,7 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
   const found = (await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: ' 밤 톨 ' })).json;
   assert.deepEqual(found.results.map((p) => p.id), ['밤톨#먼치', '밤톨이네#먼치', '작은밤톨#먼치'], '앞 부분이 같은 사람 먼저, 그다음 들어 있는 사람');
   assert.equal(found.exact, 1);
-  assert.deepEqual(Object.keys(found.results[0]).sort(), ['hearts', 'id', 'level', 'motion', 'rank', 'titles', 'worn']);
+  assert.deepEqual(Object.keys(found.results[0]).sort(), ['hearts', 'id', 'level', 'motion', 'pet', 'pets', 'rank', 'titles', 'worn']);
   assert.deepEqual(found.results[0].titles, ['title-halloween-insa']);
   assert.equal(Object.hasOwn(found.results[1], 'titles'), false, '칭호 없는 사람은 titles 칸이 없다');
   assert.deepEqual((await handle('GET', 'kiugi/find', { slug: KIUGI_DEMO.slug, q: '사탕요정#먼치' })).json.results.map((p) => p.id), ['사탕요정#먼치'], '전체 아이디로');
@@ -178,7 +180,10 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   assert.ok(home.popular.length > 0 && home.popular.length <= 12);
   assert.ok(home.popular.every((c, i, a) => c.hearts > 0 && (i === 0 || a[i - 1].hearts >= c.hearts)), '하트 많은 순');
   // 카드 모양(서버 card 와 같게): 단 칭호가 있는 사람만 titles 칸
-  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => k !== 'titles' && k !== 'motion').sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
+  //  함께하는 펫이 있는 사람만 pet 칸(만난 펫 목록 pets 는 카드에 없다 — 서버 card 의 petOf, 2026-10-16 메인 카드에 펫)
+  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => !['titles', 'motion', 'pet'].includes(k)).sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
+  assert.deepEqual(home.popular[0].pet, { id: 'ghost', stage: 3 }, '1등(밤톨#먼치)은 장난 유령과 함께');
+  assert.ok([...home.popular, ...home.recent].some((x) => !Object.hasOwn(x, 'pet')), '펫이 없는 사람은 pet 칸이 없다');
   assert.equal(home.popular[0].motion, 'dance', '카드에도 하는 모션(사이트 카드는 숨쉬기만)');
   assert.deepEqual(home.popular[0].titles, ['title-halloween-insa'], '1등(밤톨#먼치)은 칭호를 달았다');
   assert.ok(home.popular.some((x) => !Object.hasOwn(x, 'titles')));
@@ -431,5 +436,28 @@ test('펫 그림(2026-10-15 Codex DJ_PET_S1_20261015_HALLOWEEN): 시즌 펫 5종
   assert.equal(petImageUrl(cat2, cat2.stage, B), `${B}pets/s1/pet_blackcat_1.png`, '못 만난 펫은 1단계 그림(실루엣)');
   const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.kg-pet\.is-unmet \.kg-pet-img \{ filter: brightness\(0\) invert\(1\);/);
-  assert.match(css, /\.kg-pet-buddy \{ position: absolute; right: 1%; bottom: 1\.5%;/);
+  // 2026-10-16 사용자 "펫 좀 크게": 무대 너비 40% → 58%
+  assert.match(css, /\.kg-pet-buddy \{ position: absolute; right: -3%; bottom: 0; z-index: 2; width: 58%;/);
+});
+
+test('함께하는 펫이 메인 화면에도 보인다(2026-10-16 사용자 "캐릭터 클릭했을 때 말고 메인 화면에서도"): 카드·첫 화면 1~3등 무대에 그림만(이름표 없이)', async () => {
+  const cat = await catalog();
+  const { buddyOf } = await import('../docs/views/cards.js');
+  assert.deepEqual(buddyOf(cat, { id: 'ghost', stage: 3 }), { id: 'ghost', season: 's1', emoji: cat.pets.ghost.emoji, name: cat.pets.ghost.names[2], stage: 3 });
+  for (const bad of [null, undefined, {}, { id: 'ghost' }, { id: 'ghost', stage: 0 }, { id: 'ghost', stage: 6 }, { id: 'ghost', stage: '3' }, { id: 'nope', stage: 1 }, { id: 'constructor', stage: 1 }, { id: '__proto__', stage: 1 }]) {
+    assert.equal(buddyOf(cat, bad), null, JSON.stringify(bad) + ' 는 그리지 않음');
+  }
+  const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
+  const cards = await src('views/cards.js'), intro = await src('views/intro.js');
+  assert.match(cards, /const pet = character \? buddyOf\(catalog, c\.pet\) : null;/, '카드: 함께하는 펫(c.pet)');
+  assert.match(cards, /pet \? petBuddy\(pet, app\.base, \{ label: false, eager \}\) : null/);
+  assert.match(intro, /buddyOf\(ctx\.catalog, x\.c\.pet\)/, '첫 화면 1~3등 무대');
+  assert.match(intro, /petBuddy\(pet, ctx\.app\.base, \{ label: false \}\)/);
+  const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
+  for (const rule of ['.kg-card-media .kg-pet-buddy {', '.kg-cast-one .kg-pet-buddy {', '.kg-cast-one.left .kg-pet-buddy {', '.kg-pet-buddy.bare .kg-pet-img {']) assert.ok(css.includes(rule), rule);
+  // 체험 서버도 실제 서버(lib.ts)처럼: 카드는 pet 만, 1~3등은 pets·pet
+  const mock = await src('mock.js');
+  assert.match(mock, /const card = \(p, page\) => \(\{[^\n]*\.\.\.\(p\.pet \? \{ pet: p\.pet \} : \{\}\)/);
+  assert.doesNotMatch(mock.match(/const card = [^\n]*/)[0], /pets:/, '카드에는 만난 펫 목록을 넣지 않는다');
+  assert.match(mock, /const pub = \(p, rank, slug\) => \(\{[^\n]*\.\.\.\(p\.pets \? \{ pets: p\.pets \} : \{\}\), \.\.\.\(p\.pet \? \{ pet: p\.pet \} : \{\}\)/);
 });

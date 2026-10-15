@@ -21,7 +21,7 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
 import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
 import { saveCharacterImage, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { art, itemArt, copyLink, idText, actorNodes, setStageMotion } from './cards.js';
+import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy } from './cards.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
 function browserStorage() { try { return window.localStorage; } catch { return null; } }
@@ -42,22 +42,8 @@ export function petList(catalog, data) {
     return { id: p.id, season: p.season, emoji: p.emoji, name: stage ? petStage(p, stage) : p.name, stage, active: stage > 0 && p.id === active };
   });
 }
-const stars = (n) => '★'.repeat(n);
-// 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라
-//  단계가 오를수록 커 보인다(따로 늘리지 않는다). 못 만난 펫은 1단계 그림 모양만 옅게(실루엣 — styles.css). 그림을 못 읽으면 그림 글자(emoji)로.
-export const petImageUrl = (pet, stage, base = '') => `${base}pets/${pet.season}/pet_${pet.id}_${Math.min(5, Math.max(1, stage || 1))}.png`;
-function petImage(pet, base, { cls = '', eager = false } = {}) {
-  const img = h('img', { class: 'kg-pet-img' + (cls ? ' ' + cls : ''), src: petImageUrl(pet, pet.stage, base), alt: '', width: 512, height: 512, decoding: 'async', ...(eager ? {} : { loading: 'lazy' }) });
-  img.addEventListener('error', () => img.replaceWith(h('span', { class: 'kg-pet-emoji', 'aria-hidden': 'true' }, pet.emoji)), { once: true });
-  return img;
-}
-// 함께하는 펫: 캐릭터 오른쪽 아래에 서서 캐릭터를 바라본다(그림 아래에 이름·★)
-function petBuddy(pet, base) {
-  if (!pet) return null;
-  return h('figure', { class: 'kg-pet-buddy', title: `함께하는 펫 ${pet.name} ${stars(pet.stage)}` },
-    petImage(pet, base, { eager: true }),
-    h('figcaption', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))));
-}
+// 펫 그림·함께하는 펫(그림 아래 이름·★)은 cards.js 에 있다(메인 카드도 같이 쓴다 — 2026-10-16). petImageUrl 은 예전처럼 여기서도 내보낸다.
+export { petImageUrl };
 function petSection(pets, base) {
   if (!pets.length) return null;
   const met = pets.filter((p) => p.stage > 0).length;
