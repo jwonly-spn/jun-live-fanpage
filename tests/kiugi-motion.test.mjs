@@ -114,11 +114,12 @@ test('모션 효과 표(views/cards.js): 시즌 목록의 모든 모션에 움�
   assert.match(css, /\.kg-actor\.m-cry \.kg-eye-cry \{ ?opacity: ?1;? ?\}/, '울기 모션에서만 우는 눈');
 });
 
-test('움직임 모양(styles.css): 발끝 기준 숨쉬기 · 카드마다 박자 어긋남 · transform·opacity 만 움직임 · 동작 줄이기면 멈추고 효과 숨김 · 펫 통통', async () => {
-  const css = await src('styles.css');
-  assert.match(css, /\.kg-actor > \.kg-body \{ position: absolute; inset: 0; transform-origin: 50% 93\.4%; animation: kg-breathe 3\.6s ease-in-out infinite; \}/, '발 바닥(캔버스 y 956) 기준');
-  assert.match(css, /@keyframes kg-breathe \{ 0%, 100% \{ transform: none; \} 50% \{ transform: scale\(\.995, 1\.013\); \} \}/);
-  for (let i = 1; i < 5; i++) assert.match(css, new RegExp(`\\.kg-actor\\.kg-b${i} > \\.kg-body \\{ animation-delay: -`), 'kg-b' + i);
+test('가만히(styles.css, 사용자 10/15 밤 "모션은 그만, 숨쉬기도 다 없애"): 숨쉬기 · 눈 깜빡임 · 펫 통통 없음 · 효과 칸 모양 · 동작 줄이기면 효과 숨김', async () => {
+  const css = await src('styles.css'), cards = await src('views/cards.js');
+  assert.match(css, /\.kg-actor > \.kg-body \{ position: absolute; inset: 0; \}/, '캐릭터는 움직이지 않는다');
+  for (const word of ['kg-breathe', 'kg-blink-open', 'kg-blink-closed', 'kg-pet-hop']) assert.ok(!css.includes(word), word + ' 없음');
+  assert.ok(!/kg-b\$\{/.test(cards), '카드마다 숨쉬기 박자 클래스 없음');
+  assert.match(cards, /const prefix = MOTIONS_READY \? addEyeStates\(art\) : null;/, '감은 눈 · 우는 눈 그림은 표정을 쓸 때만');
   assert.match(css, /\.kg-stage > svg, \.kg-stage > \.kg-actor \{ position: absolute;/, '캐릭터 칸은 그림 칸과 같은 자리');
   assert.match(css, /\.kg-stage\.char > svg, \.kg-stage\.char > \.kg-actor \{ width: 138\.6667%;/);
   assert.match(css, /\.kg-actor \{ container-type: size; \}/, '효과 글자 크기는 칸 너비(cqw)');
@@ -134,7 +135,7 @@ test('움직임 모양(styles.css): 발끝 기준 숨쉬기 · 카드마다 박�
   // 동작 줄이기: 모든 애니메이션 멈춤 + 효과 숨김
   const reduce = /@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/.exec(css)?.[1] || '';
   assert.match(reduce, /animation: none !important/); assert.match(reduce, /\.kg-fx \{ display: none; \}/);
-  assert.match(css, /\.kg-pet-buddy \.kg-pet-img \{ transform-origin: 50% 92%; animation: kg-pet-hop /);
+  assert.doesNotMatch(css, /\.kg-pet-buddy \.kg-pet-img \{[^}]*animation/, '펫도 가만히');
   // 카드에 손을 올렸을 때 커지는 것도 캐릭터 칸 함께(바탕과 어긋나지 않게)
   assert.match(css, /\.kg-card:hover \.kg-card-media \.kg-stage > svg, \.kg-card:hover \.kg-card-media \.kg-stage > \.kg-actor \{ transform: scale\(1\.035\); \}/);
 });

@@ -76,16 +76,16 @@ export function setActorMotion(actor, id = null) {
 }
 // 무대 안 캐릭터 칸의 모션 바꾸기(아직 그리는 중이면 아무것도 하지 않는다 — 다 그린 뒤 그때의 모션으로 그린다)
 export const setStageMotion = (stage, id = null) => setActorMotion(stage?.querySelector?.(':scope > .kg-actor'), id);
-let breath = 0;
 // 캐릭터 그림 글 → 무대에 넣을 요소 [바탕 SVG(없으면 null), 캐릭터 칸]. 읽지 못하면 null(paintMarkup 이 대신 글을 넣는다).
+//  사용자 10/15 밤 "모션은 그만 — 가만히": 캐릭터는 움직이지 않는다. 감은 눈·우는 눈은 표정을 쓸 때(MOTIONS_READY)만 더한다(안 쓰는 그림을 받지 않게).
 export function actorNodes(markup, { motion = null } = {}) {
   const { scene, body } = splitScene(markup);
   const art = svgNode(body);
   if (!art) return null;
-  const prefix = addEyeStates(art);
+  const prefix = MOTIONS_READY ? addEyeStates(art) : null;
   const backdrop = scene ? svgNode(scene) : null;
   backdrop?.classList.add('kg-scene');
-  const actor = h('div', { class: `kg-actor kg-b${breath++ % 5}`, ...(prefix !== null ? { 'data-kg-prefix': prefix } : {}) },
+  const actor = h('div', { class: 'kg-actor', ...(prefix !== null ? { 'data-kg-prefix': prefix } : {}) },
     h('div', { class: 'kg-body' }, art, h('span', { class: 'kg-fx on-body', 'aria-hidden': 'true' })),
     h('span', { class: 'kg-fx around', 'aria-hidden': 'true' }));
   setActorMotion(actor, motion);
