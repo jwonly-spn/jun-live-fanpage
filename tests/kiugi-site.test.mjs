@@ -436,8 +436,12 @@ test('펫 그림(2026-10-15 Codex DJ_PET_S1_20261015_HALLOWEEN): 시즌 펫 5종
   assert.equal(petImageUrl(cat2, cat2.stage, B), `${B}pets/s1/pet_blackcat_1.png`, '못 만난 펫은 1단계 그림(실루엣)');
   const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
   assert.match(css, /\.kg-pet\.is-unmet \.kg-pet-img \{ filter: brightness\(0\) invert\(1\);/);
-  // 2026-10-16 사용자 "펫 좀 크게": 무대 너비 40% → 58%
-  assert.match(css, /\.kg-pet-buddy \{ position: absolute; right: -3%; bottom: 0; z-index: 2; width: 58%;/);
+  // 2026-10-16 사용자 "펫 좀 크게"(40% → 58%) → "지금보다 2배로": ★1 은 칸 116%(정확히 2배), 위 단계는 덜 자라게(캐릭터를 다 가리지 않게)
+  assert.match(css, /\.kg-pet-buddy \{ --ps: 1; --pw: 116%; --pm: \.30; --pe: 2%; position: absolute; right: calc\(var\(--pe\) - var\(--pw\) \* var\(--ps\) \* var\(--pm\)\);/);
+  for (const [st, pw] of [[2, 100], [3, 89], [4, 81], [5, 75]]) assert.match(css, new RegExp(`\\.kg-pet-buddy\\.st${st} \\{ --pw: ${pw}%;`), '★' + st);
+  assert.match(css, /\.kg-hero-stage \{ position: relative; overflow: hidden;/, '무대보다 큰 칸은 무대 모서리로 자른다(휴대폰 옆 스크롤 없게)');
+  const cardsSrc = await readFile(new URL('../docs/views/cards.js', import.meta.url), 'utf8');
+  assert.match(cardsSrc, /'kg-pet-buddy st' \+ Math\.min\(5, Math\.max\(1, pet\.stage \|\| 1\)\)/, '단계 클래스');
 });
 
 test('함께하는 펫이 메인 화면에도 보인다(2026-10-16 사용자 "캐릭터 클릭했을 때 말고 메인 화면에서도"): 카드·첫 화면 1~3등 무대에 그림만(이름표 없이)', async () => {

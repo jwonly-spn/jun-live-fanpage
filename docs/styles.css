@@ -489,19 +489,30 @@ a { color: inherit; }
 .kg-save-row { display: flex; justify-content: center; margin-top: 12px; }
 /* 펫(2026-10-15): 함께하는 펫은 캐릭터 무대 오른쪽 아래에 서서(그림 아래 이름·★), 펫 칸은 시즌 펫 차례대로(못 만난 펫은 1단계 그림 모양만 — 어두운 바탕이라 옅은 실루엣).
    그림(512×512, 바닥선 y=470 — 아래 8% 는 빈 칸)은 단계마다 같은 배율로 그린다(단계가 오를수록 커 보이게). 그림을 못 읽으면 그림 글자 */
-.kg-hero-stage { position: relative; }
-/* 2026-10-16 사용자 "펫 좀 크게": 무대 너비 40% → 58%. 그림 양옆은 빈 칸이라(★5 그림이 512 중 39~472) 칸을 오른쪽으로 조금 내보내 캐릭터를 덜 가리게 */
-.kg-pet-buddy { position: absolute; right: -3%; bottom: 0; z-index: 2; width: 58%; margin: 0; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.kg-hero-stage { position: relative; overflow: hidden; border-radius: 28px; }
+/* 2026-10-16 사용자 ① "펫 좀 크게"(무대 너비 40% → 58%) ② "지금보다 2배로".
+   그림은 단계마다 펫 크기가 달라(512 칸 높이의 ★1 45% … ★5 85%) 모두 2배로 하면 ★3 부터 캐릭터를 다 가린다 →
+   ★1 은 정확히 2배(칸 116%), 위 단계는 보이는 펫 높이가 무대 너비의 52% → 55 → 58 → 61 → 64% 로만 자라게 칸 너비(--pw)를 단계마다 정한다.
+   칸이 무대보다 커서 칸은 무대 밖으로 나가고(무대 둥근 모서리로 자른다), 보이는 펫만 무대 오른쪽 끝(--pe 안쪽)에 서도록
+   단계마다 그림 옆 빈 칸 비율(--pm — 펫 5종 가운데 가장 작은 값, 기획\DJ키우기\펫S1\verify.json 의 box)만큼 칸을 내보낸다.
+   --ps: 칸마다 크기 배율(카드·첫 화면 무대는 조금 작게). */
+.kg-pet-buddy { --ps: 1; --pw: 116%; --pm: .30; --pe: 2%; position: absolute; right: calc(var(--pe) - var(--pw) * var(--ps) * var(--pm)); bottom: 0; z-index: 2; width: calc(var(--pw) * var(--ps)); margin: 0; display: flex; flex-direction: column; align-items: center; pointer-events: none; }
+.kg-pet-buddy.st2 { --pw: 100%; --pm: .235; }
+.kg-pet-buddy.st3 { --pw: 89%; --pm: .185; }
+.kg-pet-buddy.st4 { --pw: 81%; --pm: .125; }
+.kg-pet-buddy.st5 { --pw: 75%; --pm: .075; }
 .kg-pet-buddy .kg-pet-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 10px 10px rgba(0,0,0,.45)); }
 .kg-pet-buddy .kg-pet-emoji { display: grid; place-items: center; width: 56px; height: 56px; margin-bottom: 6px; border-radius: 50%; background: var(--panel); font-size: 34px; line-height: 1; }
 .kg-pet-name { display: flex; flex-direction: column; align-items: center; max-width: 100%; min-width: 0; margin-top: -9%; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--panel); box-shadow: 0 10px 24px -14px rgba(0,0,0,.6); font-size: 12px; font-weight: 700; line-height: 1.25; white-space: nowrap; }
 .kg-pet-name i { font-style: normal; font-size: 10px; color: var(--accent); letter-spacing: 1px; }
 /* 이름표 없는 펫(메인 카드·메인 첫 화면 — 2026-10-16 사용자 "메인 화면에서도 보이게"): 그림만, 그림자는 작게 */
+/*  이름표가 없으면 그림 아래 빈 칸(512 중 41 ≈ 8%)만큼 내려 발이 무대 바닥에 닿게(margin % 는 너비 기준이라 그림 크기 × 0.07) */
+.kg-pet-buddy.bare { margin-bottom: calc(var(--pw) * var(--ps) * -.07); }
 .kg-pet-buddy.bare .kg-pet-img { filter: drop-shadow(0 6px 6px rgba(0,0,0,.45)); }
 .kg-pet-buddy.bare .kg-pet-emoji { width: 40px; height: 40px; margin-bottom: 4px; font-size: 24px; }
-.kg-card-media .kg-pet-buddy { right: -4%; bottom: -1%; width: 52%; }
-.kg-cast-one .kg-pet-buddy { right: -16%; bottom: 0; width: 56%; }
-.kg-cast-one.left .kg-pet-buddy { right: auto; left: -16%; }
+.kg-card-media .kg-pet-buddy { --ps: .9; --pe: 3%; }
+.kg-cast-one .kg-pet-buddy { --ps: .97; --pe: -6%; }
+.kg-cast-one.left .kg-pet-buddy { right: auto; left: calc(var(--pe) - var(--pw) * var(--ps) * var(--pm)); }
 .kg-cast-one:not(.lead) .kg-pet-img { filter: brightness(.82) saturate(.9) drop-shadow(0 6px 6px rgba(0,0,0,.45)); }
 .kg-pets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .kg-pet { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 10px 6px 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--panel); text-align: center; }
@@ -557,7 +568,8 @@ a { color: inherit; }
 .kg-try-look.has-title .kg-try-stage > svg, .kg-try-look.has-title .kg-try-stage > .kg-actor { width: 115%; height: 86.25%; left: -7.5%; top: 15%; }
 .kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
 /* 입혀 보기 미리 보기의 함께하는 펫(2026-10-15): 캐릭터 무대처럼 오른쪽 아래에 */
-.kg-try-look .kg-pet-buddy { z-index: 2; right: -3%; bottom: 0; width: 56%; }
+.kg-try-look { overflow: hidden; border-radius: var(--r-md); }
+.kg-try-look .kg-pet-buddy { --ps: .97; z-index: 2; }
 .kg-try-look .kg-pet-name { font-size: 11px; padding: 3px 10px; }
 .kg-try-stage[aria-busy="true"] > svg, .kg-try-stage[aria-busy="true"] > .kg-actor { opacity: .82; transition: opacity .2s ease; }
 .kg-try-cmd { grid-area: cmd; display: flex; flex-direction: column; gap: 6px; min-width: 0; }

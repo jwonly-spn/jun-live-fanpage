@@ -142,7 +142,8 @@ export function buddyOf(catalog, pet) {
 export function petBuddy(pet, base, { label = true, eager = true } = {}) {
   if (!pet) return null;
   const text = `함께하는 펫 ${pet.name} ${stars(pet.stage)}`;
-  return h('figure', { class: 'kg-pet-buddy' + (label ? '' : ' bare'), title: text, ...(label ? {} : { 'aria-label': text }) },
+  // st1~st5: 단계마다 그림 양옆 빈 칸이 달라(★1 은 512 중 가운데 35%만) 칸을 얼마나 내보낼지 styles.css 가 단계로 정한다
+  return h('figure', { class: 'kg-pet-buddy st' + Math.min(5, Math.max(1, pet.stage || 1)) + (label ? '' : ' bare'), title: text, ...(label ? {} : { 'aria-label': text }) },
     petImage(pet, base, { eager }),
     label ? h('figcaption', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))) : null);
 }
