@@ -97,7 +97,8 @@ export async function renderItems(root, app) {
   // 모션(2026-10-15): 시즌 목록 motions — 옷처럼 칸마다 움직이는 예시 캐릭터(기본 캐릭터, 여자·남자 단추를 따른다)
   //  모션이 보이지 않는 동안(MOTIONS_READY false)은 모션 칸 대신 "업데이트 대기 중" 한 줄만(전체를 볼 때 맨 아래)
   const motions = groups.length && MOTIONS_READY ? motionList(catalog, seasonId) : [];
-  const motionWait = groups.length && !MOTIONS_READY && motionList(catalog, seasonId).length > 0;
+  //  2026-10-16 사용자 "모션 싹 다 없애. 나중에 추가할 거야" — 대기 한 줄도 내지 않는다(MOTION_WAIT 는 다시 켤 때를 위해 남김)
+  const motionWait = false;
   const season = catalog.seasons[seasonId];
   const seasonInfo = home?.season || (season ? { id: seasonId, name: season.name, endsAt: season.endsAt } : null);
   badge.replaceChildren(seasonBadge(seasonInfo));

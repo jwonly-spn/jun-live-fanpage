@@ -166,15 +166,16 @@ test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·�
   for (const s of [character, items, cards, await src('lib/try-on.js')]) assert.doesNotMatch(s, /[0-9],?[0-9]{3}냥/);
 });
 
-test('모션 업데이트 대기(2026-10-15 사용자 "다 되기 전까지 사이트에서 모션 없애 업데이트 대기중이라고만"): 스위치가 꺼져 있으면 모션 대신 대기 한 줄', async () => {
+// 2026-10-16 사용자 "모션 싹 다 없애. 나중에 추가할 거야" — 10/15 의 "업데이트 대기 중" 한 줄도 없앤다(먼치킨 봇도 MOTIONS_ON false)
+test('모션 없음(2026-10-16): 스위치가 꺼져 있으면 캐릭터 페이지·옷 도감·입혀 보기 어디에도 모션이 없다(대기 한 줄도)', async () => {
   const { MOTIONS_READY, MOTION_WAIT } = await import('../docs/lib/kiugi-draw.js');
-  assert.equal(MOTIONS_READY, false, '관절별 그림이 들어오기 전까지 꺼 둔다');
-  assert.equal(MOTION_WAIT, '업데이트 대기 중이에요');
+  assert.equal(MOTIONS_READY, false, '다시 넣을 때까지 꺼 둔다');
+  assert.equal(MOTION_WAIT, '업데이트 대기 중이에요', '다시 켤 때를 위해 글은 남긴다');
   const character = await src('views/character.js'), items = await src('views/items.js');
-  assert.match(character, /if \(!MOTIONS_READY\) return h\('p', \{ class: 'kg-motion-guide' \}, h\('b', null, '모션'\), ' ' \+ MOTION_WAIT\);/, '캐릭터 페이지 안내 한 줄');
+  assert.match(character, /if \(!MOTIONS_READY\) return null;/, '캐릭터 페이지 안내 줄 없음');
   assert.match(character, /const motions = MOTIONS_READY \? motionList\(catalog, sid\) : \[\]/, '입혀 보기 모션 탭 없음');
   assert.match(items, /const motions = groups\.length && MOTIONS_READY \? motionList\(catalog, seasonId\) : \[\];/, '옷 도감 모션 칸 없음');
-  assert.match(items, /motionWait && pick === 'all' \? h\('section', \{ class: 'kg-sec kg-motions' \}, secHead\('모션', MOTION_WAIT\)\) : null/, '옷 도감 맨 아래 대기 한 줄');
+  assert.match(items, /const motionWait = false;/, '옷 도감 맨 아래 대기 한 줄도 없음');
 });
 
 test('체험 모드: 모션을 하는 지어낸 캐릭터(모션마다 한 명) · 사이트가 모르는 모션 id 는 숨쉬기만', async () => {

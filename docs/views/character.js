@@ -59,7 +59,8 @@ function petSection(pets, base) {
 export function motionGuide(catalog, seasonId) {
   const list = motionList(catalog, seasonId);
   if (!list.length) return null;
-  if (!MOTIONS_READY) return h('p', { class: 'kg-motion-guide' }, h('b', null, '모션'), ' ' + MOTION_WAIT);
+  // 2026-10-16 사용자 "모션 싹 다 없애. 나중에 추가할 거야": 모션을 보이지 않는 동안은 "업데이트 대기 중" 한 줄도 내지 않는다
+  if (!MOTIONS_READY) return null;
   const cmd = (t) => h('code', { class: 'kg-cmd' }, t), price = motionPriceText(list);
   return h('p', { class: 'kg-motion-guide' }, h('b', null, '모션'), ' 방송 채팅에 ', cmd(motionCommand(list[0])), ` 처럼 치면 사서 바로 해요${price ? `(${price})` : ''}. 멈출 때는 `, cmd(MOTION_OFF), ' 를 쳐요. 아래 입혀 보기에서 미리 볼 수 있어요.');
 }
