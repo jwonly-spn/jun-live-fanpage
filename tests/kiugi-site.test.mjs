@@ -18,10 +18,10 @@ const catalog = async () => {
   return buildCatalog(await Promise.all(manifest.seasons.map(read)), { files: manifest.files, adjust: {} });
 };
 
-test('새 그림체 R7 그림 목록(2026-10-18 Codex DJ_STYLE_TEST_20261017_EDGES_R7): 몸 2·머리 40·눈 12·코 4·입 8·옷 240 + 공통 배경 10, 주소 ?v= 는 해시 앞 12자, 그림·마스크가 모두 사이트에 있다', async () => {
+test('새 그림체 R7 그림 목록(2026-10-18 Codex R7 → 같은 날 R8 DJ_STYLE_20261018_LINES_R8 — 파일·id 그대로): 몸 2·머리 40·눈 12·코 4·입 8·옷 240 + 공통 배경 10, 주소 ?v= 는 해시 앞 12자, 그림·마스크가 모두 사이트에 있다', async () => {
   const { ART } = await import('../docs/kiugi/kiugi-r7-data.js');
   const manifest = await read('manifest.json');
-  assert.equal(ART.packageId, 'DJ_STYLE_TEST_20261017_EDGES_R7'); assert.equal(ART.version, 'r7'); assert.equal(ART.dir, '/kiugi/r7/'); assert.equal(ART.size, 1024);
+  assert.equal(ART.packageId, 'DJ_STYLE_20261018_LINES_R8'); assert.equal(ART.version, 'r7'); assert.equal(ART.dir, '/kiugi/r7/'); assert.equal(ART.size, 1024);
   const count = {};
   for (const a of ART.assets) count[a.category] = (count[a.category] || 0) + 1;
   assert.deepEqual(count, { body: 2, eyes: 12, nose: 4, mouth: 8, hair: 40, top: 40, bottom: 40, shoe: 40, accessory: 40, hat: 40, outfit: 40, background: 10 });
