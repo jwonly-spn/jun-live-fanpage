@@ -311,8 +311,12 @@ test('배치(1080×1350): 배경은 잘라 채우기, 캐릭터(모자·손 장�
     const b = { x0: Math.min(body[0], a.box[0]) * s, y0: Math.min(body[1], a.box[1]) * s, x1: Math.max(body[2], a.box[2]) * s, y1: Math.max(body[3], a.box[3]) * s };
     placedOk(b, a.id);
   }
-  assert.ok(L.band.y < L.id.y && L.id.y < L.sub.y && L.sub.y < L.rule.y && L.rule.y < L.mark.y && L.mark.y < SAVE_H - 20);
-  assert.ok(L.fade.from < L.fade.to && L.fade.to <= L.band.y);
+  // 2026-10-18 새 디자인: 사이트 표시는 맨 위 한 줄(캐릭터가 올 수 있는 곳 fit.top 보다 위), 아래 글 칸은 아이디 · 레벨 줄만
+  assert.ok(L.band.y < L.id.y && L.id.y < L.sub.y && L.sub.y < SAVE_H - 20);
+  assert.ok(L.mark.y > 20 && L.mark.y < L.fit.top, '맨 위 사이트 표시 줄은 캐릭터 자리 위');
+  assert.ok(L.scrim.top < L.center.y && L.fade.from < L.band.y && L.fade.from < L.fade.to && L.fade.to <= SAVE_H, '배경 장면의 위·아래 어둠');
+  // 캐릭터가 예전(아래 띠 1130 · 위 36 — 머리끝~발끝 최대 878px)보다 크다: 가운데(675)에서 위·아래로 쓸 수 있는 높이
+  assert.ok(2 * Math.min(L.center.y - L.fit.top, L.fit.bottom - L.center.y) >= 1000, '캐릭터 최대 높이 1000px 이상');
   assert.ok(at.bottom - 6 < L.band.y && L.shadow.rx > 0 && L.shadow.ry > 0, '발밑 그림자는 띠 위');
 });
 

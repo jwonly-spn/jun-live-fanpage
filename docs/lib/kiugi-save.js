@@ -1,7 +1,8 @@
 // 캐릭터 이미지로 저장(캐릭터 페이지의 "저장하기" 단추 — 캐릭터 그림 바로 아래 따로, 2026-10-09): 1080×1350(4:5) PNG 한 장.
-//  모습: 입은 배경(배경 옷)이 그림 전체를 채우고(잘라 채우기 — 없으면 사이트 무대처럼 어두운 그라데이션 + 위에서 비추는 빛),
-//   그 위에 캐릭터를 크게 가운데(발밑에 옅은 그림자), 아래 반투명 어두운 띠에 "아이디#이름"(앞은 크게, #이름은 작고 옅게) ·
-//   "Lv.N · 시즌" · 하트 수 · "스푼 DJ 키우기 · 키우기.com" · 비공식 표시.
+//  모습(2026-10-18 사이트 새 디자인 — 룩북·포토카드): 입은 배경(배경 옷)이 그림 전체를 채우고(잘라 채우기 — 없으면 사이트 무대와 같은 밝은 스튜디오
+//   — 연보랏빛 회색 그라데이션 + 위에서 비추는 흰 빛), 그 위에 캐릭터를 크게 가운데(발밑에 옅은 그림자 — 예전보다 약 15% 크게).
+//   맨 위 한 줄에 "스푼 DJ 키우기 · 키우기.com" · 비공식 표시, 맨 아래에 "아이디#이름"(앞은 크게, #이름은 작고 옅게) · "Lv.N · 시즌" · 하트 수.
+//   글 색: 밝은 스튜디오는 먹색 글, 어두운 배경 장면은 흰 글(위·아래만 살짝 어둡게 깔아 글이 잘 읽히게 — 캐릭터 밑에 깐다).
 //  캐릭터는 kiugi-art.js 와 같은 규칙으로 캔버스에 직접 그린다 — SVG 를 그림으로 캔버스에 올리면 SVG 안의 바깥 그림 파일(href)을 읽지 못한다.
 //   새 그림체 R7(2026-10-18 — 먼치킨 docs/20261018-kiugi-r7.md): 규칙은 Codex 패키지 renderer.js(캔버스) 그대로 — kiugi-art.js(SVG)도 같은 규칙이다.
 //    뒷머리(머리색, 모자를 쓰면 모자의 머리 지우기 마스크로 자른다) → 몸 칸(기준 몸을 옷마다의 몸 지우기 마스크로 지운다 — 몸만 지우고 옷은 지우지 않는다 ·
@@ -33,12 +34,18 @@ export const SAVE_LABEL = '저장하기';
 export const SAVE_BUSY = '만드는 중…';
 export const SAVED = '이미지를 저장했어요';
 export const SAVE_FAILED = '이미지를 만들지 못했어요. 잠시 뒤에 다시 해 주세요.';
-const COLOR = Object.freeze({ text: '#f3efe8', text2: '#a9a6af', text3: '#8a8791', accent: '#ff7a2f', accentText: '#ff9a5c', accentInk: '#1b0c03', bg: '11, 11, 15' });
+// 글·표시 색: studio = 밝은 스튜디오(배경 옷 없음 — 사이트 styles.css 의 먹색 글·장밋빛 하트) · scene = 어두운 배경 장면(흰 글)
+export const SAVE_TONES = Object.freeze({
+  studio: Object.freeze({ text: '#211b28', text2: '#5b5462', text3: '#736c7a', pill: 'rgba(33, 27, 40, 0.08)', heart: '#c33d60', logo: '#211b28', logoInk: '#fbf7f1' }),
+  scene: Object.freeze({ text: '#fbf7f1', text2: 'rgba(251, 247, 241, 0.8)', text3: 'rgba(251, 247, 241, 0.66)', pill: 'rgba(255, 255, 255, 0.16)', heart: '#f2738f', logo: 'rgba(251, 247, 241, 0.95)', logoInk: '#211b28' }),
+});
+const SCRIM = '20, 16, 26'; // 배경 장면 위·아래에 까는 어둠(먹색)
 const FONT = '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif';
 
 // 배치(1080×1350). 캐릭터는 1024 캔버스 전체를 1.1배(char.s) 크기로 놓는다고 보고, 실제로 그려진 곳(알파 상자 — 모자·손 장식·둥실 하트 포함)을 재서
 //  그 가운데가 그림 한가운데(540, 675)에 오게 놓는다(2026-10-09 사용자 "이미지 저장할 때 캐릭터를 정 중앙에"). 위로 fit.top, 아래 띠 위 fit.bottom 안에 들어가지 않으면 그만큼 줄인다(placeCharacter).
-//  아래 띠는 220px(예전 258px)로 얇게 — 가운데에 둔 캐릭터가 거의 줄지 않게.
+//  2026-10-18 새 디자인: 사이트 표시(로고 · 스푼 DJ 키우기 · 키우기.com · 비공식)는 맨 위 한 줄로 옮기고, 아래 글 칸(band — 아이디 · 레벨 줄)만 남겨
+//   위아래로 쓸 수 있는 높이를 넓혔다 → 캐릭터 머리끝~발끝이 그림 높이의 약 74%(예전 65%). 가운데 자리(540, 675)는 그대로(사용자 10/9 "정 중앙에").
 //  R7(2026-10-18): 캐릭터는 1024 캔버스에 겹쳐 그린 뒤(패키지 renderer.js 와 픽셀이 같다) 마지막에 한 번만 늘이고 줄인다 —
 //   예전처럼 그림마다 1.1배로 늘린 뒤 마스크로 지우면 옷·몸 가장자리에 1px 테두리 차이가 생겼다. 그 뒤 줄이는 배수(f)와 합쳐 한 번(7등신이라 거의 0.98배).
 const CHAR_S = 1.1;
@@ -46,14 +53,14 @@ export const SAVE_LAYOUT = Object.freeze({
   pad: 64,
   char: Object.freeze({ s: CHAR_S }),
   center: Object.freeze({ x: SAVE_W / 2, y: SAVE_H / 2 }),
-  fit: Object.freeze({ top: 36, bottom: 1114, side: 40 }),
-  shadow: Object.freeze({ rx: 200, ry: 28 }),
-  fade: Object.freeze({ from: 960, to: 1130 }), // 아래 띠로 이어지는 어둠(캐릭터 밑에 깔아 배경만 어둡게)
-  band: Object.freeze({ y: 1130 }),
-  id: Object.freeze({ y: 1214, size: 82, tag: 0.6, min: 0.55 }), // 아이디 글 아랫줄(앞 82px · #이름 0.6배), 길면 0.55배까지 줄인다
-  sub: Object.freeze({ y: 1262, size: 28, pill: 40 }),
-  rule: Object.freeze({ y: 1290 }),
-  mark: Object.freeze({ y: 1328, size: 23, logo: 32 }),
+  fit: Object.freeze({ top: 118, bottom: 1180, side: 40 }),
+  shadow: Object.freeze({ rx: 190, ry: 26 }),
+  scrim: Object.freeze({ top: 190 }), // 배경 장면일 때 맨 위 어둠(위 한 줄 글이 잘 읽히게 — 캐릭터 밑에 깐다)
+  fade: Object.freeze({ from: 1010, to: SAVE_H }), // 배경 장면일 때 아래 글 칸으로 이어지는 어둠(캐릭터 밑에 깔아 배경만 어둡게)
+  band: Object.freeze({ y: 1194 }), // 아래 글 칸(아이디 · 레벨 줄) 위 끝 — 캐릭터 발끝(fit.bottom)은 이보다 위
+  id: Object.freeze({ y: 1268, size: 76, tag: 0.58, min: 0.55 }), // 아이디 글 아랫줄(앞 76px · #이름 0.58배), 길면 0.55배까지 줄인다
+  sub: Object.freeze({ y: 1314, size: 28, pill: 40 }),
+  mark: Object.freeze({ y: 78, size: 23, logo: 34 }), // 맨 위 사이트 표시 줄(글 아랫줄)
 });
 // 그린 캐릭터 캔버스의 알파 상자 {x0, y0, x1, y1}(그 캔버스 픽셀) · 아무것도 없으면 캔버스 전체
 export function alphaBox(data, w, hgt, min = 16) {
@@ -268,7 +275,9 @@ export function externalUrl(href, kind) {
 // 함께하는 펫(2026-10-16 사용자 "펫도 같이 사진 찍게 해 줘"): 캐릭터 오른쪽에 같은 바닥선으로 서고, 둘을 한 무리로 가운데에 둔다.
 //  펫 그림(pets/<시즌>/pet_<id>_<단계>.png)은 512×512 · 모든 단계가 같은 바닥선(y=470)·같은 배율이라 단계가 오를수록 커 보인다(따로 늘리지 않는다).
 export const PET_GROUND = 470 / 512;
-export const PET_SCALE = 0.66; // 펫 캔버스 = 캐릭터 캔버스(1024 × 1.1 × 줄인 배수)의 0.66배(캐릭터 페이지처럼 펫이 잘 보이게)
+// 펫 캔버스 = 캐릭터 캔버스(1024 × 1.1 × 줄인 배수)의 0.46배 — 보이는 펫 높이가 캐릭터 키의 약 ★1 23% · ★3 33% · ★5 43%
+//  (2026-10-18 새 그림체: 예전 0.66배는 ★3 부터 캐릭터 키의 절반을 넘어 펫이 캐릭터만큼 커 보였다)
+export const PET_SCALE = 0.46;
 const PET_PART = /^[a-z0-9_-]{1,40}$/;
 export function savePetUrl(pet, base = '/') {
   if (!pet || !PET_PART.test(String(pet.id || '')) || !PET_PART.test(String(pet.season || ''))) return null;
@@ -300,14 +309,27 @@ function ellipseGlow(ctx, cx, cy, rx, ry, stops) {
   ctx.fillRect(-cx / rx, -cy / ry, SAVE_W / rx, SAVE_H / ry);
   ctx.restore();
 }
-// 배경 옷이 없을 때: 사이트 무대(--stage)와 같은 어두운 그라데이션 + 위에서 비추는 빛 + 위쪽 주황 빛(조금) + 발밑이 조금 밝은 바닥
+// 배경 옷이 없을 때: 사이트 무대(styles.css --stage)와 같은 밝은 스튜디오 — 연보랏빛 회색 그라데이션(아래로 조금 짙게) + 위에서 비추는 흰 빛 +
+//  벽과 바닥이 만나는 옅은 띠(발 조금 위부터 아래로) + 위 오른쪽의 아주 옅은 보랏빛
 function drawStage(ctx) {
   const lg = ctx.createLinearGradient(0, 0, 0, SAVE_H);
-  lg.addColorStop(0, '#26242e'); lg.addColorStop(0.62, '#1a1920'); lg.addColorStop(1, '#15141a');
+  lg.addColorStop(0, '#eee9f1'); lg.addColorStop(0.62, '#e4dde9'); lg.addColorStop(1, '#d8d0de');
   ctx.fillStyle = lg; ctx.fillRect(0, 0, SAVE_W, SAVE_H);
-  ellipseGlow(ctx, SAVE_W * 0.5, SAVE_H * 0.36, SAVE_W * 0.8, SAVE_H * 0.58, [[0, 'rgba(255, 255, 255, 0.11)'], [0.7, 'rgba(255, 255, 255, 0)']]);
-  ellipseGlow(ctx, SAVE_W * 0.5, 0, SAVE_W * 0.7, SAVE_H * 0.46, [[0, 'rgba(255, 122, 47, 0.13)'], [0.72, 'rgba(255, 122, 47, 0)']]);
-  ellipseGlow(ctx, SAVE_W * 0.5, SAVE_LAYOUT.fit.bottom - 40, 430, 120, [[0, 'rgba(255, 255, 255, 0.06)'], [1, 'rgba(255, 255, 255, 0)']]);
+  ellipseGlow(ctx, SAVE_W * 0.5, SAVE_H * 0.32, SAVE_W * 0.64, SAVE_H * 0.46, [[0, 'rgba(255, 255, 255, 0.9)'], [0.72, 'rgba(255, 255, 255, 0)']]);
+  ellipseGlow(ctx, SAVE_W * 0.92, 0, SAVE_W * 0.6, SAVE_H * 0.34, [[0, 'rgba(176, 140, 214, 0.18)'], [1, 'rgba(176, 140, 214, 0)']]);
+  const floor = SAVE_LAYOUT.fit.bottom - 170, fl = ctx.createLinearGradient(0, floor, 0, SAVE_H);
+  fl.addColorStop(0, 'rgba(255, 255, 255, 0)'); fl.addColorStop(0.18, 'rgba(255, 255, 255, 0.22)'); fl.addColorStop(1, 'rgba(150, 132, 168, 0.18)');
+  ctx.fillStyle = fl; ctx.fillRect(0, floor, SAVE_W, SAVE_H - floor);
+}
+// 배경 장면일 때 위·아래 어둠(글이 잘 읽히게 — 캐릭터 밑에 깔아 배경만 어둡게)
+function drawScrims(ctx) {
+  const L = SAVE_LAYOUT;
+  const top = ctx.createLinearGradient(0, 0, 0, L.scrim.top);
+  top.addColorStop(0, `rgba(${SCRIM}, 0.5)`); top.addColorStop(1, `rgba(${SCRIM}, 0)`);
+  ctx.fillStyle = top; ctx.fillRect(0, 0, SAVE_W, L.scrim.top);
+  const fade = ctx.createLinearGradient(0, L.fade.from, 0, L.fade.to);
+  fade.addColorStop(0, `rgba(${SCRIM}, 0)`); fade.addColorStop(0.55, `rgba(${SCRIM}, 0.55)`); fade.addColorStop(1, `rgba(${SCRIM}, 0.8)`);
+  ctx.fillStyle = fade; ctx.fillRect(0, L.fade.from, SAVE_W, L.fade.to - L.fade.from);
 }
 // 캐릭터(1024 캔버스 전체, 배경 빼고)를 s 배 크기의 캔버스에(저장하기는 s = 1 — 패키지 renderer.js 와 같은 1024 캔버스, 시험이 픽셀로 견준다). images: 주소(artUrl) → 받아 둔 그림.
 //  다 쓴 칸은 바로 비운다(아이폰 캔버스 메모리 — 한꺼번에 살아 있는 칸은 몇 개뿐).
@@ -353,47 +375,46 @@ function drawIcon(ctx, paths, x, y, size, { fill = null, stroke = null, width = 
   for (const d of paths) { const p = new Path2D(d); if (fill) { ctx.fillStyle = fill; ctx.fill(p); } if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(p); } }
   ctx.restore();
 }
-function drawBand(ctx, card) {
-  const L = SAVE_LAYOUT, left = L.pad, right = SAVE_W - L.pad, maxW = right - left;
-  ctx.fillStyle = `rgba(${COLOR.bg}, 0.86)`; ctx.fillRect(0, L.band.y, SAVE_W, SAVE_H - L.band.y);
+// 글(tone = studio | scene — SAVE_TONES): 맨 위 사이트 표시 한 줄 + 맨 아래 아이디 · 레벨 줄
+function drawBand(ctx, card, tone = 'studio') {
+  const L = SAVE_LAYOUT, C = SAVE_TONES[tone] || SAVE_TONES.studio, left = L.pad, right = SAVE_W - L.pad, maxW = right - left;
   ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
-  // 1) 아이디: 앞 부분은 크게, "#이름"은 작고 옅게(사이트 글과 같은 모양). 길면 같이 줄인다.
+  // 1) 맨 위: 로고(먹색 네모 — 배경 장면이면 흰 네모) · 스푼 DJ 키우기 · 키우기.com …… 오른쪽 "비공식 팬 사이트"
+  const lg = L.mark.logo, ly = L.mark.y - lg + 8;
+  ctx.fillStyle = C.logo; roundRect(ctx, left, ly, lg, lg, 10); ctx.fill();
+  drawIcon(ctx, HEADPHONES_ICON, left + 6, ly + 6, lg - 12, { stroke: C.logoInk, width: 2.2 });
+  drawRun(ctx, left + lg + 14, L.mark.y, [
+    { text: SITE_MARK, weight: 800, size: L.mark.size, color: C.text, gap: 10, spacing: -0.5 },
+    { text: '·', weight: 500, size: L.mark.size, color: C.text3, gap: 10 },
+    { text: SITE_DOMAIN, weight: 600, size: L.mark.size, color: C.text2 },
+  ]);
+  setFont(ctx, 600, 21);
+  ctx.fillStyle = C.text3; ctx.textAlign = 'right'; ctx.fillText(UNOFFICIAL_MARK, right, L.mark.y); ctx.textAlign = 'left';
+  // 2) 아이디: 앞 부분은 크게, "#이름"은 작고 옅게(사이트 글과 같은 모양). 길면 같이 줄인다.
   const { head, tag } = labelParts(card.id);
   const idPieces = (k) => [
-    { text: head, weight: 800, size: Math.round(L.id.size * k), color: COLOR.text, spacing: -Math.round(L.id.size * k * 0.03) },
-    ...(tag ? [{ text: tag, weight: 600, size: Math.round(L.id.size * L.id.tag * k), color: COLOR.text2, spacing: -1 }] : []),
+    { text: head, weight: 800, size: Math.round(L.id.size * k), color: C.text, spacing: -Math.round(L.id.size * k * 0.035) },
+    ...(tag ? [{ text: tag, weight: 600, size: Math.round(L.id.size * L.id.tag * k), color: C.text2, spacing: -1 }] : []),
   ];
   let k = 1;
   const w = runWidth(ctx, idPieces(1));
   if (w > maxW) k = Math.max(L.id.min, maxW / w);
   drawRun(ctx, left, L.id.y, idPieces(k));
-  // 2) "Lv.10"(옅은 동그라미 안) · "할로윈 시즌" ……… 오른쪽 하트 수
+  // 3) "Lv.10"(옅은 동그라미 안) · "할로윈 시즌" ……… 오른쪽 하트 수
   const lp = levelParts(card.level, card.seasonName);
   setFont(ctx, 800, L.sub.size);
   const lvW = ctx.measureText(lp.lv).width, pillW = lvW + 32, pillY = L.sub.y - L.sub.pill / 2 - Math.round(L.sub.size * 0.36);
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.1)'; roundRect(ctx, left, pillY, pillW, L.sub.pill, L.sub.pill / 2); ctx.fill();
-  drawRun(ctx, left + 16, L.sub.y, [{ text: lp.lv, weight: 800, size: L.sub.size, color: COLOR.text }]);
-  if (lp.season) drawRun(ctx, left + pillW + 16, L.sub.y, [{ text: lp.season, weight: 600, size: L.sub.size, color: COLOR.text2 }]);
+  ctx.fillStyle = C.pill; roundRect(ctx, left, pillY, pillW, L.sub.pill, L.sub.pill / 2); ctx.fill();
+  drawRun(ctx, left + 16, L.sub.y, [{ text: lp.lv, weight: 800, size: L.sub.size, color: C.text }]);
+  if (lp.season) drawRun(ctx, left + pillW + 16, L.sub.y, [{ text: lp.season, weight: 600, size: L.sub.size, color: C.text2 }]);
   const hearts = Number(card.hearts);
   if (Number.isFinite(hearts) && hearts > 0) {
     const num = Math.floor(hearts).toLocaleString('ko-KR');
-    setFont(ctx, 700, L.sub.size);
+    setFont(ctx, 800, L.sub.size);
     const nw = ctx.measureText(num).width, ic = 34;
-    drawIcon(ctx, [HEART_ICON], right - nw - ic - 8, L.sub.y - ic + 6, ic, { fill: COLOR.accent, stroke: COLOR.accent });
-    drawRun(ctx, right - nw, L.sub.y, [{ text: num, weight: 700, size: L.sub.size, color: COLOR.text }]);
+    drawIcon(ctx, [HEART_ICON], right - nw - ic - 8, L.sub.y - ic + 6, ic, { fill: C.heart, stroke: C.heart });
+    drawRun(ctx, right - nw, L.sub.y, [{ text: num, weight: 800, size: L.sub.size, color: C.text }]);
   }
-  // 3) 가는 선 + 사이트 표시(주황 로고 · 스푼 DJ 키우기 · 키우기.com) …… 오른쪽 "비공식 팬 사이트"
-  ctx.fillStyle = 'rgba(255, 255, 255, 0.12)'; ctx.fillRect(left, L.rule.y, maxW, 1.5);
-  const lg = L.mark.logo, ly = L.mark.y - lg + 7;
-  ctx.fillStyle = COLOR.accent; roundRect(ctx, left, ly, lg, lg, 10); ctx.fill();
-  drawIcon(ctx, HEADPHONES_ICON, left + 6, ly + 6, lg - 12, { stroke: COLOR.accentInk, width: 2.2 });
-  drawRun(ctx, left + lg + 14, L.mark.y, [
-    { text: SITE_MARK, weight: 700, size: L.mark.size, color: COLOR.text, gap: 10 },
-    { text: '·', weight: 500, size: L.mark.size, color: COLOR.text3, gap: 10 },
-    { text: SITE_DOMAIN, weight: 600, size: L.mark.size, color: COLOR.text2 },
-  ]);
-  setFont(ctx, 500, 22);
-  ctx.fillStyle = COLOR.text3; ctx.textAlign = 'right'; ctx.fillText(UNOFFICIAL_MARK, right, L.mark.y); ctx.textAlign = 'left';
 }
 
 // 글꼴(Pretendard — 쓰는 글자의 조각만 받는 글꼴이라 그릴 글자를 미리 받는다). 못 받으면 기기 글꼴로(최대 3초 기다림).
@@ -436,18 +457,18 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
     const spot = placePet({ x0: at.x + chBox.x0 * at.f, x1: at.x + chBox.x1 * at.f }, box, size, at.bottom);
     dx = spot.dx; pet = { canvas: pc, box, ...spot };
   }
-  // 3) 아래 띠로 이어지는 어둠(캐릭터 밑) · 발밑 그림자
-  const fade = ctx.createLinearGradient(0, L.fade.from, 0, L.fade.to);
-  fade.addColorStop(0, `rgba(${COLOR.bg}, 0)`); fade.addColorStop(1, `rgba(${COLOR.bg}, 0.86)`);
-  ctx.fillStyle = fade; ctx.fillRect(0, L.fade.from, SAVE_W, L.fade.to - L.fade.from);
-  ellipseGlow(ctx, L.center.x + dx, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
-  if (pet) ellipseGlow(ctx, pet.x + (pet.box.x0 + pet.box.x1) / 2, at.bottom - 4, (pet.box.x1 - pet.box.x0) * 0.42, L.shadow.ry * at.f * 0.8, [[0, 'rgba(0, 0, 0, 0.5)'], [1, 'rgba(0, 0, 0, 0)']]);
+  // 3) 배경 장면이면 위·아래 어둠(캐릭터 밑 — 글이 잘 읽히게) · 발밑 그림자(밝은 스튜디오는 옅은 보랏빛 그림자)
+  const tone = plan.background ? 'scene' : 'studio';
+  if (tone === 'scene') drawScrims(ctx);
+  const shade = tone === 'scene' ? '0, 0, 0' : '58, 44, 72', deep = tone === 'scene' ? 0.55 : 0.32;
+  ellipseGlow(ctx, L.center.x + dx, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, `rgba(${shade}, ${deep})`], [1, `rgba(${shade}, 0)`]]);
+  if (pet) ellipseGlow(ctx, pet.x + (pet.box.x0 + pet.box.x1) / 2, at.bottom - 4, (pet.box.x1 - pet.box.x0) * 0.42, L.shadow.ry * at.f * 0.8, [[0, `rgba(${shade}, ${deep - 0.04})`], [1, `rgba(${shade}, 0)`]]);
   // 4) 캐릭터(1024 그림을 char.s × 줄이는 배수로 한 번만) · 그 앞에 펫
   ctx.drawImage(ch, at.x + dx, at.y, ch.width * s * at.f, ch.height * s * at.f);
   free(ch);
   if (pet) { ctx.drawImage(pet.canvas, pet.x, pet.y); free(pet.canvas); }
-  // 5) 아래 띠와 글
-  drawBand(ctx, card);
+  // 5) 맨 위 사이트 표시 · 맨 아래 아이디 · 레벨 줄
+  drawBand(ctx, card, tone);
   return canvas;
 }
 export function canvasBlob(canvas) {

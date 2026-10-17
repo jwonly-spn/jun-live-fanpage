@@ -447,10 +447,13 @@ test('펫 그림(2026-10-15 Codex DJ_PET_S1_20261015_HALLOWEEN): 시즌 펫 5종
   assert.equal(cat2.stage, 0);
   assert.equal(petImageUrl(cat2, cat2.stage, B), `${B}pets/s1/pet_blackcat_1.png`, '못 만난 펫은 1단계 그림(실루엣)');
   const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
-  assert.match(css, /\.kg-pet\.is-unmet \.kg-pet-img \{ filter: brightness\(0\) invert\(1\);/);
-  // 2026-10-16 사용자 "펫 좀 크게"(40% → 58%) → "지금보다 2배로": ★1 은 칸 116%(정확히 2배), 위 단계는 덜 자라게(캐릭터를 다 가리지 않게)
-  assert.match(css, /\.kg-pet-buddy \{ --ps: 1; --pw: 116%; --pm: \.30; --pe: 2%; position: absolute; right: calc\(var\(--pe\) - var\(--pw\) \* var\(--ps\) \* var\(--pm\)\);/);
-  for (const [st, pw] of [[2, 100], [3, 89], [4, 81], [5, 75]]) assert.match(css, new RegExp(`\\.kg-pet-buddy\\.st${st} \\{ --pw: ${pw}%;`), '★' + st);
+  // 2026-10-18 밝은 바탕(새 디자인): 못 만난 펫은 옅은 어두운 실루엣
+  assert.match(css, /\.kg-pet\.is-unmet \.kg-pet-img \{ filter: brightness\(0\);/);
+  // 2026-10-16 사용자 "펫 좀 크게" → "지금보다 2배로"(★1 칸 116%) → 2026-10-18 새 그림체(7등신 — 다리가 가늘어 큰 펫이 다리를 가렸다):
+  //  보이는 펫 높이를 무대(2:3) 높이의 ★1 20% … ★5 30% 로, 캐릭터는 왼쪽으로 비켜 서고(.has-pet) 펫은 오른쪽 발치에
+  assert.match(css, /\.kg-pet-buddy \{ --ps: 1; --pw: 66\.5%; --pm: \.30; --pe: 2%; --pt: 53%; position: absolute; right: calc\(var\(--pe\) - var\(--pw\) \* var\(--ps\) \* var\(--pm\)\);/);
+  for (const [st, pw] of [[2, 61.3], [3, 57.7], [4, 55], [5, 52.9]]) assert.match(css, new RegExp(`\\.kg-pet-buddy\\.st${st} \\{ --pw: ${String(pw).replace('.', '\\.')}%;`), '★' + st);
+  assert.match(css, /\.has-pet > \.kg-stage\.char > \.kg-actor \{ left: calc\(-27\.4194% - 9%\); \}/, '펫이 있으면 캐릭터가 왼쪽으로 비켜 선다');
   assert.match(css, /\.kg-hero-stage \{ position: relative; overflow: hidden;/, '무대보다 큰 칸은 무대 모서리로 자른다(휴대폰 옆 스크롤 없게)');
   const cardsSrc = await readFile(new URL('../docs/views/cards.js', import.meta.url), 'utf8');
   assert.match(cardsSrc, /'kg-pet-buddy st' \+ Math\.min\(5, Math\.max\(1, pet\.stage \|\| 1\)\)/, '단계 클래스');

@@ -121,7 +121,8 @@ test('가만히(styles.css, 사용자 10/15 밤 "모션은 그만, 숨쉬기도 
   assert.ok(!/kg-b\$\{/.test(cards), '카드마다 숨쉬기 박자 클래스 없음');
   assert.match(cards, /const prefix = MOTIONS_READY \? addEyeStates\(art\) : null;/, '감은 눈 · 우는 눈 그림은 표정을 쓸 때만');
   assert.match(css, /\.kg-stage > svg, \.kg-stage > \.kg-actor \{ position: absolute;/, '캐릭터 칸은 그림 칸과 같은 자리');
-  assert.match(css, /\.kg-stage\.char > svg, \.kg-stage\.char > \.kg-actor \{ width: 138\.6667%;/);
+  // 2026-10-18 새 디자인(포토카드 2:3): 1024 캔버스의 가로 가운데 661 · 세로 8~1000 만 보이게(캐릭터가 칸 높이의 89~96%)
+  assert.match(css, /\.kg-stage\.char > svg, \.kg-stage\.char > \.kg-actor \{ width: 154\.8387%; height: 103\.2258%; left: -27\.4194%; top: -\.8065%; \}/);
   assert.match(css, /\.kg-actor \{ container-type: size; \}/, '효과 글자 크기는 칸 너비(cqw)');
   assert.match(css, /@supports not \(width: 1cqw\) \{ \.kg-fx \{ display: none; \} \}/);
   // 숨쉬기·모션·효과·펫 키프레임은 transform·opacity 만(그림을 다시 그리지 않는다)

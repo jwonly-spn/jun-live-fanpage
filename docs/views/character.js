@@ -436,7 +436,8 @@ export async function renderCharacter(root, route, app) {
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
         h('div', { class: 'kg-hero-art' },
-          h('div', { class: 'kg-hero-stage' },
+          // 함께하는 펫이 있으면(has-pet) 캐릭터가 왼쪽으로 조금 비켜 서서 펫이 오른쪽 발치에 선다(styles.css — 펫이 다리를 가리지 않게)
+          h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') },
             art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero' }),
             petBuddy(buddy, app.base)),
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
