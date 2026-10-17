@@ -4,7 +4,8 @@
 //  하트·링크 복사 단추 줄과 섞지 않는다(휴대폰에서는 넓게, PC 에서는 보통 너비).
 // 입혀 보기(2026-10-09 사용자: "옷을 눌러 미리 입혀 보고, 마음에 들면 !옷장 상의11 하의3 같은 채팅을 한 번에 복사"): "입은 옷" 제목 옆 단추로 여는 칸.
 //  묶음 탭(시즌 목록 categories) · 옷 칸(그림·번호·이름·값, 입은 옷은 "입는 중" — 옷에는 레벨 조건이 없다, 2026-10-10) · 누르면 미리 보기에 입혀 보고 다시 누르면 벗긴다 · 원래대로.
-//  규칙(lib/try-on.js — 먼치킨 !옷장 과 같게): 칸마다 한 벌, 한벌옷 ↔ 상의·하의, 왕관이 머리 장식을 가림, 옷과 칭호를 합쳐 한 번에 8개까지.
+//  규칙(lib/try-on.js — 먼치킨 !옷장 과 같게): 칸마다 한 벌(모자 하나 · 악세사리는 자리마다 하나), 한벌옷 ↔ 상의·하의, 옷과 칭호를 합쳐 한 번에 8개까지.
+//  묶음 탭은 시즌 목록 차례 그대로(새 그림체 R7: 한벌옷·상의·하의·신발·모자·악세사리·배경 — 모자 탭은 시즌 목록에 모자 묶음이 생겨 저절로 생긴다).
 //  칭호 탭(2026-10-14 사용자: "입혀 보기에서 칭호도 고르게"): 옷 묶음 뒤에 "칭호" — 배지 그림·번호(칭호2)·이름·값·Lv.10(상점이 열리기 전이면 "10월 30일부터").
 //   하나만 고른다(다른 칭호를 누르면 바뀌고, 다시 누르면 뺀다). 지금 단 칭호는 "다는 중"(입은 옷처럼 — 살 것이 없다). 고른 칭호(없으면 단 칭호)는 미리 보기 위에 배지로,
 //   채팅 한 줄 맨 끝에 번호("!옷장 상의11 하의3 칭호2", 칭호만이면 "!옷장 칭호 2"), 값은 합계에.
@@ -28,11 +29,10 @@ function browserStorage() { try { return window.localStorage; } catch { return n
 export const HEART_SENT = '오늘 하트 보냈어요';
 export const HEART_SEND = '하트 보내기';
 
-// 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸), 시즌 칸에 없는 것(예전 목록의 시즌 보상 왕관·날개·오라)은 뒤에.
-//  그림 V4: 한벌옷을 입으면 상의·하의 칸은 "한벌옷이 덮고 있어요", 왕관을 쓰면 머리 장식 칸은 "왕관이 가려요"(covered).
-//  2026-10-09: 왕관·날개·오라는 악세사리(악세11~13) — 시즌 칸(crown·wings·aura)에 들어 있다. 입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!옷장 상의 11" 이 복사된다(0.15.66 — !옷장 으로 통일).
-//  칭호(지금 효과가 있는 것)는 아이디 아래에.
-export const COVERED = Object.freeze({ outfit: '한벌옷이 덮고 있어요', crown: '왕관이 가려요' });
+// 입은 옷 칸 목록: 이번 시즌 칸 차례대로(입지 않은 칸은 빈 칸 — R7: 한벌옷·상의·하의·신발·모자·머리·얼굴·목·손 장식·배경), 시즌 칸에 없는 칸은 뒤에.
+//  한벌옷을 입으면 상의·하의 칸은 "한벌옷이 덮고 있어요"(covered). 예전 그림의 옷(목록에 없는 id)은 칸에 넣지 않는다(빈 칸 — 그림도 그리지 않는다).
+//  입은 옷마다 채팅 번호(상의11)를 보이고, 누르면 "!옷장 상의 11" 이 복사된다(0.15.66 — !옷장 으로 통일). 칭호(지금 효과가 있는 것)는 아이디 아래에.
+export const COVERED = Object.freeze({ outfit: '한벌옷이 덮고 있어요' });
 // 펫(2026-10-15 사용자 "키우기.com 에서 자기 펫도 직접 볼 수 있게"): 먼치킨이 보낸 pets {id: 단계}·pet {id, stage} → 시즌 펫 차례대로
 //  [{id, emoji, name(단계 이름 — 못 만났으면 기본 이름), stage(0 = 못 만남), active}]. 시즌 목록에 펫이 없으면 빈 목록(펫 칸을 그리지 않는다).
 export function petList(catalog, data) {
@@ -68,7 +68,7 @@ export function loadoutSlots(catalog, seasonId, worn) {
   const list = wornList(catalog, seasonId, worn);
   const slots = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
   const bySlot = new Map(list.map((w) => [w.slot, w]));
-  const cover = (id) => (['top', 'bottom'].includes(id) && bySlot.has('outfit') ? COVERED.outfit : id === 'head' && bySlot.has('crown') ? COVERED.crown : null);
+  const cover = (id) => (['top', 'bottom'].includes(id) && bySlot.has('outfit') ? COVERED.outfit : null);
   const out = slots.map((s) => bySlot.get(s.id) || { slot: s.id, slotName: s.name, id: null, name: '', ...(cover(s.id) ? { covered: cover(s.id) } : {}) });
   for (const w of list) if (!slots.some((s) => s.id === w.slot)) out.push(w);
   return out;

@@ -1,15 +1,16 @@
 // 입혀 보기(캐릭터 페이지, 2026-10-09 사용자: "캐릭터 페이지에서 옷을 눌러 미리 입혀 보고, 마음에 들면 !옷장 상의11 하의3 같은 채팅을 한 번에 복사"):
 //  지금 입은 옷 + 입혀 본 옷 → 미리 보기 모습, 방송 채팅 한 줄("!옷장 상의11 하의3 신발2"). DOM 없이(노드 시험에서 그대로 불러 쓴다).
-// 먼치킨(0.15.66 + 여러 벌 !옷장) 규칙과 같게 — 봇 kiugi.mjs putOn·dressOf·#items:
-//  · 한 줄에 번호 여러 개: "!옷장" + 띄어쓰기 하나로 나눈 번호(번호 안에는 띄어쓰기 없음 — itemCodeOf 글 그대로: 한벌N·상의N·하의N·신발N·악세N·배경N·칭호N), 한 번에 8개까지.
+// 먼치킨(0.15.66 + 여러 벌 !옷장 · 새 그림체 R7 의 모자 칸) 규칙과 같게 — 봇 kiugi.mjs putOn·dressOf·#items:
+//  · 한 줄에 번호 여러 개: "!옷장" + 띄어쓰기 하나로 나눈 번호(번호 안에는 띄어쓰기 없음 — itemCodeOf 글 그대로: 한벌N·상의N·하의N·신발N·모자N·악세N·배경N·칭호N), 한 번에 8개까지.
 //  · 적은 차례대로 가진 옷은 입기만(냥을 쓰지 않음), 없는 옷은 사서 입는다. 냥이 모자란 옷은 빼고 나머지만(옷에는 레벨 조건이 없다 — 2026-10-10 먼치킨 값 통일).
-//  · 칸마다 한 벌(악세사리는 머리·얼굴·목·손·왕관·날개·오라 자리마다 하나). 한벌옷을 입으면 상의·하의는 가려지고(기록에는 남는다),
-//    상의·하의를 입으면 한벌옷을 벗는다. 왕관(악세11)을 쓰면 머리 장식은 가려진다. 배경은 장면 하나.
+//  · 칸마다 한 벌: 모자는 하나(모자 칸), 악세사리는 머리·얼굴·목·손 자리마다 하나(모자와 함께 쓴다 — 자리는 시즌 목록의 그 악세사리 slot).
+//    한벌옷을 입으면 상의·하의는 가려지고(기록에는 남는다), 상의·하의를 입으면 한벌옷을 벗는다. 배경은 장면 하나.
+//    (예전 그림의 왕관·날개·오라 — 악세11~13 — 은 R7 에 없다. 왕관이 머리 장식을 가리던 규칙도 없앴다.)
 // 칭호(2026-10-14 사용자: "입혀 보기에서 칭호도 고르게"): 시즌 칭호를 하나 골라 미리 달아 보고, 채팅 한 줄 맨 끝에 번호를 붙인다("!옷장 상의11 하의3 칭호2").
 //  먼치킨은 옷을 먼저 사고 입힌 뒤 칭호를 한다 — 가진 칭호는 달기만, 없으면 사서 단다. 한 줄에 칭호는 하나만, 옷과 칭호를 합쳐 TRY_MAX 개까지.
 //  칭호는 상점이 열린 때(rewardRule.opensAt — 시즌 1은 10월 30일)부터 시즌 끝까지 팔고, Lv.10 이 되어야 산다(값은 시즌 목록 price).
 //  지금 단 칭호(서버가 보낸 data.titles[0])는 입은 옷처럼 "다는 중" — 고를 것이 없고 값도 세지 않는다.
-import { itemCodeOf, titleOpenDate, OLD_REWARD_IDS, motionOf } from './kiugi-draw.js';
+import { itemCodeOf, titleOpenDate, motionOf } from './kiugi-draw.js';
 
 // 채팅 명령(views/items.js 의 chatHint 도 이것을 쓴다)
 export const CLOSET_CMD = '!옷장';
@@ -18,16 +19,14 @@ export const TRY_MAX = 8;
 export const TRY_NOTE = '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지';
 export const TRY_FULL = `옷과 칭호를 합쳐 한 번에 ${TRY_MAX}개까지 고를 수 있어요. 다른 것을 하나 빼고 골라 주세요.`;
 export const TRY_COPIED = '복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 입어요';
-export const CROWN_NOTE = '왕관을 쓰면 머리 장식은 가려져요';
 // 칭호 번호 글(views/items.js TITLE_WORD 와 같은 "칭호")
 export const TITLE_CODE_WORD = '칭호';
 export const TITLE_WORN = '지금 달고 있는 칭호예요';
 
 const TOPS = new Set(['top', 'bottom']);
-const currentId = (id) => OLD_REWARD_IDS[id] || id;
 const idOf = (item) => (typeof item === 'string' ? item : item?.id ?? null);
-// 옷 id → 칸(시즌 목록에 없는 옷·칭호는 null)
-export const slotOfItem = (catalog, id) => catalog?.items?.[currentId(id)]?.slot || null;
+// 옷 id → 칸(시즌 목록에 없는 옷·칭호는 null — 예전 그림의 옷 id 도)
+export const slotOfItem = (catalog, id) => (typeof id === 'string' && catalog?.items && Object.hasOwn(catalog.items, id) ? catalog.items[id].slot || null : null);
 
 // 맨몸부터(2026-10-15 사용자 "아예 맨몸에서부터 시작하게 !다벗기"): 먼치킨 !다벗기 처럼 입은 옷·악세사리를 모두 벗긴 모습(배경은 그대로 — 몸에 입는 것이 아니다)에서
 //  골라 입혀 보고, 채팅 한 줄은 "!옷장 다벗기 상의11 하의3"(고른 것이 없으면 "!다벗기"). 지금 입은 옷은 가진 옷이라 값에 넣지 않는다(다시 입기만).
@@ -35,11 +34,11 @@ export const UNDRESS_WORD = '다벗기';
 export const UNDRESS_CMD = '!다벗기';
 export const BARE_KEEP = Object.freeze(['bg']);
 export const BARE_NOTE = '맨몸이에요 · 옷을 눌러 입혀 보세요';
-// 입은 옷(서버가 보낸 {칸: 옷id}) → 새 객체. 0.15.62 이하가 올린 예전 보상 id(pumpkin-crown 등)는 악세11~13 id 로. 모르는 옷 id 는 그대로 둔다(그림이 알아서 뺀다).
+// 입은 옷(서버가 보낸 {칸: 옷id}) → 새 객체. 모르는 옷 id(예전 그림의 옷 — 먼치킨을 아직 업데이트하지 않은 방송)는 그대로 둔다(그림이 알아서 뺀다).
 export function wornLook(worn) {
   const out = {};
   if (!worn || typeof worn !== 'object' || Array.isArray(worn)) return out;
-  for (const [slot, id] of Object.entries(worn)) if (typeof id === 'string' && id) out[slot] = currentId(id);
+  for (const [slot, id] of Object.entries(worn)) if (typeof id === 'string' && id) out[slot] = id;
   return out;
 }
 // 지금 입은 옷 id 모음
@@ -54,11 +53,11 @@ export function bareWorn(worn) {
 // 같이 입을 수 없는 두 옷인가(입힐 옷 칸 slot · 다른 옷 칸 other): 같은 칸, 한벌옷 ↔ 상의·하의
 const clashes = (slot, other) => other === slot || (slot === 'outfit' && TOPS.has(other)) || (TOPS.has(slot) && other === 'outfit');
 
-// 미리 보기 모습: 입은 옷 위에 입혀 본 옷을 차례대로 입힌다(봇 putOn 과 같게 — 상의·하의를 입으면 한벌옷을 벗는다. 한벌옷·왕관이 가리는 것은 그림이 정한다).
+// 미리 보기 모습: 입은 옷 위에 입혀 본 옷을 차례대로 입힌다(봇 putOn 과 같게 — 상의·하의를 입으면 한벌옷을 벗는다. 한벌옷이 가리는 것은 그림이 정한다).
 export function applyTryOn(worn, tried, catalog) {
   const look = wornLook(worn);
   for (const item of Array.isArray(tried) ? tried : []) {
-    const id = currentId(idOf(item)), slot = slotOfItem(catalog, id);
+    const id = idOf(item), slot = slotOfItem(catalog, id);
     if (!slot) continue;
     look[slot] = id;
     if (TOPS.has(slot)) delete look.outfit;
@@ -66,29 +65,28 @@ export function applyTryOn(worn, tried, catalog) {
   return look;
 }
 
-// 그 칸의 옷이 미리 보기에 보이는가(한벌옷이 상의·하의를, 왕관이 머리 장식을 가린다)
+// 그 칸의 옷이 미리 보기에 보이는가(한벌옷이 상의·하의를 가린다 — 모자와 머리 장식은 함께 보인다)
 export function isShown(look, slot, catalog) {
-  if (!look?.[slot] || !slotOfItem(catalog, look[slot])) return false;
+  if (!look?.[slot] || slotOfItem(catalog, look[slot]) !== slot) return false;
   if (TOPS.has(slot) && slotOfItem(catalog, look.outfit) === 'outfit') return false;
-  if (slot === 'head' && slotOfItem(catalog, look.crown) === 'crown') return false;
   return true;
 }
 // 옷 하나가 미리 보기에 보이는가
-export const itemShown = (look, id, catalog) => { const slot = slotOfItem(catalog, id); return Boolean(slot) && look?.[slot] === currentId(id) && isShown(look, slot, catalog); };
+export const itemShown = (look, id, catalog) => { const slot = slotOfItem(catalog, id); return Boolean(slot) && look?.[slot] === id && isShown(look, slot, catalog); };
 
 // 옷을 눌렀을 때 입혀 본 옷 목록(새 배열, 누른 차례 = 채팅 한 줄의 차례):
 //  · 입혀 본 옷이면 뺀다.
 //  · 지금 입은 옷이면(opts.worn) 그 자리를 차지한·가린 입혀 본 옷을 빼서 원래 옷으로 되돌린다(명령은 필요 없다).
-//    그래도 가려 있으면(입은 한벌옷 아래의 상의·하의) 다시 입는 것으로 더한다 — 봇이 냥 없이 입히고 한벌옷을 벗긴다. 왕관 아래 머리 장식은 그대로(왕관이 가린다).
+//    그래도 가려 있으면(입은 한벌옷 아래의 상의·하의) 다시 입는 것으로 더한다 — 봇이 냥 없이 입히고 한벌옷을 벗긴다.
 //  · 아니면 더한다 — 같은 칸 옷, 한벌옷 ↔ 상의·하의는 빼고. 그래도 TRY_MAX 를 넘으면 그대로(canTry 가 false). 칭호를 골라 두었으면(opts.title) 옷은 TRY_MAX − 1 벌까지.
 function step(tried, item, catalog, worn, max = TRY_MAX) {
-  const list = (Array.isArray(tried) ? tried : []).map((x) => currentId(idOf(x))).filter(Boolean);
-  const id = currentId(idOf(item)), slot = slotOfItem(catalog, id);
+  const list = (Array.isArray(tried) ? tried : []).map(idOf).filter(Boolean);
+  const id = idOf(item), slot = slotOfItem(catalog, id);
   if (!id || !slot) return { list, full: false };
   if (list.includes(id)) return { list: list.filter((x) => x !== id), full: false };
   const other = (x) => slotOfItem(catalog, x);
-  const next = list.filter((x) => !clashes(slot, other(x)) && !(wornIds(worn).has(id) && slot === 'head' && other(x) === 'crown'));
-  if (wornIds(worn).has(id) && (slot === 'head' || itemShown(applyTryOn(worn, next, catalog), id, catalog))) return { list: next, full: false };
+  const next = list.filter((x) => !clashes(slot, other(x)));
+  if (wornIds(worn).has(id) && itemShown(applyTryOn(worn, next, catalog), id, catalog)) return { list: next, full: false };
   return next.length >= max ? { list, full: true } : { list: [...next, id], full: false };
 }
 // 옷이 몇 벌까지 들어가는가(골라 둔 칭호가 한 자리를 차지한다)
@@ -150,17 +148,16 @@ export function closetLine(codes, { bare = false } = {}) {
 //  골라 둔 칭호(opts.title)가 있으면 그 값도 합계에 더한다(지금 단 칭호는 빼고). count 는 옷 벌 수 그대로.
 export function tryTotal(tried, catalog, { worn = null, title = null, wornTitle = null } = {}) {
   const have = wornIds(worn);
-  const all = (Array.isArray(tried) ? tried : []).map((x) => currentId(idOf(x))).filter((id) => catalog?.items?.[id]), buy = all.filter((id) => !have.has(id));
+  const all = (Array.isArray(tried) ? tried : []).map(idOf).filter((id) => slotOfItem(catalog, id)), buy = all.filter((id) => !have.has(id));
   const t = titleOf(catalog, pickedTitle(catalog, title, wornTitle));
   return { count: all.length, price: buy.reduce((n, id) => n + (Number(catalog.items[id].price) || 0), 0) + (t ? Number(t.price) || 0 : 0) };
 }
-// 미리 보기에 알릴 것: 입혀 본 옷이 가려져 보이지 않을 때 · 골라 둔 칭호를 아직 살 수 없을 때(상점이 열리기 전 · 레벨이 모자람 — opts.level 을 알 때만)
+// 미리 보기에 알릴 것: 골라 둔 칭호를 아직 살 수 없을 때(상점이 열리기 전 · 레벨이 모자람 — opts.level 을 알 때만)
+//  (예전 그림의 "왕관을 쓰면 머리 장식은 가려져요"는 왕관이 없어져 뺐다. worn·tried 는 예전처럼 받는다 — 옷 알림이 다시 생기면 쓴다.)
 export const TITLE_SOON = (date) => `칭호는 ${date}부터 살 수 있어요`;
 export const TITLE_LEVEL = (min) => `칭호는 Lv.${min}이 되어야 살 수 있어요`;
 export function tryNotes(worn, tried, catalog, { title = null, wornTitle = null, level = null, now = Date.now() } = {}) {
-  const look = applyTryOn(worn, tried, catalog), slots = new Set((Array.isArray(tried) ? tried : []).map((x) => slotOfItem(catalog, idOf(x))));
   const notes = [];
-  if (look.head && slotOfItem(catalog, look.head) === 'head' && slotOfItem(catalog, look.crown) === 'crown' && (slots.has('head') || slots.has('crown'))) notes.push(CROWN_NOTE);
   const t = titleOf(catalog, pickedTitle(catalog, title, wornTitle));
   if (t) {
     const date = titleOpenDate(catalog.seasons?.[t.season]?.rewardRule, now);

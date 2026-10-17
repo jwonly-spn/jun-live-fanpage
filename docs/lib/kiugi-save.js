@@ -3,20 +3,24 @@
 //   그 위에 캐릭터를 크게 가운데(발밑에 옅은 그림자), 아래 반투명 어두운 띠에 "아이디#이름"(앞은 크게, #이름은 작고 옅게) ·
 //   "Lv.N · 시즌" · 하트 수 · "스푼 DJ 키우기 · 키우기.com" · 비공식 표시.
 //  캐릭터는 kiugi-art.js 와 같은 규칙으로 캔버스에 직접 그린다 — SVG 를 그림으로 캔버스에 올리면 SVG 안의 바깥 그림 파일(href)을 읽지 못한다.
-//   그릴 차례·마스크는 kiugi-art.js 의 함수(resolveLook·partOf·normalizeLook)로 정한다(시험이 layersOf·characterSvg 와 같은지 본다).
-//   머리색(그림 V5, 2026-10-09 — 패키지 머리색_수정연결가이드 tone-map-v1): 회색 머리를 1024 임시 캔버스에 그려 getImageData 로 읽고
-//    kiugi-hair-color.js 의 recolor(RGB 만 256단계 표로, 알파는 원본 그대로)를 한 뒤 putImageData — 패키지 renderer.js 와 같은 방법.
-//    예전의 곱하기(multiply fillRect + destination-in)는 없앴다. 물들인 머리는 packageId·판(tone-map-v1)·그림 id·해시·색으로 몇 장만 기억해 둔다.
+//   새 그림체 R7(2026-10-18 — 먼치킨 docs/20261018-kiugi-r7.md): 규칙은 Codex 패키지 renderer.js(캔버스) 그대로 — kiugi-art.js(SVG)도 같은 규칙이다.
+//    뒷머리(머리색, 모자를 쓰면 모자의 머리 지우기 마스크로 자른다) → 몸 칸(기준 몸을 옷마다의 몸 지우기 마스크로 지운다 — 몸만 지우고 옷은 지우지 않는다 ·
+//    신발을 신고 한벌옷·하의에 밑단이 있으면 신발과 신발의 몸 지우기를 신발 목 자르기 마스크(shaft — 앱 가져오기 도구가 renderer.js shaftClip 그대로 미리 만든 것)로 자르고
+//    기본 운동화(feet)를 지운다 → 한벌옷 또는 하의·상의 → 신발 → 밑단(그 옷을 밑단 마스크 안만 다시 — 신발이 없어도)) → 눈·코·입(레벨 표정의 웃는 눈·눈물 눈·웃는 입) →
+//    볼 발그레 → 앞머리(머리색, 모자로 자른다) → 악세사리(목 → 손 → 얼굴 → 머리, 하나씩 앞머리 모양만큼 지운다) → 모자 → 둥실 하트.
+//   그릴 차례·마스크는 kiugi-art.js 의 함수(resolveLook·partOf·faceVariants·anchorsOf)로 정한다(시험이 layersOf·characterSvg 와 같은지 본다).
+//   머리색(tone-map-v1): 머리 그림을 1024 임시 캔버스에 그려 getImageData 로 읽고 kiugi-hair-color.js 의 recolor(밝기 → 256단계 표, 알파는 원본 그대로)를 한 뒤
+//    putImageData — 패키지 renderer.js 와 같은 방법. 물들인 머리는 packageId·판(tone-map-v1)·그림 id·해시·색으로 몇 장만 기억해 둔다.
 //   그림 파일은 사이트와 같은 주소(같은 출처)라 캔버스가 막히지 않고, 화면이 이미 받아 둔 그림(preloadImage)을 그대로 쓴다.
 //  저장(사용자 10/9 "저장하기 버튼을 따로" — 누르면 바로 저장, 따로 "공유" 단추는 없다):
 //   PC·안드로이드 → 바로 내려받기(<a download> — 안드로이드는 갤러리의 다운로드 앨범에 들어간다).
 //   바로 내려받을 수 없는 곳(아이폰·아이패드 — 사진 앱에 넣을 수 없다, 앱 안 브라우저(카카오톡 등)) → 파일을 담은 공유 창(“이미지 저장”을 고른다).
 //   공유 창도 안 되면(예전 아이폰·앱 안 브라우저) → 그림을 보여 주고 길게 눌러 저장.
 // DOM·캔버스는 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 그릴 차례·배치·글·파일 이름을 시험한다).
-import { ART } from '../kiugi/kiugi-v5-data.js';
+import { ART } from '../kiugi/kiugi-r7-data.js';
 import hairColor, { recolor } from '../kiugi/kiugi-hair-color.js';
 import { normalizeLook } from '../kiugi/kiugi-look.js';
-import { SIZE, partOf, resolveLook, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
+import { SIZE, partOf, resolveLook, faceVariants, anchorsOf, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
 import { preloadImage } from './kiugi-draw.js';
 import { h, icon, toast, copyText } from './dom.js';
 
@@ -29,13 +33,14 @@ export const SAVE_LABEL = '저장하기';
 export const SAVE_BUSY = '만드는 중…';
 export const SAVED = '이미지를 저장했어요';
 export const SAVE_FAILED = '이미지를 만들지 못했어요. 잠시 뒤에 다시 해 주세요.';
-const BODY = Object.freeze({ f: 'female', m: 'male' });
 const COLOR = Object.freeze({ text: '#f3efe8', text2: '#a9a6af', text3: '#8a8791', accent: '#ff7a2f', accentText: '#ff9a5c', accentInk: '#1b0c03', bg: '11, 11, 15' });
 const FONT = '"Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif';
 
-// 배치(1080×1350). 캐릭터는 1024 캔버스 전체를 1.1배 캔버스에 그린 뒤, 실제로 그려진 곳(알파 상자 — 왕관·날개·오라·둥실 하트 포함)을 재서
+// 배치(1080×1350). 캐릭터는 1024 캔버스 전체를 1.1배(char.s) 크기로 놓는다고 보고, 실제로 그려진 곳(알파 상자 — 모자·손 장식·둥실 하트 포함)을 재서
 //  그 가운데가 그림 한가운데(540, 675)에 오게 놓는다(2026-10-09 사용자 "이미지 저장할 때 캐릭터를 정 중앙에"). 위로 fit.top, 아래 띠 위 fit.bottom 안에 들어가지 않으면 그만큼 줄인다(placeCharacter).
 //  아래 띠는 220px(예전 258px)로 얇게 — 가운데에 둔 캐릭터가 거의 줄지 않게.
+//  R7(2026-10-18): 캐릭터는 1024 캔버스에 겹쳐 그린 뒤(패키지 renderer.js 와 픽셀이 같다) 마지막에 한 번만 늘이고 줄인다 —
+//   예전처럼 그림마다 1.1배로 늘린 뒤 마스크로 지우면 옷·몸 가장자리에 1px 테두리 차이가 생겼다. 그 뒤 줄이는 배수(f)와 합쳐 한 번(7등신이라 거의 0.98배).
 const CHAR_S = 1.1;
 export const SAVE_LAYOUT = Object.freeze({
   pad: 64,
@@ -71,58 +76,67 @@ export function coverRect(sw, sh, dw = SAVE_W, dh = SAVE_H) {
   return { x: (dw - w) / 2, y: (dh - h2) / 2, w, h: h2 };
 }
 
-// ── 그릴 차례(kiugi-art.js characterSvg 와 같은 차례·같은 규칙) ──
-// 레벨 표정 겹치기(kiugi-art.js 의 blush·floatingHearts 와 같은 셈 — 시험이 SVG 글과 같은지 본다)
+// ── 그릴 차례(kiugi-art.js characterSvg · 패키지 renderer.js 와 같은 차례·같은 규칙) ──
+// 레벨 표정 겹치기(kiugi-art.js 의 blush·floatingHearts 와 같은 셈 — 얼굴 기준점 anchors.json 으로 자리·크기, 시험이 SVG 글과 같은지 본다)
+const f1 = (v) => v.toFixed(1);
 function blushSpots(g) {
-  const A = ART.anchors[BODY[g]], y = (A.nose[1] + A.mouth[1]) / 2 - 4, dx = (A.eye_right[0] - A.eye_left[0]) / 2 + 9, cx = A.nose[0];
-  return [cx - dx, cx + dx].map((x) => ({ cx: Number(x.toFixed(1)), cy: Number(y.toFixed(1)), rx: 15, ry: 8 }));
+  const A = anchorsOf(g), eye = A.eyes.right[0] - A.eyes.left[0], k = eye / 63, y = (A.nose[1] + A.mouth[1]) / 2 - 4 * k, dx = eye / 2 + 9 * k, cx = A.faceAxisX;
+  return [cx - dx, cx + dx].map((x) => ({ cx: Number(f1(x)), cy: Number(f1(y)), rx: Number(f1(15 * k)), ry: Number(f1(8 * k)) }));
 }
-const heartPath = (x, y, s) => `M${x} ${y + 0.9 * s} C${x - 1.2 * s} ${y + 0.1 * s} ${x - 0.9 * s} ${y - 0.9 * s} ${x} ${y - 0.3 * s} C${x + 0.9 * s} ${y - 0.9 * s} ${x + 1.2 * s} ${y + 0.1 * s} ${x} ${y + 0.9 * s}Z`;
+const heartPath = (x, y, s) => `M${f1(x)} ${f1(y + 0.9 * s)} C${f1(x - 1.2 * s)} ${f1(y + 0.1 * s)} ${f1(x - 0.9 * s)} ${f1(y - 0.9 * s)} ${f1(x)} ${f1(y - 0.3 * s)} C${f1(x + 0.9 * s)} ${f1(y - 0.9 * s)} ${f1(x + 1.2 * s)} ${f1(y + 0.1 * s)} ${f1(x)} ${f1(y + 0.9 * s)}Z`;
+// 둥실 하트: 머리 위·옆(예전 그림의 머리 크기 162 를 1로 둔 자리 × R7 머리 크기). 모자를 쓰면 모자 챙 밖 머리 양옆으로. 테두리도 같은 비율.
+const HEART_SPOTS = Object.freeze({
+  flat: [[-100, -30, 13, '#FF8FB1'], [4, -72, 16, '#FF6F9C'], [102, -40, 12, '#FF8FB1']],
+  tall: [[-186, 40, 13, '#FF8FB1'], [186, 20, 15, '#FF6F9C'], [184, 100, 11, '#FF8FB1']],
+});
 function floatingHearts(g, tall) {
-  const A = ART.anchors[BODY[g]], top = A.skull_top[1], cx = A.skull_top[0];
-  const spots = tall ? [[cx - 150, top + 30, 13, '#FF8FB1'], [cx + 150, top + 10, 15, '#FF6F9C'], [cx + 132, top + 82, 11, '#FF8FB1']]
-    : [[cx - 100, top - 34, 13, '#FF8FB1'], [cx + 4, top - 88, 16, '#FF6F9C'], [cx + 102, top - 44, 12, '#FF8FB1']];
-  return spots.map(([x, y, s, fill]) => ({ d: heartPath(x, y, s), fill }));
+  const A = anchorsOf(g), top = A.hairCrown[1], cx = A.faceAxisX, k = (A.chin[1] - top) / 162;
+  return { width: Number((2 * k).toFixed(2)), hearts: HEART_SPOTS[tall ? 'tall' : 'flat'].map(([x, y, s, fill]) => ({ d: heartPath(cx + x * k, top + y * k, s * k), fill })) };
 }
-const tallHead = (R) => Boolean(R.rewards.front || (R.acc.head && R.acc.head.box && R.acc.head.box[1] < 110));
 
 // DJ 캐릭터 + 입은 옷({worn}) + 레벨 표정 → {background(배경 그림 또는 null), ops:[{step, kind, …}]}
-//  kind: image(그대로) · tint(머리색 명도 표 tone-map-v1, 알파 그대로) · layer(몸 칸 — 따로 그려 한 번에 올린다) · erase(몸 칸 지우기 마스크) · hem(밑단: 그 옷을 마스크 알파로 잘라 다시) · blush · hearts
+//  kind: image(그대로) · tint(머리색 tone-map-v1, 알파 그대로) · layer(따로 그려 한 번에 올리는 칸 — 몸 칸·모자에 잘린 머리·잘린 신발·앞머리에 가린 악세사리) ·
+//   erase(그때까지 그린 칸을 mask 알파만큼 지우기 — mask 대신 ops 면 그 칸을 따로 그려 그 알파로 지운다) · hem(밑단: 그 옷을 마스크 알파 안만 다시) · blush · hearts
 export function characterPlan(dj = {}, look = {}, expression = null) {
-  const L = normalizeLook(dj), g = L.gender, R = resolveLook(look, g);
-  const parts = new Set(Array.isArray(expression?.parts) ? expression.parts : []);
+  const L = normalizeLook(dj), g = L.gender, R = resolveLook(look, g), V = faceVariants(expression);
   const color = L.hairColor; // 팔레트 열쇠(blond 등 — normalizeLook 이 예전 값도 열쇠로 맞춘다)
-  const ops = [];
-  const img = (step, a) => { if (a) ops.push({ step, kind: 'image', src: a }); };
-  const tint = (step, a) => { if (a) ops.push({ step, kind: 'tint', src: a, color }); };
-  img('reward.aura', R.rewards.aura);
-  img('reward.back', R.rewards.back);
-  tint('hair.back', partOf('hair', g, L.hair, 'back'));
+  const ops = [], hatHair = R.hat?.hair || null;
+  const img = (step, a) => (a ? { step, kind: 'image', src: a } : null);
+  // 머리(앞·뒤): 물들인 머리 — 모자를 쓰면 모자의 머리 지우기 마스크로 자른 칸
+  const hair = (step, a) => { if (!a) return null; const t = { step, kind: 'tint', src: a, color }; return hatHair ? { step, kind: 'layer', ops: [t, { step: step + '.hat', kind: 'erase', mask: hatHair }] } : t; };
+  const back = hair('hair.back', partOf('hair', g, L.hair, 'back'));
+  if (back) ops.push(back);
+  // 몸 칸: 기준 몸 → 지우기(옷마다 — 몸만) → 기본 운동화 지우기 → 옷 → 신발(신발 목 자르기) → 밑단
+  const bodyA = partOf('body', g, 1), hem = R.outfit || R.bottom, footwear = Boolean(R.shoe && hem?.hem), shaft = footwear && hem.shaft ? hem.shaft : null;
   const body = [];
-  const bodyA = partOf('body', g, 1);
-  if (bodyA) body.push({ step: 'body', kind: 'image', src: bodyA });
-  const wear = (name, a) => {
-    if (!a) return;
-    if (a.cut) body.push({ step: name + '.cut', kind: 'erase', mask: a.cut });
-    body.push({ step: name, kind: 'image', src: a });
-  };
-  if (R.outfit) wear('outfit', R.outfit);
-  else { wear('bottom', R.bottom); wear('top', R.top); }
-  if (R.shoe) {
-    wear('shoe', R.shoe);
-    const hemOf = R.outfit || R.bottom;
-    if (hemOf?.hem) body.push({ step: (R.outfit ? 'outfit' : 'bottom') + '.hem', kind: 'hem', src: hemOf, mask: hemOf.hem });
+  if (bodyA) body.push(img('body', bodyA));
+  for (const a of [R.outfit, R.bottom, R.top, R.shoe]) {
+    if (!a?.cut) continue;
+    // 신발의 몸 지우기는 신발 목 자르기만큼 덜 지운다(다리 맨살이 남는다 — renderer.js shoeLayer(bodyCutoutMask))
+    body.push(a === R.shoe && shaft ? { step: 'body.cut', kind: 'erase', ops: [img('shoe.cut', a.cut), { step: 'shoe.cut.shaft', kind: 'erase', mask: shaft }] } : { step: 'body.cut', kind: 'erase', mask: a.cut });
   }
+  if (footwear && bodyA?.feet) body.push({ step: 'body.feet', kind: 'erase', mask: bodyA.feet });
+  for (const [name, a] of [['outfit', R.outfit], ['bottom', R.bottom], ['top', R.top]]) if (a) body.push(img(name, a));
+  if (R.shoe) body.push(shaft ? { step: 'shoe', kind: 'layer', ops: [img('shoe', R.shoe), { step: 'shoe.shaft', kind: 'erase', mask: shaft }] } : img('shoe', R.shoe));
+  if (hem?.hem) body.push({ step: (R.outfit ? 'outfit' : 'bottom') + '.hem', kind: 'hem', src: hem, mask: hem.hem });
   ops.push({ step: 'dressed', kind: 'layer', ops: body });
-  for (const c of ['eyes', 'nose', 'mouth']) img(c, partOf(c, g, L[c]));
-  if (parts.has('exp-blush')) ops.push({ step: 'exp-blush', kind: 'blush', spots: blushSpots(g) });
-  tint('hair.front', partOf('hair', g, L.hair, 'front'));
-  for (const s of ACCESSORY_ORDER) img('accessory.' + s, R.acc[s]);
-  img('reward.front', R.rewards.front);
-  if (parts.has('exp-floating-hearts')) ops.push({ step: 'exp-floating-hearts', kind: 'hearts', hearts: floatingHearts(g, tallHead(R)) });
+  // 눈·코·입(표정 판이 없으면 기본 그림 — characterSvg 와 같게)
+  for (const [c, v] of [['eyes', V.eyes], ['nose', ''], ['mouth', V.mouth]]) { const a = img(c, partOf(c, g, L[c], v) || partOf(c, g, L[c])); if (a) ops.push(a); }
+  if (V.blush) ops.push({ step: 'exp-blush', kind: 'blush', spots: blushSpots(g) });
+  const frontA = partOf('hair', g, L.hair, 'front'), front = hair('hair.front', frontA);
+  if (front) ops.push(front);
+  // 악세사리: 하나씩, (모자에 잘린) 앞머리 모양만큼 지운다 — 안경테·끈이 앞머리 가닥 위에 떠 보이지 않게(renderer.js)
+  const clip = frontA ? [img('hair.front.shape', frontA), ...(hatHair ? [{ step: 'hair.front.shape.hat', kind: 'erase', mask: hatHair }] : [])] : null;
+  for (const s of ACCESSORY_ORDER) {
+    const a = R.acc[s];
+    if (!a) continue;
+    ops.push(clip ? { step: 'accessory.' + s, kind: 'layer', ops: [img('accessory.' + s, a), { step: `accessory.${s}.clip`, kind: 'erase', ops: clip }] } : img('accessory.' + s, a));
+  }
+  if (R.hat) ops.push(img('hat', R.hat));
+  if (V.hearts) ops.push({ step: 'exp-floating-hearts', kind: 'hearts', ...floatingHearts(g, Boolean(R.hat)) });
   return { background: R.background || null, ops };
 }
-// 차례를 한 줄로(몸 칸 안 단계 포함) — 시험·확인용
+// 차례를 한 줄로(칸 안 단계 포함 — 따로 그린 지우기 칸(erase 의 ops)은 그 단계 이름 하나) — 시험·확인용
 export function planSteps(plan) {
   const out = [];
   const walk = (ops) => { for (const op of ops) { if (op.kind === 'layer') walk(op.ops); else out.push(op.step); } };
@@ -130,18 +144,18 @@ export function planSteps(plan) {
   walk(plan.ops);
   return out;
 }
-// 그림 파일 주소(사이트 BASE 아래 — 화면 SVG 와 같은 글이라 이미 받아 둔 그림을 그대로 쓴다). 배경 → 차례대로, 겹치지 않게.
-export const artUrl = (m, base = '/') => `${ART.dir}${m.file}?v=${m.v}`.replace(/^\/kiugi\//, (String(base).endsWith('/') ? base : base + '/') + 'kiugi/');
+// 그림 파일 주소(사이트 BASE 아래 — 화면 SVG 와 같은 글이라 이미 받아 둔 그림을 그대로 쓴다). 공통 배경은 /kiugi/bg/(그림 정보 dir), 그 밖·마스크는 /kiugi/r7/. 배경 → 차례대로, 겹치지 않게.
+export const artUrl = (m, base = '/') => `${m.dir || ART.dir}${m.file}?v=${m.v}`.replace(/^\/kiugi\//, (String(base).endsWith('/') ? base : base + '/') + 'kiugi/');
 export function planUrls(plan, base = '/') {
   const out = [];
   const add = (m) => { if (m) { const u = artUrl(m, base); if (!out.includes(u)) out.push(u); } };
   add(plan.background);
-  const walk = (ops) => { for (const op of ops) { if (op.kind === 'layer') walk(op.ops); else { add(op.src); add(op.mask); } } };
+  const walk = (ops) => { for (const op of ops) { if (op.ops) walk(op.ops); add(op.src); add(op.mask); } };
   walk(plan.ops);
   return out;
 }
 
-// 머리 물들이기(패키지 renderer.js tinted 와 같은 방법): 회색 머리 그림을 1024 캔버스에 그려 픽셀을 읽고 recolor(RGB 만 표로, 알파 그대로) → putImageData.
+// 머리 물들이기(패키지 renderer.js tinted 와 같은 방법): 머리 그림을 1024 캔버스에 그려 픽셀을 읽고 recolor(밝기 → RGB 표, 알파 그대로) → putImageData.
 //  같은 머리·같은 색은 다시 만들지 않는다(packageId · 판 · 그림 id · 해시 · 색으로 몇 장만 기억 — 휴대폰 메모리를 아끼게 오래된 것부터 비운다).
 export const TINT_CACHE_MAX = 4;
 const TINTS = new Map();
@@ -160,26 +174,27 @@ export function tintedHair(doc, img, asset, color, cache = TINTS) {
 }
 
 // 캔버스에 그리기(ctx 는 1024 좌표 — 그리는 쪽이 줄이고 늘리는 변환을 걸어 둔다). get(그림 정보) → 받아 둔 그림, layer() → 같은 크기·같은 변환의 빈 캔버스 ctx,
-//  tint(그림 정보, 색) → 물들인 1024 머리 캔버스(tintedHair)
-//  마스크: 지우기 = destination-out(그때까지 몸 칸에 그린 것 × (1 − 마스크 알파)), 밑단 = destination-in(그 옷 × 마스크 알파) — SVG <mask mask-type="alpha"> 와 같다.
-//  머리색: 물들인 머리 캔버스를 그대로 올린다(SVG 의 feComponentTransfer 명도 표 필터와 같은 표 — 다른 곱하기·자르기를 다시 하지 않는다).
-export function paintPlan(ctx, ops, { get, layer, tint }) {
-  const blit = (to, from) => { to.save(); to.setTransform(1, 0, 0, 1, 0, 0); to.globalCompositeOperation = 'source-over'; to.drawImage(from.canvas, 0, 0); to.restore(); };
+//  tint(그림 정보, 색) → 물들인 1024 머리 캔버스(tintedHair), done(ctx) → 다 쓴 칸(캔버스 메모리를 바로 돌려준다 — 없어도 된다)
+//  마스크: 지우기 = destination-out(그때까지 그 칸에 그린 것 × (1 − 마스크 알파)), 밑단 = destination-in(그 옷 × 마스크 알파) — SVG <mask mask-type="alpha"> 와 같다.
+//   지우기 마스크가 여러 그림을 겹친 것(erase 의 ops — 신발 목만큼 덜 지우는 신발 지우기 · 모자에 잘린 앞머리 모양)이면 그 칸을 따로 그려 그 알파로 지운다.
+//  머리색: 물들인 머리 캔버스를 그대로 올린다(SVG 의 명도 표 필터와 같은 표 — 다른 곱하기를 다시 하지 않는다).
+export function paintPlan(ctx, ops, opts) {
+  const { get, layer, tint, done = null } = opts;
+  const blit = (to, from, mode = 'source-over') => { to.save(); to.setTransform(1, 0, 0, 1, 0, 0); to.globalCompositeOperation = mode; to.drawImage(from.canvas, 0, 0); to.restore(); };
   const full = (c, im) => c.drawImage(im, 0, 0, SIZE, SIZE);
+  const sub = (list) => { const t = layer(); paintPlan(t, list, opts); return t; };
   for (const op of ops) {
     if (op.kind === 'image') full(ctx, get(op.src));
     else if (op.kind === 'tint') full(ctx, tint(op.src, op.color));
-    else if (op.kind === 'layer') {
-      const t = layer();
-      paintPlan(t, op.ops, { get, layer, tint });
-      blit(ctx, t);
-    } else if (op.kind === 'erase') {
-      ctx.save(); ctx.globalCompositeOperation = 'destination-out'; full(ctx, get(op.mask)); ctx.restore();
+    else if (op.kind === 'layer') { const t = sub(op.ops); blit(ctx, t); done?.(t); }
+    else if (op.kind === 'erase') {
+      if (op.ops) { const t = sub(op.ops); blit(ctx, t, 'destination-out'); done?.(t); }
+      else { ctx.save(); ctx.globalCompositeOperation = 'destination-out'; full(ctx, get(op.mask)); ctx.restore(); }
     } else if (op.kind === 'hem') {
       const t = layer();
       full(t, get(op.src));
       t.globalCompositeOperation = 'destination-in'; full(t, get(op.mask));
-      blit(ctx, t);
+      blit(ctx, t); done?.(t);
     } else if (op.kind === 'blush') {
       for (const s of op.spots) {
         ctx.save(); ctx.translate(s.cx, s.cy); ctx.scale(s.rx, s.ry);
@@ -188,7 +203,7 @@ export function paintPlan(ctx, ops, { get, layer, tint }) {
         ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill(); ctx.restore();
       }
     } else if (op.kind === 'hearts') {
-      ctx.save(); ctx.lineWidth = 2; ctx.strokeStyle = '#FFFFFF'; ctx.miterLimit = 4; // SVG 기본 miterlimit 4(캔버스 기본 10 — 하트 끝이 뾰족하게 길어지지 않게)
+      ctx.save(); ctx.lineWidth = op.width ?? 2; ctx.strokeStyle = '#FFFFFF'; ctx.miterLimit = 4; // SVG 기본 miterlimit 4(캔버스 기본 10 — 하트 끝이 뾰족하게 길어지지 않게)
       for (const ht of op.hearts) { const p = new Path2D(ht.d); ctx.fillStyle = ht.fill; ctx.fill(p); ctx.stroke(p); }
       ctx.restore();
     }
@@ -294,13 +309,19 @@ function drawStage(ctx) {
   ellipseGlow(ctx, SAVE_W * 0.5, 0, SAVE_W * 0.7, SAVE_H * 0.46, [[0, 'rgba(255, 122, 47, 0.13)'], [0.72, 'rgba(255, 122, 47, 0)']]);
   ellipseGlow(ctx, SAVE_W * 0.5, SAVE_LAYOUT.fit.bottom - 40, 430, 120, [[0, 'rgba(255, 255, 255, 0.06)'], [1, 'rgba(255, 255, 255, 0)']]);
 }
-// 캐릭터(1024 캔버스 전체, 배경 빼고)를 s 배 크기의 캔버스에 — 그림마다 한 번만 줄이고 늘린다(흐려지지 않게)
-function drawCharacter(doc, plan, images, base, s) {
-  const px = Math.ceil(SIZE * s), made = [];
-  const layer = () => { const c = canvasOf(doc, px, px), x = c.getContext('2d'); x.setTransform(s, 0, 0, s, 0, 0); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; made.push(c); return x; };
+// 캐릭터(1024 캔버스 전체, 배경 빼고)를 s 배 크기의 캔버스에(저장하기는 s = 1 — 패키지 renderer.js 와 같은 1024 캔버스, 시험이 픽셀로 견준다). images: 주소(artUrl) → 받아 둔 그림.
+//  다 쓴 칸은 바로 비운다(아이폰 캔버스 메모리 — 한꺼번에 살아 있는 칸은 몇 개뿐).
+export function characterCanvas(doc, plan, images, { base = '/', s = 1 } = {}) {
+  const px = Math.ceil(SIZE * s), made = new Set();
+  const layer = () => { const c = canvasOf(doc, px, px), x = c.getContext('2d'); x.setTransform(s, 0, 0, s, 0, 0); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; made.add(c); return x; };
   const ctx = layer();
-  paintPlan(ctx, plan.ops, { get: (m) => images.get(artUrl(m, base)), layer, tint: (m, color) => tintedHair(doc, images.get(artUrl(m, base)), m, color) });
-  for (const c of made.slice(1)) free(c);
+  made.delete(ctx.canvas);
+  paintPlan(ctx, plan.ops, {
+    get: (m) => images.get(artUrl(m, base)), layer,
+    tint: (m, color) => tintedHair(doc, images.get(artUrl(m, base)), m, color),
+    done: (t) => { made.delete(t.canvas); free(t.canvas); },
+  });
+  for (const c of made) free(c);
   return ctx.canvas;
 }
 // 글자 그리기: 왼쪽부터 조각들을 이어서. → 끝 x
@@ -400,9 +421,10 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
     const r = coverRect(SIZE, SIZE);
     ctx.drawImage(images.get(artUrl(plan.background, base)), r.x, r.y, r.w, r.h);
   } else drawStage(ctx);
-  // 2) 캐릭터를 먼저 그려 실제 크기를 재고(알파 상자) 그림 한가운데 자리를 정한다
-  const ch = drawCharacter(doc, plan, images, base, L.char.s);
-  const chBox = alphaBox(ch.getContext('2d').getImageData(0, 0, ch.width, ch.height).data, ch.width, ch.height);
+  // 2) 캐릭터를 먼저 1024 캔버스에 그려 실제 크기를 재고(알파 상자 — char.s 배로 놓은 크기로 바꿔) 그림 한가운데 자리를 정한다
+  const ch = characterCanvas(doc, plan, images, { base, s: 1 }), s = L.char.s;
+  const raw = alphaBox(ch.getContext('2d').getImageData(0, 0, ch.width, ch.height).data, ch.width, ch.height);
+  const chBox = { x0: raw.x0 * s, y0: raw.y0 * s, x1: raw.x1 * s, y1: raw.y1 * s };
   const at = placeCharacter(chBox);
   // 함께하는 펫: 캐릭터와 같은 비율로 그려 크기를 재고(알파 상자), 캐릭터 오른쪽에 같은 바닥선으로 — 둘을 한 무리로 가운데에
   let dx = 0, pet = null;
@@ -420,8 +442,8 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
   ctx.fillStyle = fade; ctx.fillRect(0, L.fade.from, SAVE_W, L.fade.to - L.fade.from);
   ellipseGlow(ctx, L.center.x + dx, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, 'rgba(0, 0, 0, 0.55)'], [1, 'rgba(0, 0, 0, 0)']]);
   if (pet) ellipseGlow(ctx, pet.x + (pet.box.x0 + pet.box.x1) / 2, at.bottom - 4, (pet.box.x1 - pet.box.x0) * 0.42, L.shadow.ry * at.f * 0.8, [[0, 'rgba(0, 0, 0, 0.5)'], [1, 'rgba(0, 0, 0, 0)']]);
-  // 4) 캐릭터(줄여야 하면 한 번만 줄인다) · 그 앞에 펫
-  ctx.drawImage(ch, at.x + dx, at.y, ch.width * at.f, ch.height * at.f);
+  // 4) 캐릭터(1024 그림을 char.s × 줄이는 배수로 한 번만) · 그 앞에 펫
+  ctx.drawImage(ch, at.x + dx, at.y, ch.width * s * at.f, ch.height * s * at.f);
   free(ch);
   if (pet) { ctx.drawImage(pet.canvas, pet.x, pet.y); free(pet.canvas); }
   // 5) 아래 띠와 글

@@ -7,19 +7,18 @@ import { formatDate } from './text.js';
 export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
 
-// 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files·시즌 폴더의 adjust.json) → 그림·옷 도감에 쓰는 것
+// 시즌 목록(season-*.json 원본, 차례대로)과 그림 목록(manifest.files) → 그림·옷 도감에 쓰는 것
 //  items: {옷id: {slot, cat, number?, season, name, style?, price, reward?, level?}} (뒤 시즌이 같은 id 를 덮는다 · 시즌 보상은 그 보상이 나온 시즌 폴더)
 //   값은 먼치킨(rules.mjs)과 같게(2026-10-10 값 통일): 시즌 옷은 묶음(categories)마다 값 하나(price) — 옷에는 레벨 조건이 없다(level 칸 없음, 예전 등급표 tiers 는 없앴다).
-//   style = 느낌 이름(시즌 목록 styles: 귀여움·멋짐·장난). 칸이 있는 예전 모양 시즌 보상만 보상 값과 보상 규칙의 최소 레벨(level).
+//   style = 느낌 이름(시즌 목록 styles: 데일리·할로윈). 칸이 있는 예전 모양 시즌 보상만 보상 값과 보상 규칙의 최소 레벨(level).
 //  seasons: {시즌id: {id, name, endsAt, expressions, slots:[{id,name}], categories:[{id,name,code,price}], rewardRule:{minLevel, minAttendance, lasts, opensAt}}} · last: 마지막 시즌 id
 //   rewardRule.opensAt = 칭호 상점이 열리는 때(ms — 시즌 목록 seasonRewardRule.opensAt, 없으면 season.rewardShopOpensAt · 모르면 null = 처음부터 열림). 먼치킨은 그때부터 시즌 끝까지 칭호를 판다.
-//  그림 V3·V4(2026-10-09): 옷은 묶음(categories — V4 는 한벌옷·상의·하의·신발·악세사리)과 디자인 번호(number)가 있다. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
+//  옷은 묶음(categories)과 디자인 번호(number)가 있다 — 새 그림체 R7(2026-10-18): 한벌옷·상의·하의·신발·모자·악세사리 20씩, 배경 10. 묶음이 없는 예전 목록이면 칸마다 한 묶음.
 //  titles: {칭호id: {id, season, number, name, icon, perk, desc, price, level, minAttendance}} — 2026-10-09 사용자 "시즌 보상은 칭호로 통일":
 //   시즌 보상(seasonRewards)에 칸(slot)이 없으면 칭호(입지 않는다). 얻은 시즌과 다음 시즌까지 효과(rewardRule.lasts = 2). 칸이 있는 예전 목록의 보상은 예전처럼 옷.
+//  예전 그림(V2~V5)의 옷 id(shoe2_·acc2_·top_21~30·예전 시즌 보상 pumpkin-crown 등 — 먼치킨을 아직 업데이트하지 않은 방송이 올린다)는 이 목록에 없어
+//   입은 옷 칸·번호에 나오지 않고 그림(kiugi-art.js)도 그리지 않는다.
 export const TITLE_MIN_LEVEL = 10;
-// 0.15.62 이하 먼치킨이 올린 예전 시즌 보상 id → 0.15.63 의 악세11~13(같은 그림·같은 칸). 입은 옷 칸·번호를 새 id 로 읽는다.
-export const OLD_REWARD_IDS = Object.freeze({ 'pumpkin-crown': 'acc2_11', 'shadow-wings': 'acc2_12', 'moonlight-aura': 'acc2_13' });
-const currentId = (id) => OLD_REWARD_IDS[id] || id;
 // 칭호 효과 줄: perks(줄 목록) 또는 perk(글 — 줄바꿈·" · "로 나눈다)
 const perksOf = (r) => (Array.isArray(r?.perks) ? r.perks : String(r?.perk || '').split(/\n| · /)).map((s) => String(s).trim()).filter(Boolean);
 // 칭호 효과가 남는 마지막 시즌 이름("시즌2까지"): 얻은 시즌의 차례(1부터) + lasts − 1
@@ -92,24 +91,24 @@ export function motionList(catalog, seasonId) {
 const DOING = Object.freeze({ dance: '춤추는 중', heart: '손하트 하는 중', cry: '우는 중', squat: '스쿼트 하는 중', trash: '쓰레기 맞는 중', kkang: '깡 춤 추는 중' });
 export const motionDoing = (m) => (m ? DOING[m.id] || `${m.name} 하는 중` : '');
 
-// 칸 이름(시즌 목록에 없는 칸 — 시즌 보상의 왕관·날개·오라 — 은 여기서. 그림 V4 부터 보상도 캐릭터가 입는다)
-const SLOT_FALLBACK = { crown: '왕관', wings: '날개', aura: '오라' };
+// 칸 이름(시즌 목록 slots — 모르는 칸은 칸 id 그대로)
 export function slotName(catalog, seasonId, slot) {
   const s = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || [];
-  return s.find((x) => x.id === slot)?.name || SLOT_FALLBACK[slot] || slot;
+  return s.find((x) => x.id === slot)?.name || slot;
 }
-// 입은 옷 → [{slot, slotName, id, name}] (시즌 칸 순서대로). 시즌 목록에 없는 옷(예전 판 먼치킨이 올린 그림 V2 옷 id 등)은 그림·이름이 없어 뺀다.
+// 입은 옷 → [{slot, slotName, id, name}] (시즌 칸 순서대로). 시즌 목록에 없는 옷(예전 그림의 옷 id 등)은 그림·이름이 없어 뺀다.
+//  칸과 맞지 않는 옷(예전 그림에서 다른 칸에 있던 같은 이름 id — 예: V5 의 신발 칸 shoes 에 R7 목록에 없는 id)도 그림이 그리지 않으니 뺀다.
 export function wornList(catalog, seasonId, worn) {
   const order = ((catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.slots || []).map((s) => s.id);
-  const extra = Object.keys(SLOT_FALLBACK), rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length + (extra.includes(slot) ? extra.indexOf(slot) : extra.length) : i; };
-  return Object.entries(worn && typeof worn === 'object' ? worn : {}).map(([slot, id]) => [slot, catalog?.items?.[id] ? id : currentId(id)]).filter(([, id]) => Boolean(catalog?.items?.[id]))
+  const rank = (slot) => { const i = order.indexOf(slot); return i < 0 ? order.length : i; };
+  return Object.entries(worn && typeof worn === 'object' ? worn : {}).filter(([slot, id]) => typeof id === 'string' && catalog?.items?.[id]?.slot === slot)
     .sort(([a], [b]) => rank(a) - rank(b))
     .map(([slot, id]) => ({ slot, slotName: slotName(catalog, seasonId, slot), id, name: catalog?.items?.[id]?.name || id }));
 }
 
-// 옷 id → 먼치킨 채팅 상점과 같은 번호(상의11·악세12). 묶음·번호가 없는 옷(예전 목록)은 null.
+// 옷 id → 먼치킨 채팅 상점과 같은 번호(상의11·모자5·악세12). 묶음·번호가 없는 옷(예전 목록)은 null.
 export function itemCodeOf(catalog, seasonId, id) {
-  const it = catalog?.items?.[id] || catalog?.items?.[currentId(id)], season = catalog?.seasons?.[it?.season] || catalog?.seasons?.[seasonId];
+  const it = catalog?.items?.[id], season = catalog?.seasons?.[it?.season] || catalog?.seasons?.[seasonId];
   const cat = it && Number.isInteger(it.number) ? season?.categories?.find((c) => c.id === it.cat) : null;
   return cat ? `${cat.code}${it.number}` : null;
 }
@@ -147,7 +146,7 @@ export function characterMarkup(catalog, character, worn, level, { seasonId = nu
   return cspSafeSvg(svg, base);
 }
 // 캐릭터 그림 글 → {scene, body}(2026-10-15 사용자 "캐릭터들이 2D 게임 대기 모션처럼 숨쉬듯이"): 캐릭터만 움직이고 바탕은 가만히 있게 둘로 나눈다.
-//  scene = 바탕 사각형·입은 배경(background) 만 든 SVG(없으면 null) · body = 나머지(오라·날개·머리·몸·옷·얼굴·악세사리 — 숨쉬기·모션으로 움직인다).
+//  scene = 바탕 사각형·입은 배경(background) 만 든 SVG(없으면 null) · body = 나머지(머리·몸·옷·얼굴·악세사리·모자 — 숨쉬기·모션으로 움직인다).
 //  둘 다 같은 viewBox 라 같은 칸에 겹치면 원래 그림과 같다. 나눌 것이 없으면 그대로(scene null).
 export function splitScene(markup) {
   const s = String(markup ?? ''), open = /^<svg [^>]*>/.exec(s), end = s.indexOf('</defs>');
@@ -158,7 +157,7 @@ export function splitScene(markup) {
   const box = / viewBox="[^"]*"/.exec(open[0])?.[0] || '';
   return { scene: `<svg${box} xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${back}</svg>`, body: s.slice(0, at) + s.slice(at + back.length) };
 }
-// 옷 한 벌만(글): 옷 도감·입은 옷 칸. 그림 V4: 기본 캐릭터(그 성별)가 그 옷(시즌 보상 포함)만 입은 모습을 옷이 있는 곳에 맞춰(옷 그림은 자르지 않는다).
+// 옷 한 벌만(글): 옷 도감·입은 옷 칸. 기본 캐릭터(그 성별)가 그 옷만 입은 모습을 옷이 있는 곳에 맞춰(옷 그림은 자르지 않는다 — kiugi-art.js thumbBox).
 //  gender 'm' 이면 같은 번호 옷의 남자 몸 버전. dj(DJ 캐릭터)를 주면 성별이 같을 때 그 얼굴·머리로. 모르는 옷(예전 판이 올린 지운 옷 등)은 이름 자리 표시.
 export function itemMarkup(catalog, id, { base = '/', label = '', gender = 'f', dj = null } = {}) {
   // 바탕 없이(화면의 무대 그림이 보인다). 예전 판의 옅은 바탕 사각형이 있으면 뺀다.
@@ -199,7 +198,8 @@ export function svgNode(markup) {
   return document.importNode(el, true);
 }
 
-// docs/kiugi/manifest.json → 시즌 목록·보정값을 한 번만 받아 둔다(실패하면 다음에 다시)
+// docs/kiugi/manifest.json → 시즌 목록을 한 번만 받아 둔다(실패하면 다음에 다시)
+//  예전 그림(V2)의 그림 폴더마다 보정값(adjust.json)은 새 그림체 R7 에서 쓰지 않아 받지 않는다(폴더마다 404 가 나던 것).
 let catalogPromise = null;
 export function loadCatalog(base = '/') {
   return catalogPromise ||= (async () => {
@@ -207,8 +207,7 @@ export function loadCatalog(base = '/') {
     const get = async (name) => { const r = await fetch(root + name, { cache: 'no-cache' }); if (!r.ok) throw Error('키우기 그림 목록을 받지 못했어요.'); return r.json(); };
     const manifest = await get('manifest.json');
     const raws = await Promise.all((Array.isArray(manifest.seasons) ? manifest.seasons : []).filter((n) => /^season-[a-z0-9-]+\.json$/.test(n)).map(get));
-    const files = manifest.files && typeof manifest.files === 'object' ? manifest.files : {}, adjust = {};
-    await Promise.all(Object.keys(files).filter((s) => /^[a-z0-9][a-z0-9_-]*$/.test(s)).map(async (s) => { try { adjust[s] = await get(s + '/adjust.json'); } catch { adjust[s] = {}; } }));
-    return buildCatalog(raws, { files, adjust });
+    const files = manifest.files && typeof manifest.files === 'object' ? manifest.files : {};
+    return buildCatalog(raws, { files, adjust: {} });
   })().catch((e) => { catalogPromise = null; throw e; });
 }

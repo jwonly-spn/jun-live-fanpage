@@ -4,7 +4,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { buildCatalog, itemCodeOf, titleShopOpen, titleOpenDate } from '../docs/lib/kiugi-draw.js';
-import { applyTryOn, toggleTry, canTry, isShown, itemShown, wornLook, wornIds, tryCodes, closetLine, tryTotal, tryNotes, slotOfItem, CLOSET_CMD, TRY_MAX, TRY_NOTE, TRY_FULL, TRY_COPIED, CROWN_NOTE,
+import { applyTryOn, toggleTry, canTry, isShown, itemShown, wornLook, wornIds, tryCodes, closetLine, tryTotal, tryNotes, slotOfItem, CLOSET_CMD, TRY_MAX, TRY_NOTE, TRY_FULL, TRY_COPIED,
   titleOf, titleCode, wornTitleOf, pickedTitle, shownTitle, toggleTitle, canTitle, tryLine, tryNote, copiedText, TITLE_SOON, TITLE_LEVEL } from '../docs/lib/try-on.js';
 import { chatHint, itemGroups, TITLE_NOTE, CLOSET_CMD as ITEMS_CMD } from '../docs/views/items.js';
 
@@ -35,38 +35,42 @@ test('모든 옷 번호가 채팅 한 줄 모양(묶음 글 + 숫자, 띄어쓰�
   const c = await catalog();
   const { groups } = itemGroups(c, 's1');
   const ids = groups.flatMap((g) => g.items.map((it) => it.id));
-  assert.equal(ids.length, 101);
+  assert.equal(ids.length, 130, '한벌옷·상의·하의·신발·모자·악세사리 20씩 · 배경 10');
   for (const id of ids) {
     const code = itemCodeOf(c, 's1', id);
-    assert.match(code, /^(한벌|상의|하의|신발|악세|배경)\d{1,2}$/, id);
+    assert.match(code, /^(한벌|상의|하의|신발|모자|악세|배경)\d{1,2}$/, id);
     assert.equal(closetLine([code]), `!옷장 ${code.replace(/^(\D+?)(\d+)$/, '$1 $2')}`, id + '(한 벌이면 띄어 쓴다 — 먼치킨 0.15.70)');
     assert.equal(closetLine([code, code]), `!옷장 ${code} ${code}`, id + '(여러 벌이면 붙여 쓴다)');
   }
-  assert.deepEqual(tryCodes(['top_11', 'bottom_03', 'shoe2_02', 'no-such', 'title-halloween-insa'], c, 's1'), ['상의11', '하의3', '신발2'], '번호 없는 것(모르는 옷·칭호)은 뺀다');
+  assert.deepEqual(tryCodes(['top_11', 'bottom_03', 'shoe_02', 'hat_05', 'accessory_07', 'no-such', 'shoe2_02', 'title-halloween-insa'], c, 's1'), ['상의11', '하의3', '신발2', '모자5', '악세7'], '번호 없는 것(모르는 옷·예전 그림의 옷·칭호)은 뺀다');
+  // 먼치킨 0.15.96+ R7 의 여러 벌 한 줄과 같은 모양
+  assert.equal(closetLine(tryCodes(['top_11', 'bottom_03', 'shoe_02', 'hat_05', 'accessory_07'], c, 's1')), '!옷장 상의11 하의3 신발2 모자5 악세7');
 });
 
-test('미리 보기 모습(applyTryOn): 입은 옷 위에 차례대로 — 상의·하의를 입으면 한벌옷을 벗고, 한벌옷은 상의·하의를 가리고, 왕관은 머리 장식을 가린다', async () => {
+test('미리 보기 모습(applyTryOn): 입은 옷 위에 차례대로 — 상의·하의를 입으면 한벌옷을 벗고, 한벌옷은 상의·하의를 가리고, 모자는 하나 · 악세사리는 자리마다 하나(모자와 머리 장식은 함께)', async () => {
   const c = await catalog();
-  const worn = { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', shoes: 'shoe2_06' };
+  const worn = { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', shoes: 'shoe_06' };
   // 먼치킨은 한벌옷 아래 상의·하의도 올린다(기록에 남은 것) → 상의를 입히면 한벌옷을 벗고 입던 하의가 다시 보인다
   const a = applyTryOn(worn, ['top_11'], c);
-  assert.deepEqual(a, { top: 'top_11', bottom: 'bottom_01', shoes: 'shoe2_06' });
-  assert.deepEqual(worn, { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', shoes: 'shoe2_06' }, '입은 옷은 바꾸지 않는다');
+  assert.deepEqual(a, { top: 'top_11', bottom: 'bottom_01', shoes: 'shoe_06' });
+  assert.deepEqual(worn, { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', shoes: 'shoe_06' }, '입은 옷은 바꾸지 않는다');
   // 한벌옷을 입히면 상의·하의는 남아 있지만 보이지 않는다
   const b = applyTryOn({ top: 'top_02', bottom: 'bottom_01' }, ['outfit_03'], c);
   assert.deepEqual(b, { top: 'top_02', bottom: 'bottom_01', outfit: 'outfit_03' });
   assert.equal(isShown(b, 'top', c), false); assert.equal(isShown(b, 'bottom', c), false); assert.equal(isShown(b, 'outfit', c), true);
-  // 왕관(악세11)은 머리 장식만 가린다(얼굴·목·손은 그대로)
-  const k = applyTryOn({ crown: 'acc2_11', face: 'acc2_04' }, ['acc2_01'], c);
-  assert.equal(isShown(k, 'head', c), false); assert.equal(isShown(k, 'face', c), true); assert.equal(isShown(k, 'crown', c), true);
-  assert.equal(itemShown(k, 'acc2_01', c), false); assert.equal(itemShown(k, 'acc2_04', c), true);
-  // 악세사리는 자리마다 하나 — 같은 자리 옷은 바뀌고 다른 자리는 함께
-  assert.deepEqual(applyTryOn({ head: 'acc2_01', neck: 'acc2_06' }, ['acc2_02', 'acc2_04', 'acc2_12', 'acc2_13', 'background_04'], c),
-    { head: 'acc2_02', neck: 'acc2_06', face: 'acc2_04', wings: 'acc2_12', aura: 'acc2_13', bg: 'background_04' });
-  // 예전 보상 id(0.15.62 이하가 올린 것)는 악세11~13 으로, 모르는 옷 id 는 그대로 둔다(그림이 뺀다), 모르는 입혀 본 옷은 무시
-  assert.deepEqual(applyTryOn({ crown: 'pumpkin-crown', head: 'witch-hat' }, ['no-such', 'title-candy-plz'], c), { crown: 'acc2_11', head: 'witch-hat' });
-  assert.deepEqual(wornLook(null), {}); assert.deepEqual(wornLook(['top_01']), {}); assert.deepEqual([...wornIds({ wings: 'shadow-wings' })], ['acc2_12']);
-  assert.equal(slotOfItem(c, 'acc2_09'), 'hand'); assert.equal(slotOfItem(c, 'moonlight-aura'), 'aura'); assert.equal(slotOfItem(c, 'title-candy-plz'), null);
+  // 모자와 머리 장식은 함께 보인다(가리지 않는다)
+  const k = applyTryOn({ hat: 'hat_01', face: 'accessory_02' }, ['accessory_06'], c);
+  assert.equal(isShown(k, 'head', c), true); assert.equal(isShown(k, 'hat', c), true); assert.equal(isShown(k, 'face', c), true);
+  assert.equal(itemShown(k, 'accessory_06', c), true); assert.equal(itemShown(k, 'hat_01', c), true);
+  // 악세사리는 자리마다 하나(자리 = 시즌 목록의 그 악세사리 slot) — 같은 자리 옷은 바뀌고 다른 자리는 함께 · 모자도 하나
+  assert.deepEqual(applyTryOn({ head: 'accessory_06', neck: 'accessory_01', hat: 'hat_01' }, ['accessory_17', 'accessory_02', 'accessory_05', 'hat_09', 'background_04'], c),
+    { head: 'accessory_17', neck: 'accessory_01', hat: 'hat_09', face: 'accessory_02', hand: 'accessory_05', bg: 'background_04' });
+  // 모르는 옷 id(예전 그림의 옷 — 먼치킨을 아직 업데이트하지 않은 방송)는 그대로 둔다(그림이 뺀다), 모르는 입혀 본 옷은 무시
+  assert.deepEqual(applyTryOn({ crown: 'pumpkin-crown', head: 'acc2_01' }, ['no-such', 'title-candy-plz', 'shoe2_03'], c), { crown: 'pumpkin-crown', head: 'acc2_01' });
+  assert.equal(isShown({ head: 'acc2_01' }, 'head', c), false, '예전 그림의 옷은 보이지 않는다');
+  assert.equal(isShown({ neck: 'accessory_02' }, 'neck', c), false, '칸과 맞지 않는 옷(목 칸의 안경)도 보이지 않는다');
+  assert.deepEqual(wornLook(null), {}); assert.deepEqual(wornLook(['top_01']), {}); assert.deepEqual([...wornIds({ wings: 'shadow-wings' })], ['shadow-wings']);
+  assert.equal(slotOfItem(c, 'accessory_09'), 'hand'); assert.equal(slotOfItem(c, 'hat_03'), 'hat'); assert.equal(slotOfItem(c, 'acc2_09'), null); assert.equal(slotOfItem(c, 'title-candy-plz'), null); assert.equal(slotOfItem(c, 'constructor'), null);
 });
 
 test('먼치킨 !옷장 과 같은 결과: 한 줄의 번호를 차례대로 입히면(putOn) 미리 보기 모습과 같다', async () => {
@@ -74,9 +78,9 @@ test('먼치킨 !옷장 과 같은 결과: 한 줄의 번호를 차례대로 입
   // 먼치킨 kiugi.mjs putOn 과 같은 규칙(칸에 넣고, 상의·하의면 한벌옷을 벗긴다)
   const putOn = (w, slot, id) => { const o = { ...w, [slot]: id }; if (slot === 'top' || slot === 'bottom') delete o.outfit; return o; };
   const cases = [
-    [{ outfit: 'outfit_02', top: 'top_01' }, ['bottom_05', 'shoe2_03', 'acc2_11']],
-    [{ top: 'top_01', bottom: 'bottom_02', head: 'acc2_03' }, ['outfit_04', 'acc2_05', 'background_02']],
-    [{}, ['top_20', 'bottom_20', 'shoe2_10', 'acc2_01', 'acc2_04', 'acc2_06', 'acc2_09', 'background_10']],
+    [{ outfit: 'outfit_02', top: 'top_01' }, ['bottom_05', 'shoe_03', 'hat_11']],
+    [{ top: 'top_01', bottom: 'bottom_02', head: 'accessory_06', hat: 'hat_02' }, ['outfit_04', 'accessory_17', 'hat_16', 'background_02']],
+    [{}, ['top_20', 'bottom_20', 'shoe_10', 'hat_07', 'accessory_06', 'accessory_02', 'accessory_01', 'accessory_05']],
   ];
   for (const [worn, clicks] of cases) {
     const tried = press(c, clicks, worn);
@@ -87,25 +91,28 @@ test('먼치킨 !옷장 과 같은 결과: 한 줄의 번호를 차례대로 입
 
 test('옷 누르기(toggleTry): 입혀 보기·다시 누르면 벗기, 칸마다 한 벌, 한벌옷 ↔ 상의·하의, 누른 차례 = 채팅 차례', async () => {
   const c = await catalog();
-  assert.deepEqual(press(c, ['top_11', 'bottom_03', 'shoe2_02']), ['top_11', 'bottom_03', 'shoe2_02']);
+  assert.deepEqual(press(c, ['top_11', 'bottom_03', 'shoe_02']), ['top_11', 'bottom_03', 'shoe_02']);
   assert.deepEqual(press(c, ['top_11', 'bottom_03', 'top_11']), ['bottom_03'], '다시 누르면 뺀다');
   assert.deepEqual(press(c, ['top_11', 'top_05']), ['top_05'], '같은 칸은 바꾼다');
-  assert.deepEqual(press(c, ['top_11', 'bottom_03', 'shoe2_02', 'outfit_02']), ['shoe2_02', 'outfit_02'], '한벌옷을 입히면 입혀 본 상의·하의를 뺀다');
-  assert.deepEqual(press(c, ['outfit_02', 'shoe2_02', 'bottom_07']), ['shoe2_02', 'bottom_07'], '상의·하의를 입히면 입혀 본 한벌옷을 뺀다');
-  assert.deepEqual(press(c, ['acc2_01', 'acc2_02', 'acc2_04', 'acc2_11']), ['acc2_02', 'acc2_04', 'acc2_11'], '악세사리는 자리(머리·얼굴·왕관)마다 하나');
+  assert.deepEqual(press(c, ['top_11', 'bottom_03', 'shoe_02', 'outfit_02']), ['shoe_02', 'outfit_02'], '한벌옷을 입히면 입혀 본 상의·하의를 뺀다');
+  assert.deepEqual(press(c, ['outfit_02', 'shoe_02', 'bottom_07']), ['shoe_02', 'bottom_07'], '상의·하의를 입히면 입혀 본 한벌옷을 뺀다');
+  assert.deepEqual(press(c, ['accessory_06', 'accessory_17', 'accessory_02', 'hat_05']), ['accessory_17', 'accessory_02', 'hat_05'], '악세사리는 자리(머리·얼굴)마다 하나, 모자와 머리 장식은 함께');
+  assert.deepEqual(press(c, ['hat_01', 'hat_09']), ['hat_09'], '모자는 하나');
   assert.deepEqual(press(c, ['background_01', 'background_09']), ['background_09'], '배경은 하나');
-  assert.deepEqual(press(c, ['no-such', 'title-candy-plz']), [], '모르는 옷·칭호는 입혀 볼 수 없다');
+  assert.deepEqual(press(c, ['no-such', 'title-candy-plz', 'acc2_01', 'shoe2_02']), [], '모르는 옷·칭호·예전 그림의 옷은 입혀 볼 수 없다');
   assert.deepEqual(toggleTry(['top_11'], { id: 'top_11' }, c), [], '옷 객체({id})도 받는다');
-  assert.equal(closetLine(tryCodes(press(c, ['top_11', 'bottom_03', 'shoe2_02']), c, 's1')), '!옷장 상의11 하의3 신발2');
+  assert.equal(closetLine(tryCodes(press(c, ['top_11', 'bottom_03', 'shoe_02', 'hat_09']), c, 's1')), '!옷장 상의11 하의3 신발2 모자9');
 });
 
+// 여덟 벌(칸이 모두 다른 옷): 상의·하의·신발·모자·머리·얼굴·목 장식·배경
+const EIGHT = ['top_01', 'bottom_01', 'shoe_01', 'hat_01', 'accessory_06', 'accessory_02', 'accessory_01', 'background_01'];
 test('한 번에 8벌까지: 9벌째는 더하지 않고(canTry false), 같은 칸 바꾸기·빼기는 된다', async () => {
   const c = await catalog();
-  const eight = ['top_01', 'bottom_01', 'shoe2_01', 'acc2_01', 'acc2_04', 'acc2_06', 'acc2_09', 'background_01'];
+  const eight = EIGHT;
   const full = press(c, eight);
   assert.equal(full.length, 8);
-  assert.equal(canTry(full, 'acc2_12', c), false);
-  assert.deepEqual(toggleTry(full, 'acc2_12', c), full, '9벌째는 그대로');
+  assert.equal(canTry(full, 'accessory_05', c), false, '손 장식(9벌째)');
+  assert.deepEqual(toggleTry(full, 'accessory_05', c), full, '9벌째는 그대로');
   assert.equal(canTry(full, 'top_02', c), true); assert.deepEqual(toggleTry(full, 'top_02', c), [...eight.slice(1), 'top_02'], '같은 칸은 바꾼다(뒤로 간다)');
   assert.equal(canTry(full, 'outfit_01', c), true, '한벌옷은 상의·하의 둘을 빼고 들어간다');
   assert.equal(toggleTry(full, 'outfit_01', c).length, 7);
@@ -116,34 +123,33 @@ test('한 번에 8벌까지: 9벌째는 더하지 않고(canTry false), 같은 �
 
 test('지금 입은 옷: 누르면 원래 옷으로 되돌린다(명령 없음), 입은 한벌옷 아래 상의·하의는 다시 입기로 더한다, 값은 세지 않는다', async () => {
   const c = await catalog();
-  const worn = { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', head: 'acc2_03' };
+  const worn = { outfit: 'outfit_01', top: 'top_02', bottom: 'bottom_01', head: 'accessory_06', hat: 'hat_01' };
   // 상의를 입혀 본 뒤 입은 한벌옷을 누르면 → 입혀 본 상의를 빼서 원래대로
-  assert.deepEqual(toggleTry(['top_11', 'shoe2_02'], 'outfit_01', c, { worn }), ['shoe2_02']);
-  // 왕관을 입혀 본 뒤 입은 머리 장식을 누르면 → 왕관을 뺀다(머리 장식이 다시 보인다)
-  assert.deepEqual(toggleTry(['acc2_11'], 'acc2_03', c, { worn }), []);
+  assert.deepEqual(toggleTry(['top_11', 'shoe_02'], 'outfit_01', c, { worn }), ['shoe_02']);
+  // 다른 머리 장식·모자를 입혀 본 뒤 입은 것을 누르면 → 입혀 본 것을 빼서 원래대로
+  assert.deepEqual(toggleTry(['accessory_17', 'shoe_02'], 'accessory_06', c, { worn }), ['shoe_02']);
+  assert.deepEqual(toggleTry(['hat_09'], 'hat_01', c, { worn }), []);
   // 한벌옷 아래의 입은 상의를 누르면 → 다시 입는 줄로 더한다(먼치킨: 가진 옷이라 냥 없이 입히고 한벌옷을 벗긴다)
   const back = toggleTry([], 'top_02', c, { worn });
   assert.deepEqual(back, ['top_02']);
   assert.equal(itemShown(applyTryOn(worn, back, c), 'top_02', c), true);
   assert.equal(closetLine(tryCodes(back, c, 's1')), '!옷장 상의 2');
   assert.deepEqual(tryTotal(back, c, { worn }), { count: 1, price: 0 }, '입은 옷은 값을 세지 않는다');
-  // 입은 왕관 아래 머리 장식은 다시 입어도 가려진다 → 더하지 않는다
-  assert.deepEqual(toggleTry([], 'acc2_03', c, { worn: { crown: 'acc2_11', head: 'acc2_03' } }), []);
+  // 입은 모자 아래 머리 장식은 가려지지 않는다 → 누르면 "지금 입은 옷"(명령 없음)
+  assert.deepEqual(toggleTry([], 'accessory_06', c, { worn }), []);
 });
 
 test('합계(tryTotal)·알림(tryNotes)·안내 글', async () => {
   const c = await catalog();
-  // 2026-10-10 먼치킨 값 통일(묶음마다 값 하나, 옷에는 레벨 조건 없음) → 2026-10-14 상향: 상의11 700 + 하의5 700 + 악세11 400 + 한벌2 2,500 + 배경3 500
-  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'acc2_11'], c), { count: 3, price: 1800 });
+  // 먼치킨 값(묶음마다 값 하나, 옷에는 레벨 조건 없음): 상의11 700 + 하의5 700 + 악세11 400 · 한벌2 2,500 + 배경3 500 · 모자5 500 + 신발2 700
+  assert.deepEqual(tryTotal(['top_11', 'bottom_05', 'accessory_11'], c), { count: 3, price: 1800 });
   assert.deepEqual(tryTotal(['outfit_02', 'background_03'], c), { count: 2, price: 3000 });
+  assert.deepEqual(tryTotal(['hat_05', 'shoe_02'], c), { count: 2, price: 1200 });
   assert.deepEqual(tryTotal([], c), { count: 0, price: 0 });
-  assert.deepEqual(tryTotal(['top_11', 'no-such'], c, { worn: { top: 'top_11' } }), { count: 1, price: 0 });
-  // 왕관과 머리 장식을 함께 고르면(또는 왕관을 쓴 채 머리 장식을) → 왕관이 머리 장식을 가린다는 알림
-  assert.deepEqual(tryNotes({}, ['acc2_11', 'acc2_01'], c), [CROWN_NOTE]);
-  assert.deepEqual(tryNotes({ crown: 'acc2_11' }, ['acc2_02'], c), [CROWN_NOTE]);
-  assert.deepEqual(tryNotes({ head: 'acc2_02' }, ['acc2_11'], c), [CROWN_NOTE]);
-  assert.deepEqual(tryNotes({ crown: 'acc2_11' }, ['top_01'], c), []);
-  assert.deepEqual(tryNotes({}, ['acc2_12', 'acc2_01'], c), [], '날개는 아무것도 가리지 않는다');
+  assert.deepEqual(tryTotal(['top_11', 'no-such', 'acc2_11'], c, { worn: { top: 'top_11' } }), { count: 1, price: 0 }, '모르는 옷·예전 그림의 옷은 세지 않는다');
+  // 옷 알림: 예전 그림의 "왕관이 머리 장식을 가려요"는 없앴다 — 모자와 머리 장식을 함께 골라도 알림 없음
+  assert.deepEqual(tryNotes({}, ['hat_01', 'accessory_06'], c), []);
+  assert.deepEqual(tryNotes({ hat: 'hat_16' }, ['accessory_17'], c), []);
   // 먼치킨이 못 산 옷은 빼고 나머지만 산다(코디네이터 2026-10-09)
   assert.equal(TRY_NOTE, '이미 가진 옷은 냥을 쓰지 않고 입기만 해요 · 냥이 모자란 옷은 빼고 나머지만 사서 입어요 · 한 번에 8벌까지');
   assert.equal(TRY_COPIED, '복사했어요 · 방송 채팅에 붙여 넣으면 사서 바로 입어요');
@@ -217,7 +223,7 @@ test('칭호 고르기(toggleTitle): 하나만 — 다른 칭호면 바꾸고, �
 
 test('옷과 칭호를 합쳐 8개까지: 칭호를 골라 두면 옷은 7벌, 옷이 8벌이면 새 칭호는 못 고른다(바꾸기·빼기는 된다)', async () => {
   const c = await catalog();
-  const eight = ['top_01', 'bottom_01', 'shoe2_01', 'acc2_01', 'acc2_04', 'acc2_06', 'acc2_09', 'background_01'];
+  const eight = EIGHT;
   const seven = eight.slice(0, 7);
   // 옷 8벌 → 새 칭호는 안 된다(그대로), 단 칭호를 누르는 것은 된다(되돌리기)
   assert.equal(canTitle(eight, null, T2, c), false); assert.equal(toggleTitle(null, T2, c, { tried: eight }), null);
@@ -243,7 +249,7 @@ test('채팅 한 줄(tryLine): 옷 번호 다음 맨 끝에 칭호 번호, 칭�
   assert.equal(tryLine(['top_11', 'bottom_03'], c, 's1', { title: T1, wornTitle: T1 }), '!옷장 상의11 하의3', '단 칭호는 넣지 않는다');
   assert.equal(tryLine([], c, 's1', { title: T1, wornTitle: T1 }), '');
   assert.equal(tryLine([], c, 's1', { title: 'title-nope' }), '');
-  const eight = ['top_01', 'bottom_01', 'shoe2_01', 'acc2_01', 'acc2_04', 'acc2_06', 'acc2_09', 'background_01'];
+  const eight = EIGHT;
   const line = tryLine(eight, c, 's1', { title: T2 });
   assert.equal(line.split(' ').length, 1 + TRY_MAX, '번호는 8개까지'); assert.match(line, / 칭호2$/, '칭호 자리는 남긴다');
   assert.equal(closetLine(['상의11', '칭호2']), '!옷장 상의11 칭호2', '칭호 번호도 번호 모양');
@@ -263,7 +269,7 @@ test('칭호 값·알림: 합계에 칭호 값(단 칭호는 빼고), 상점이 
   assert.deepEqual(tryNotes({}, [], c, { title: T2, now: BEFORE, level: 3 }), [TITLE_SOON('10월 30일'), TITLE_LEVEL(10)]);
   assert.deepEqual(tryNotes({}, [], c, { title: T2, now: AFTER, level: 10 }), []);
   assert.deepEqual(tryNotes({}, [], c, { title: T1, wornTitle: T1, now: BEFORE, level: 1 }), [], '단 칭호');
-  assert.deepEqual(tryNotes({}, ['acc2_11', 'acc2_01'], c, { title: T2, now: AFTER }), [CROWN_NOTE], '옷 알림은 그대로');
+  assert.deepEqual(tryNotes({}, ['hat_01', 'accessory_06'], c, { title: T2, now: AFTER }), [], '옷 알림 없음(칭호만)');
   assert.equal(TITLE_SOON('10월 30일'), '칭호는 10월 30일부터 살 수 있어요'); assert.equal(TITLE_LEVEL(10), '칭호는 Lv.10이 되어야 살 수 있어요');
   // 안내 한 줄: 칭호가 없는 시즌은 예전 그대로, 있으면 여는 날(열리기 전에만)·Lv.10·"옷과 칭호를 합쳐 8개까지" — 날짜는 시즌 목록에서
   const rule = c.seasons.s1.rewardRule;
@@ -312,8 +318,8 @@ test('맨몸부터(2026-10-15 — 먼치킨 0.15.84 !다벗기): 입은 옷을 �
   const { bareWorn, BARE_KEEP, UNDRESS_CMD, UNDRESS_WORD, BARE_NOTE } = await import('../docs/lib/try-on.js');
   const c = await catalog(), sid = c.last;
   assert.deepEqual([...BARE_KEEP], ['bg']); assert.equal(UNDRESS_CMD, '!다벗기'); assert.equal(UNDRESS_WORD, '다벗기'); assert.match(BARE_NOTE, /맨몸/);
-  const worn = { outfit: 'outfit_01', shoes: 'shoe2_06', head: 'acc2_03', bg: 'background_02' };
-  assert.deepEqual(bareWorn(worn), { bg: 'background_02' }, '배경만 남는다');
+  const worn = { outfit: 'outfit_01', shoes: 'shoe_06', head: 'accessory_06', hat: 'hat_01', bg: 'background_02' };
+  assert.deepEqual(bareWorn(worn), { bg: 'background_02' }, '배경만 남는다(모자도 벗는다)');
   assert.deepEqual(bareWorn({ top: 'top_02' }), {});
   assert.deepEqual(bareWorn(null), {});
   // 채팅 한 줄
@@ -321,9 +327,9 @@ test('맨몸부터(2026-10-15 — 먼치킨 0.15.84 !다벗기): 입은 옷을 �
   assert.equal(closetLine(['상의11'], { bare: true }), '!옷장 다벗기 상의11', '한 벌도 붙여 쓴다(다벗기 뒤의 번호는 사기·입기로 읽는다)');
   assert.equal(closetLine(['상의11', '하의3', '칭호2'], { bare: true }), '!옷장 다벗기 상의11 하의3 칭호2');
   // 맨몸에서 입혀 보기: 입던 신발을 다시 고르면 "가진 옷"(값 0), 새 상의만 값
-  const base = bareWorn(worn), tried = press(c, ['shoe2_06', 'top_05'], base);
-  assert.deepEqual(tried, ['shoe2_06', 'top_05'], '맨몸에서는 입던 옷도 다시 고른다');
-  assert.deepEqual(applyTryOn(base, tried, c), { bg: 'background_02', shoes: 'shoe2_06', top: 'top_05' });
+  const base = bareWorn(worn), tried = press(c, ['shoe_06', 'top_05'], base);
+  assert.deepEqual(tried, ['shoe_06', 'top_05'], '맨몸에서는 입던 옷도 다시 고른다');
+  assert.deepEqual(applyTryOn(base, tried, c), { bg: 'background_02', shoes: 'shoe_06', top: 'top_05' });
   assert.equal(tryLine(tried, c, sid, { bare: true }), '!옷장 다벗기 신발6 상의5');
   assert.deepEqual(tryTotal(tried, c, { worn }), { count: 2, price: c.items.top_05.price }, '입던 신발은 가진 옷이라 값에 들지 않는다');
   assert.equal(tryLine(tried, c, sid), '!옷장 신발6 상의5', '맨몸부터를 끄면 예전처럼');

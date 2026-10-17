@@ -63,10 +63,12 @@
   {
     "enabled": true, "v": 2, "at": 1792000000000, "paused": false, "main": true,
     "season": {"id": "s1", "name": "할로윈", "endsAt": "2026-11-30T14:59:59.000Z"},
-    "character": {"name": "먼치", "gender": "f", "hair": "long", "hairColor": "pink", "skin": "s2", "eyes": "sparkle", "nose": "dot", "mouth": "smile"},
-    "people": [{"id": "밤톨#먼치", "level": 3, "love": 420, "worn": {"head": "witch-hat"}}]
+    "character": {"name": "먼치", "gender": "f", "hair": "2", "hairColor": "pink", "eyes": "1", "nose": "1", "mouth": "2"},
+    "people": [{"id": "밤톨#먼치", "level": 3, "love": 420, "worn": {"top": "top_16", "bottom": "bottom_14", "shoes": "shoe_07", "hat": "hat_09", "face": "accessory_12"}}]
   }
   ```
+  입은 옷(`worn`)은 칸 이름(영문 소문자 2~12자)·옷 id 모양만 보고 12칸까지 그대로 싣는다 — 새 그림체 R7(2026-10-18)의 모자 칸 `hat`·옷 id(`shoe_07`·`hat_09`·`accessory_12` …)도 서버를 고치지 않고 받는다.
+  그릴 수 있는지(그림 목록에 있는 옷인지, 칸과 맞는지)는 사이트가 정한다 — 예전 판 먼치킨이 올린 예전 그림의 옷 id 는 사이트가 그리지 않는다. DJ 캐릭터 값도 모양 열쇠(글자)면 그대로(R7 눈·코·입 '1'~'2').
   또는 `{enabled:false}`(내용 지우기). `main`은 넣지 않아도 되고(없으면 true), `false`일 때만 메인에서 빠진다. `at`은 받아도 쓰지 않는다(서버 시간 사용). `paused:true`이거나 시즌이 없으면 청취자를 싣지 않는다. `character.name`이 한글·영문·숫자 1~8자가 아니면 400(먼치킨 `rules.mjs`와 같은 규칙). 캐릭터 이름이 다른 방송 것이면 409. `v`가 2가 아니면 400 "먼치킨을 새 버전으로 업데이트한 뒤 다시 올려 주세요."
 
 올리는 순서(배포 — 사용자 허락 뒤):

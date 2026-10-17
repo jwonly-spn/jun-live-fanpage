@@ -27,7 +27,8 @@ export function heartCount(n, { className = '' } = {}) {
 //   .kg-actor > .kg-body(캐릭터 — 숨쉬기 또는 모션, 발끝 기준) > svg + .kg-fx.on-body(캐릭터와 같이 움직이는 효과: 눈물·가슴 하트·땀·머리 둘레 별)
 //             > .kg-fx.around(캐릭터 둘레에 떠 있는 효과: 음표·떨어지는 쓰레기·💢·반짝이)
 // 움직임은 모두 styles.css 의 CSS 애니메이션(transform·opacity — 그림을 다시 그리지 않는다, 자바스크립트 반복 없음).
-// 효과 자리는 캔버스 1024 기준 퍼센트(눈 482·540/230, 아래 눈꺼풀 241, 가슴 511/385, 발 바닥 956 — 남녀 같은 자리)라 칸 크기와 관계없이 같은 곳.
+// 효과 자리는 캔버스 1024 기준 퍼센트(예전 그림체 V5 의 눈 482·540/230, 아래 눈꺼풀 241, 가슴 511/385, 발 바닥 956 — 남녀 같은 자리)라 칸 크기와 관계없이 같은 곳.
+//  (새 그림체 R7 은 얼굴이 더 위·작다 — 모션을 다시 켤 때(MOTIONS_READY) R7 기준점 anchors 로 다시 맞춘다. 지금은 모션이 꺼져 있어 보이지 않는다.)
 // 숨쉬기는 카드마다 박자를 조금씩 어긋나게(kg-b0~4 — 칸이 여럿이어도 한꺼번에 숨쉬지 않게). 동작 줄이기 설정이면 모두 멈춘다(styles.css).
 // 모션 효과: [클래스(첫 낱말 = kg-fx-<이름>), 그림]. 그림은 Codex 효과 그림(2026-10-15 패키지 DJ_MOTION_S1_20261015_BLINK_FX — kiugi/motion/fx_*.png, 256² 투명).
 //  모르는 모션은 효과 없이 숨쉬기만. 울기의 눈물 시작은 우는 눈 그림(<눈>_cry.png)에 있고, 떨어지는 방울만 fx_tear.
@@ -47,6 +48,8 @@ const fxNodes = (list, prefix) => (list || []).map(([cls, name]) => h('span', { 
   h('img', { src: motionDir(prefix) + name + '.png', alt: '', decoding: 'async', draggable: 'false' })));
 // 눈 깜빡임·우는 눈(2026-10-15 Codex 패키지 — kiugi/motion/<원래 눈>_closed.png · _cry.png, 원래 눈과 같은 1024 캔버스·자리):
 //  원래 눈(kg-eye-open)은 그대로 두고 그 뒤에 감은 눈·우는 눈을 같은 자리에 더한다. 한 번에 하나만 보인다(styles.css — 감은 눈이 보일 때 열린 눈은 숨긴다, 덧그리지 않는다).
+//  이 그림(motion/)은 예전 그림체 V5 의 눈이라 새 그림체 R7 의 눈(kiugi/r7/)에는 붙이지 않는다(주소가 kiugi/v5/ 일 때만 — R7 눈은 감은 눈 그림이 아직 없다.
+//   우는 눈은 R7 레벨 표정 판 eyes:cry 로 그림에 있다). 모션을 다시 켤 때(MOTIONS_READY) R7 감은 눈 그림을 받아 여기를 고친다.
 function addEyeStates(svg) {
   const open = svg?.querySelector?.('image[data-step="eyes"]');
   if (!open) return null;

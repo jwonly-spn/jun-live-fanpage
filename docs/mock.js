@@ -19,24 +19,26 @@ const fail = (status, error, extra = {}) => ({ status, json: { error, ...extra }
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const kstDay = (t) => new Date(t + 9 * 3600000).toISOString().slice(0, 10);
 
-// 입은 옷(그림 V5 옷 id = 패키지 pair: outfit_01~05 한벌옷 · top_01~20 상의 · bottom_01~20 하의 · shoe2_01~10 신발 · acc2_01~10 악세사리
-//  — 자리는 머리·얼굴·목·손 중 그 악세사리 자리, 악세11~13(왕관·날개·오라)은 crown·wings·aura 칸, 배경 background_01~10 은 bg 칸 — 남녀 같은 배경). 먼치킨이 올리는 모양 그대로: 한벌옷에 가려진 상의·하의, 왕관에 가려진 머리 장식은 올리지 않는다.
-//  마지막 줄은 예전 판이 올린 자료 흉내 — V4 에서 지운 옷(의상 07·신발 shoe_03·악세사리 accessory_01)과 예전(V2) 배경 id 라 그리지 않는다.
+// 입은 옷(새 그림체 R7 옷 id = 그림 디자인 이름: outfit_01~20 한벌옷 · top_01~20 상의 · bottom_01~20 하의 · shoe_01~20 신발 · hat_01~20 모자 ·
+//  accessory_01~20 악세사리 — 자리(머리·얼굴·목·손)는 그 악세사리 자리, 배경 background_01~10 은 bg 칸 — 남녀 같은 배경). 먼치킨이 올리는 모양 그대로: 한벌옷에 가려진 상의·하의는 올리지 않는다.
+//  밑단이 있는 하의·한벌옷 + 부츠(신발 목 자르기), 모자 + 긴 머리(머리 지우기), 앞머리에 가리는 악세사리가 섞이게.
+//  마지막 줄은 예전 판(먼치킨 0.15.95 이하 — 그림 V5)이 올린 자료 흉내 — R7 에 없는 옷(top_25·shoe2_·acc2_·왕관 칸)과 예전(V2) 배경 id 라 그리지 않는다(bottom_12 는 R7 에도 있어 그 그림으로).
 const OUTFITS = [
-  { top: 'top_17', bottom: 'bottom_19', shoes: 'shoe2_04', face: 'acc2_04', bg: 'background_01', crown: 'acc2_11', wings: 'acc2_12', aura: 'acc2_13' },
-  { outfit: 'outfit_03', shoes: 'shoe2_06', neck: 'acc2_06' },
-  { top: 'top_11', bottom: 'bottom_12', shoes: 'shoe2_03', head: 'acc2_01', hand: 'acc2_10', bg: 'background_05' },
-  { outfit: 'outfit_04', shoes: 'shoe2_02', face: 'acc2_05' },
-  { top: 'top_14', bottom: 'bottom_16', shoes: 'shoe2_08', neck: 'acc2_07', wings: 'acc2_12' },
-  { top: 'top_20', bottom: 'bottom_18', shoes: 'shoe2_10', head: 'acc2_03', bg: 'background_10' },
-  { top: 'top_05', bottom: 'bottom_03', shoes: 'shoe2_06' },
-  {}, { outfit: 'outfit_02', hand: 'acc2_09', shoes: 'shoe2_05' },
-  { top: 'top_12', bottom: 'bottom_15', shoes: 'shoe2_01', head: 'acc2_02' },
-  { outfit: 'outfit_07', shoes: 'shoe_03', head: 'accessory_01', bg: 'halloween-night' },
+  { top: 'top_16', bottom: 'bottom_14', shoes: 'shoe_07', hat: 'hat_09', face: 'accessory_12', bg: 'background_01' },
+  { outfit: 'outfit_16', shoes: 'shoe_17', hat: 'hat_16', neck: 'accessory_16' },
+  { top: 'top_11', bottom: 'bottom_01', shoes: 'shoe_15', head: 'accessory_17', hand: 'accessory_09', bg: 'background_05' },
+  { outfit: 'outfit_10', shoes: 'shoe_11', face: 'accessory_10' },
+  { top: 'top_14', bottom: 'bottom_17', shoes: 'shoe_13', neck: 'accessory_11', hat: 'hat_07' },
+  { top: 'top_20', bottom: 'bottom_18', shoes: 'shoe_18', head: 'accessory_06', bg: 'background_10' },
+  { top: 'top_05', bottom: 'bottom_03', shoes: 'shoe_06' },
+  {}, { outfit: 'outfit_02', hand: 'accessory_08', shoes: 'shoe_05', hat: 'hat_01' },
+  { top: 'top_12', bottom: 'bottom_15', shoes: 'shoe_01', neck: 'accessory_03', hat: 'hat_19' },
+  { top: 'top_25', bottom: 'bottom_12', shoes: 'shoe2_03', head: 'acc2_01', crown: 'acc2_11', bg: 'halloween-night' },
 ];
-// DJ 캐릭터(그림 V3 값: 머리·눈·코·입 번호 1~10). 젤리는 일부러 예전(V2) 값 — 예전 판 먼치킨이 올린 자료도 가장 비슷한 V3 그림으로 그리는지 보려고.
+// DJ 캐릭터(R7 값: 머리 1~10 · 눈·코·입 1~2). 쿠키는 일부러 예전 그림의 눈·코·입 번호(5·5·8 — 예전 판 먼치킨이 올린 자료는 1번으로 그린다),
+//  젤리는 일부러 예전(V2) 값 — 예전 판 먼치킨이 올린 자료도 가장 비슷한 그림으로 그리는지 보려고.
 const DJS = [
-  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: '9', hairColor: 'pink', eyes: '2', nose: '1', mouth: '2' },
+  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: '2', hairColor: 'pink', eyes: '2', nose: '1', mouth: '2' },
     bases: ['밤톨', '사탕요정', '달무리', '먼치팬', '호박꽃', '별사탕', '새벽달', '구름빵', '보름달', '솜사탕', '밤하늘', '유령친구', '마녀수프', '박쥐날개', '꿀호떡', '달빛소나기', '호박등', '사탕유령', '밤톨이네', '작은밤톨', '초코칩'] },
   { slug: 'cuky2345', character: { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '5', mouth: '8' },
     bases: ['귤껍질', '여름밤', '별사탕', '밤톨', '솜사탕', '초코칩'] },
