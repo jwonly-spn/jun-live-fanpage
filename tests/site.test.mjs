@@ -50,8 +50,9 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
     const r = spawnSync(process.execPath, ['--check', docs + f], { encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
   }
-  assert.deepEqual((await readdir(docs + 'views')).sort(), ['cards.js', 'character.js', 'common.js', 'intro.js', 'items.js', 'kiugi.js']);
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-save.js', 'route.js', 'text.js', 'try-on.js']);
+  // 2026-10-18 새 구조: views/feed.js(큰 사진 카드·DJ 동그라미·내 캐릭터) · lib/me.js(내 캐릭터·연속 방문) · lib/raster.js(캐릭터 사진) · lib/swr.js(서버 답 기억)
+  assert.deepEqual((await readdir(docs + 'views')).sort(), ['cards.js', 'character.js', 'common.js', 'feed.js', 'intro.js', 'items.js', 'kiugi.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'text.js', 'try-on.js']);
   for (const f of await siteScripts()) {
     const src = await text(f);
     assert.doesNotMatch(src, /views\/(fan|studio|mobile|story|forms|photos)|lib\/(config|days|device|image|photo|samples)\.js/, f);
@@ -87,19 +88,26 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
   assert.doesNotMatch(intro, /\?demo=1/, '실제 사이트에는 예시 페이지 링크가 없다(2026-10-15)');
   assert.match(intro, /팬페이지 서비스를 마쳤어요/);
   for (const title of ['지금 인기 있는 캐릭터', '새로 꾸민 캐릭터', '이렇게 키워요', '많이 입은 옷 TOP 5', '키우기 중인 DJ', '아이디로 찾기']) assert.ok(intro.includes(title), title);
-  // 메인: 밤하늘 첫 화면(heroSection) 아래 칸 목록 — 찾기 · 인기 · 새로 꾸민 · 이렇게 키워요 · 옷 TOP 5 · DJ · 예시
-  const { LANDING_SECTIONS, EMPTY_POPULAR, HERO_TEXT, heroSection } = await import('../docs/views/intro.js');
+  // 메인(2026-10-18 새 구조): 첫 화면(heroSection — DJ 동그라미 줄 · 글 · 찾기 · 오늘의 주인공) 아래 칸 목록 —
+  //  찾은 결과 · 내 캐릭터와 오늘의 하트 미션 · 둘러보기(탭: 인기 · 새로 꾸민 · DJ별) · 옷 TOP 5 · 이렇게 키워요. 예시 페이지 칸은 2026-10-15 뺐다.
+  const { LANDING_SECTIONS, EMPTY_POPULAR, HERO_TEXT, heroSection, FEED_TABS } = await import('../docs/views/intro.js');
   assert.equal(typeof heroSection, 'function');
-  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['searchSection', 'popularSection', 'recentSection', 'howSection', 'topItemsSection', 'djsSection'], '예시 페이지 칸은 2026-10-15 뺐다');
+  assert.deepEqual(LANDING_SECTIONS.map((f) => f.name), ['searchSection', 'meBlock', 'feedBlock', 'topItemsSection', 'howSection']);
+  assert.deepEqual(FEED_TABS.map((t) => [t.id, t.name]), [['popular', '인기'], ['recent', '새로 꾸민'], ['djs', 'DJ별']]);
+  assert.doesNotMatch(intro, /rail\(|kg-rail/, '화살표로 넘기는 줄은 없앴다');
   assert.match(EMPTY_POPULAR, /첫 하트/);
   assert.match(HERO_TEXT, /하트/);
 });
 
 test('모양: 보안 규칙상 style 속성을 쓰지 않고, 화면 클래스는 styles.css 에 있다', async () => {
   const css = await text('styles.css');
-  // 2026-10-09 두 번째 새 디자인: 방패 문장·하트 이름표 대신 순위 배지(kg-medal)·하트 수(kg-hearts)·옆으로 넘기는 줄(kg-rail)·무대(kg-stage)
-  for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-cast', 'kg-panel', 'kg-card', 'kg-rank-badge', 'kg-medal', 'kg-hearts', 'kg-rail', 'kg-stage', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-podium', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal'])
+  // 2026-10-18 새 구조(SNS): 큰 사진 카드(kg-post · kg-photo · kg-heart-pill · kg-pet-tile · kg-burst) · DJ 동그라미(kg-rings · kg-ring) · 오늘의 주인공(kg-spot) ·
+  //  내 캐릭터(kg-me · kg-me-news · kg-me-cta) · 오늘의 하트 미션(kg-today · kg-mission · kg-streak) · 탭(kg-tabs · kg-tab) · DJ 프로필(kg-profile) · 옆으로 넘겨 보기(kg-swipe)
+  for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-panel', 'kg-medal', 'kg-stage', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal',
+    'kg-post', 'kg-post-media', 'kg-photo', 'kg-heart-pill', 'kg-pet-tile', 'kg-burst', 'kg-rings', 'kg-ring', 'kg-spot', 'kg-me', 'kg-me-news', 'kg-me-cta', 'kg-today', 'kg-mission', 'kg-streak',
+    'kg-tabs', 'kg-tab', 'kg-feed-grid', 'kg-profile', 'kg-swipe', 'kg-pin-btn'])
     assert.match(css, new RegExp(`\\.${cls}[\\s{.:,\\[]`), cls);
+  for (const gone of ['kg-cast', 'kg-rail', 'kg-card', 'kg-podium']) assert.doesNotMatch(css, new RegExp(`\\.${gone}[\\s{.:,\\[-]`), gone + ' 는 없앴다');
   for (const f of await siteScripts()) assert.doesNotMatch(await text(f), /\bstyle:\s*['"`]|setAttribute\(\s*['"]style/, f + ': style 속성 없음');
 });
 

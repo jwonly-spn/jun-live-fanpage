@@ -66,4 +66,15 @@ document.addEventListener('click', (e) => {
 
 // #find 같은 같은 페이지 안 이동은 다시 그리지 않는다(쓰던 찾기 글이 지워지지 않게).
 window.addEventListener('popstate', () => { if (location.pathname + location.search === lastPath) return; render(); });
+
+// 빠르게(2026-10-18): 화면 모듈을 받는 동안 시즌 목록·가벼운 그림 목록·서버 답을 미리 묻는다(화면이 그릴 때 이미 받아 둔 것을 쓴다 — lib/swr.js 가 같은 요청을 하나로 묶는다)
+function warmup(route) {
+  import('./lib/kiugi-draw.js').then((m) => m.loadCatalog(BASE)).catch(() => {});
+  import('./lib/raster.js').then((m) => m.loadLite(BASE)).catch(() => {});
+  import('./api.js').then(({ fastApi }) => {
+    const job = route.name === 'kiugi' ? fastApi.page(route.slug) : route.name === 'character' ? fastApi.person(route.slug, route.base) : route.name === 'intro' ? fastApi.home() : null;
+    job?.fresh.catch(() => {});
+  }).catch(() => {});
+}
+warmup(parseRoute(location.pathname, BASE));
 render();

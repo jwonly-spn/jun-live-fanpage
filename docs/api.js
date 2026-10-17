@@ -1,5 +1,6 @@
 // 서버와 이야기하기(API.md "DJ 키우기 페이지"). 체험 모드(이 PC 미리 보기 — localhost)에서는 mock.js가 대신 답한다.
 // 로그인 없음. 올리는 쪽은 DJ의 먼치킨(봇 프로그램)이고, 사이트는 읽기와 하트 보내기만 한다.
+import { swr, peekCached } from './lib/swr.js';
 
 export const API_KEY = 'sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD';
 // DJ 키우기 서버: 메인·DJ 페이지·캐릭터·찾기·하트
@@ -42,7 +43,7 @@ function qs(query) {
 // 체험 모드에서는 mock.js 가 'kiugi/<길>' 로 받는다.
 async function request(method, path, { query, body, timeout = 20000 } = {}) {
   let status, json;
-  if (isDemo()) {
+  if (demoNow()) {
     ({ status, json } = await (await mock()).handle(method, 'kiugi/' + path, query || {}, body));
   } else {
     const ctl = new AbortController();
@@ -66,6 +67,17 @@ async function request(method, path, { query, body, timeout = 20000 } = {}) {
   return json || {};
 }
 
+// 체험 모드 고르기(이 PC 미리 보기만): 주소에 ?demo=0 을 붙여 열면 이번 탭은 진짜 서버로(다른 화면으로 가도 이어서 — 속도 재기용)
+const LIVE_FLAG = 'kg_live_tab';
+function liveTab() {
+  try {
+    const q = new URLSearchParams(location.search).get('demo');
+    if (q === '0') sessionStorage.setItem(LIVE_FLAG, '1'); else if (q === '1') sessionStorage.removeItem(LIVE_FLAG);
+    return sessionStorage.getItem(LIVE_FLAG) === '1';
+  } catch { return false; }
+}
+const demoNow = () => isDemo() && !liveTab();
+
 // DJ 키우기(로그인 없음)
 export const kiugiApi = {
   page: (slug) => request('GET', 'page', { query: { slug } }),
@@ -74,4 +86,18 @@ export const kiugiApi = {
   home: () => request('GET', 'home'),
   search: (q) => request('GET', 'search', { query: { q } }),
   heart: (slug, id, token) => request('POST', 'heart', { body: { slug, id, token } }),
+};
+
+// 빠른 길(2026-10-18 — lib/swr.js): 지난번 답으로 먼저 그리고 새 답을 받는다. → {cached, age, fresh: Promise}
+//  체험 모드와 진짜 서버의 답은 섞이지 않게 열쇠를 나눈다.
+const scope = () => (demoNow() ? 'demo:' : '');
+const idBase = (id) => String(id ?? '').normalize('NFC').split('#')[0];
+export const fastApi = {
+  home: () => swr(scope() + 'home', () => kiugiApi.home(), { fresh: 20000 }),
+  page: (slug) => swr(`${scope()}page:${slug}`, () => kiugiApi.page(slug), { fresh: 20000 }),
+  person: (slug, id) => swr(`${scope()}person:${slug}/${idBase(id)}`, () => kiugiApi.person(slug, idBase(id)), { fresh: 15000 }),
+  // 받아 둔 것만(서버에 묻지 않는다)
+  peekHome: () => peekCached(scope() + 'home'),
+  peekPage: (slug) => peekCached(`${scope()}page:${slug}`),
+  peekPerson: (slug, id) => peekCached(`${scope()}person:${slug}/${idBase(id)}`),
 };

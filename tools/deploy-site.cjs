@@ -28,6 +28,8 @@ async function gh(route, init = {}) {
 
 (async () => {
   for (const f of ['docs/index.html', 'docs/404.html', 'docs/.nojekyll']) if (!fs.existsSync(path.join(ROOT, f))) throw Error(f + ' 이 없어요.');
+  // 올린 파일이 방문자에게 바로 보이게(2026-10-18): index.html·404.html 에 파일 내용 해시를 붙인 주소·import map 을 다시 찍는다(tools/stamp.cjs)
+  require('./stamp.cjs').stamp();
   if (fs.readFileSync(path.join(ROOT, 'docs/index.html'), 'utf8') !== fs.readFileSync(path.join(ROOT, 'docs/404.html'), 'utf8')) throw Error('404.html 이 index.html 과 달라요.');
   // Never publish secrets that might sit next to the site.
   const risky = spawnSync('cmd', ['/c', 'dir', '/s', '/b', ROOT], {encoding: 'utf8'}).stdout.split(/\r?\n/).filter(p => /(\.pem|\.env|관리자키|secret)/i.test(p));

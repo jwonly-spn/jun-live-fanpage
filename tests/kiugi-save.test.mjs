@@ -437,8 +437,9 @@ test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장�
   assert.match(src, /import \{ saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED \} from '\.\.\/lib\/kiugi-save\.js'/);
   assert.match(src, /pet: buddy \? \{ id: buddy\.id, season: buddy\.season, stage: buddy\.stage \} : null/, '함께하는 펫도 같이 찍는다(2026-10-16)');
   assert.match(src, /hintSaveButton\(saveBtn\)/, '브라우저에서 ?save=1 로 열리면 저장하기를 알려 준다');
-  // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래
-  assert.match(src, /kind: 'hero' \}\),\s*petBuddy\(buddy, app\.base\)\),\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
+  // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래 — 2026-10-18 새 구조: 무대(heroStage = 그림 + 펫)는 같은 모습이면 다시 쓰고, 그 바로 아래 저장하기
+  assert.match(src, /kind: 'hero' \}\),\s*petBuddy\(buddy, app\.base\)\);/, '무대 = 캐릭터 그림 + 함께하는 펫');
+  assert.match(src, /h\('div', \{ class: 'kg-hero-art' \},\s*(\/\/[^\n]*\s*)?heroStage,\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
   assert.match(src, /h\('div', \{ class: 'kg-heart-row' \}, heartBtn,\s*h\('button', \{ type: 'button', class: 'btn btn-line kg-copy-btn', onclick: \(\) => copyLink\(url, copyBox\) \}, icon\('link', \{ size: 18 \}\), '링크 복사'\)\),/, '하트·링크 복사 줄은 예전 그대로(저장 단추를 섞지 않는다)');
   assert.match(src, /expression: look, seasonName: data\.season\?\.name \|\| '', hearts/, '화면과 같은 표정·시즌·지금 하트 수');
   const { saveButton } = await import('../docs/views/character.js');

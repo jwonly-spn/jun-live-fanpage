@@ -13,16 +13,19 @@
 //   (고른 것이 없으면 "!다벗기")을 복사한다. 벗긴 옷은 "가진 옷"이라 다시 골라도 값에 들지 않는다. "원래대로"는 맨몸부터도 끈다.
 //  휴대폰: 미리 보기·채팅 한 줄·탭이 위에 붙어 있고 옷 칸이 아래로. 넓은 화면: 왼쪽에 붙은 미리 보기, 오른쪽에 옷 칸.
 import { h, icon, toast, copyText } from '../lib/dom.js';
-import { kiugiApi } from '../api.js';
+import { kiugiApi, fastApi } from '../api.js';
+import { sameData, peekPreview } from '../lib/swr.js';
+import { observe, snapOf } from '../lib/me.js';
 import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage, motionOf, motionList, motionDoing, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { copyCode, chatHint, titleEffects, itemGroups, motionPriceText } from './items.js';
 import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
-import { heartToken, heartKey, sentToday, markSent } from '../lib/hearts.js';
+import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
-import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy } from './cards.js';
+import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
+import { postCard, pinButton, burstLayer, HEART_ALREADY } from './feed.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
 function browserStorage() { try { return window.localStorage; } catch { return null; } }
@@ -377,17 +380,38 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   return { openBtn, section, open: (opts) => setOpen(true, opts) };
 }
 
+// 캐릭터 페이지(2026-10-18 새 구조 — SNS 프로필, "빠릿빠릿"): 카드를 누르면 그 카드가 이미 아는 것(아이디·레벨·입은 옷·하트·펫·DJ 캐릭터 — lib/swr.js 미리 보기)이나
+//  지난번 답으로 바로 그리고(전신 무대 · 아이디 · 레벨 · 하트 · 입은 옷), 서버 답이 오면(1~2초) 칭호·펫 칸·입혀 보기까지 채운다. 무대 그림은 같은 모습이면 다시 그리지 않는다.
+//  더한 것: "이게 나예요"(내 캐릭터 — 첫 화면에서 매일 달라진 점) · 정보 칸(레벨 · 하트 · 입은 옷 · 펫) · 같은 방송의 다른 캐릭터(큰 카드 — 휴대폰은 옆으로 넘겨 보기) · 무대 두 번 톡톡 = 하트.
 export async function renderCharacter(root, route, app) {
   document.title = BRAND;
-  const night = h('div', { class: 'kg-night' });
-  const main = h('main', { id: 'main', class: 'fp-main kg-main', tabindex: '-1' }, loading());
+  const night = h('div', { class: 'kg-night compact' });
+  const main = h('main', { id: 'main', class: 'fp-main kg-main char-main', tabindex: '-1' }, loading());
   const shell = h('div', { class: 'fp kg-site' }, ...nightTop(app), night, main);
   root.replaceChildren(shell);
   const catalogJob = loadCatalog(app.base).catch(() => buildCatalog([]));
-  let data;
-  try { data = await kiugiApi.person(route.slug, route.base); }
-  catch (e) { main.replaceChildren(missing(e, route, app)); shell.append(siteFoot(app)); return; }
+  const job = fastApi.person(route.slug, route.base);
+  const pre = job.cached || peekPreview(route.slug, route.base);
+  let footed = false;
+  const foot = () => { if (footed) return; footed = true; shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·펫·하트만 보여요. 내 캐릭터는 이 브라우저에만 기억해요.')); };
+  const env = { app, route, night, main, hero: null };
   const catalog = await catalogJob;
+  let shown = null;
+  if (pre?.dj) { shown = pre; paintCharacter(pre, catalog, env, { partial: !job.cached }); foot(); }
+  let data;
+  try { data = await job.fresh; }
+  catch (e) {
+    if (!shown || e.status === 404) { night.replaceChildren(); main.replaceChildren(missing(e, route, app)); foot(); }
+    else env.status?.replaceChildren(h('span', null, '지금은 새 정보를 불러오지 못했어요. 잠시 뒤에 다시 들어와 주세요.'));
+    return;
+  }
+  if (!main.isConnected) return;
+  if (!shown || job.cached === undefined || !sameData(data, shown)) paintCharacter(data, catalog, env, { partial: false });
+  foot();
+}
+
+function paintCharacter(data, catalog, env, { partial = false } = {}) {
+  const { app, route, night, main } = env;
   const dj = data.dj || {}, seasonId = data.season?.id || null;
   const djLink = app.link({ name: 'kiugi', slug: dj.slug });
   const url = location.origin + app.link({ name: 'character', slug: dj.slug, base: route.base });
@@ -403,83 +427,135 @@ export async function renderCharacter(root, route, app) {
   const count = h('b', { class: 'kg-heart-num', 'aria-live': 'polite', 'aria-label': `하트 ${fmtN(hearts)}개` }, fmtN(hearts));
   const setCount = (n) => { hearts = Number(n) || 0; count.textContent = fmtN(n); count.setAttribute('aria-label', `하트 ${fmtN(n)}개`); };
   const status = h('p', { class: 'form-status', role: 'status', 'aria-live': 'polite' });
+  env.status = status;
   const copyBox = h('div', { class: 'kg-copy-box' });
   const heartLabel = h('span', null, HEART_SEND);
   const heartBtn = h('button', { type: 'button', class: 'btn btn-accent kg-heart-btn' }, icon('heart', { size: 20, filled: true }), heartLabel);
   const done = () => { heartBtn.disabled = true; heartLabel.textContent = HEART_SENT; heartBtn.classList.add('sent'); };
+  const undone = () => { heartBtn.disabled = false; heartLabel.textContent = HEART_SEND; heartBtn.classList.remove('sent'); };
   if (sentToday(storage, key)) done();
-  heartBtn.addEventListener('click', async () => {
-    if (heartBtn.disabled) return;
-    heartBtn.disabled = true; status.textContent = '';
-    try {
-      const r = await kiugiApi.heart(dj.slug, data.id, heartToken(storage));
-      setCount(r.hearts);
-      markSent(storage, key);
-      done();
-      if (!r.already) toast('하트를 보냈어요!');
-    } catch (e) { heartBtn.disabled = false; status.textContent = e.message; }
-  });
+  const burst = burstLayer();
+  // 하트: 누르는 즉시 수를 올리고(서버 답이 오면 그 수로), 무대 위로 하트가 퐁 — 실패하면 되돌린다
+  const sendNow = () => {
+    if (heartBtn.disabled && heartBtn.classList.contains('sent')) { toast(HEART_ALREADY); return; }
+    const r = sendHeart({ slug: dj.slug, id: data.id, seasonId, hearts }, { send: kiugiApi.heart, storage });
+    status.textContent = '';
+    if (r.already) { done(); toast(HEART_ALREADY); return; }
+    setCount(r.optimistic); done(); burst.go();
+    r.done.then((res) => {
+      if (!res.ok) { undone(); setCount(res.hearts); status.textContent = res.error?.message || '하트를 보내지 못했어요.'; return; }
+      setCount(res.hearts);
+      document.dispatchEvent(new CustomEvent('kg-heart', { detail: { key, hearts: res.hearts, sent: true, from: heartBtn } }));
+      if (!res.already) toast('하트를 보냈어요!');
+    });
+  };
+  heartBtn.addEventListener('click', sendNow);
 
   const titles = titleList(catalog, data.titles);
   const level = Number(data.level) || 1;
   const look = expressionFor(catalog, seasonId, level), expression = look.name;
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
   // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
-  const pets = petList(catalog, data), buddy = pets.find((p) => p.active) || null;
+  const pets = partial ? [] : petList(catalog, data), buddyCard = partial ? buddyOf(catalog, data.pet) : null;
+  const buddy = pets.find((p) => p.active) || buddyCard || null;
   //  함께하는 펫도 같이 찍는다(2026-10-16 사용자 "펫도 같이 사진 찍게 해 줘")
   const saveBtn = dj.character ? saveButton(() => ({ id: data.id, character: dj.character, worn: data.worn, level, expression: look, seasonName: data.season?.name || '', hearts, pet: buddy ? { id: buddy.id, season: buddy.season, stage: buddy.stage } : null }), { base: app.base }) : null;
   // 앱 안 브라우저에서 "Safari에서 열어 저장하기"로 넘어왔으면(?save=1) 저장하기 단추를 알려 준다
   hintSaveButton(saveBtn);
   // 모션(2026-10-15): 지금 하는 모션(시즌 목록에 있는 것만) — 무대 캐릭터가 그 모션을 하고, 레벨 옆에 "💃 춤추는 중"
   const motion = MOTIONS_READY ? motionOf(catalog, data.motion) : null;
+  const metPets = pets.filter((p) => p.stage > 0).length;
+  // 무대(전신): 같은 모습이면 지난번 그림 칸을 그대로 쓴다(미리 보기 → 서버 답으로 바꿀 때 깜박이지 않게)
+  const heroKey = JSON.stringify([dj.character, data.worn, level, motion?.id || null, buddy ? [buddy.id, buddy.stage] : null]);
+  const reuse = env.hero && env.hero.key === heroKey ? env.hero.node : null;
+  const heroStage = reuse || h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') },
+    art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero' }),
+    petBuddy(buddy, app.base));
+  if (!reuse) { heroStage.append(burst.el); env.hero = { key: heroKey, node: heroStage, go: burst.go }; }
+  else burst.go = env.hero.go;
+  // 무대 두 번 톡톡 = 하트(휴대폰)
+  if (!heroStage.kgTap) { heroStage.kgTap = true; let last = 0; heroStage.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') return; const t = performance.now(); if (t - last < 320) { last = 0; heroStage.kgSend?.(); } else last = t; }); }
+  heroStage.kgSend = sendNow;
+  const pinRow = h('div', { class: 'kg-pin-row' }, pinButton({ slug: dj.slug, id: data.id, djName: dj.name }, { onPin: () => { if (!partial) observe(storage, snapOf(data, { rank: null })); } }));
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },
         h('div', { class: 'kg-hero-art' },
-          // 함께하는 펫이 있으면(has-pet) 캐릭터가 왼쪽으로 조금 비켜 서서 펫이 오른쪽 발치에 선다(styles.css — 펫이 다리를 가리지 않게)
-          h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') },
-            art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero' }),
-            petBuddy(buddy, app.base)),
+          // 함께하는 펫은 캐릭터 오른쪽 발치에 선다(캐릭터는 무대 한가운데 그대로 — 펫이 다리에 겹쳐도 된다, styles.css)
+          heroStage,
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
-          // 단 칭호(먼치킨은 단 칭호 하나만 보낸다): 배지 그림 + "시즌2까지 / 효과…" 줄
-          ...titles.slice(0, 1).map((t) => h('div', { class: 'kg-char-title' },
-            t.image ? h('img', { class: 'kg-char-title-img', src: titleImageUrl(t, app.base), alt: `칭호 ${t.name}`, decoding: 'async' }) : h('b', { class: 'kg-title-word' }, t.name),
-            titleEffects(t))),
           h('h1', { class: 'display kg-char-id' }, ...idText(data.id)),
           h('p', { class: 'kg-char-level' }, h('span', { class: 'kg-lv' }, `Lv.${level}`), h('span', null, expression),
             motion ? h('span', { class: 'kg-motion-chip' }, h('span', { 'aria-hidden': 'true' }, motion.emoji), motionDoing(motion)) : null),
-          h('dl', { class: 'kg-facts' },
+          // 단 칭호(먼치킨은 단 칭호 하나만 보낸다): 배지 그림 + "시즌2까지 / 효과…" 줄 — 아이디 아래(프로필처럼 아이디가 먼저)
+          ...titles.slice(0, 1).map((t) => h('div', { class: 'kg-char-title' },
+            t.image ? h('img', { class: 'kg-char-title-img', src: titleImageUrl(t, app.base), alt: `칭호 ${t.name}`, decoding: 'async' }) : h('b', { class: 'kg-title-word' }, t.name),
+            titleEffects(t))),
+          h('dl', { class: 'kg-facts four' },
+            fact('레벨', `Lv.${level}`),
             fact('하트', count),
             fact('입은 옷', `${worn.length}벌`),
-            fact('시즌', data.season?.name || '—')),
+            fact('펫', partial ? '…' : metPets ? `${metPets}마리` : '—')),
           motionGuide(catalog, seasonId),
           h('div', { class: 'kg-heart-row' }, heartBtn,
             h('button', { type: 'button', class: 'btn btn-line kg-copy-btn', onclick: () => copyLink(url, copyBox) }, icon('link', { size: 18 }), '링크 복사')),
-          h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요. 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
+          pinRow,
+          h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요(휴대폰은 캐릭터를 두 번 톡톡). 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
           status, copyBox))));
-  // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다)
-  const tryOn = tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id });
+  // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다). 서버 답(단 칭호)을 받은 뒤에만.
+  const tryOn = partial ? null : tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id });
   main.replaceChildren(...[
     h('section', { class: 'kg-sec' },
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.', tryOn?.openBtn || null),
-      slots.length
-        ? h('ul', { class: 'kg-worn' }, ...slots.map((w) => {
+      // 입은 옷만 칸으로(그림 · 칸 이름 · 옷 이름 · 번호 복사), 빈 칸은 아래 한 줄로 모은다(2026-10-18 새 구조 — 빈 네모가 많아 어수선하지 않게)
+      worn.length
+        ? h('ul', { class: 'kg-worn' }, ...slots.filter((w) => w.id).map((w) => {
           const code = w.id ? itemCodeOf(catalog, seasonId, w.id) : null;
-          return h('li', { class: 'kg-worn-one' + (w.id ? '' : ' is-empty') },
-            w.id ? itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }) : h('span', { class: 'kg-stage item kg-slot-empty', 'aria-hidden': 'true' }),
-            h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.id ? w.name : w.covered || '비어 있음'),
+          return h('li', { class: 'kg-worn-one' },
+            itemArt(catalog, w.id, { base: app.base, label: w.name, gender, dj: dj.character }),
+            h('span', { class: 'kg-worn-text' }, h('span', { class: 'kg-worn-slot' }, w.slotName), h('b', null, w.name),
               code ? h('button', { type: 'button', class: 'kg-worn-code', title: `${chatHint(code)} 복사`, onclick: () => copyCode(code) }, chatHint(code)) : null));
         }))
-        : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.')),
+        : h('p', { class: 'empty' }, '아직 아무것도 입지 않았어요.'),
+      slots.some((w) => !w.id) ? h('p', { class: 'kg-worn-free' }, h('b', null, '비어 있는 칸'), ' ', slots.filter((w) => !w.id).map((w) => (w.covered ? `${w.slotName}(${w.covered})` : w.slotName)).join(' · ')) : null),
     tryOn?.section,
     petSection(pets, app.base),
+    othersSection(data, catalog, env),
     h('section', { class: 'kg-banner' },
-      h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기의 다른 캐릭터`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),
+      h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),
       ilink(djLink, { class: 'btn btn-line' }, `${dj.name} 키우기 보기`, icon('arrow', { size: 16 })))].filter(Boolean));
-  shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·펫·하트만 보여요.'));
   if (tryOn && location.hash === '#try') tryOn.open({ scroll: false });
+}
+
+// 같은 방송의 다른 캐릭터: DJ 페이지 1~3등 + 메인 인기·새로 꾸민 목록에서 이 방송 것(지난번 답이 있으면 바로, 없으면 받아서). 나는 빼고 여섯까지.
+function othersSection(data, catalog, env) {
+  const dj = data.dj || {}, me = String(data.id).normalize('NFC');
+  const host = h('div', { class: 'kg-others-host' });
+  const ctx = { app: env.app, catalog, seasonId: data.season?.id || null, season: data.season, lookOf: () => dj.character || null, djNameOf: () => dj.name || '' };
+  let shownKey = null;
+  const fill = () => {
+    const page = fastApi.peekPage(dj.slug), home = fastApi.peekHome();
+    const seen = new Set([me]), list = [];
+    for (const p of [...(page?.top || []), ...(home?.popular || []), ...(home?.recent || [])]) {
+      if (p.slug && p.slug !== dj.slug) continue;
+      const id = String(p.id).normalize('NFC');
+      if (seen.has(id)) continue;
+      seen.add(id); list.push({ ...p, slug: dj.slug, djName: dj.name });
+      if (list.length >= 6) break;
+    }
+    const k = JSON.stringify(list.map((c) => [c.id, c.worn, c.level, c.hearts]));
+    if (k === shownKey) return;
+    shownKey = k;
+    host.replaceChildren(...(list.length ? [h('section', { class: 'kg-sec' },
+      secHead(`${dj.name} 키우기의 다른 캐릭터`, '같은 방송에서 키우는 캐릭터예요. 마음에 들면 하트를 보내 보세요.'),
+      h('div', { class: 'kg-swipe' }, ...list.map((c) => postCard(c, ctx, { showDj: false, rank: c.rank && c.rank <= 3 ? c.rank : null }))))] : []));
+  };
+  fill();
+  const a = fastApi.page(dj.slug), b = fastApi.home();
+  Promise.allSettled([a.fresh, b.fresh]).then(() => { if (host.isConnected) fill(); });
+  return host;
 }
 
 function missing(e, route, app) {

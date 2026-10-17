@@ -17,7 +17,10 @@
   --gold: #d9b45e; --silver: #c9ccd3; --bronze: #d29a6c;
   --r-xl: 26px; --r-lg: 20px; --r-md: 14px; --r-sm: 10px;
   --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
-  --wrap: 1200px; --gutter: 16px; --head-h: 56px;
+  --wrap: 1280px; --gutter: 16px; --head-h: 56px;
+  /* 2026-10-18 새 구조: DJ 동그라미 테두리(시즌 호박색 → 장밋빛 → 보랏빛) · 오늘의 주인공 금빛 */
+  --ring: conic-gradient(from 210deg, #f2a65a, #e0607e, #a77bd8, #e0607e, #f2a65a);
+  --gold-ring: linear-gradient(135deg, #f1d58d, #d9b45e 40%, #e0607e);
   --ease: cubic-bezier(.2, .7, .2, 1);
   --shadow-card: 0 1px 1px rgba(33, 27, 40, .04), 0 12px 30px -16px rgba(33, 27, 40, .24);
   --shadow: 0 2px 4px rgba(33, 27, 40, .05), 0 26px 46px -22px rgba(33, 27, 40, .38);
@@ -76,9 +79,6 @@ a { color: inherit; }
 .kg-medal.m1 { background: linear-gradient(160deg, #f1d58d, var(--gold) 60%, #c39a40); border-color: transparent; color: #3a2a06; }
 .kg-medal.m2 { background: linear-gradient(160deg, #eceef2, var(--silver) 60%, #aab0b9); border-color: transparent; color: #262a31; }
 .kg-medal.m3 { background: linear-gradient(160deg, #ecc29e, var(--bronze) 60%, #b37a4d); border-color: transparent; color: #3b1f0a; }
-/* 하트 수 */
-.kg-hearts { display: inline-flex; align-items: center; gap: 4px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
-.kg-hearts svg { flex: none; color: var(--accent); }
 
 /* ---------- 화면 틀: 비공식 한 줄 · 머리줄(위에 붙음) · 첫 화면 · 본문 · 바닥글 ---------- */
 .fp { container-type: inline-size; container-name: fp; min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); color: var(--text); }
@@ -120,8 +120,6 @@ a { color: inherit; }
 
 /* ---------- 첫 화면(시즌 · 제목 · 설명 · 찾기 · 숫자) ---------- */
 .kg-hero { display: grid; gap: 32px; }
-.kg-hero.home { gap: 24px; }
-.kg-hero.home > .kg-hero-stats { margin-top: -2px; }
 .kg-hero-copy { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; min-width: 0; }
 .kg-hero .intro { margin: 0; max-width: 30em; font-size: 16px; line-height: 1.65; color: var(--text-2); }
 .kg-season { margin: 0; display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 6px 0 12px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 253, 250, .75); font-size: 13px; font-weight: 600; color: var(--text); }
@@ -149,28 +147,6 @@ a { color: inherit; }
 .kg-find-status { padding-left: 4px; font-weight: 600; color: var(--text); }
 .kg-found-note:empty { display: none; }
 
-/* 첫 화면 무대: 인기 1~3등(1등은 가운데에 크게 · 2·3등은 양옆에 조금 작게 — 캐릭터끼리 겹치지 않게 칸만 겹친다).
-   스튜디오 벽(연보랏빛) + 1등 뒤 둥근 빛 + 바닥 띠. 입은 배경은 빼고 그린다(intro.js — 셋이 겹쳐 서는 무대라). */
-.kg-cast-wrap { position: relative; isolation: isolate; overflow: hidden; border-radius: 32px; box-shadow: var(--shadow-card);
-  background: radial-gradient(34% 38% at 50% 36%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%), linear-gradient(180deg, #efe9f3 0%, #e6deec 58%, #dad1e1 78%, #d3c9da 100%); }
-/* 바닥(뒤 벽과 바닥이 만나는 띠) */
-.kg-cast-wrap::before { content: ""; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0; height: 24%; background: linear-gradient(180deg, rgba(255, 255, 255, .22), rgba(150, 132, 168, .14)); }
-.kg-cast { display: flex; justify-content: center; align-items: flex-end; padding: 18px 0 0; min-height: 240px; }
-.kg-cast:empty { min-height: 320px; }
-.kg-cast-one { position: relative; display: block; flex: none; width: 44%; color: inherit; transition: transform .35s var(--ease); }
-.kg-cast-one.lead { order: 2; width: 62%; margin: 0 -25%; z-index: 2; }
-.kg-cast-one.left { order: 1; }
-.kg-cast-one.right { order: 3; }
-/* 2·3등은 조금 뒤에 선 느낌(옅게) */
-.kg-cast-one:not(.lead) svg { filter: saturate(.86) brightness(.97); opacity: .94; }
-.kg-cast-one:hover { transform: translateY(-4px); }
-.kg-cast-one:focus-visible { outline-offset: -2px; border-radius: 16px; }
-.kg-cast-caption { display: flex; justify-content: center; padding: 4px 12px 18px; min-height: 18px; }
-.kg-cast-caption:empty { padding: 0 0 18px; }
-.kg-cast-tag { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; max-width: 100%; padding: 0 14px 0 9px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 253, 250, .88); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); box-shadow: 0 10px 24px -16px rgba(33, 27, 40, .45); color: var(--text); font-weight: 700; font-size: 14px; text-decoration: none; transition: background-color .2s ease; }
-.kg-cast-tag:hover { background: #fff; }
-.kg-cast-tag > svg:last-child { flex: none; color: var(--text-2); }
-.kg-cast-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 /* ---------- 무대(캐릭터·옷 그림 칸) ---------- */
 /* 캐릭터 그림은 1024 정사각형 한가운데 세로로 서 있다(R7: 머리끝 y 62 · 가장 높은 모자 y 19 · 발끝 y 960~976, 가로 350~698).
@@ -186,11 +162,7 @@ a { color: inherit; }
    남자와 자연스러운 키 차이(약 93%)가 나게 한다. 발바닥 선(여자 974 · 남자 960 / 1024)을 같게 — 여자 발바닥을 기준으로 줄이고 14px 올린다.
    (transform 대신 scale·translate 속성 — 카드에 올렸을 때 커지는 효과(.kg-actor transform)·모션 애니메이션과 겹치지 않게) */
 .kg-actor.is-f > .kg-body { transform-origin: 50% 95.117%; scale: .91; translate: 0 -1.367%; }
-/* 메인·목록 카드(2026-10-18 사용자 "메인에선 종아리 위부터 — 실제 사진 찍은 것처럼, 클릭하면 전신"): 머리끝~종아리 가운데(1024 캔버스 x 248~776 · y 8~800)를
-   2:3 카드에 꽉 채운다(발은 칸 밖 — 발밑 그림자 없음). 캐릭터 페이지(.kg-hero-stage)·입혀 보기는 전신 그대로. */
-.kg-card-media .kg-stage.char > svg, .kg-card-media .kg-stage.char > .kg-actor,
-.kg-cast-one .kg-stage.char > svg, .kg-cast-one .kg-stage.char > .kg-actor { width: 193.9394%; height: 129.2929%; left: -46.9697%; top: -1.0101%; }
-.kg-card-media .kg-stage.char::after, .kg-cast-one .kg-stage.char::after { display: none; }
+/* 메인·목록 카드의 칸 자르기(머리 조금 위~허벅지 가운데)는 아래 "새 구조"의 사진 칸(.kg-photo — lib/raster.js)이 한다. 캐릭터 페이지(.kg-hero-stage)·입혀 보기는 전신 그대로. */
 .kg-stage.bare { background: none; overflow: visible; }
 .kg-stage.bare::after { left: 24%; right: 24%; bottom: 1.4%; height: 5%; background: radial-gradient(closest-side, rgba(58, 44, 72, .34), rgba(58, 44, 72, 0)); }
 .kg-stage.dj { background: radial-gradient(60% 40% at 50% 26%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%), linear-gradient(180deg, #f1ebe4 0%, #e7dfd6 62%, #dcd2c7 100%); }
@@ -376,47 +348,11 @@ a { color: inherit; }
 
 /* 옆으로 넘기는 줄(페이지는 옆으로 움직이지 않는다) — 휴대폰은 큰 카드 한 장 반, 넓은 화면은 네 장씩 */
 /* 카드 칸 크기(2026-10-18 사용자 "캐릭터가 더 잘 보이게 사진 칸 하나하나를 키워 달라"): 휴대폰 한 장(옆 카드가 조금 보임) · 태블릿 2장 · PC 3장 */
-.kg-rail { display: grid; grid-auto-flow: column; grid-auto-columns: 84%; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); margin: 0 calc(-1 * var(--gutter)); padding: 6px var(--gutter) 18px; scrollbar-width: none;
-  /* 넓은 화면에서도 줄이 화면 끝까지 이어진다(첫 카드는 본문 줄에 맞춤). --bleed = 본문 바깥 여백. cqw 를 모르는 브라우저는 위 값 */
-  --bleed: max(var(--gutter), calc((100cqw - var(--wrap)) / 2 + var(--gutter)));
-  margin-inline: calc(-1 * var(--bleed)); padding-inline: var(--bleed); scroll-padding-inline: var(--bleed); }
-.kg-rail::-webkit-scrollbar { display: none; }
-.kg-rail.sm { grid-auto-columns: 84%; gap: 12px; }
-.kg-rail-item { min-width: 0; scroll-snap-align: start; }
-.kg-rail-ctl { display: none; flex: none; gap: 8px; }
-.kg-rail-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-2); border-radius: 50%; background: var(--paper); color: var(--text); transition: background-color .2s ease, opacity .2s ease; }
-.kg-rail-btn:hover:not(:disabled) { background: #fff; border-color: rgba(42, 32, 50, .3); }
-.kg-rail-btn:disabled { opacity: .35; }
 
 /* 캐릭터 카드(포토카드): 흰 테두리 안에 위 그림 칸(스튜디오 무대 또는 입은 배경 장면) + 아래 글 세 줄(어느 방송 · 아이디 · 레벨과 하트) */
-.kg-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px 12px; }
-.kg-grid:empty { display: none; }
-.kg-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 7px 7px 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow-card); color: inherit; text-decoration: none; transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .25s ease; }
-.kg-card-media { position: relative; isolation: isolate; overflow: hidden; border-radius: 14px; transform: translateZ(0); }
-.kg-card-media .kg-stage > svg, .kg-card-media .kg-stage > .kg-actor { transition: transform .6s var(--ease); }
-.kg-card:hover { transform: translateY(-4px); border-color: var(--line-2); box-shadow: var(--shadow); }
-.kg-card:hover .kg-card-media .kg-stage > svg, .kg-card:hover .kg-card-media .kg-stage > .kg-actor { transform: scale(1.035); }
-.kg-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
-.kg-rank-badge { position: absolute; z-index: 3; top: 9px; left: 9px; }
-.kg-card-info { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 0 5px; }
-.kg-card-dj { font-size: 12px; font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kg-card-dj.accent, .kg-item-sub.accent { color: var(--accent-text); }
-.kg-card-id { font-size: 16px; font-weight: 800; line-height: 1.35; letter-spacing: -.035em; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kg-item-sub.accent { color: var(--accent-text); }
 .kg-id-tag { margin-left: 1px; font-weight: 500; font-size: .8em; letter-spacing: -.01em; color: var(--text-3); }
-.kg-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 12.5px; color: var(--text-2); }
-.kg-card-lv { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kg-card-lv b { display: inline-block; margin-right: 2px; padding: 1px 7px; border-radius: 999px; background: rgba(42, 32, 50, .07); font-size: 11.5px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
-.kg-card-go { display: inline-grid; place-items: center; color: var(--text-2); transition: transform .25s var(--ease), color .2s ease; }
-.kg-card:hover .kg-card-go { color: var(--text); transform: translateX(3px); }
 /* DJ 카드: 가로로 긴 칸(그림 왼쪽 · 글 오른쪽) — DJ가 몇 명이든 줄이 비어 보이지 않게 */
-.kg-djs { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-.kg-dj { flex-direction: row; align-items: center; gap: 18px; padding: 8px 18px 8px 8px; border-radius: var(--r-xl); }
-.kg-dj:hover { transform: translateY(-2px); }
-.kg-dj .kg-card-media { flex: none; width: 30%; max-width: 120px; border-radius: 16px; }
-.kg-dj:hover .kg-card-media .kg-stage > svg, .kg-dj:hover .kg-card-media .kg-stage > .kg-actor { transform: none; }
-.kg-dj .kg-card-info { flex: 1; gap: 2px; }
-.kg-dj .kg-card-id { font-size: 19px; }
-.kg-dj .kg-card-meta { margin-top: 6px; font-size: 14px; }
 
 /* 이렇게 키워요 */
 .kg-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
@@ -455,25 +391,6 @@ a { color: inherit; }
 .kg-banner-text p { margin: 0; font-size: 14px; color: var(--text-2); }
 
 /* ---------- DJ 키우기 페이지: 찾기 결과 · 1~3등 ---------- */
-.kg-results { display: flex; flex-direction: column; gap: 8px; }
-.kg-results:empty { display: none; }
-.kg-result { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 6px 14px 6px 6px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--panel); color: inherit; text-decoration: none; transition: background-color .2s ease, border-color .2s ease; }
-.kg-result:hover { background: #fff; border-color: var(--line-2); }
-.kg-result.found { border-color: rgba(195, 61, 96, .45); background: #fff; }
-.kg-result .kg-stage { border-radius: 12px; }
-.kg-result-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.kg-result-text b { font-size: 16px; font-weight: 800; letter-spacing: -.03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.kg-result-rank { margin-right: 8px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
-.kg-result-sub { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 12px; font-size: 13px; color: var(--text-2); }
-.kg-result-go { display: grid; place-items: center; color: var(--text-2); }
-.kg-podium { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
-.kg-podium-one { display: flex; min-width: 0; }
-.kg-podium-one > .kg-card { flex: 1 1 auto; min-width: 0; }
-.kg-podium-one.p1 { grid-column: 1 / -1; }
-.kg-podium-one.p1 .kg-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 16px; }
-.kg-podium-one.p1 .kg-card-info { padding-bottom: 6px; }
-.kg-podium-one.p1 .kg-card-id { font-size: 22px; white-space: normal; }
-.kg-podium-one.p1 .kg-card-meta { flex-direction: column; align-items: flex-start; gap: 6px; }
 
 /* ---------- DJ 키우기 페이지 첫 화면: 휴대폰은 제목 옆에 DJ 캐릭터, 넓은 화면은 오른쪽에 크게 ---------- */
 .kg-hero.dj { grid-template-columns: minmax(0, 1fr) 42%; grid-template-areas: "badge badge" "copy art" "stats stats"; column-gap: 14px; row-gap: 22px; align-items: center; }
@@ -530,14 +447,8 @@ a { color: inherit; }
 .kg-pet-buddy.bare { margin-bottom: calc(var(--pw) * var(--ps) * -.08); }
 .kg-pet-buddy.bare .kg-pet-img { filter: drop-shadow(0 5px 5px rgba(58, 44, 72, .26)); }
 .kg-pet-buddy.bare .kg-pet-emoji { width: 40px; height: 40px; margin-bottom: 4px; font-size: 24px; }
-.kg-card-media .kg-pet-buddy { --ps: 1; --pe: 2%; }
 /* 첫 화면 무대: 1등의 펫은 오른쪽 발치 앞, 2·3등의 펫은 바깥쪽 발치(조금 작게) */
 /*  첫 화면 무대의 캐릭터는 비켜 서지 않는다(셋이 나란히 — 펫은 캐릭터 사이·바깥 빈 곳에) */
-.kg-cast-one.has-pet > .kg-stage.char::after { left: 24%; right: 24%; }
-.kg-cast-one .kg-pet-buddy { --ps: .74; --pe: 2%; }
-.kg-cast-one.lead .kg-pet-buddy { --ps: .7; --pe: 10%; }
-.kg-cast-one.left .kg-pet-buddy { right: auto; left: calc(var(--pe) - var(--pw) * var(--ps) * var(--pm)); }
-.kg-cast-one:not(.lead) .kg-pet-img { filter: saturate(.86) brightness(.97) drop-shadow(0 5px 5px rgba(58, 44, 72, .26)); }
 .kg-pets { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
 .kg-pet { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 10px 6px 12px; border: 1px solid var(--line); border-radius: var(--r-md); background: var(--paper); box-shadow: var(--shadow-card); text-align: center; }
 .kg-pet-frame { display: grid; place-items: end center; width: 100%; max-width: 120px; aspect-ratio: 1 / 1; }
@@ -725,6 +636,306 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-item.reward { border-color: rgba(212, 118, 42, .3); }
 .kg-item.reward .kg-stage { background: radial-gradient(70% 60% at 50% 45%, rgba(212, 118, 42, .14), transparent 72%), var(--stage); }
 
+/* ==========================================================================
+   2026-10-18 사이트 새 구조(SNS 처럼 — 사용자 "화살표 넘기기 말고 · 매일 들어와 내 캐릭터를 확인하고 싶게 · 빠릿빠릿 · 큰 게임 회사처럼"):
+   DJ 동그라미 줄 · 오늘의 주인공 · 내 캐릭터(지난 방문 뒤 달라진 것) · 오늘의 하트 미션 · 탭(인기 · 새로 꾸민 · DJ별) + 큰 사진 카드.
+   카드 칸은 크게(사용자 "사진 칸 하나하나를 키워 달라"): 휴대폰 한 장 · 태블릿 두 장 · PC 세 장(칸 너비 360px 이상), 사진은 2:3 —
+   캐릭터는 머리 조금 위~허벅지 가운데(lib/raster.js photo — 캔버스로 한 번 그려 기억한 그림, 화면은 그림 한 장만 보여 준다). 펫은 왼쪽 아래 작은 칸.
+   ========================================================================== */
+/* 사진 칸(lib/raster.js photoBox): 그리기 전에도 같은 크기(화면이 밀리지 않게) · 그리는 동안 옅게 반짝 · 다 그리면 살짝 나타남 */
+.kg-photo { position: absolute; inset: 0; overflow: hidden; background: var(--stage); }
+.kg-photo > img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .32s ease, transform .6s var(--ease); -webkit-user-drag: none; user-select: none; }
+.kg-photo.is-ready > img { opacity: 1; }
+.kg-photo.was-cached > img { transition: transform .6s var(--ease); }
+.kg-photo::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.5s ease-in-out infinite; pointer-events: none; }
+.kg-photo.is-ready::before, .kg-photo.is-empty::before, .kg-photo.is-failed::before { display: none; }
+@keyframes kg-shine { 0% { background-position: 120% 0; } 100% { background-position: -120% 0; } }
+/* 캔버스로 못 그릴 때(예전 브라우저)의 SVG 그림도 같은 칸 자르기: 1024 캔버스 x 309~715 · y 4~613 */
+.kg-stage.char.photo-cut { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; }
+.kg-stage.char.photo-cut > svg, .kg-stage.char.photo-cut > .kg-actor { width: 252.2167%; height: 168.1445%; left: -76.1084%; top: -.6568%; }
+.kg-stage.char.photo-cut::after { display: none; }
+
+/* ---------- 큰 사진 카드(views/feed.js postCard) ---------- */
+.kg-post { position: relative; display: flex; flex-direction: column; min-width: 0; padding: 7px; border-radius: 28px; background: var(--paper); box-shadow: 0 1px 1px rgba(33, 27, 40, .04), 0 18px 40px -24px rgba(33, 27, 40, .38); transition: transform .4s var(--ease), box-shadow .4s var(--ease); }
+.kg-post-media { position: relative; isolation: isolate; overflow: hidden; aspect-ratio: 2 / 3; border-radius: 22px; background: var(--stage); transform: translateZ(0); touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.kg-post-media::after { content: ""; position: absolute; inset: 0; z-index: 2; border-radius: inherit; box-shadow: inset 0 0 0 1px rgba(33, 27, 40, .06); pointer-events: none; }
+.kg-post-cover { position: absolute; inset: 0; z-index: 4; -webkit-tap-highlight-color: transparent; }
+.kg-post-rank { position: absolute; z-index: 5; top: 14px; left: 14px; min-width: 36px; height: 36px; font-size: 15px; pointer-events: none; box-shadow: 0 6px 16px -6px rgba(33, 27, 40, .45); }
+.kg-post-tag { position: absolute; z-index: 5; top: 14px; left: 14px; padding: 6px 12px; border-radius: 999px; background: rgba(33, 27, 40, .62); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: #fff; font-size: 12.5px; font-weight: 700; letter-spacing: -.01em; pointer-events: none; }
+.kg-post-rank + .kg-post-tag { left: 58px; }
+/* 펫 칸(왼쪽 아래): 흰 유리 칸에 펫의 보이는 곳만 맞춰 담은 그림(lib/raster.js petTile — 단계가 달라도 꽉 차게) */
+.kg-pet-tile { position: absolute; z-index: 5; left: 14px; bottom: 14px; width: 24%; min-width: 64px; max-width: 96px; aspect-ratio: 1 / 1; border-radius: 20px; overflow: hidden; background: radial-gradient(80% 70% at 50% 40%, rgba(255, 255, 255, .96), rgba(246, 240, 248, .9)); border: 1px solid rgba(255, 255, 255, .8); box-shadow: 0 10px 24px -12px rgba(33, 27, 40, .55); pointer-events: none; }
+.kg-pet-tile > img { display: block; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .3s ease; }
+.kg-pet-tile.is-ready > img { opacity: 1; }
+.kg-pet-tile.is-raw > img { object-fit: cover; }
+.kg-pet-tile::after { content: ""; position: absolute; left: 50%; bottom: 6px; translate: -50% 0; width: 26px; height: 4px; border-radius: 4px; background: var(--season); opacity: .0; }
+.kg-pet-tile.st4, .kg-pet-tile.st5 { border-color: rgba(241, 213, 141, .9); box-shadow: 0 0 0 2px rgba(217, 180, 94, .55), 0 10px 24px -12px rgba(33, 27, 40, .55); }
+/* 하트 터지기(두 번 톡톡 · 하트 단추) */
+.kg-burst { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; pointer-events: none; color: #fff; }
+.kg-burst > svg { grid-area: 1 / 1; width: 30%; height: auto; opacity: 0; filter: drop-shadow(0 8px 20px rgba(195, 61, 96, .55)); }
+.kg-burst > i { grid-area: 1 / 1; width: 12px; height: 12px; border-radius: 50%; background: #ff8fb1; opacity: 0; }
+.kg-burst.go > svg { animation: kg-burst-heart .8s cubic-bezier(.2, .9, .3, 1.2) both; }
+.kg-burst.go > i { animation: kg-burst-dot .7s ease-out both; }
+.kg-burst > i.p2 { background: #ffd36e; } .kg-burst > i.p4 { background: #fff; } .kg-burst > i.p6 { background: #c9a6ff; }
+.kg-burst.go > i.p1 { --kx: 0; --ky: -120px; } .kg-burst.go > i.p2 { --kx: 104px; --ky: -60px; } .kg-burst.go > i.p3 { --kx: 104px; --ky: 60px; }
+.kg-burst.go > i.p4 { --kx: 0; --ky: 120px; } .kg-burst.go > i.p5 { --kx: -104px; --ky: 60px; } .kg-burst.go > i.p6 { --kx: -104px; --ky: -60px; }
+@keyframes kg-burst-heart { 0% { opacity: 0; transform: scale(.2); } 25% { opacity: 1; transform: scale(1.15); } 45% { transform: scale(.95); } 70% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.08) translateY(-10px); } }
+@keyframes kg-burst-dot { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--kx), var(--ky)) scale(.9); } }
+/* 아래 줄: 아이디(크게) · Lv · 표정 · 어느 방송 …… 하트 단추 */
+.kg-post-bar { display: flex; align-items: center; gap: 12px; min-height: 66px; padding: 10px 6px 5px 10px; }
+.kg-post-who { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 4px; color: inherit; text-decoration: none; }
+.kg-post-who:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 10px; }
+.kg-post-id { font-size: 21px; font-weight: 800; line-height: 1.2; letter-spacing: -.045em; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kg-post-id .kg-id-tag { font-size: .66em; }
+.kg-post-sub { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text-2); white-space: nowrap; overflow: hidden; }
+.kg-post-sub .kg-lv { padding: 2px 8px; font-size: 12px; }
+.kg-post-expr { flex: none; }
+.kg-post-dj { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--text-3); }
+.kg-post-dj::before { content: "·"; margin-right: 7px; color: var(--text-3); }
+.kg-post-more { padding: 4px 4px 4px; }
+.kg-post-more .kg-pin-btn { width: 100%; }
+/* 하트 단추: 보내기 전엔 테두리 하트, 보낸 뒤엔 채운 장밋빛 하트(누르는 순간 통) */
+.kg-heart-pill { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 64px; min-height: 46px; padding: 0 16px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--paper); color: var(--text); font-weight: 800; font-size: 15px; font-variant-numeric: tabular-nums; line-height: 1; transition: background-color .2s ease, border-color .2s ease, color .2s ease, transform .15s ease; -webkit-tap-highlight-color: transparent; }
+.kg-heart-pill svg { flex: none; color: var(--accent); fill: none; stroke-width: 2.1; transition: fill .2s ease; }
+.kg-heart-pill:hover { border-color: rgba(195, 61, 96, .45); }
+.kg-heart-pill:active { transform: scale(.94); }
+.kg-heart-pill.is-sent { border-color: transparent; background: var(--accent-soft); color: var(--accent-text); }
+.kg-heart-pill.is-sent svg { fill: currentColor; color: var(--accent); }
+.kg-heart-pill.pop svg { animation: kg-pop .5s cubic-bezier(.2, .9, .3, 1.4); }
+.kg-heart-pill.nudge { animation: kg-nudge .4s ease; }
+.kg-heart-pill.big { min-height: 52px; padding: 0 20px; font-size: 16px; }
+@keyframes kg-pop { 0% { transform: scale(1); } 35% { transform: scale(1.45); } 60% { transform: scale(.9); } 100% { transform: scale(1); } }
+@keyframes kg-nudge { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+@media (hover: hover) {
+  .kg-post:hover { transform: translateY(-4px); box-shadow: 0 1px 1px rgba(33, 27, 40, .04), 0 28px 50px -26px rgba(33, 27, 40, .48); }
+  .kg-post:hover .kg-photo > img { transform: scale(1.025); }
+}
+.kg-post-media:active .kg-photo > img { transform: scale(.985); transition-duration: .15s; }
+/* 오늘의 주인공(스포트라이트): 금빛 테두리 · 조금 더 큰 글 */
+.kg-post.spot { border: 2px solid transparent; background: linear-gradient(var(--paper), var(--paper)) padding-box, var(--gold-ring) border-box; padding: 6px; }
+.kg-post.spot .kg-post-id { font-size: 26px; }
+.kg-spot { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.kg-spot-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 4px; }
+.kg-spot-eyebrow { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; border-radius: 999px; background: linear-gradient(135deg, #f6e2a8, #efc9d2); color: #5a3a12; font-size: 13px; font-weight: 800; letter-spacing: -.01em; }
+.kg-spot-why { font-size: 13px; font-weight: 600; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.kg-spot.is-skeleton .kg-post-bar { min-height: 70px; }
+/* 그리기 전 자리(같은 크기) */
+.kg-post.is-skeleton .kg-post-media::before { content: ""; position: absolute; inset: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .55) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.5s ease-in-out infinite; }
+
+/* ---------- 첫 화면(메인) ---------- */
+.kg-top { display: flex; flex-direction: column; gap: 22px; }
+.kg-night { padding-top: 14px; }
+/* DJ 동그라미 줄: 손가락으로 옆으로(화살표 없음). 맨 앞은 내 캐릭터. 오늘 본 DJ 는 옅은 테두리 */
+.kg-ring-host { min-height: 112px; }
+.kg-rings ul { list-style: none; display: flex; gap: 6px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 6px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
+.kg-rings ul::-webkit-scrollbar { display: none; }
+.kg-rings li { flex: none; scroll-snap-align: start; }
+.kg-ring { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 82px; padding: 2px 0; border: 0; background: none; color: var(--text); font: inherit; text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.kg-ring-pic { position: relative; display: block; width: 74px; height: 74px; border-radius: 50%; background: var(--ring); transition: transform .25s var(--ease); }
+.kg-ring-pic > .kg-photo { inset: 3px; border-radius: 50%; border: 3px solid var(--bg); }
+.kg-ring-pic.plain { display: grid; place-items: center; background: var(--paper); color: var(--text-2); box-shadow: inset 0 0 0 2px var(--line-2); }
+.kg-ring.is-add .kg-ring-pic.plain { box-shadow: none; border: 2px dashed rgba(42, 32, 50, .28); color: var(--text); }
+.kg-ring.is-add:hover .kg-ring-pic.plain { border-color: var(--accent); color: var(--accent); }
+.kg-ring.is-me .kg-ring-pic { background: linear-gradient(135deg, var(--ink), #6b5a7b); }
+.kg-ring.is-me.has-news .kg-ring-pic { background: var(--ring); }
+.kg-ring.is-seen .kg-ring-pic { background: var(--line-2); }
+.kg-ring-badge { position: absolute; right: -2px; top: -2px; min-width: 24px; height: 24px; padding: 0 7px; border-radius: 999px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 800; line-height: 24px; text-align: center; box-shadow: 0 0 0 3px var(--bg); font-variant-numeric: tabular-nums; }
+.kg-ring-name { max-width: 100%; font-size: 13px; font-weight: 700; line-height: 1.2; letter-spacing: -.02em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kg-ring-sub { margin-top: -4px; font-size: 11.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.kg-ring:hover .kg-ring-pic, .kg-ring:focus-visible .kg-ring-pic { transform: scale(1.05); }
+.kg-ring:active .kg-ring-pic { transform: scale(.95); }
+.kg-ring:focus-visible { outline: none; }
+.kg-ring:focus-visible .kg-ring-name { text-decoration: underline; }
+.kg-rings.is-skeleton .kg-ring-pic { background: var(--panel-3); animation: kg-breath 1.4s ease-in-out infinite; }
+.kg-rings.is-skeleton .kg-ring-name { width: 44px; height: 12px; border-radius: 6px; background: var(--panel-3); }
+@keyframes kg-breath { 50% { opacity: .55; } }
+/* 내 캐릭터 새 소식 한 줄(동그라미 줄 아래) */
+.kg-me-ping { margin-top: -10px; }
+.kg-me-ping-link { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-weight: 700; font-size: 14px; text-decoration: none; animation: kg-rise .5s var(--ease) both; }
+.kg-me-ping-link:hover { background: rgba(195, 61, 96, .16); }
+/* 첫 화면: 휴대폰은 글 · 찾기 → 오늘의 주인공, 넓은 화면은 왼쪽 글 · 오른쪽 오늘의 주인공 */
+.kg-hero.home { display: block; }
+.kg-hero.home .kg-hero-copy { gap: 14px; }
+.kg-hero.home .display { font-size: clamp(34px, 9vw, 64px); }
+.kg-hero.home .kg-hero-stats { margin-top: 4px; }
+.kg-spot-host { min-width: 0; }
+.kg-spot-host:empty { display: none; }
+
+/* 찾은 결과 · 둘러보기 칸: 큰 카드 — 휴대폰 한 장 · 태블릿 두 장 · PC 세 장 */
+.kg-feed-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
+.kg-feed-grid:empty { display: none; }
+
+/* 메인 칸 사이 간격(피드처럼 촘촘히) */
+.fp-main.intro-main { gap: 40px; }
+/* 내 캐릭터 + 오늘의 하트 미션 */
+.kg-daily { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.kg-me-slot:empty { display: none; }
+.kg-me { display: flex; flex-direction: column; gap: 14px; min-width: 0; scroll-margin-top: calc(var(--head-h) + 16px); animation: kg-rise .6s var(--ease) both; }
+.kg-me-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
+.kg-me-change { flex: none; min-height: 40px; padding: 0 4px; border: 0; background: none; color: var(--text-2); font-weight: 600; font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--line-2); }
+.kg-me-change:hover { color: var(--text); }
+.kg-me-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+.kg-me-news { position: relative; isolation: isolate; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 20px; border-radius: 26px; background: var(--paper); box-shadow: var(--shadow-card); }
+.kg-me-news.is-up { background: radial-gradient(120% 90% at 100% 0%, rgba(224, 96, 126, .16), transparent 60%), radial-gradient(90% 80% at 0% 100%, rgba(167, 123, 216, .14), transparent 60%), var(--paper); }
+.kg-me-news.is-loading .kg-me-news-title { color: var(--text-2); font-weight: 600; font-size: 15px; animation: kg-breath 1.4s ease-in-out infinite; }
+.kg-me-news-title { font-size: 20px; font-weight: 800; letter-spacing: -.04em; line-height: 1.3; }
+.kg-me-news p { margin: -4px 0 0; font-size: 14px; line-height: 1.6; color: var(--text-2); }
+.kg-news { list-style: none; margin: 2px 0 4px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.kg-news li { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding: 10px 14px 10px 12px; border-radius: 16px; background: var(--bg); border-left: 4px solid var(--ink); animation: kg-rise .5s var(--ease) both; }
+.kg-news li:nth-child(2) { animation-delay: .06s; } .kg-news li:nth-child(3) { animation-delay: .12s; } .kg-news li:nth-child(4) { animation-delay: .18s; } .kg-news li:nth-child(5) { animation-delay: .24s; }
+.kg-news li b { font-size: 16px; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.kg-news li small { font-size: 12.5px; color: var(--text-2); }
+.kg-news li.kg-news-hearts { border-left-color: var(--accent); }
+.kg-news li.kg-news-hearts b { color: var(--accent-text); }
+.kg-news li.kg-news-level { border-left-color: #8b6bd1; }
+.kg-news li.kg-news-rank { border-left-color: var(--gold); }
+.kg-news li.kg-news-pet { border-left-color: var(--season); }
+.kg-news li.kg-news-title { border-left-color: #d9a441; }
+.kg-me-go { min-height: 44px; margin-top: 2px; font-size: 14px; }
+/* 자랐을 때 축하 조각(한 번만 떨어진다) */
+.kg-confetti { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.kg-confetti i { position: absolute; top: -12px; width: 8px; height: 14px; border-radius: 2px; opacity: 0; animation: kg-fall 1.6s ease-in both; }
+.kg-confetti .c1 { left: 8%; background: #f2a65a; } .kg-confetti .c2 { left: 20%; background: #e0607e; animation-delay: .1s; } .kg-confetti .c3 { left: 34%; background: #a77bd8; animation-delay: .25s; }
+.kg-confetti .c4 { left: 48%; background: #ffd36e; animation-delay: .05s; } .kg-confetti .c5 { left: 62%; background: #e0607e; animation-delay: .3s; } .kg-confetti .c6 { left: 74%; background: #8dcdee; animation-delay: .15s; }
+.kg-confetti .c7 { left: 86%; background: #f2a65a; animation-delay: .35s; } .kg-confetti .c8 { left: 94%; background: #a77bd8; animation-delay: .2s; }
+@keyframes kg-fall { 0% { opacity: 0; transform: translateY(0) rotate(0deg); } 10% { opacity: 1; } 100% { opacity: 0; transform: translateY(260px) rotate(320deg); } }
+/* 내 캐릭터를 정하지 않았을 때 */
+.kg-me-cta { display: grid; grid-template-columns: 48px minmax(0, 1fr); align-items: center; gap: 4px 14px; padding: 18px 18px 18px 16px; border-radius: 26px; background: radial-gradient(90% 120% at 100% 0%, rgba(167, 123, 216, .16), transparent 62%), var(--paper); box-shadow: var(--shadow-card); scroll-margin-top: calc(var(--head-h) + 16px); }
+.kg-me-cta-ic { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; background: var(--ink); color: #ffd36e; }
+.kg-me-cta-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.035em; }
+.kg-me-cta-text p { margin: 2px 0 0; font-size: 13.5px; line-height: 1.6; color: var(--text-2); }
+.kg-me-cta-btn { grid-column: 1 / -1; margin-top: 10px; }
+/* 오늘의 하트 미션 · 연속 방문 */
+.kg-today { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.kg-mission, .kg-streak { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 16px; border-radius: 20px; background: var(--paper); box-shadow: var(--shadow-card); }
+.kg-mission-ic { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.kg-mission-text { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+.kg-mission-text b { font-size: 15px; font-weight: 800; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.kg-mission-text small { font-size: 12.5px; color: var(--text-2); line-height: 1.4; }
+.kg-dots { flex: none; display: flex; gap: 5px; }
+.kg-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--panel-3); transition: background-color .3s ease, transform .3s var(--ease); }
+.kg-dots i.on { background: var(--accent); transform: scale(1.15); }
+.kg-mission.is-done { background: linear-gradient(120deg, rgba(195, 61, 96, .12), rgba(167, 123, 216, .12)), var(--paper); }
+.kg-mission.is-done .kg-mission-ic { background: var(--accent); color: #fff; }
+.kg-streak { flex-direction: column; align-items: center; justify-content: center; gap: 0; padding: 10px 16px; text-align: center; font-size: 12.5px; color: var(--text-2); }
+.kg-streak-ic { color: var(--text-3); line-height: 0; }
+.kg-streak.hot .kg-streak-ic { color: #e8742c; }
+.kg-streak b { font-size: 16px; color: var(--text); font-variant-numeric: tabular-nums; }
+.kg-streak small { font-size: 11px; color: var(--text-3); }
+/* 둘러보기: 위에 붙는 탭(밑줄이 스르륵) */
+.kg-feed { display: flex; flex-direction: column; gap: 18px; min-width: 0; scroll-margin-top: var(--head-h); }
+.kg-tabs-bar { position: sticky; top: var(--head-h); z-index: 30; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); background: rgba(244, 239, 232, .9); -webkit-backdrop-filter: saturate(160%) blur(18px); backdrop-filter: saturate(160%) blur(18px); border-bottom: 1px solid var(--line); }
+.kg-tabs { display: flex; gap: 26px; max-width: var(--wrap); margin: 0 auto; overflow-x: auto; scrollbar-width: none; }
+.kg-tabs::-webkit-scrollbar { display: none; }
+.kg-tab { position: relative; flex: none; min-height: 52px; padding: 0 2px; border: 0; background: none; color: var(--text-3); font-weight: 800; font-size: 17px; letter-spacing: -.03em; transition: color .2s ease; -webkit-tap-highlight-color: transparent; }
+.kg-tab::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0; background: var(--ink); transform: scaleX(0); transition: transform .32s var(--ease); }
+.kg-tab[aria-selected="true"] { color: var(--text); }
+.kg-tab[aria-selected="true"]::after { transform: scaleX(1); }
+.kg-tab:hover { color: var(--text-2); }
+.kg-tab:focus-visible { outline: none; color: var(--text); text-decoration: underline; text-underline-offset: 6px; }
+.kg-feed-panel { display: flex; flex-direction: column; gap: 18px; min-width: 0; outline: none; animation: kg-fade .3s ease both; }
+.kg-feed-head { display: flex; flex-direction: column; gap: 2px; }
+.kg-feed-head .sec-title { font-size: 20px; }
+.kg-feed-head p { margin: 0; font-size: 13.5px; color: var(--text-2); }
+/* DJ별: DJ 마다 한 줄 + 1~3등(휴대폰은 손가락으로 옆으로 — 다음 카드가 조금 보인다) */
+.kg-dj-feed { display: flex; flex-direction: column; gap: 34px; }
+.kg-dj-row { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.kg-dj-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; color: inherit; text-decoration: none; }
+.kg-dj-row-name { display: flex; flex-direction: column; min-width: 0; }
+.kg-dj-row-name b { font-size: 19px; font-weight: 800; letter-spacing: -.035em; }
+.kg-dj-row-name small { font-size: 12.5px; color: var(--text-2); }
+.kg-dj-cards { display: grid; grid-auto-flow: column; grid-auto-columns: 86%; gap: 14px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+.kg-dj-cards::-webkit-scrollbar { display: none; }
+.kg-dj-cards > * { scroll-snap-align: start; }
+.kg-dj-cards > .empty { grid-column: 1 / -1; }
+/* 이게 나예요 */
+.kg-pin-btn { min-height: 46px; font-size: 14.5px; }
+.kg-pin-btn.is-me { border-color: transparent; background: var(--ink); color: var(--on-ink); }
+
+/* ---------- DJ 키우기 페이지(views/kiugi.js): SNS 프로필 ---------- */
+.kg-profile { display: grid; grid-template-columns: 92px minmax(0, 1fr); grid-template-areas: "pic head" "intro intro" "stats stats"; align-items: center; gap: 16px 18px; }
+.kg-profile-pic { grid-area: pic; position: relative; width: 92px; height: 92px; border-radius: 50%; background: var(--ring); box-shadow: 0 16px 30px -18px rgba(33, 27, 40, .5); }
+.kg-profile-pic > .kg-photo { inset: 4px; border-radius: 50%; border: 4px solid var(--bg); }
+.kg-profile-head { grid-area: head; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; }
+.kg-profile .display { font-size: clamp(28px, 8vw, 60px); }
+.kg-profile .intro { grid-area: intro; margin: 0; font-size: 15px; line-height: 1.6; color: var(--text-2); }
+.kg-profile .kg-hero-stats { grid-area: stats; }
+.dj-main { gap: 48px; }
+.kg-find-panel { gap: 12px; }
+.kg-find-results { display: flex; flex-direction: column; gap: 14px; }
+.kg-find-results:empty { display: none; }
+.kg-top3 { list-style: none; margin: 0; padding: 0; }
+.kg-top3 > li { display: flex; min-width: 0; }
+.kg-top3 > li > .kg-post { flex: 1 1 auto; }
+.kg-more-host:empty { display: none; }
+
+/* ---------- 캐릭터 페이지(views/character.js): SNS 프로필 더한 것 ---------- */
+.char-main { gap: 48px; }
+.kg-facts.four { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 520px; }
+.kg-facts.four .kg-fact { padding: 12px 12px; }
+.kg-facts.four .kg-fact dd { font-size: 17px; }
+.kg-pin-row { display: flex; width: 100%; max-width: 460px; }
+.kg-pin-row .kg-pin-btn { flex: 1 1 auto; min-height: 48px; }
+.kg-hero-stage { touch-action: manipulation; }
+.kg-hero-stage > .kg-burst > svg { width: 26%; }
+/* 같은 방송의 다른 캐릭터 · DJ별: 휴대폰은 손가락으로 옆으로(다음 카드가 조금 보인다), 넓은 화면은 칸으로 */
+.kg-swipe { display: grid; grid-auto-flow: column; grid-auto-columns: 86%; gap: 14px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
+.kg-swipe::-webkit-scrollbar { display: none; }
+.kg-swipe > * { scroll-snap-align: start; }
+.kg-others-host:empty { display: none; }
+.kg-worn-free { margin: -4px 0 0; font-size: 13px; line-height: 1.6; color: var(--text-3); }
+.kg-worn-free b { margin-right: 4px; font-weight: 700; color: var(--text-2); }
+.kg-char-title { margin-top: 2px; }
+.kg-char-title-img { width: min(100%, 250px); }
+/* 첫 화면 띠(메인): 동그라미 줄이 머리줄 바로 아래 오게 위 여백을 줄인다 */
+.fp.intro .kg-night { padding-top: 18px; padding-bottom: 36px; }
+
+@container fp (min-width: 640px) {
+  .kg-feed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+  .kg-dj-cards { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-columns: auto; margin: 0; padding: 0; overflow: visible; gap: 28px 20px; }
+  .kg-me-body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+  .kg-me-body > .kg-me-card { order: -1; }
+  .kg-me-cta { grid-template-columns: 52px minmax(0, 1fr) auto; padding: 22px 24px; }
+  .kg-me-cta-btn { grid-column: auto; margin-top: 0; }
+  .kg-today { grid-template-columns: minmax(0, 1fr) minmax(0, 220px); }
+  .kg-ring { width: 92px; }
+  .kg-ring-pic { width: 82px; height: 82px; }
+  .kg-ring-host { min-height: 124px; }
+  /* 태블릿: 동그라미 줄은 위에 길게, 그 아래 왼쪽 글 · 오른쪽 오늘의 주인공 */
+  .kg-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); grid-template-areas: "rings rings" "ping ping" "copy spot"; column-gap: 36px; row-gap: 22px; align-items: center; }
+  .kg-top > .kg-ring-host { grid-area: rings; } .kg-top > .kg-me-ping { grid-area: ping; } .kg-top > .kg-hero { grid-area: copy; } .kg-top > .kg-spot-host { grid-area: spot; }
+  .kg-top.solo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "rings" "ping" "copy"; }
+  .kg-feed-head .sec-title { font-size: 24px; }
+  .fp-main.intro-main { gap: 56px; }
+  /* 내 캐릭터를 정하지 않았으면: 고르는 법(왼쪽) · 오늘의 하트(오른쪽) 한 줄 */
+  .kg-daily:not(.has-me) { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); align-items: stretch; }
+  .kg-daily:not(.has-me) .kg-me-cta { height: 100%; grid-template-columns: 52px minmax(0, 1fr); }
+  .kg-daily:not(.has-me) .kg-me-cta-btn { grid-column: 2; justify-self: start; margin-top: 8px; }
+  .kg-daily:not(.has-me) .kg-today { grid-template-columns: minmax(0, 1fr); }
+  .kg-profile { grid-template-columns: 150px minmax(0, 1fr); grid-template-areas: "pic head" "pic intro" "pic stats"; gap: 12px 32px; }
+  .kg-profile-pic { width: 150px; height: 150px; align-self: center; }
+  .kg-profile-pic > .kg-photo { inset: 5px; border-width: 5px; }
+  .dj-main { gap: 64px; }
+  .char-main { gap: 64px; }
+  .kg-swipe { grid-auto-flow: row; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-columns: auto; margin: 0; padding: 0; overflow: visible; gap: 28px 20px; }
+}
+@container fp (min-width: 960px) {
+  .kg-feed-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 28px; }
+  .kg-dj-cards, .kg-swipe { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 28px; }
+  .kg-profile { grid-template-columns: 176px minmax(0, 1fr); }
+  .kg-profile-pic { width: 176px; height: 176px; }
+  /* PC: 왼쪽에 동그라미 줄 · 글 · 찾기, 오른쪽에 오늘의 주인공(첫 화면에 다 들어오게) */
+  .kg-top { grid-template-columns: minmax(0, 1fr) minmax(0, 400px); grid-template-areas: "rings spot" "ping spot" "copy spot"; grid-template-rows: auto auto 1fr; column-gap: 80px; row-gap: 26px; align-items: start; }
+  .kg-top.solo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "rings" "ping" "copy"; }
+  .kg-top > .kg-hero { align-self: center; padding-bottom: 40px; }
+  .kg-hero.home .kg-hero-copy { gap: 20px; }
+  .kg-rings ul { gap: 14px; justify-content: flex-start; }
+  .kg-me-body { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); gap: 28px; }
+  .kg-me-news { padding: 28px; }
+  .kg-me-news-title { font-size: 24px; }
+  .kg-post.spot .kg-post-id { font-size: 28px; }
+}
+
 /* ---------- 넓은 화면(태블릿·PC) — 칸 폭 기준 ---------- */
 /* 아주 좁은 휴대폰(375px 미만): 머리줄 단추는 그림만(이름은 화면 읽기에는 그대로) */
 @container fp (max-width: 374px) {
@@ -737,7 +948,6 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-hero.char .kg-heart-row { position: sticky; bottom: 0; z-index: 20; max-width: none; margin: 0 calc(-1 * var(--gutter)); width: calc(100% + 2 * var(--gutter)); padding: 18px var(--gutter) calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(180deg, rgba(244, 239, 232, 0) 0, rgba(244, 239, 232, .97) 18px); }
   .kg-hero.char .kg-hero-note { margin-top: -6px; }
   /* 휴대폰 1~3등: 1등 카드는 가로로 넓게(그림 왼쪽 · 글 오른쪽) */
-  .kg-podium-one.p1 .kg-card-media { align-self: stretch; }
 }
 @container fp (min-width: 640px) {
   .fp > * { --gutter: 28px; }
@@ -747,19 +957,11 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .sec-title { font-size: 28px; }
   .kg-sec { gap: 22px; }
   .kg-sec-head p { font-size: 15px; }
-  .kg-rail-ctl { display: flex; }
   /* 태블릿: 첫 화면 무대가 화면 하나를 넘지 않게(가운데) */
-  .kg-hero.home .kg-cast-wrap { width: 100%; max-width: 600px; justify-self: center; }
-  .kg-rail { grid-auto-columns: calc((100% - 18px) / 2); gap: 18px; }
-  .kg-rail.sm { grid-auto-columns: calc((100% - 18px) / 2); gap: 18px; }
-  .kg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; }
-  .kg-djs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .kg-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .kg-steps.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .kg-banner { flex-direction: row; align-items: center; justify-content: space-between; padding: 28px 32px; }
   .kg-panel { padding: 28px; }
-  .kg-card { padding: 8px 8px 14px; }
-  .kg-card-id { font-size: 17px; }
   .kg-hero.dj { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); grid-template-rows: 1fr auto auto auto 1fr; grid-template-areas: ". art" "badge art" "copy art" "stats art" ". art"; column-gap: 48px; row-gap: 0; }
   .kg-hero.dj .kg-hero-copy { margin: 16px 0 24px; gap: 16px; }
   .kg-hero.dj .intro { font-size: 16px; }
@@ -767,15 +969,8 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-hero.char .kg-hero-art { margin: 0; }
   .kg-save-row { margin-top: 16px; }
   .kg-save-btn { flex: 0 1 auto; min-width: 200px; }
-  .kg-podium { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
-  .kg-podium-one.p1 { grid-column: auto; }
-  .kg-podium-one.p1 .kg-card { display: flex; align-items: stretch; gap: 10px; }
-  .kg-podium-one.p1 .kg-card-info { padding-bottom: 0; }
-  .kg-podium-one.p1 .kg-card-id { font-size: 17px; white-space: nowrap; }
-  .kg-podium-one.p1 .kg-card-meta { flex-direction: row; align-items: center; }
   .kg-worn { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 20px 14px; }
   .kg-items { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
-  .kg-result { grid-template-columns: 72px minmax(0, 1fr) auto; }
   /* 입혀 보기: 왼쪽에 붙은 칸(미리 보기 · 채팅 한 줄 · 탭) + 오른쪽 옷 칸. 미리 보기는 화면 높이에 맞춰 줄어 왼쪽 칸이 화면 안에 들어온다 */
   .kg-try-note { margin-top: -10px; font-size: 14px; }
   .kg-try-body { display: grid; grid-template-columns: minmax(0, 280px) minmax(0, 1fr); gap: 28px; align-items: start; }
@@ -796,25 +991,12 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .fp-main { gap: 92px; }
   .sec-title { font-size: 30px; }
   /* 넓은 화면: 왼쪽 글·숫자를 오른쪽 무대 높이의 가운데에 */
-  .kg-hero.home { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); grid-template-areas: ". cast" "copy cast" "stats cast" ". cast"; grid-template-rows: 1fr auto auto 1fr; column-gap: 56px; row-gap: 32px; align-items: start; }
-  .kg-hero.home .kg-hero-copy { grid-area: copy; gap: 22px; }
-  .kg-hero.home .kg-cast-wrap { grid-area: cast; }
-  .kg-hero.home > .kg-hero-stats { grid-area: stats; margin-top: 0; }
-  .kg-hero.home.solo { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "stats"; grid-template-rows: auto auto; }
   .kg-hero .intro { font-size: 18px; }
   .kg-stat-v { font-size: 26px; }
-  .kg-cast { min-height: 420px; padding-top: 28px; }
   .kg-hero.dj { grid-template-columns: minmax(0, 1fr) minmax(0, 400px); column-gap: 72px; }
   .kg-hero.dj .intro { font-size: 18px; }
   .kg-hero.char { grid-template-columns: minmax(0, 460px) minmax(0, 1fr); gap: 72px; }
-  .kg-rail { grid-auto-columns: calc((100% - 2 * 28px) / 3); gap: 28px; }
-  .kg-rail.sm { grid-auto-columns: calc((100% - 2 * 28px) / 3); gap: 28px; }
-  .kg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 28px; }
-  .kg-djs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .kg-steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .kg-podium { gap: 36px 24px; }
-  .kg-results { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-  .kg-results > .note, .kg-results > .empty, .kg-results > .error-box { grid-column: 1 / -1; }
   .kg-worn { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 24px 18px; }
   .kg-try-body { grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 44px; }
   .kg-try-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 28px 16px; }
@@ -833,9 +1015,8 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-items { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (hover: none) {
-  .kg-card:hover, .kg-item:hover, .kg-cast-one:hover { transform: none; box-shadow: var(--shadow-card); }
-  .kg-cast-one:hover { box-shadow: none; }
-  .kg-card:hover .kg-card-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > svg, .kg-card:hover .kg-card-media .kg-stage > .kg-actor, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: none; }
+  .kg-item:hover { transform: none; box-shadow: var(--shadow-card); }
+  .kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

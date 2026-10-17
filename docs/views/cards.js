@@ -1,9 +1,8 @@
-// 캐릭터 카드·DJ 카드·그림 칸(메인·DJ 페이지·찾기 결과가 함께 쓴다). DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 글 도우미를 쓴다).
-// 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
-// 카드 모양(styles.css): 패션 앱 상품 카드 — 위는 부드러운 무대 위 캐릭터(세로 3:4로 잘라 크게), 아래는 글 세 줄(어느 방송 · 아이디 · 레벨과 하트).
+// 그림 칸(캐릭터 무대 SVG · 옷 한 벌 · 함께하는 펫)과 글 도우미 — 캐릭터 페이지·옷 도감·입혀 보기·큰 사진 카드(views/feed.js)가 함께 쓴다.
+// DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 글 도우미를 쓴다). 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 import { h, icon, toast } from '../lib/dom.js';
 import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, MOTIONS_READY } from '../lib/kiugi-draw.js';
-import { ilink, medal } from './common.js';
+import { loadLite, liteUrl } from '../lib/raster.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -15,11 +14,6 @@ export const levelLine = (catalog, seasonId, level) => `Lv.${level} ${expression
 export function idText(id) {
   const s = String(id ?? ''), i = s.indexOf('#');
   return i < 0 ? [s] : [s.slice(0, i), h('span', { class: 'kg-id-tag' }, s.slice(i))];
-}
-// 하트 수(작은 하트 그림 + 숫자). 화면 읽기에는 "하트 n개"
-export function heartCount(n, { className = '' } = {}) {
-  return h('span', { class: 'kg-hearts' + (className ? ' ' + className : ''), 'aria-label': `하트 ${fmt(n)}개` },
-    icon('heart', { size: 14, filled: true }), h('span', { 'aria-hidden': 'true' }, fmt(n)));
 }
 
 // ---- 숨쉬기·모션(2026-10-15 사용자 "캐릭터들이 2D 게임 대기 모션처럼 숨쉬듯이" · "청취자들이 모션을 살 수 있게") ----
@@ -97,18 +91,29 @@ export function actorNodes(markup, { motion = null } = {}) {
   return [backdrop, actor];
 }
 
+// 그림 글의 그림 주소를 가벼운 사본으로(있는 것만 — lib/raster.js liteUrl)
+export async function liteMarkup(markup, base = '/') {
+  const lite = await loadLite(base);
+  return String(markup).replace(/ href="([^"]+)"/g, (all, u) => { const l = liteUrl(u, lite, base); return l === u ? all : ` href="${l}"`; });
+}
 let observer = null;
 // 그림 칸: make() 가 SVG 글을 돌려준다. eager 면 바로, 아니면 화면 가까이 왔을 때. kind: 무대 모양(styles.css .kg-stage.<kind>)
 //  그림 V3(2026-10-09): 그림 파일을 모두 받은 뒤 한 번에 넣는다(paintMarkup — 반쯤 그려진 모습이 보이지 않게).
 //  actor: 캐릭터 그림이면 true — 바탕과 캐릭터를 나눠 캐릭터만 숨쉬게(motion = 모션 id). 옷 한 벌 그림(옷 도감 칸)은 움직이지 않는다.
-export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null } = {}) {
+//  lite: 사이트 BASE — 주면 공통 배경 그림을 가벼운 사본(docs/kiugi-lite/ WebP — 1.5MB → 0.15MB)으로 바꿔 그린다. 사본을 못 받으면 원본으로 다시 그린다.
+export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null, lite = null } = {}) {
   const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') });
   const noart = () => h('span', { class: 'kg-noart' }, label);
-  const draw = () => {
+  const draw = async () => {
     let markup = null;
     try { markup = make(); } catch (e) { console.error(e); }
     if (!markup) { stage.replaceChildren(noart()); return; }
-    paintMarkup(stage, markup, { fallback: noart(), ...(actor ? { make: (m) => actorNodes(m, { motion }) } : {}) }).catch((e) => { console.error(e); stage.replaceChildren(noart()); });
+    const opts = { fallback: noart(), ...(actor ? { make: (m) => actorNodes(m, { motion }) } : {}) };
+    try {
+      const light = lite ? await liteMarkup(markup, lite) : markup;
+      await paintMarkup(stage, light, opts);
+      if (light !== markup && stage.dataset.kgArtError) await paintMarkup(stage, markup, opts);
+    } catch (e) { console.error(e); stage.replaceChildren(noart()); }
   };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
   observer ||= new IntersectionObserver((entries) => {
@@ -123,7 +128,7 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
 export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null } = {}) {
   const cls = 'char' + (kind ? ' ' + kind : '');
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null });
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null, lite: base });
 }
 // ---- 함께하는 펫(캐릭터 페이지 무대 · 입혀 보기 · 메인 카드 · 메인 첫 화면 1등 — 2026-10-16 사용자 "펫 좀 크게 · 메인 화면에서도 보이게") ----
 // 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라
@@ -158,36 +163,7 @@ export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj 
   return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item' });
 }
 
-// 캐릭터 카드 {slug, djName, id, level, worn, pet?, hearts} → 캐릭터 페이지로 가는 링크. rank: 몇 등(1~3등은 금·은·동 배지)
-// label: 맨 위 작은 줄(없으면 "<DJ> 키우기", showDj 가 false 면 없음). pet: 함께하는 펫(있으면 그림 오른쪽 아래 — 2026-10-16)
-export function characterCard(c, { app, catalog, character, seasonId, showDj = true, eager = false, rank = null, label = null }) {
-  const href = app.link({ name: 'character', slug: c.slug, base: baseOf(c.id) });
-  const pet = character ? buddyOf(catalog, c.pet) : null;
-  return ilink(href, { class: 'kg-card' + (rank ? ` ranked r${Math.min(rank, 4)}` : '') },
-    h('div', { class: 'kg-card-media' + (pet ? ' has-pet' : '') },
-      art(catalog, character, c.worn, c.level, { seasonId, base: app.base, label: `${c.id} 캐릭터`, eager }),
-      pet ? petBuddy(pet, app.base, { label: false, eager }) : null,
-      rank ? medal(rank, { className: 'kg-rank-badge', label: `${rank}등` }) : null),
-    h('div', { class: 'kg-card-info' },
-      label ? h('span', { class: 'kg-card-dj' + (rank === 1 ? ' accent' : '') }, label) : showDj && c.djName ? h('span', { class: 'kg-card-dj' }, `${c.djName} 키우기`) : null,
-      h('b', { class: 'kg-card-id' }, ...idText(c.id)),
-      h('span', { class: 'kg-card-meta' },
-        h('span', { class: 'kg-card-lv' }, h('b', null, `Lv.${c.level ?? 1}`), ' ', expressionFor(catalog, seasonId, c.level).name),
-        heartCount(c.hearts))));
-}
-
-// DJ 카드 {slug, name, character, count} → DJ 키우기 페이지로 가는 링크
-export function djCard(d, { app, catalog, seasonId }) {
-  return ilink(app.link({ name: 'kiugi', slug: d.slug }), { class: 'kg-card kg-dj' },
-    h('div', { class: 'kg-card-media' },
-      art(catalog, d.character, {}, 1, { seasonId, base: app.base, label: `${d.name} 캐릭터`, kind: 'dj' })),
-    h('div', { class: 'kg-card-info' },
-      h('span', { class: 'kg-card-dj' }, 'DJ 캐릭터'),
-      h('b', { class: 'kg-card-id' }, `${d.name} 키우기`),
-      h('span', { class: 'kg-card-meta' },
-        h('span', { class: 'kg-card-lv' }, `청취자 ${fmt(d.count)}명`),
-        h('span', { class: 'kg-card-go', 'aria-hidden': 'true' }, icon('arrow', { size: 16 })))));
-}
+// 메인·DJ 페이지·찾기 결과의 큰 사진 카드는 views/feed.js postCard(2026-10-18 새 구조 — 예전 작은 카드 characterCard·djCard 는 없앴다).
 
 // 링크 복사: 클립보드가 되면 복사, 안 되면 주소 칸을 보여 주고 글자를 골라 둔다(길게 눌러 복사)
 export async function copyLink(url, box) {

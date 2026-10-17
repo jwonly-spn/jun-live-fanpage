@@ -159,7 +159,8 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
   const character = await src('views/character.js');
   assert.match(character, /from '\.\.\/lib\/try-on\.js'/);
-  assert.match(character, /const tryOn = tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy, motion: motion\?\.id \}\)/, '단 칭호·하는 모션도 넘긴다');
+  // 2026-10-18 새 구조: 카드가 아는 것으로 먼저 그릴 때(partial — 단 칭호를 아직 모른다)는 입혀 보기를 서버 답이 온 뒤에 단다
+  assert.match(character, /const tryOn = partial \? null : tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy, motion: motion\?\.id \}\)/, '단 칭호·하는 모션도 넘긴다');
   assert.match(character, /secHead\('입은 옷', [^\n]+, tryOn\?\.openBtn \|\| null\)/, '"입은 옷" 제목 옆 단추');
   assert.match(character, /tryOn\?\.section,/, '입은 옷 칸 바로 아래');
   assert.match(character, /\]\.filter\(Boolean\)\);/, '빈 칸(null)을 넣지 않는다');

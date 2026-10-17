@@ -1,0 +1,56 @@
+{
+ "v": 1,
+ "quality": 0.86,
+ "files": {
+  "/kiugi/bg/background_01.png": {
+   "v": "5b1c8aa94f9e",
+   "file": "bg/background_01.webp",
+   "t": "c6ee80e1c97e"
+  },
+  "/kiugi/bg/background_02.png": {
+   "v": "a67981a869e3",
+   "file": "bg/background_02.webp",
+   "t": "59f561429404"
+  },
+  "/kiugi/bg/background_03.png": {
+   "v": "6c1554603d48",
+   "file": "bg/background_03.webp",
+   "t": "5c4c86f4e89c"
+  },
+  "/kiugi/bg/background_04.png": {
+   "v": "cb83e03893f2",
+   "file": "bg/background_04.webp",
+   "t": "f975210c14e3"
+  },
+  "/kiugi/bg/background_05.png": {
+   "v": "b5b44daef99c",
+   "file": "bg/background_05.webp",
+   "t": "c55d598f1402"
+  },
+  "/kiugi/bg/background_06.png": {
+   "v": "519c43c9e9eb",
+   "file": "bg/background_06.webp",
+   "t": "3fdc7d06b501"
+  },
+  "/kiugi/bg/background_07.png": {
+   "v": "a5fc0fd962bf",
+   "file": "bg/background_07.webp",
+   "t": "a8f2c5e122f9"
+  },
+  "/kiugi/bg/background_08.png": {
+   "v": "48da93164fe8",
+   "file": "bg/background_08.webp",
+   "t": "62d762a2c47d"
+  },
+  "/kiugi/bg/background_09.png": {
+   "v": "c6f3f9af12f4",
+   "file": "bg/background_09.webp",
+   "t": "6607dc93c7e3"
+  },
+  "/kiugi/bg/background_10.png": {
+   "v": "58f24de7e345",
+   "file": "bg/background_10.webp",
+   "t": "0b0d858294d2"
+  }
+ }
+}

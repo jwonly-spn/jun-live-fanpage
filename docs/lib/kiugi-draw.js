@@ -2,7 +2,10 @@
 // 사이트 보안 규칙(CSP: 인라인 style 금지)과 사이트 주소(BASE) 때문에 그린 SVG 글을 조금 고친다(cspSafeSvg).
 // DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 그대로 불러 쓴다).
 import { characterSvg, itemSvg, svgUrls } from '../kiugi/kiugi-art.js';
+import { ART } from '../kiugi/kiugi-r7-data.js';
 import { formatDate } from './text.js';
+
+const ART_PACKAGE = `${ART.packageId}:${ART.version}`;
 
 export const STAGE = '#EFE9F8';
 const DEFAULT_EXPRESSION = { level: 1, name: '기본', parts: [] };
@@ -200,14 +203,25 @@ export function svgNode(markup) {
 
 // docs/kiugi/manifest.json → 시즌 목록을 한 번만 받아 둔다(실패하면 다음에 다시)
 //  예전 그림(V2)의 그림 폴더마다 보정값(adjust.json)은 새 그림체 R7 에서 쓰지 않아 받지 않는다(폴더마다 404 가 나던 것).
+//  2026-10-18 빠르게: 받은 시즌 목록을 이 브라우저(localStorage 'kg_cat')에 두고 다음 방문에는 그것으로 바로 시작한다(그 사이 새로 받아 두었다가 다음에 쓴다).
+//   그림 목록 판(ART.packageId)이 다르면 쓰지 않는다. 저장소가 막혀 있으면 매번 받는다.
+export const CATALOG_KEY = 'kg_cat';
 let catalogPromise = null;
-export function loadCatalog(base = '/') {
+function fetchCatalogRaw(root) {
+  const get = async (name) => { const r = await fetch(root + name, { cache: 'no-cache' }); if (!r.ok) throw Error('키우기 그림 목록을 받지 못했어요.'); return r.json(); };
+  return get('manifest.json').then(async (manifest) => ({
+    seasons: await Promise.all((Array.isArray(manifest.seasons) ? manifest.seasons : []).filter((n) => /^season-[a-z0-9-]+\.json$/.test(n)).map(get)),
+    files: manifest.files && typeof manifest.files === 'object' ? manifest.files : {},
+  }));
+}
+export function loadCatalog(base = '/', { storage = (() => { try { return localStorage; } catch { return null; } })() } = {}) {
   return catalogPromise ||= (async () => {
     const root = (String(base).endsWith('/') ? base : base + '/') + 'kiugi/';
-    const get = async (name) => { const r = await fetch(root + name, { cache: 'no-cache' }); if (!r.ok) throw Error('키우기 그림 목록을 받지 못했어요.'); return r.json(); };
-    const manifest = await get('manifest.json');
-    const raws = await Promise.all((Array.isArray(manifest.seasons) ? manifest.seasons : []).filter((n) => /^season-[a-z0-9-]+\.json$/.test(n)).map(get));
-    const files = manifest.files && typeof manifest.files === 'object' ? manifest.files : {};
-    return buildCatalog(raws, { files, adjust: {} });
+    let saved = null;
+    try { const v = JSON.parse(storage?.getItem?.(CATALOG_KEY) || 'null'); if (v && v.pkg === ART_PACKAGE && Array.isArray(v.seasons) && v.seasons.length) saved = v; } catch { saved = null; }
+    const fresh = fetchCatalogRaw(root).then((raw) => { try { storage?.setItem?.(CATALOG_KEY, JSON.stringify({ pkg: ART_PACKAGE, at: Date.now(), ...raw })); } catch { /* 꽉 참·막힘 */ } return raw; });
+    const raw = saved || await fresh;
+    if (saved) fresh.catch(() => {});
+    return buildCatalog(raw.seasons, { files: raw.files || {}, adjust: {} });
   })().catch((e) => { catalogPromise = null; throw e; });
 }

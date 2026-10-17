@@ -137,8 +137,8 @@ test('가만히(styles.css, 사용자 10/15 밤 "모션은 그만, 숨쉬기도 
   const reduce = /@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/.exec(css)?.[1] || '';
   assert.match(reduce, /animation: none !important/); assert.match(reduce, /\.kg-fx \{ display: none; \}/);
   assert.doesNotMatch(css, /\.kg-pet-buddy \.kg-pet-img \{[^}]*animation/, '펫도 가만히');
-  // 카드에 손을 올렸을 때 커지는 것도 캐릭터 칸 함께(바탕과 어긋나지 않게)
-  assert.match(css, /\.kg-card:hover \.kg-card-media \.kg-stage > svg, \.kg-card:hover \.kg-card-media \.kg-stage > \.kg-actor \{ transform: scale\(1\.035\); \}/);
+  // 카드에 손을 올렸을 때 커지는 것은 사진 한 장째(2026-10-18 새 구조 — 카드 사진은 바탕과 캐릭터를 한 장으로 그린 그림, lib/raster.js)
+  assert.match(css, /\.kg-post:hover \.kg-photo > img \{ transform: scale\(1\.025\); \}/);
 });
 
 test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·안내 한 줄 · 입혀 보기 모션 탭(따로 복사) · 옷 도감 모션 칸 · 카드는 숨쉬기만', async () => {

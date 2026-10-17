@@ -1,12 +1,17 @@
-// DJ 키우기 페이지(k/<주소>): DJ 캐릭터 · 내 아이디로 찾기 · 이번 시즌 1~3등. 카드를 누르면 캐릭터 페이지(k/<주소>/<아이디 앞 부분>).
+// DJ 키우기 페이지(k/<주소>) — 2026-10-18 사이트 새 구조(SNS 프로필처럼): DJ 동그라미 사진 · 이름 · 숫자 · 공유 / 내 아이디로 찾기(찾으면 "이게 나예요") /
+//  이번 시즌 1~3등(큰 사진 카드 — 휴대폰 한 장 · 태블릿 두 장 · PC 세 장) / 이 방송의 다른 캐릭터(메인 인기·새로 꾸민 목록에서 이 방송 것) / 어떻게 키워요.
+//  카드를 누르면 캐릭터 페이지(k/<주소>/<아이디 앞 부분> — 전신). 지난번 답(lib/swr.js — 이 브라우저)이 있으면 바로 그리고 새 답을 받는다.
 // DJ의 먼치킨(봇 프로그램)이 올린 것(DJ 캐릭터, 청취자가 방송에서 "!아이디"로 직접 만든 시즌 아이디·레벨·입은 옷)과 하트 수만 보여 준다.
 // 아이디 모양: "<앞 한글 1~6자>#<캐릭터 이름>"(예: 밤톨#먼치). 애정도 숫자는 보이지 않는다(순서만 애정도 순). 스푼 정보는 쓰지 않는다. 로그인 없음.
 import { h, icon, store } from '../lib/dom.js';
-import { kiugiApi } from '../api.js';
+import { kiugiApi, fastApi } from '../api.js';
 import { relativeTime, formatDate } from '../lib/text.js';
 import { loadCatalog, buildCatalog, expressionFor } from '../lib/kiugi-draw.js';
+import { photoBox } from '../lib/raster.js';
+import { sameData } from '../lib/swr.js';
 import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
-import { art, heartText, heartCount, baseOf, idText, characterCard } from './cards.js';
+import { heartText } from './cards.js';
+import { postCard, markDjSeen } from './feed.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 // 시즌 번호(s1 → 1)와 끝날 때까지 남은 날(한국 날짜 기준, 지났으면 0, 모르면 null)
@@ -55,45 +60,66 @@ export function checkQuery(q) {
   if (!QUERY_RULE.test(key)) return '아이디는 한글 1~6자예요. 예: 먼치팬 또는 먼치팬#먼치';
   return null;
 }
+// 이 방송의 다른 캐릭터: 메인 인기·새로 꾸민 목록에서 이 방송 것(1~3등은 빼고, 같은 사람은 한 번)
+export function moreOf(home, slug, top = []) {
+  const skip = new Set(top.map((p) => String(p.id).normalize('NFC')));
+  const out = [];
+  for (const c of [...(home?.popular || []), ...(home?.recent || [])]) {
+    const id = String(c.id).normalize('NFC');
+    if (c.slug !== slug || skip.has(id)) continue;
+    skip.add(id); out.push(c);
+  }
+  return out;
+}
 
 export async function renderKiugi(root, route, app) {
   document.title = `DJ 키우기 · ${BRAND}`;
   store.remove('kg_nick'); // 예전 판이 이 기기에 남긴 찾기 글은 지운다
   const top = nightTop(app);
-  const night = h('div', { class: 'kg-night' });
-  const main = h('main', { id: 'main', class: 'fp-main kg-main', tabindex: '-1' }, loading());
+  const night = h('div', { class: 'kg-night compact' });
+  const main = h('main', { id: 'main', class: 'fp-main kg-main dj-main', tabindex: '-1' }, loading());
   const shell = h('div', { class: 'fp kg-site' }, ...top, night, main);
   root.replaceChildren(shell);
-  let page;
   const catalogJob = loadCatalog(app.base).catch(() => buildCatalog([]));
-  try { page = await kiugiApi.page(route.slug); }
-  catch (e) { main.replaceChildren(missing(e, () => renderKiugi(root, route, app), app)); shell.append(siteFoot(app)); return; }
+  const job = fastApi.page(route.slug);
+  let page = job.cached;
+  if (!page) {
+    try { page = await job.fresh; }
+    catch (e) { main.replaceChildren(missing(e, () => renderKiugi(root, route, app), app)); shell.append(siteFoot(app)); return; }
+  }
   const catalog = await catalogJob;
+  markDjSeen(route.slug);
+  const draw = (pg) => paintPage(pg, { app, catalog, top, night, main });
+  draw(page);
+  shell.append(siteFoot(app, '이 페이지에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 아이디를 빼고 싶으면 DJ에게 말해 주세요.'));
+  if (job.cached) job.fresh.then((fresh) => { if (!sameData(fresh, job.cached) && main.isConnected) draw(fresh); }, () => {});
+}
+
+function paintPage(page, { app, catalog, top, night, main }) {
   const name = page.name || page.character?.name || 'DJ';
   const seasonId = page.season?.id || null;
   document.title = `${name} 키우기 · ${BRAND}`;
   const href = location.origin + app.link({ name: 'kiugi', slug: page.slug });
-  const ctx = { app, catalog, character: page.character, seasonId, slug: page.slug, name };
+  const ctx = { app, catalog, character: page.character, seasonId, season: page.season, slug: page.slug, name, lookOf: () => page.character, djNameOf: () => name };
   const shareBtn = h('button', { type: 'button', class: 'fp-nav icon-only', 'aria-label': '공유하기', onclick: () => share(href, `${name} 키우기`) }, icon('share', { size: 19 }));
-
   // 머리줄에 공유 단추를 더한다(비공식 한 줄은 그대로)
-  top[1].replaceWith(nightTop(app, { actions: [shareBtn] })[1]);
+  const header = document.querySelector('.fp-top');
+  header?.replaceWith(nightTop(app, { actions: [shareBtn] })[1]);
+  // 프로필: 휴대폰은 동그라미 사진 옆에 이름·숫자, 넓은 화면은 크게
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
-      // 휴대폰: 시즌 띠 / 제목·설명 + 오른쪽 DJ 캐릭터 / 숫자 · 넓은 화면: 왼쪽 글, 오른쪽 큰 캐릭터(styles.css 의 grid-template-areas)
-      h('section', { class: 'kg-hero dj' },
-        h('div', { class: 'kg-hero-badge' }, seasonBadge(page.season)),
-        h('div', { class: 'kg-hero-copy' },
-          h('h1', { class: 'display' }, `${name} 키우기`),
-          h('p', { class: 'intro' }, page.paused ? '다음 시즌을 준비하고 있어요. 새 시즌이 시작되면 다시 만나요!' : `방송에서 모은 냥으로 청취자마다 자기 ${josa(name, '을', '를')} 꾸며요.`)),
-        h('div', { class: 'kg-hero-art' }, art(catalog, page.character, {}, 1, { seasonId, base: app.base, label: `${name} 캐릭터`, eager: true, kind: 'hero' })),
+      h('section', { class: 'kg-profile' },
+        h('div', { class: 'kg-profile-pic' }, photoBox({ catalog, character: page.character, worn: {}, level: 1, seasonId, base: app.base, kind: 'bust', cssWidth: 176 }, { eager: true, label: `${name} 캐릭터` })),
+        h('div', { class: 'kg-profile-head' },
+          seasonBadge(page.season),
+          h('h1', { class: 'display' }, `${name} 키우기`)),
+        h('p', { class: 'intro' }, page.paused ? '다음 시즌을 준비하고 있어요. 새 시즌이 시작되면 다시 만나요!' : `방송에서 모은 냥으로 청취자마다 자기 ${josa(name, '을', '를')} 꾸며요.`),
         h('div', { class: 'kg-hero-stats' }, ...statTiles([
           { value: fmt(page.count), label: '참여한 청취자' },
           { value: relativeTime(page.updatedAt) || '조금 전', label: '마지막 업데이트' }])))));
   main.replaceChildren();
-  if (!page.paused) main.append(findCard(page, ctx), topCard(page, ctx));
+  if (!page.paused) main.append(findCard(page, ctx), topCard(page, ctx), moreCard(page, ctx));
   main.append(howCard(name));
-  shell.append(siteFoot(app, '이 페이지에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 아이디를 빼고 싶으면 DJ에게 말해 주세요.'));
 }
 
 function missing(e, retry, app) {
@@ -106,13 +132,13 @@ function missing(e, retry, app) {
       ilink(app.link({ name: 'intro' }), { class: 'btn btn-accent' }, `${BRAND} 메인으로`)));
 }
 
-// 내 아이디로 찾기(마지막으로 찾은 아이디는 이 기기에 기억해 다음에 바로 보여 준다)
+// 내 아이디로 찾기(마지막으로 찾은 아이디는 이 기기에 기억해 다음에 바로 보여 준다). 찾은 카드에는 "이게 나예요".
 function findCard(page, ctx) {
   const saved = savedKey(page.slug, ctx.seasonId);
   const input = h('input', { id: 'kg_q', type: 'search', maxlength: 24, placeholder: '내 아이디 (예: 먼치팬)', autocomplete: 'off', enterkeyhint: 'search', lang: 'ko', 'aria-describedby': 'kg_q_help' });
   input.value = store.get(saved, '') || '';
   const status = h('p', { class: 'form-status', role: 'status', 'aria-live': 'polite' });
-  const results = h('div', { class: 'kg-results' });
+  const results = h('div', { class: 'kg-find-results' });
   const submit = h('button', { type: 'submit', class: 'btn btn-accent' }, '찾기');
   const form = h('form', { class: 'kg-find', role: 'search', novalidate: true },
     h('label', { for: 'kg_q', class: 'sr-only' }, '내 아이디'),
@@ -132,7 +158,7 @@ function findCard(page, ctx) {
       if (!r.results?.length) {
         results.replaceChildren(h('p', { class: 'empty' }, `'${key}' 아이디를 찾지 못했어요. 이번 시즌 아이디가 맞는지 확인해 주세요. 방송에서 냥을 모으면 5분쯤 뒤에 여기 보여요.`));
       } else {
-        results.replaceChildren(...r.results.map((p, i) => resultItem(p, ctx, i === 0 && r.exact > 0)),
+        results.replaceChildren(h('div', { class: 'kg-feed-grid' }, ...r.results.map((p, i) => postCard({ ...p, slug: page.slug, djName: ctx.name }, ctx, { rank: p.rank, tag: i === 0 && r.exact > 0 ? '찾았어요' : null, showDj: false, pin: true, eager: i < 2 }))),
           ...(r.more ? [h('p', { class: 'note' }, '비슷한 아이디가 더 있어요. 아이디를 정확히 적으면 더 잘 찾아요.')] : []));
       }
     } catch (e) { if (my === seq) { status.textContent = ''; results.replaceChildren(errorBox(e.message, () => search(q))); } }
@@ -140,33 +166,37 @@ function findCard(page, ctx) {
   }
   form.addEventListener('submit', (e) => { e.preventDefault(); void search(input.value); });
   if (input.value) queueMicrotask(() => void search(input.value));
-  return h('section', { class: 'kg-panel kg-search', id: 'find' },
-    secHead('내 아이디로 찾기'),
-    h('p', { class: 'kg-help', id: 'kg_q_help' }, '방송에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디를 적어 주세요(시즌마다 새로 만들어요).'),
-    form, results);
+  return h('section', { class: 'kg-sec kg-search', id: 'find' },
+    secHead('내 아이디로 찾기', '찾은 캐릭터에서 "이게 나예요"를 누르면 첫 화면에서 매일 달라진 점을 알려 드려요.'),
+    h('div', { class: 'kg-panel kg-find-panel' },
+      h('p', { class: 'kg-help', id: 'kg_q_help' }, '방송에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디를 적어 주세요(시즌마다 새로 만들어요).'),
+      form),
+    results);
 }
 
-// 찾기 결과 한 줄 → 캐릭터 페이지 링크
-function resultItem(p, ctx, found) {
-  const line = personLine(p, ctx.catalog, ctx.seasonId);
-  return ilink(ctx.app.link({ name: 'character', slug: ctx.slug, base: baseOf(p.id) }), { class: 'kg-result' + (found ? ' found' : ''), 'aria-label': `${found ? '찾았어요. ' : ''}${line.title}, ${line.sub}` },
-    art(ctx.catalog, ctx.character, p.worn, p.level, { seasonId: ctx.seasonId, base: ctx.app.base, label: `${p.id} 캐릭터` }),
-    h('span', { class: 'kg-result-text', 'aria-hidden': 'true' },
-      found ? h('span', { class: 'eyebrow' }, '찾았어요') : null,
-      h('b', null, h('span', { class: 'kg-result-rank' }, `${p.rank}등`), ...idText(p.id)),
-      h('span', { class: 'kg-result-sub' }, `Lv.${p.level} ${expressionFor(ctx.catalog, ctx.seasonId, p.level).name}`, heartCount(p.hearts))),
-    h('span', { class: 'kg-result-go', 'aria-hidden': 'true' }, icon('arrow', { size: 18 })));
-}
-
-// 이번 시즌 1~3등: 1등은 크게(휴대폰에서는 가로로 넓게), 2·3등은 나란히. 읽는 차례는 1·2·3등.
+// 이번 시즌 1~3등: 큰 사진 카드(1·2·3등 메달). 읽는 차례는 1·2·3등.
 function topCard(page, ctx) {
   const top = Array.isArray(page.top) ? page.top.slice(0, 3) : [];
   return h('section', { class: 'kg-sec', 'aria-labelledby': 'kg_top' },
     secHead('이번 시즌 1~3등', '애정도(이번 시즌에 받은 냥)가 높은 순서예요. 애정도 숫자는 지금은 보여 주지 않아요.', null, { id: 'kg_top' }),
     top.length
-      ? h('ol', { class: 'kg-podium' }, ...top.map((p, i) => h('li', { class: `kg-podium-one p${i + 1}` },
-        characterCard({ ...p, slug: ctx.slug }, { app: ctx.app, catalog: ctx.catalog, character: ctx.character, seasonId: ctx.seasonId, showDj: false, eager: true, rank: i + 1, label: i === 0 ? '이번 시즌 1등' : `${i + 1}등` }))))
+      ? h('ol', { class: 'kg-feed-grid kg-top3' }, ...top.map((p, i) => h('li', null, postCard({ ...p, slug: ctx.slug, djName: ctx.name }, ctx, { rank: i + 1, showDj: false, eager: i < 1 }))))
       : h('p', { class: 'empty' }, '아직 순위가 없어요. 방송에서 냥을 모아 보세요!'));
+}
+
+// 이 방송의 다른 캐릭터(메인에 보이는 방송이면 메인 인기·새로 꾸민 목록에서) — 없으면 칸을 그리지 않는다
+function moreCard(page, ctx) {
+  const host = h('div', { class: 'kg-more-host' });
+  const fill = (home) => {
+    const list = moreOf(home, page.slug, page.top || []);
+    host.replaceChildren(...(list.length ? [h('section', { class: 'kg-sec' },
+      secHead(`${ctx.name} 키우기의 다른 캐릭터`, '하트를 받았거나 방금 새로 꾸민 캐릭터예요.'),
+      h('div', { class: 'kg-feed-grid' }, ...list.map((c) => postCard(c, ctx, { showDj: false }))))] : []));
+  };
+  const job = fastApi.home();
+  if (job.cached) fill(job.cached);
+  job.fresh.then((home) => { if (!job.cached || !sameData(home, job.cached)) fill(home); }, () => {});
+  return host;
 }
 
 function howCard(name) {

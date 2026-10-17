@@ -1,7 +1,8 @@
-// 화면 공통 조각: 사이트 이름, 맨 위(비공식 한 줄 · 머리줄), 바닥글, 칸 제목, 순위 배지, 옆으로 넘기는 줄(rail), 사이트 안 링크, 불러오기 표시, 오류 상자, 공유.
-// 모습(2026-10-09 두 번째 새 디자인): 거의 검정 바탕 + 아이보리 글 + 할로윈 주황 하나만 조금. 캐릭터가 주인공인 패션 잡지·컬렉션 앱 느낌.
+// 화면 공통 조각: 사이트 이름, 맨 위(비공식 한 줄 · 머리줄), 바닥글, 칸 제목, 순위 배지, 사이트 안 링크, 불러오기 표시, 오류 상자, 공유.
+// 모습(2026-10-18 새 구조): 밝은 아이보리 바탕 · 먹색 글 · 장밋빛 하트 — SNS 처럼 큰 사진 카드(views/feed.js). 옆으로 넘기는 화살표 줄(rail)은 없앴다.
 // 장식 그림 파일 없음 — 모양은 모두 styles.css(보안 규칙상 style 속성을 쓰지 않는다).
 import { h, icon, toast, copyText } from '../lib/dom.js';
+import { getMe } from '../lib/me.js';
 
 // 사이트 이름(2026-10-08 사용자: "스푼 DJ 키우기" + 맨 위·아래에 비공식 표시)
 export const BRAND = '스푼 DJ 키우기';
@@ -18,6 +19,8 @@ export function ilink(href, props, ...children) {
 export function nightTop(app, { actions = [] } = {}) {
   const route = typeof document !== 'undefined' ? document.body?.dataset?.route : '';
   const home = app.link({ name: 'intro' });
+  let me = null;
+  try { me = getMe(window.localStorage); } catch { me = null; }
   return [
     h('p', { class: 'kg-unofficial' }, UNOFFICIAL),
     h('header', { class: 'fp-top' },
@@ -27,6 +30,8 @@ export function nightTop(app, { actions = [] } = {}) {
           h('span', { class: 'fp-brand-name' }, BRAND)),
         h('nav', { class: 'fp-actions', 'aria-label': '바로 가기' },
           ilink(home + '#find', { class: 'fp-nav icon-only', 'aria-label': '아이디로 찾기' }, icon('search', { size: 19 })),
+          // 내 캐릭터(이 브라우저에 정해 둔 것 — lib/me.js)가 있으면 어느 화면에서든 한 번에
+          me ? ilink(app.link({ name: 'character', slug: me.slug, base: me.base }), { class: 'fp-nav icon-only fp-me', 'aria-label': `내 캐릭터 ${me.id}`, 'aria-current': route === 'character' && location.pathname === app.link({ name: 'character', slug: me.slug, base: me.base }) ? 'page' : null }, icon('user', { size: 19 })) : null,
           ilink(app.link({ name: 'items' }), { class: 'fp-nav', 'aria-current': route === 'items' ? 'page' : null }, icon('hanger', { size: 19 }), h('span', null, '옷 도감')),
           ...actions))),
   ];
@@ -65,27 +70,6 @@ export function statTiles(list) {
   return list.filter(Boolean).map((s) => h('div', { class: 'kg-stat' },
     h('span', { class: 'kg-stat-v' }, s.value),
     h('span', { class: 'kg-stat-l' }, s.label)));
-}
-
-// 옆으로 넘기는 줄: 손가락으로 넘기고, 넓은 화면에서는 ‹ › 단추로도(칸 제목 오른쪽에 둔다).
-// → {track(줄), controls(단추 묶음)}. 끝에 닿으면 그쪽 단추를 끈다.
-export function rail(children, { label = '', className = '' } = {}) {
-  const track = h('div', { class: 'kg-rail' + (className ? ' ' + className : ''), role: 'list', 'aria-label': label || null },
-    ...children.map((c) => h('div', { class: 'kg-rail-item', role: 'listitem' }, c)));
-  const step = (dir) => () => track.scrollBy({ left: dir * Math.max(200, track.clientWidth * 0.85), behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  const prev = h('button', { type: 'button', class: 'kg-rail-btn', 'aria-label': `${label} 앞으로`, onclick: step(-1) }, icon('chevron-left', { size: 18 }));
-  const next = h('button', { type: 'button', class: 'kg-rail-btn', 'aria-label': `${label} 다음으로`, onclick: step(1) }, icon('chevron-right', { size: 18 }));
-  const sync = () => {
-    const max = track.scrollWidth - track.clientWidth - 2;
-    prev.disabled = track.scrollLeft <= 2;
-    next.disabled = track.scrollLeft >= max;
-    controls.hidden = max <= 0;
-  };
-  const controls = h('div', { class: 'kg-rail-ctl' }, prev, next);
-  track.addEventListener('scroll', sync, { passive: true });
-  if (typeof ResizeObserver === 'function') new ResizeObserver(sync).observe(track);
-  requestAnimationFrame(sync);
-  return { track, controls };
 }
 
 export function loading(text = '불러오는 중…') {

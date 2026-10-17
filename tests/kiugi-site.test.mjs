@@ -462,7 +462,7 @@ test('펫 그림(2026-10-15 Codex DJ_PET_S1_20261015_HALLOWEEN): 시즌 펫 5종
   assert.match(cardsSrc, /'kg-pet-buddy st' \+ Math\.min\(5, Math\.max\(1, pet\.stage \|\| 1\)\)/, '단계 클래스');
 });
 
-test('함께하는 펫이 메인 화면에도 보인다(2026-10-16 사용자 "캐릭터 클릭했을 때 말고 메인 화면에서도"): 카드·첫 화면 1~3등 무대에 그림만(이름표 없이)', async () => {
+test('함께하는 펫이 메인 화면에도 보인다(2026-10-16 사용자 "캐릭터 클릭했을 때 말고 메인 화면에서도"): 큰 사진 카드 왼쪽 아래 펫 칸(2026-10-18)', async () => {
   const cat = await catalog();
   const { buddyOf } = await import('../docs/views/cards.js');
   assert.deepEqual(buddyOf(cat, { id: 'ghost', stage: 3 }), { id: 'ghost', season: 's1', emoji: cat.pets.ghost.emoji, name: cat.pets.ghost.names[2], stage: 3 });
@@ -470,13 +470,14 @@ test('함께하는 펫이 메인 화면에도 보인다(2026-10-16 사용자 "�
     assert.equal(buddyOf(cat, bad), null, JSON.stringify(bad) + ' 는 그리지 않음');
   }
   const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
-  const cards = await src('views/cards.js'), intro = await src('views/intro.js');
-  assert.match(cards, /const pet = character \? buddyOf\(catalog, c\.pet\) : null;/, '카드: 함께하는 펫(c.pet)');
-  assert.match(cards, /pet \? petBuddy\(pet, app\.base, \{ label: false, eager \}\) : null/);
-  assert.match(intro, /buddyOf\(ctx\.catalog, x\.c\.pet\)/, '첫 화면 1~3등 무대');
-  assert.match(intro, /petBuddy\(pet, ctx\.app\.base, \{ label: false \}\)/);
+  // 2026-10-18 사용자 "메인·목록 카드의 펫은 장면 안에 세우지 말고 카드 왼쪽 아래 작은 칸에 따로": 큰 사진 카드(views/feed.js postCard)의 펫 칸(lib/raster.js petTile)
+  const feed = await src('views/feed.js'), raster = await src('lib/raster.js');
+  assert.match(feed, /const pet = character \? buddyOf\(catalog, c\.pet\) : null;/, '카드: 함께하는 펫(c.pet) — 시즌 목록에 없는 펫은 그리지 않는다');
+  assert.match(feed, /pet \? petTile\(pet, app\.base, \{ label: `함께하는 펫 \$\{pet\.name\}/, '펫 칸(이름은 화면 읽기·마우스 올리기로)');
+  assert.match(raster, /export function petFit\(box, n\)/, '펫 그림의 보이는 곳만 칸에 맞춘다');
   const css = await readFile(new URL('../docs/styles.css', import.meta.url), 'utf8');
-  for (const rule of ['.kg-card-media .kg-pet-buddy {', '.kg-cast-one .kg-pet-buddy {', '.kg-cast-one.left .kg-pet-buddy {', '.kg-pet-buddy.bare .kg-pet-img {']) assert.ok(css.includes(rule), rule);
+  for (const rule of ['.kg-pet-tile {', '.kg-pet-buddy.bare .kg-pet-img {']) assert.ok(css.includes(rule), rule);
+  assert.match(css, /\.kg-pet-tile \{[^}]*left: 14px; bottom: 14px;/, '왼쪽 아래 구석');
   // 체험 서버도 실제 서버(lib.ts)처럼: 카드는 pet 만, 1~3등은 pets·pet
   const mock = await src('mock.js');
   assert.match(mock, /const card = \(p, page\) => \(\{[^\n]*\.\.\.\(p\.pet \? \{ pet: p\.pet \} : \{\}\)/);

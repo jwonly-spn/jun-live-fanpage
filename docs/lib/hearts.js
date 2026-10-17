@@ -40,3 +40,20 @@ export function markSent(storage, key, now = Date.now()) {
   keys.push(key);
   s.set(SENT_KEY, JSON.stringify({ day, keys: keys.slice(-500) }));
 }
+// 오늘 하트를 보낸 캐릭터 수(하루 하트 미션 — lib/me.js missionOf)
+export function sentCount(storage, now = Date.now()) {
+  const v = readSent(safe(storage));
+  return v && v.day === kstDay(now) ? v.keys.length : 0;
+}
+
+// 하트 보내기(카드·캐릭터 페이지가 같이 쓴다 — 2026-10-18 새 구조): 누르는 즉시 화면 수를 +1(optimistic) 하고, 서버 답이 오면 그 수로 맞춘다.
+//  실패하면 원래 수로 되돌린다(revert). 오늘 이미 보낸 캐릭터면 서버에 묻지 않는다(already — 하루 한 번은 서버가 정하지만 단추 모양용 기억).
+//  card = {slug, id, seasonId, hearts} · send(slug, id, token) → {hearts, already} · → {already, optimistic, done: Promise<{ok, hearts, already, error?}>}
+export function sendHeart(card, { send, storage, now = Date.now(), random } = {}) {
+  const key = heartKey(card.slug, card.id, card.seasonId), hearts = Math.max(0, Number(card.hearts) || 0);
+  if (sentToday(storage, key, now)) return { already: true, optimistic: hearts, done: Promise.resolve({ ok: true, hearts, already: true }) };
+  const done = Promise.resolve().then(() => send(card.slug, card.id, heartToken(storage, random)))
+    .then((r) => { markSent(storage, key, now); return { ok: true, hearts: Number.isFinite(Number(r?.hearts)) ? Number(r.hearts) : hearts + 1, already: Boolean(r?.already) }; })
+    .catch((error) => ({ ok: false, hearts, already: false, error }));
+  return { already: false, optimistic: hearts + 1, done };
+}
