@@ -186,6 +186,11 @@ a { color: inherit; }
    남자와 자연스러운 키 차이(약 93%)가 나게 한다. 발바닥 선(여자 974 · 남자 960 / 1024)을 같게 — 여자 발바닥을 기준으로 줄이고 14px 올린다.
    (transform 대신 scale·translate 속성 — 카드에 올렸을 때 커지는 효과(.kg-actor transform)·모션 애니메이션과 겹치지 않게) */
 .kg-actor.is-f > .kg-body { transform-origin: 50% 95.117%; scale: .91; translate: 0 -1.367%; }
+/* 메인·목록 카드(2026-10-18 사용자 "메인에선 종아리 위부터 — 실제 사진 찍은 것처럼, 클릭하면 전신"): 머리끝~종아리 가운데(1024 캔버스 x 248~776 · y 8~800)를
+   2:3 카드에 꽉 채운다(발은 칸 밖 — 발밑 그림자 없음). 캐릭터 페이지(.kg-hero-stage)·입혀 보기는 전신 그대로. */
+.kg-card-media .kg-stage.char > svg, .kg-card-media .kg-stage.char > .kg-actor,
+.kg-cast-one .kg-stage.char > svg, .kg-cast-one .kg-stage.char > .kg-actor { width: 193.9394%; height: 129.2929%; left: -46.9697%; top: -1.0101%; }
+.kg-card-media .kg-stage.char::after, .kg-cast-one .kg-stage.char::after { display: none; }
 .kg-stage.bare { background: none; overflow: visible; }
 .kg-stage.bare::after { left: 24%; right: 24%; bottom: 1.4%; height: 5%; background: radial-gradient(closest-side, rgba(58, 44, 72, .34), rgba(58, 44, 72, 0)); }
 .kg-stage.dj { background: radial-gradient(60% 40% at 50% 26%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%), linear-gradient(180deg, #f1ebe4 0%, #e7dfd6 62%, #dcd2c7 100%); }
