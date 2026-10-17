@@ -277,7 +277,7 @@ export function externalUrl(href, kind) {
 export const PET_GROUND = 470 / 512;
 // 펫 캔버스 = 캐릭터 캔버스(1024 × 1.1 × 줄인 배수)의 0.46배 — 보이는 펫 높이가 캐릭터 키의 약 ★1 23% · ★3 33% · ★5 43%
 //  (2026-10-18 새 그림체: 예전 0.66배는 ★3 부터 캐릭터 키의 절반을 넘어 펫이 캐릭터만큼 커 보였다)
-export const PET_SCALE = 0.46;
+export const PET_SCALE = 0.69; // 2026-10-18 사용자 "펫 1.5배 더" (0.46 → 0.69)
 const PET_PART = /^[a-z0-9_-]{1,40}$/;
 export function savePetUrl(pet, base = '/') {
   if (!pet || !PET_PART.test(String(pet.id || '')) || !PET_PART.test(String(pet.season || ''))) return null;

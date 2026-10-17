@@ -181,9 +181,11 @@ a { color: inherit; }
 .kg-stage > svg, .kg-stage > .kg-actor { position: absolute; z-index: 1; left: 0; top: 0; width: 100%; height: 100%; display: block; animation: kg-fade .45s ease both; }
 .kg-stage.char { aspect-ratio: 2 / 3; }
 .kg-stage.char > svg, .kg-stage.char > .kg-actor { width: 154.8387%; height: 103.2258%; left: -27.4194%; top: -.8065%; }
-/* 함께하는 펫이 있으면 캐릭터만 왼쪽으로 9% 비켜 서서(배경 장면은 그대로) 펫이 오른쪽 발치에 선다 — 펫이 다리를 가리지 않게 */
-.has-pet > .kg-stage.char > .kg-actor { left: calc(-27.4194% - 9%); }
-.has-pet > .kg-stage.char::after { left: 18%; right: 36%; }
+/* 함께하는 펫이 있어도 캐릭터는 무대 한가운데(2026-10-18 사용자 "펫이 있어도 캐릭터가 정중앙에 — 펫이 하체를 가려도 되니까") — 펫은 오른쪽 발치에 겹쳐 선다.
+   여자 캐릭터(2026-10-18 사용자 "여자를 늘려서 이질적 — 원래 크기로"): R7 그림은 여자 몸(키 882)이 남자 몸(864)보다 크게 그려져 있어 무대에서만 0.91 배로 줄여
+   남자와 자연스러운 키 차이(약 93%)가 나게 한다. 발바닥 선(여자 974 · 남자 960 / 1024)을 같게 — 여자 발바닥을 기준으로 줄이고 14px 올린다.
+   (transform 대신 scale·translate 속성 — 카드에 올렸을 때 커지는 효과(.kg-actor transform)·모션 애니메이션과 겹치지 않게) */
+.kg-actor.is-f > .kg-body { transform-origin: 50% 95.117%; scale: .91; translate: 0 -1.367%; }
 .kg-stage.bare { background: none; overflow: visible; }
 .kg-stage.bare::after { left: 24%; right: 24%; bottom: 1.4%; height: 5%; background: radial-gradient(closest-side, rgba(58, 44, 72, .34), rgba(58, 44, 72, 0)); }
 .kg-stage.dj { background: radial-gradient(60% 40% at 50% 26%, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0) 72%), linear-gradient(180deg, #f1ebe4 0%, #e7dfd6 62%, #dcd2c7 100%); }
@@ -501,18 +503,18 @@ a { color: inherit; }
 .kg-copy-btn { flex: 0 1 auto; min-height: 54px; }
 /* 저장하기(lib/kiugi-save.js): 캐릭터 그림 바로 아래 따로 있는 단추 하나 — 휴대폰은 그림 너비 그대로, PC 는 보통 너비로 가운데. 만드는 동안 그림이 깜박인다. */
 .kg-save-row { display: flex; justify-content: center; margin-top: 14px; }
-/* 펫(2026-10-15): 함께하는 펫은 캐릭터 무대 오른쪽 발치에 서고(캐릭터는 왼쪽으로 조금 비켜 선다 — .has-pet), 펫 칸은 시즌 펫 차례대로(못 만난 펫은 1단계 그림 모양만 — 옅은 실루엣).
+/* 펫(2026-10-15): 함께하는 펫은 캐릭터 무대 오른쪽 발치에 서고(캐릭터는 한가운데 그대로 — 펫이 하체에 겹쳐도 된다), 펫 칸은 시즌 펫 차례대로(못 만난 펫은 1단계 그림 모양만 — 옅은 실루엣).
    그림(512×512, 바닥선 y=470 — 아래 8% 는 빈 칸)은 단계마다 펫 크기가 달라(512 칸 높이의 ★1 45% … ★5 85%) 칸 너비(--pw)를 단계마다 정한다. */
 .kg-hero-stage { position: relative; overflow: hidden; }
 /* 2026-10-18 새 그림체(7등신 — 다리가 가늘고 길다): 예전처럼 펫이 무대 오른쪽 아래를 크게 덮으면 다리를 가렸다(사용자 "한눈에 잘 안 보인다") →
-   보이는 펫 높이를 무대 높이의 ★1 20% → ★2 22.5 → ★3 25 → ★4 27.5 → ★5 30% 로(무대 2:3 기준 칸 너비 66.5 · 61.3 · 57.7 · 55 · 52.9%), 펫 발끝 = 캐릭터 발끝(무대 아래 3%).
+   보이는 펫 높이를 무대 높이의 ★1 30% → ★2 34 → ★3 37.5 → ★4 41 → ★5 45% 로(2026-10-18 사용자 "펫이 하체 가려도 되니까 1.5배 더 키워줘" — 무대 2:3 기준 칸 너비 99.75 · 91.95 · 86.55 · 82.5 · 79.35%), 펫 발끝 = 캐릭터 발끝(무대 아래 3%).
    보이는 펫만 무대 오른쪽 끝(--pe 안쪽)에 서도록 단계마다 그림 옆 빈 칸 비율(--pm — 펫 5종 가운데 가장 작은 값, 기획\DJ키우기\펫S1\verify.json 의 box)만큼 칸을 내보낸다.
    --ps: 칸마다 크기 배율(첫 화면 무대는 조금 작게). --pt: 이름표 자리(펫 머리 위 — 그림 아래에서 잰 높이). */
-.kg-pet-buddy { --ps: 1; --pw: 66.5%; --pm: .30; --pe: 2%; --pt: 53%; position: absolute; right: calc(var(--pe) - var(--pw) * var(--ps) * var(--pm)); bottom: 3%; z-index: 2; width: calc(var(--pw) * var(--ps)); margin: 0 0 calc(var(--pw) * var(--ps) * -.08); display: block; pointer-events: none; }
-.kg-pet-buddy.st2 { --pw: 61.3%; --pm: .235; --pt: 63%; }
-.kg-pet-buddy.st3 { --pw: 57.7%; --pm: .185; --pt: 73%; }
-.kg-pet-buddy.st4 { --pw: 55%; --pm: .125; --pt: 83%; }
-.kg-pet-buddy.st5 { --pw: 52.9%; --pm: .075; --pt: 92%; }
+.kg-pet-buddy { --ps: 1; --pw: 99.75%; --pm: .30; --pe: 2%; --pt: 53%; position: absolute; right: calc(var(--pe) - var(--pw) * var(--ps) * var(--pm)); bottom: 3%; z-index: 2; width: calc(var(--pw) * var(--ps)); margin: 0 0 calc(var(--pw) * var(--ps) * -.08); display: block; pointer-events: none; }
+.kg-pet-buddy.st2 { --pw: 91.95%; --pm: .235; --pt: 63%; }
+.kg-pet-buddy.st3 { --pw: 86.55%; --pm: .185; --pt: 73%; }
+.kg-pet-buddy.st4 { --pw: 82.5%; --pm: .125; --pt: 83%; }
+.kg-pet-buddy.st5 { --pw: 79.35%; --pm: .075; --pt: 92%; }
 .kg-pet-buddy .kg-pet-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 8px 8px rgba(58, 44, 72, .28)); }
 .kg-pet-buddy .kg-pet-emoji { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto 6px; border-radius: 50%; background: var(--paper); font-size: 34px; line-height: 1; }
 /* 이름표(캐릭터 페이지 무대): 펫 머리 위에 작은 이름표 */
@@ -525,7 +527,6 @@ a { color: inherit; }
 .kg-card-media .kg-pet-buddy { --ps: 1; --pe: 2%; }
 /* 첫 화면 무대: 1등의 펫은 오른쪽 발치 앞, 2·3등의 펫은 바깥쪽 발치(조금 작게) */
 /*  첫 화면 무대의 캐릭터는 비켜 서지 않는다(셋이 나란히 — 펫은 캐릭터 사이·바깥 빈 곳에) */
-.kg-cast-one.has-pet > .kg-stage.char > .kg-actor { left: -27.4194%; }
 .kg-cast-one.has-pet > .kg-stage.char::after { left: 24%; right: 24%; }
 .kg-cast-one .kg-pet-buddy { --ps: .74; --pe: 2%; }
 .kg-cast-one.lead .kg-pet-buddy { --ps: .7; --pe: 10%; }
@@ -591,7 +592,7 @@ a { color: inherit; }
 .kg-try-title-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 10px rgba(33, 27, 40, .35)); }
 .kg-try-title .kg-title-word { font-size: 15px; text-align: center; }
 .kg-try-look.has-title .kg-try-stage > svg, .kg-try-look.has-title .kg-try-stage > .kg-actor { width: 128.5%; height: 85.7%; left: -14.25%; top: 14%; }
-.kg-try-look.has-title.has-pet .kg-try-stage > .kg-actor { left: calc(-14.25% - 9%); }
+/* (입혀 보기도 펫이 있어도 캐릭터는 가운데 — 비켜 서지 않는다) */
 .kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
 /* 입혀 보기 미리 보기의 함께하는 펫(2026-10-15): 캐릭터 무대처럼 오른쪽 발치에(작은 미리 보기에서는 이름표 없이) */
 .kg-try-look { overflow: hidden; border-radius: var(--r-md); }

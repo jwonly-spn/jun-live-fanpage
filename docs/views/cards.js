@@ -88,7 +88,9 @@ export function actorNodes(markup, { motion = null } = {}) {
   const prefix = MOTIONS_READY ? addEyeStates(art) : null;
   const backdrop = scene ? svgNode(scene) : null;
   backdrop?.classList.add('kg-scene');
-  const actor = h('div', { class: 'kg-actor', ...(prefix !== null ? { 'data-kg-prefix': prefix } : {}) },
+  // 여자 몸 그림이면 is-f(styles.css — 무대에서 남자와 키 차이가 나게 조금 줄인다)
+  const female = /female_body\.png/.test(body);
+  const actor = h('div', { class: 'kg-actor' + (female ? ' is-f' : ''), ...(prefix !== null ? { 'data-kg-prefix': prefix } : {}) },
     h('div', { class: 'kg-body' }, art, h('span', { class: 'kg-fx on-body', 'aria-hidden': 'true' })),
     h('span', { class: 'kg-fx around', 'aria-hidden': 'true' }));
   setActorMotion(actor, motion);
