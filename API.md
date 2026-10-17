@@ -21,10 +21,16 @@
 - 주소: `https://키우기.com/`(xn--ok0bp87bn6g.com, BASE `/`, 2026-10-08부터 — 예전 `https://jwonly-spn.github.io/jun-live-fanpage/` 는 GitHub 가 새 주소로 넘김. `docs/`, GitHub Pages, 빌드 없음).
   GitHub Pages는 모르는 경로에 `404.html`을 주므로 `404.html`은 `index.html`과 같은 내용(SPA). 경로에서 BASE 경로(`/jun-live-fanpage/`)를 떼고 라우팅.
 - 화면: `/`(메인, `views/intro.js` — 칸 목록 `LANDING_SECTIONS`) · `items`(옷 도감) · `k/<주소>`(DJ 키우기 페이지) · `k/<주소>/<아이디 앞 부분>`(캐릭터 페이지, 앞 부분 = 한글 1~6자) · `p/…`·`studio`·`app`(마친 서비스 안내) · 그 밖(없는 주소 안내). `spoon.html`은 따로 있는 페이지.
+- 2026-10-18 새 구조(SNS): 메인 = DJ 동그라미 줄(맨 앞 내 캐릭터) · 오늘의 주인공(한국 날짜마다 인기 6위 안에서) · 내 캐릭터(지난 방문 뒤 달라진 것) · 오늘의 하트 미션·연속 방문 · 탭(인기 · 새로 꾸민 · DJ별) + 큰 사진 카드(`views/feed.js` — 휴대폰 한 장 · 태블릿 두 장 · PC 세 장, 머리 조금 위~허벅지 가운데, 펫은 왼쪽 아래 작은 칸). 캐릭터 페이지는 전신.
+  - 캐릭터 사진(`lib/raster.js`): 저장하기와 같은 그리기 함수로 캔버스에 한 번 그려 그림(data: — CSP 는 그대로)으로 둔다. 이번 창 메모리 + 이 브라우저 IndexedDB `kg-raster`(열쇠에 그림 주소 `?v=` 해시가 들어 있어 그림이 바뀌면 새로 그린다).
+  - 공통 배경은 가벼운 WebP 사본 `docs/kiugi-lite/`(`tools/make-lite-art.cjs` — Electron 으로, 그림이 바뀌면 다시. `docs/kiugi/` 는 먼치킨 sync 가 통째로 맞춰 쓰므로 그 밖에 둔다). 원본 해시가 다르면 원본을 쓴다.
+  - 서버 답 기억(`lib/swr.js` — localStorage `kg_c:*`, 7일)과 시즌 목록 기억(`kg_cat`): 지난 답으로 먼저 그리고 새 답을 받는다. 카드를 누르면 카드가 아는 것으로 캐릭터 페이지를 바로 그린다.
+  - 이 브라우저에만 기억하는 것(서버로 보내지 않음, `lib/me.js`): 내 캐릭터 `kg_me` · 지난 모습 `kg_me_snap` · 연속 방문 `kg_streak` · 오늘 본 DJ `kg_seen_dj` · 마지막 탭 `kg_tab`. 저장소가 막혀 있으면 이번 창에서만.
+  - 올리기 전 `tools/stamp.cjs`(deploy-site 가 부른다): index.html·404.html 에 파일 내용 해시 주소 · import map · modulepreload · CSP 해시를 찍는다(GitHub Pages 10분 캐시 때문에 새 파일이 늦게 보이던 것).
 - 화면에는 레벨과 표정 이름만 보이고 애정도 숫자는 보이지 않는다.
 - 하트: 사이트가 이 브라우저 저장소(localStorage)에 무작위 열쇠(32자, `kg_heart_token`)를 만들어 두고 `POST heart`에 실어 보낸다. 오늘 보낸 캐릭터는 `kg_hearted`에 기억해 "♥ 오늘 하트 보냈어요"로 보여 준다(저장소가 막혀 있으면 이번 창에서만).
 - 옷 도감: 이름·값·레벨은 사이트에 복사된 시즌 목록 `docs/kiugi/season-*.json`(먼치킨 `rules.mjs`와 같게 — 시즌 옷은 등급표 `tiers`의 price·level, 시즌 보상은 보상 값과 `seasonRewardRule.minLevel`), 입은 사람 수는 `GET home`의 `items`(메인에 보이는 방송만).
-- 그림: 화면 가까이 온 카드만 그린다(그림 파일이 1024px라 휴대폰 메모리를 아끼려고).
+- 그림: 화면 가까이 온 카드만 그린다(그림 파일이 1024px라 휴대폰 메모리를 아끼려고). 카드는 한 번 그린 사진을 다시 쓴다(위 새 구조).
 - 체험: 이 PC 미리 보기(localhost)에서만(2026-10-15 — 실제 사이트에서는 켜지지 않는다, `?demo=0` 으로 끔) — `docs/mock.js`가 모든 길을 흉내 낸다. 지어낸 DJ 캐릭터 먼치(`nyangdj7`)·쿠키(`cuky2345`)·젤리(`jery2468`), 닫힌 페이지 `shutpg22`.
 
 ## DJ 키우기 — Edge Function `kiugi`
