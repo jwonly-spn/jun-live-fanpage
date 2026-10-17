@@ -732,7 +732,7 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-night { padding-top: 14px; }
 /* DJ 동그라미 줄: 손가락으로 옆으로(화살표 없음). 맨 앞은 내 캐릭터. 오늘 본 DJ 는 옅은 테두리 */
 .kg-ring-host { min-height: 112px; }
-.kg-rings ul { list-style: none; display: flex; gap: 6px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 6px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scrollbar-width: none; }
+.kg-rings ul { list-style: none; display: flex; gap: 6px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 6px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter); scrollbar-width: none; }
 .kg-rings ul::-webkit-scrollbar { display: none; }
 .kg-rings li { flex: none; scroll-snap-align: start; }
 .kg-ring { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 82px; padding: 2px 0; border: 0; background: none; color: var(--text); font: inherit; text-decoration: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }

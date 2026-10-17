@@ -250,3 +250,10 @@ test('내 캐릭터 소식 글(views/feed.js): 달라진 것마다 큰 글·작�
   assert.equal(newsHead({ changes: [] })[0], '지난 방문과 그대로예요');
   assert.equal(newsHead({ changes: [{ kind: 'hearts' }], up: true })[0], '지난 방문 뒤로 이만큼 자랐어요!');
 });
+
+test('DJ 동그라미 줄: 가장자리까지 넘기는 줄(음수 여백 + 안쪽 여백)이 맞춤(scroll-snap) 때문에 첫 칸을 화면 끝으로 밀지 않게 scroll-padding-inline 도 같은 여백', async () => {
+  const css = await readFile(docs + 'styles.css', 'utf8');
+  const rule = css.match(/\.kg-rings ul \{[^}]*\}/)?.[0] || '';
+  assert.match(rule, /scroll-snap-type: x/);
+  assert.match(rule, /scroll-padding-inline: var\(--gutter\)/);
+});
