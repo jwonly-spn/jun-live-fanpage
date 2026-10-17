@@ -160,7 +160,8 @@ export function petBuddy(pet, base, { label = true, eager = true } = {}) {
 
 // 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
 export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {
-  return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item' });
+  // 배경 옷은 가벼운 사본(WebP)으로 — 옷 도감·TOP 5 에 배경 열 장이 다 나와도 1.5MB 씩 받지 않게
+  return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item', lite: base });
 }
 
 // 메인·DJ 페이지·찾기 결과의 큰 사진 카드는 views/feed.js postCard(2026-10-18 새 구조 — 예전 작은 카드 characterCard·djCard 는 없앴다).

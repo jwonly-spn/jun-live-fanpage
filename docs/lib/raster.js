@@ -213,9 +213,11 @@ export async function rasterize(opts) {
     let canvas;
     try { canvas = paint({ plan, images, kind, s, character, base }); }
     finally { release(); }
+    // 다 그린 캔버스를 화면이 먼저 보여 줄 수 있게 넘긴다(그림 파일로 만드는 동안 기다리지 않게 — 화면 쪽이 다 쓴 뒤 비운다)
+    const handed = typeof opts.onCanvas === 'function' && opts.onCanvas(canvas) === true;
     const blob = await toBlob(canvas);
     const r = { url: await dataUrl(blob), w: canvas.width, h: canvas.height, cached: false };
-    free(canvas);
+    if (!handed) free(canvas);
     MEM.set(key, r);
     rasterStats.drawn++; if (t0) rasterStats.ms += performance.now() - t0;
     void dbPut({ k: key, blob, w: r.w, h: r.h, at: Date.now() });
@@ -231,8 +233,7 @@ function turn() { return new Promise((resolve) => { if (!busy) { busy = true; re
 function release() { setTimeout(() => { const next = line.shift(); if (next) next(); else busy = false; }, 0); }
 
 // ---- 화면 칸 ----
-// 사진 칸: <div class="kg-photo <kind>"> + <img data-kg-raster>. 화면 가까이 오면 그린다(eager 면 바로). 다 그린 뒤 살짝 나타난다(is-ready).
-//  실패하면 onFail(칸) — 화면 쪽이 예전 SVG 그림으로 바꾼다. 칸 크기는 styles.css 가 정한다(그리기 전에도 같은 크기 — 화면이 밀리지 않게).
+// 그리기 차례: 화면 가까이 온 칸을 모아 두고(queue) 화면 가운데에 가까운 칸부터
 const queue = new Set(), ACTIVE_MAX = 4;
 let observer = null, active = 0;
 // 화면 가운데와의 거리(아직 화면에 붙지 않은 칸은 맨 뒤)
@@ -247,7 +248,15 @@ function pump() {
     Promise.resolve(best.kgPaint?.()).finally(() => { active--; pump(); });
   }
 }
-const later = (fn) => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => fn()) : setTimeout(fn, 0));export function photoBox(opts, { eager = false, label = '', onFail = null, className = '' } = {}) {
+const later = (fn) => (typeof requestAnimationFrame === 'function' ? requestAnimationFrame(() => fn()) : setTimeout(fn, 0));
+// 사진 칸: <div class="kg-photo <kind>"> + <img data-kg-raster>. 화면 가까이 오면 그린다(eager 면 바로). 다 그리면 캔버스를 먼저 보여 주고, 그림 파일이 되면 같은 그림의 img 로 바꾼다.
+//  실패하면 onFail(칸) — 화면 쪽이 예전 SVG 그림으로 바꾼다. 칸 크기는 styles.css 가 정한다(그리기 전에도 같은 크기 — 화면이 밀리지 않게).
+// 작은 칸(low — DJ 동그라미)은 큰 사진이 하나 나온 뒤에(늦어도 1.5초 뒤) 그리기 시작한다 — 처음 화면에서 큰 사진이 그림 파일을 먼저 받게.
+let firstBig = null;
+const bigReady = () => (firstBig ||= { promise: null, resolve: null });
+function waitBig() { const b = bigReady(); b.promise ||= new Promise((r) => { b.resolve = r; setTimeout(r, 1500); }); return b.promise; }
+function markBig() { const b = bigReady(); if (!b.promise) b.promise = Promise.resolve(); else b.resolve?.(); }
+export function photoBox(opts, { eager = false, label = '', onFail = null, className = '', low = false } = {}) {
   const kind = opts.kind || 'photo';
   const img = document.createElement('img');
   img.className = 'kg-raster'; img.alt = ''; img.decoding = 'async'; img.draggable = false;
@@ -263,14 +272,19 @@ const later = (fn) => (typeof requestAnimationFrame === 'function' ? requestAnim
     done = true;
     try {
       // 크기: 부른 쪽이 알려 준 크기(동그라미 — 늘 같은 배율) 또는 화면에 놓인 칸 너비(아직 칸이 놓이지 않았으면 큰 카드 크기)
-      const r = await rasterize({ ...opts, kind, cssWidth: opts.cssWidth || box.getBoundingClientRect().width || 380, dpr: typeof devicePixelRatio === 'number' ? devicePixelRatio : 1 });
+      let live = null;
+      const r = await rasterize({ ...opts, kind, cssWidth: opts.cssWidth || box.getBoundingClientRect().width || 380, dpr: typeof devicePixelRatio === 'number' ? devicePixelRatio : 1,
+        onCanvas: (c) => { live = c; c.className = 'kg-raster-live'; c.setAttribute('aria-hidden', 'true'); box.append(c); box.classList.add('is-ready'); if (!low) markBig(); return true; } });
       img.width = r.w; img.height = r.h;
       img.src = r.url;
       try { await img.decode(); } catch { /* 그래도 보인다 */ }
       box.classList.add('is-ready');
+      if (!low) markBig();
       if (r.cached) box.classList.add('was-cached');
+      if (live) { live.remove(); free(live); }
     } catch (e) { console.error(e); box.classList.add('is-failed'); onFail?.(box); }
   };
+  if (low) { waitBig().then(() => { queue.add(box); pump(); }); return box; }
   if (eager || typeof IntersectionObserver !== 'function') { queue.add(box); later(pump); return box; }
   observer ||= new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { observer.unobserve(e.target); queue.add(e.target); }
@@ -283,7 +297,8 @@ const later = (fn) => (typeof requestAnimationFrame === 'function' ? requestAnim
 export function prefetchLook({ catalog, character, worn = {}, level = 1, seasonId = null, base = '/' }) {
   try {
     const plan = characterPlan(character || {}, { worn: worn || {} }, expressionFor(catalog, seasonId, level || 1));
-    for (const u of planUrls(plan, base)) preloadImage(u).catch(() => {});
+    const urls = planUrls(plan, base);
+    loadLite(base).then((lite) => { for (const u of urls) preloadImage(liteUrl(u, lite, base)).catch(() => {}); });
   } catch { /* 무시 */ }
 }
 

@@ -127,7 +127,9 @@ export function pinButton({ slug, id, djName = '' }, { onPin = null, className =
     document.dispatchEvent(new CustomEvent('kg-me'));
     onPin?.();
   });
-  document.addEventListener('kg-me', () => { if (btn.isConnected) sync(); });
+  const listen = () => { if (!btn.isConnected && btn.dataset.kgSeen) { document.removeEventListener('kg-me', listen); return; } sync(); };
+  document.addEventListener('kg-me', listen);
+  queueMicrotask(() => { btn.dataset.kgSeen = '1'; });
   sync();
   return btn;
 }
@@ -149,7 +151,7 @@ export function markDjSeen(slug, now = Date.now()) { const list = seenDjs(now).f
 export function storyRings(djs, ctx, { me = null, meLook = null, news = 0, onMe = null } = {}) {
   const seen = new Set(seenDjs());
   // cssWidth: 동그라미 크기(그리기 전에도 같은 배율 — 이 브라우저 사진 캐시 열쇠가 바뀌지 않게)
-  const pic = (character, worn = {}, level = 1, label = '') => h('span', { class: 'kg-ring-pic' }, photoBox({ catalog: ctx.catalog, character, worn, level, seasonId: ctx.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }, { label, eager: true }));
+  const pic = (character, worn = {}, level = 1, label = '') => h('span', { class: 'kg-ring-pic' }, photoBox({ catalog: ctx.catalog, character, worn, level, seasonId: ctx.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }, { label, eager: true, low: true }));
   const items = [];
   if (me) {
     items.push(h('li', null, h('button', { type: 'button', class: 'kg-ring is-me' + (news ? ' has-news' : ''), onclick: () => onMe?.(), 'aria-label': `내 캐릭터 ${me.id}${news ? ` · 새 소식 ${news}개` : ''}` },
@@ -179,7 +181,7 @@ export function todayStrip({ streak = null } = {}) {
     const m = missionOf(sentCount(storage));
     mission.classList.toggle('is-done', m.done);
     line.textContent = m.done ? '오늘의 하트 미션 완료!' : `오늘의 하트 ${Math.min(m.sent, m.goal)}/${m.goal}`;
-    sub.textContent = m.done ? `오늘 ${fmt(m.sent)}명에게 하트를 보냈어요. 내일 또 만나요.` : `마음에 드는 캐릭터에게 하트를 ${m.left}번 더 보내 보세요.`;
+    sub.textContent = m.done ? `오늘 ${fmt(m.sent)}명에게 보냈어요 · 내일 또 만나요` : `하트를 ${m.left}번 더 보내면 완료`;
     dots.replaceChildren(...Array.from({ length: m.goal }, (_, i) => h('i', { class: i < m.sent ? 'on' : '' })));
   };
   const streakEl = streak ? h('div', { class: 'kg-streak' + (streak.n >= 2 ? ' hot' : '') }, h('span', { class: 'kg-streak-ic', 'aria-hidden': 'true' }, icon('flame', { size: 18 })),
@@ -264,7 +266,7 @@ export function meSection(ctx, { onFind = null, rankOf = () => null } = {}) {
     if (e?.status === 404) {
       news.replaceChildren(h('b', { class: 'kg-me-news-title' }, '이번 시즌 아이디를 찾을 수 없어요'), h('p', null, '시즌이 바뀌면 아이디를 새로 만들어요. 새 아이디를 찾아 다시 정해 주세요.'),
         h('button', { type: 'button', class: 'btn btn-line', onclick: () => { clearMe(storage); document.dispatchEvent(new CustomEvent('kg-me')); onFind?.(); } }, '새 아이디 찾기'));
-      if (!job.cached) cardHost.replaceChildren();
+      cardHost.replaceChildren();
     } else news.replaceChildren(h('b', { class: 'kg-me-news-title' }, '지금은 새 소식을 불러오지 못했어요'), h('p', null, e?.message || '잠시 뒤에 다시 들어와 주세요.'));
     return { news: 0, look: lookOf(job.cached) };
   });

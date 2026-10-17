@@ -92,7 +92,12 @@ export async function renderKiugi(root, route, app) {
   const draw = (pg) => paintPage(pg, { app, catalog, top, night, main });
   draw(page);
   shell.append(siteFoot(app, '이 페이지에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 아이디를 빼고 싶으면 DJ에게 말해 주세요.'));
-  if (job.cached) job.fresh.then((fresh) => { if (!sameData(fresh, job.cached) && main.isConnected) draw(fresh); }, () => {});
+  // 새 답이 다르면 다시 그린다 — 찾기 칸에 글을 쓰는 중이면(쓰던 글이 지워지지 않게) 그대로 둔다
+  if (job.cached) job.fresh.then((fresh) => {
+    const typing = document.getElementById('kg_q');
+    if (sameData(fresh, job.cached) || !main.isConnected || (typing && (typing === document.activeElement || typing.value))) return;
+    draw(fresh);
+  }, () => {});
 }
 
 function paintPage(page, { app, catalog, top, night, main }) {

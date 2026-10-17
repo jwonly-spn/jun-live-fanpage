@@ -646,6 +646,8 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-photo { position: absolute; inset: 0; overflow: hidden; background: var(--stage); }
 .kg-photo > img { display: block; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .32s ease, transform .6s var(--ease); -webkit-user-drag: none; user-select: none; }
 .kg-photo.is-ready > img { opacity: 1; }
+/* 막 그린 캔버스(그림 파일이 되기 전까지 잠깐 — 같은 그림이라 바뀌어도 보이지 않는다) */
+.kg-photo > canvas.kg-raster-live { position: absolute; inset: 0; z-index: 1; display: block; width: 100%; height: 100%; animation: kg-fade .32s ease both; }
 .kg-photo.was-cached > img { transition: transform .6s var(--ease); }
 .kg-photo::before { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .5) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.5s ease-in-out infinite; pointer-events: none; }
 .kg-photo.is-ready::before, .kg-photo.is-empty::before, .kg-photo.is-failed::before { display: none; }
@@ -724,6 +726,9 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 
 /* ---------- 첫 화면(메인) ---------- */
 .kg-top { display: flex; flex-direction: column; gap: 22px; }
+/* 휴대폰: 동그라미 줄 다음에 바로 오늘의 주인공(큰 사진이 첫 화면에) — 글·찾기는 그 아래(읽는 차례는 그대로) */
+.kg-top > .kg-spot-host { order: 1; }
+.kg-top > .kg-hero { order: 2; }
 .kg-night { padding-top: 14px; }
 /* DJ 동그라미 줄: 손가락으로 옆으로(화살표 없음). 맨 앞은 내 캐릭터. 오늘 본 DJ 는 옅은 테두리 */
 .kg-ring-host { min-height: 112px; }
@@ -841,7 +846,10 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-dj-feed { display: flex; flex-direction: column; gap: 34px; }
 .kg-dj-row { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .kg-dj-row-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; color: inherit; text-decoration: none; }
-.kg-dj-row-name { display: flex; flex-direction: column; min-width: 0; }
+.kg-dj-row-name { flex: 1 1 auto; display: flex; flex-direction: column; min-width: 0; }
+.kg-dj-row-pic { position: relative; flex: none; width: 48px; height: 48px; border-radius: 50%; background: var(--ring); }
+.kg-dj-row-pic > .kg-photo { inset: 2px; border-radius: 50%; border: 2px solid var(--bg); }
+.kg-find-panel { max-width: 760px; }
 .kg-dj-row-name b { font-size: 19px; font-weight: 800; letter-spacing: -.035em; }
 .kg-dj-row-name small { font-size: 12.5px; color: var(--text-2); }
 .kg-dj-cards { display: grid; grid-auto-flow: column; grid-auto-columns: 86%; gap: 14px; margin: 0 calc(-1 * var(--gutter)); padding: 4px var(--gutter) 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none; }

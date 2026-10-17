@@ -12,6 +12,7 @@ import { getMe, bumpStreak } from '../lib/me.js';
 import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, BRAND } from './common.js';
 import { seasonLine, dDay } from './kiugi.js';
 import { itemArt } from './cards.js';
+import { photoBox } from '../lib/raster.js';
 import { postCard, spotlight, storyRings, todayStrip, meSection, browserStore, PIN_LABEL } from './feed.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -209,6 +210,7 @@ function feedBlock(ctx) {
     const list = h('div', { class: 'kg-dj-cards' }, ...[1, 2, 3].map(() => h('div', { class: 'kg-post is-skeleton', 'aria-hidden': 'true' }, h('div', { class: 'kg-post-media' }, h('div', { class: 'kg-photo photo' })), h('div', { class: 'kg-post-bar' }))));
     const row = h('section', { class: 'kg-dj-row', 'aria-label': `${d.name} 키우기` },
       ilink(ctx.app.link({ name: 'kiugi', slug: d.slug }), { class: 'kg-dj-row-head' },
+        h('span', { class: 'kg-dj-row-pic', 'aria-hidden': 'true' }, photoBox({ catalog: ctx.catalog, character: d.character, worn: {}, level: 1, seasonId: fc.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }, { eager: true })),
         h('span', { class: 'kg-dj-row-name' }, h('b', null, `${d.name} 키우기`), h('small', null, `청취자 ${fmt(d.count)}명`)),
         h('span', { class: 'kg-more' }, '페이지 보기', icon('arrow', { size: 16 }))),
       list);

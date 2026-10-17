@@ -23,7 +23,7 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
-import { ilink, loading, nightTop, siteFoot, secHead, BRAND } from './common.js';
+import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND } from './common.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
 import { postCard, pinButton, burstLayer, HEART_ALREADY } from './feed.js';
 
@@ -416,6 +416,9 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
   const djLink = app.link({ name: 'kiugi', slug: dj.slug });
   const url = location.origin + app.link({ name: 'character', slug: dj.slug, base: route.base });
   document.title = `${data.id} · ${dj.name} 키우기`;
+  // 머리줄에 공유 단추(휴대폰은 공유 창, 안 되면 주소 복사)
+  const shareBtn = h('button', { type: 'button', class: 'fp-nav icon-only', 'aria-label': '이 캐릭터 공유하기', onclick: () => share(url, `${data.id} · ${dj.name} 키우기`) }, icon('share', { size: 19 }));
+  document.querySelector('.fp-top')?.replaceWith(nightTop(app, { actions: [shareBtn] })[1]);
 
   const worn = wornList(catalog, seasonId, data.worn);
   const slots = loadoutSlots(catalog, seasonId, data.worn);

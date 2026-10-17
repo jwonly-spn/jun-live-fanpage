@@ -160,7 +160,7 @@ test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·�
   assert.match(items, /art\(catalog, \{ gender \}, \{\}, 1, \{ seasonId, base: app\.base, label: `\$\{m\.name\} 모션 예시`, kind: 'motion', motion: m\.id \}\)/);
   assert.match(items, /onclick: \(\) => copyMotion\(m\)/);
   // 카드·DJ 페이지·메인은 숨쉬기만(art 에 motion 을 넘기지 않는다), 옷 한 벌 그림은 움직이지 않는다
-  assert.match(cards, /lazyStage\(\(\) => itemMarkup\(catalog, id, \{ base, label, gender, dj \}\), label, \{ kind: tall \? 'item tall' : 'item' \}\)/);
+  assert.match(cards, /lazyStage\(\(\) => itemMarkup\(catalog, id, \{ base, label, gender, dj \}\), label, \{ kind: tall \? 'item tall' : 'item', lite: base \}\)/, '옷 한 벌(배경은 가벼운 사본 — 2026-10-18)');
   assert.match(cards, /actor: true, motion: MOTIONS_READY \? motionOf\(catalog, motion\)\?\.id \|\| null : null/);
   for (const [name, s] of [['kiugi.js', kiugi], ['intro.js', intro]]) assert.doesNotMatch(s, /[{,] motion:/, name);
   // 화면 글에 모션 값을 적어 두지 않는다(시즌 목록에서 — "N냥" 숫자 글 없음)
