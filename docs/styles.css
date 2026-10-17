@@ -370,12 +370,13 @@ a { color: inherit; }
 @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
 
 /* 옆으로 넘기는 줄(페이지는 옆으로 움직이지 않는다) — 휴대폰은 큰 카드 한 장 반, 넓은 화면은 네 장씩 */
-.kg-rail { display: grid; grid-auto-flow: column; grid-auto-columns: 62%; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); margin: 0 calc(-1 * var(--gutter)); padding: 6px var(--gutter) 18px; scrollbar-width: none;
+/* 카드 칸 크기(2026-10-18 사용자 "캐릭터가 더 잘 보이게 사진 칸 하나하나를 키워 달라"): 휴대폰 한 장(옆 카드가 조금 보임) · 태블릿 2장 · PC 3장 */
+.kg-rail { display: grid; grid-auto-flow: column; grid-auto-columns: 84%; gap: 14px; overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); margin: 0 calc(-1 * var(--gutter)); padding: 6px var(--gutter) 18px; scrollbar-width: none;
   /* 넓은 화면에서도 줄이 화면 끝까지 이어진다(첫 카드는 본문 줄에 맞춤). --bleed = 본문 바깥 여백. cqw 를 모르는 브라우저는 위 값 */
   --bleed: max(var(--gutter), calc((100cqw - var(--wrap)) / 2 + var(--gutter)));
   margin-inline: calc(-1 * var(--bleed)); padding-inline: var(--bleed); scroll-padding-inline: var(--bleed); }
 .kg-rail::-webkit-scrollbar { display: none; }
-.kg-rail.sm { grid-auto-columns: 54%; gap: 12px; }
+.kg-rail.sm { grid-auto-columns: 84%; gap: 12px; }
 .kg-rail-item { min-width: 0; scroll-snap-align: start; }
 .kg-rail-ctl { display: none; flex: none; gap: 8px; }
 .kg-rail-btn { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--line-2); border-radius: 50%; background: var(--paper); color: var(--text); transition: background-color .2s ease, opacity .2s ease; }
@@ -383,7 +384,7 @@ a { color: inherit; }
 .kg-rail-btn:disabled { opacity: .35; }
 
 /* 캐릭터 카드(포토카드): 흰 테두리 안에 위 그림 칸(스튜디오 무대 또는 입은 배경 장면) + 아래 글 세 줄(어느 방송 · 아이디 · 레벨과 하트) */
-.kg-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
+.kg-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px 12px; }
 .kg-grid:empty { display: none; }
 .kg-card { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 7px 7px 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow-card); color: inherit; text-decoration: none; transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .25s ease; }
 .kg-card-media { position: relative; isolation: isolate; overflow: hidden; border-radius: 14px; transform: translateZ(0); }
@@ -744,9 +745,9 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-rail-ctl { display: flex; }
   /* 태블릿: 첫 화면 무대가 화면 하나를 넘지 않게(가운데) */
   .kg-hero.home .kg-cast-wrap { width: 100%; max-width: 600px; justify-self: center; }
-  .kg-rail { grid-auto-columns: calc((100% - 2 * 18px) / 3); gap: 18px; }
-  .kg-rail.sm { grid-auto-columns: calc((100% - 2 * 18px) / 3); gap: 18px; }
-  .kg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px 18px; }
+  .kg-rail { grid-auto-columns: calc((100% - 18px) / 2); gap: 18px; }
+  .kg-rail.sm { grid-auto-columns: calc((100% - 18px) / 2); gap: 18px; }
+  .kg-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 18px; }
   .kg-djs { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
   .kg-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
   .kg-steps.four { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -801,9 +802,9 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-hero.dj { grid-template-columns: minmax(0, 1fr) minmax(0, 400px); column-gap: 72px; }
   .kg-hero.dj .intro { font-size: 18px; }
   .kg-hero.char { grid-template-columns: minmax(0, 460px) minmax(0, 1fr); gap: 72px; }
-  .kg-rail { grid-auto-columns: calc((100% - 3 * 24px) / 4); gap: 24px; }
-  .kg-rail.sm { grid-auto-columns: calc((100% - 3 * 24px) / 4); gap: 24px; }
-  .kg-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 24px; }
+  .kg-rail { grid-auto-columns: calc((100% - 2 * 28px) / 3); gap: 28px; }
+  .kg-rail.sm { grid-auto-columns: calc((100% - 2 * 28px) / 3); gap: 28px; }
+  .kg-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px 28px; }
   .kg-djs { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
   .kg-steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .kg-podium { gap: 36px 24px; }
