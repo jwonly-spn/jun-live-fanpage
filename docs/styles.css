@@ -1653,3 +1653,55 @@ html.album-preview {
   .album-mine .kg-daily:not(.has-me) .kg-me-cta-title { font-size: 14px; }
   .album-mine .kg-daily:not(.has-me) .kg-me-cta-btn { grid-column: auto; margin: 0; padding-inline: 10px; font-size: 11px; min-height: 42px; }
 }
+
+/* 메인 검색 바로 아래: 실제 인기 순위 1~3등과 바로 보내는 하트. */
+.album-podium-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.album-podium-cards > .empty { grid-column: 1 / -1; }
+.album-podium .kg-post { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: stretch; padding: 6px; border: 1px solid #252c3940; border-radius: 9px; background: #fffdf7; box-shadow: 2px 3px 0 #252c3912; }
+.album-podium .kg-post-media { border-radius: 5px; }
+.album-podium .kg-post-bar { flex-direction: column; justify-content: center; align-items: stretch; padding: 12px; gap: 16px; }
+.album-podium .kg-post-who { flex: 0 1 auto; }
+.album-podium .kg-post-id { font-size: 19px; }
+.album-podium .kg-post-sub { flex-wrap: wrap; white-space: normal; gap: 5px; font-size: 10px; }
+.album-podium .kg-post-sub .kg-lv { font-size: 10px; }
+.album-podium .kg-post-dj { flex-basis: 100%; }
+.album-podium .kg-post-dj::before { content: none; }
+.album-podium .kg-heart-pill { min-height: 44px; border-radius: 7px; background: #eee8f0; min-width: 44px; padding-inline: 9px; align-self: flex-start; }
+.album-podium .kg-post-rank { top: 8px; left: 8px; min-width: 25px; height: 25px; font-size: 12px; border-radius: 6px; }
+.album-podium .kg-pet-tile { width: 28%; min-width: 28px; max-width: 48px; border-radius: 7px; left: 6px; bottom: 6px; }
+@media (max-width: 1199px) {
+  .album-podium .kg-post { display: flex; }
+  .album-podium .kg-post-bar { padding: 9px 3px 3px; gap: 7px; }
+  .album-podium .kg-post-id { font-size: 16px; }
+  .album-podium .kg-heart-pill { align-self: flex-end; }
+}
+@media (max-width: 639px) {
+  .album-podium-cards { gap: 7px; }
+  .album-podium .album-section-head { flex-wrap: wrap; gap: 3px; }
+  .album-podium .album-section-head h2 { font-size: 16px; }
+  .album-podium .album-pocket-note { font-size: 9px; }
+  .album-podium .kg-post { padding: 4px; border-radius: 6px; }
+  .album-podium .kg-post-media { border-radius: 3px; }
+  .album-podium .kg-post-bar { padding: 8px 1px 1px; gap: 5px; }
+  .album-podium .kg-post-id { font-size: 14px; }
+  .album-podium .kg-post-sub { font-size: 9px; gap: 3px; }
+  .album-podium .kg-post-sub .kg-lv { font-size: 8px; padding-inline: 4px; }
+  .album-podium .kg-post-expr { display: none; }
+  .album-podium .kg-post-dj { font-size: 8px; }
+  .album-podium .kg-heart-pill { width: 100%; min-height: 44px; font-size: 11px; padding-inline: 5px; gap: 4px; }
+  .album-podium .kg-heart-pill svg { width: 15px; height: 15px; }
+  .album-podium .kg-post-rank { top: 5px; left: 5px; min-width: 22px; height: 22px; font-size: 10px; }
+}
+/* 시즌 정보는 PC 목차와 별도로 메인 상단에 항상 표시한다. */
+.album-title-block { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 14px; }
+.album-title-block > h1, .album-title-block > h2 { margin: 0; font-size: clamp(25px, 3vw, 39px); line-height: 1.15; font-weight: 850; letter-spacing: -.065em; }
+.album-season-banner { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 7px; min-height: 30px; padding: 5px 9px; border: 1px solid #252c3930; border-radius: 7px; background: #e8ebd9; font-size: 11px; line-height: 1.4; }
+.album-season-banner.is-halloween { background: #eee3d4; border-color: #9b654b55; color: #65452f; box-shadow: 2px 2px 0 #b5a4c22b; }
+.album-season-mark { font-size: 15px; line-height: 1; }
+.album-countdown { padding: 2px 6px; border-radius: 4px; background: #665575; color: #fffdf7; font-size: 10px; font-weight: 750; white-space: nowrap; }
+@media (max-width: 639px) {
+  .album-title-block { gap: 12px; }
+  .album-title-block > h1, .album-title-block > h2 { font-size: 29px; }
+  .album-season-banner { font-size: 10px; gap: 5px; padding: 5px 7px; }
+  .album-countdown { font-size: 9px; }
+}

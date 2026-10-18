@@ -7,8 +7,8 @@ import { charKey } from '../lib/me.js';
 import { ilink, nightTop, siteFoot, errorBox, BRAND } from './common.js';
 import { art, itemArt, idText, buddyOf } from './cards.js';
 import { petTile } from '../lib/raster.js';
-import { storyRings, todayStrip } from './feed.js';
-import { searchParts, feedBlock, meBlock } from './intro.js';
+import { storyRings, todayStrip, postCard } from './feed.js';
+import { searchParts, feedBlock, meBlock, howSection } from './intro.js';
 import { seasonLine, dDay } from './kiugi.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -78,27 +78,51 @@ export async function renderAlbumIntro(root, app, { notice = null } = {}) {
   const search = searchParts(ctx);
   const rings = h('div', { class: 'album-broadcasts' });
   const mine = meBlock(ctx);
+  const podiumCards = h('div', { class: 'album-podium-cards' });
+  const podium = h('section', { class: 'album-podium', 'aria-labelledby': 'album_podium_t' },
+    h('div', { class: 'album-section-head' }, h('h2', { id: 'album_podium_t' }, icon('crown', { size: 19 }), '인기 캐릭터 1·2·3등'),
+      h('span', { class: 'album-pocket-note' }, '하트를 많이 받은 순서예요')), podiumCards);
   const albumCount = h('span', { class: 'album-count' });
+  const mainSeason = h('span', { class: 'album-main-season' }, '시즌을 불러오는 중…');
+  const countdown = h('span', { class: 'album-countdown', hidden: true });
+  const seasonMark = h('span', { class: 'album-season-mark', 'aria-hidden': 'true' });
+  const seasonBanner = h('div', { class: 'album-season-banner' }, seasonMark, mainSeason, countdown);
   const header = h('header', { class: 'album-heading' },
-    h(notice ? 'h2' : 'h1', null, BRAND),
+    h('div', { class: 'album-title-block' }, seasonBanner, h(notice ? 'h2' : 'h1', null, BRAND)),
     h('section', { class: 'album-search', id: 'find', 'aria-labelledby': 'album_search_t' },
       h('h2', { id: 'album_search_t' }, '내 캐릭터 찾기'), search.form));
   const collection = h('section', { class: 'album-collection', id: 'album', 'aria-labelledby': 'album_collection_t' },
     h('div', { class: 'album-section-head' }, h('h2', { id: 'album_collection_t' }, '캐릭터 앨범', albumCount),
       h('span', { class: 'album-pocket-note' }, icon('heart', { size: 15 }), '하루 한 번, 하트')), feedBlock(ctx));
-  content.append(header, search.results, h('div', { class: 'album-mine' }, mine), collection,
+  content.append(header, search.results, podium, h('div', { class: 'album-mine' }, mine), collection,
     h('section', { class: 'album-broadcast-section', 'aria-label': '방송별 캐릭터' }, h('h2', null, '방송별 앨범'), rings),
-    h('div', { class: 'album-mobile-today' }, todayStrip()));
-  let last = null;
+    h('div', { class: 'album-mobile-today' }, todayStrip()), howSection(ctx));
+  let last = null, podiumSignature = '';
   const paint = (home) => {
     last = home;
     season.textContent = seasonLine(home.season);
     const days = home.season ? dDay(home.season) : null;
     ending.textContent = days || '';
+    mainSeason.textContent = seasonLine(home.season);
+    countdown.hidden = !days;
+    countdown.textContent = /^D-\d+$/.test(days || '') ? `종료까지 ${days.slice(2)}일` : (days || '');
+    const halloween = /할로윈/.test(`${home.season?.name || ''} ${home.season?.theme || ''}`);
+    seasonBanner.classList.toggle('is-halloween', halloween);
+    seasonMark.textContent = halloween ? '🎃' : '●';
     counters.replaceChildren(h('div', null, h('b', null, fmt(home.totals?.djs)), h('span', null, '방송')),
       h('div', null, h('b', null, fmt(home.totals?.people)), h('span', null, '캐릭터')));
     albumCount.textContent = fmt(home.totals?.people);
-    const fc = { ...ctx, season: home.season, seasonId: home.season?.id || catalog.last, lookOf: (slug) => home.djs?.find((d) => d.slug === slug)?.character };
+    const fc = { ...ctx, season: home.season, seasonId: home.season?.id || catalog.last,
+      lookOf: (slug) => home.djs?.find((d) => d.slug === slug)?.character,
+      djNameOf: (slug) => home.djs?.find((d) => d.slug === slug)?.name || '' };
+    const winners = (home.popular || []).slice(0, 3);
+    const nextPodium = JSON.stringify(winners.map(({ hearts, ...card }) => card));
+    if (nextPodium !== podiumSignature) {
+      podiumSignature = nextPodium;
+      podiumCards.replaceChildren(...(winners.length
+        ? winners.map((card, i) => postCard(card, fc, { rank: i + 1, eager: true }))
+        : [h('p', { class: 'empty' }, '아직 하트를 받은 캐릭터가 없어요. 첫 하트를 보내 보세요.')]));
+    } else [...podiumCards.querySelectorAll('.kg-post')].forEach((node, i) => node.kgHeart?.set(winners[i]?.hearts));
     const state = ctx.meState || { mine: [], looks: new Map(), news: new Map() };
     rings.replaceChildren(storyRings(home.djs, fc, {
       mine: state.mine.map((entry) => ({ entry, look: state.looks.get(charKey(entry.slug, entry.id)), news: state.news.get(charKey(entry.slug, entry.id)) || 0 })),

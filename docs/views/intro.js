@@ -353,7 +353,7 @@ export function feedBlock(ctx) {
 }
 // 이렇게 키워요(채팅 예시의 "먼치"는 DJ마다 다른 캐릭터 이름). body 는 글 또는 [글, 명령어 칸, …]
 //  2026-10-14: 냥 모으기에 !산책(10분에 한 번 산책을 다녀와 냥을 받는다), 칭호 달기에 상점 여는 날(시즌 목록 — 열리기 전에만)과 입혀 보기에서 달아 보기
-function howSection(ctx) {
+export function howSection(ctx) {
   const cmd = (t) => h('code', { class: 'kg-cmd' }, t);
   const step = (n, title, body, bubble, tag = '채팅') => h('li', { class: 'kg-step' },
     h('span', { class: 'kg-step-n', 'aria-hidden': 'true' }, n), h('b', null, title), h('p', null, body),
