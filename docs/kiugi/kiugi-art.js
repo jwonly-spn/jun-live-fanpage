@@ -1,8 +1,9 @@
-// DJ 키우기 그림(새 그림체 R7 → R9, 2026-10-18 — Codex 패키지 DJ_STYLE_20261018_REDO_R9. renderer.js 는 R7 과 같아 이 규칙 그대로 — 파일 이름·id 규칙도 같고 코·입 번호만 1~7).
-//  방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
-// 그림 파일: app/public/kiugi/r7/*.png(tools/import-kiugi-r7.mjs 가 패키지에서 해시를 확인해 복사) + 공통 배경 app/public/kiugi/bg/(그림체와 상관없는 장면 10장 — V5 에서 옮김),
-//  목록은 kiugi-r7-data.js(만든 파일), 머리색은 kiugi-hair-color.js(패키지 hair-color.js 와 같은 결과 — 가져오기 도구가 확인).
-// 규칙(패키지 renderer.js 를 그대로 SVG 로 — 실제 브라우저에서 renderer.js 와 픽셀로 견줘 확인, docs/20261018-kiugi-r7.md):
+// DJ 키우기 그림(그림체 R9, 2026-10-18 — Codex 패키지 DJ_STYLE_20261018_REDO_R9. R7(새 그림체)·R8(외곽선)에 이어 머리 20종 새로·코·입 1~7 — 파일 이름·id·층 규칙은 R7 그대로).
+//  방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다). 이 파일은 1024 호환 그림(작은 칸·상점·목록·처음 그림)이고,
+//  큰 화면(캐릭터 만들기 무대·옷 입은 모습 창)은 kiugi-hd.js 가 그 위에 고해상도 원본(renderer-hd.js)을 캔버스로 겹쳐 그린다(캐릭터 층 data-kg-layer="char" 를 숨긴다).
+// 그림 파일: app/public/kiugi/r9/*.png(tools/import-kiugi-r9.mjs 가 패키지에서 해시를 확인해 복사) + 공통 배경 app/public/kiugi/bg/(그림체와 상관없는 장면 10장 — V5 에서 옮김),
+//  목록은 kiugi-r9-data.js(만든 파일), 머리색은 kiugi-hair-color.js(패키지 hair-color.js 와 같은 결과 — 가져오기 도구가 확인).
+// 규칙(패키지 renderer.js 를 그대로 SVG 로 — 실제 브라우저에서 renderer.js 와 픽셀로 견줘 확인, docs/20261018-kiugi-r7.md · docs/20261018-kiugi-r9.md):
 //  · 모든 PNG·마스크는 같은 1024×1024 캔버스의 (0,0)에 그대로 겹친다. 그림마다 잘라 내거나 가운데 맞추지 않는다(화면 크기는 캔버스 전체를 줄일 뿐).
 //  · 순서: 배경(공통, 불투명 — 패키지에는 없고 앱이 맨 아래에 깐다) → 뒷머리(머리색) → 기준 몸(지우기 마스크로 몸만 지운다) → 한벌옷 또는 하의·상의 → 신발 →
 //    밑단(한벌옷·하의의 밑단 마스크로 남긴 부분을 신발 위에) → 눈 → 코 → 입 → 앞머리(머리색) → 악세사리(자리마다 하나, 앞머리에 가린다) → 모자.
@@ -136,21 +137,33 @@ const maskFilters = (id) => `<filter id="${id}inv" ${region} filterUnits="userSp
 const maskDef = (id, name, content) => `<mask id="${id}${name}" maskUnits="userSpaceOnUse" ${region} mask-type="alpha">${content}</mask>`;
 
 // 레벨 표정 겹치기(얼굴 기준점): 볼 발그레 · 둥실 하트. 크기는 기준점에 맞춘다(눈 사이·머리 높이 — 예전 그림의 값을 R7 얼굴 크기로 줄였다).
-const heart = (x, y, s, fill, w) => `<path d="M${x.toFixed(1)} ${(y + 0.9 * s).toFixed(1)} C${(x - 1.2 * s).toFixed(1)} ${(y + 0.1 * s).toFixed(1)} ${(x - 0.9 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)} ${x.toFixed(1)} ${(y - 0.3 * s).toFixed(1)} C${(x + 0.9 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)} ${(x + 1.2 * s).toFixed(1)} ${(y + 0.1 * s).toFixed(1)} ${x.toFixed(1)} ${(y + 0.9 * s).toFixed(1)}Z" fill="${fill}" stroke="#FFFFFF" stroke-width="${w.toFixed(2)}"/>`;
-function blush(id, g) {
+//  자리·모양은 blushSpots·heartShapes 한 곳에서 정한다(고해상도 캔버스 kiugi-hd.js 도 같은 값으로 그린다).
+const heartPath = (x, y, s) => `M${x.toFixed(1)} ${(y + 0.9 * s).toFixed(1)} C${(x - 1.2 * s).toFixed(1)} ${(y + 0.1 * s).toFixed(1)} ${(x - 0.9 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)} ${x.toFixed(1)} ${(y - 0.3 * s).toFixed(1)} C${(x + 0.9 * s).toFixed(1)} ${(y - 0.9 * s).toFixed(1)} ${(x + 1.2 * s).toFixed(1)} ${(y + 0.1 * s).toFixed(1)} ${x.toFixed(1)} ${(y + 0.9 * s).toFixed(1)}Z`;
+// 볼 발그레(두 볼 — 가운데·반지름, 1024 캔버스 좌표): 분홍 #FF6F8E 를 가운데 50% → 가장자리 0% 로 흐리게
+export const BLUSH = Object.freeze({color: '#FF6F8E', opacity: 0.5});
+export function blushSpots(g) {
   const A = anchorsOf(g), eye = A.eyes.right[0] - A.eyes.left[0], k = eye / 63, y = (A.nose[1] + A.mouth[1]) / 2 - 4 * k, dx = eye / 2 + 9 * k, cx = A.faceAxisX;
-  return `<radialGradient id="${id}blush"><stop offset="0" stop-color="#FF6F8E" stop-opacity=".5"/><stop offset="1" stop-color="#FF6F8E" stop-opacity="0"/></radialGradient>` +
-    `<g data-step="exp-blush"><ellipse cx="${(cx - dx).toFixed(1)}" cy="${y.toFixed(1)}" rx="${(15 * k).toFixed(1)}" ry="${(8 * k).toFixed(1)}" fill="url(#${id}blush)"/><ellipse cx="${(cx + dx).toFixed(1)}" cy="${y.toFixed(1)}" rx="${(15 * k).toFixed(1)}" ry="${(8 * k).toFixed(1)}" fill="url(#${id}blush)"/></g>`;
+  const r = (v) => Number(v.toFixed(1));
+  return [{cx: r(cx - dx), cy: r(y), rx: r(15 * k), ry: r(8 * k)}, {cx: r(cx + dx), cy: r(y), rx: r(15 * k), ry: r(8 * k)}];
+}
+function blush(id, g) {
+  return `<radialGradient id="${id}blush"><stop offset="0" stop-color="${BLUSH.color}" stop-opacity="${String(BLUSH.opacity).replace(/^0/, '')}"/><stop offset="1" stop-color="${BLUSH.color}" stop-opacity="0"/></radialGradient>` +
+    `<g data-step="exp-blush">${blushSpots(g).map((b) => `<ellipse cx="${b.cx.toFixed(1)}" cy="${b.cy.toFixed(1)}" rx="${b.rx.toFixed(1)}" ry="${b.ry.toFixed(1)}" fill="url(#${id}blush)"/>`).join('')}</g>`;
 }
 // 둥실 하트: 머리 위·옆. 모자를 쓰면(머리 위가 높고 넓다 — 마녀 모자 챙 x 396~646) 모자 챙 밖 머리 양옆으로 비킨다.
-//  자리는 예전 그림의 머리 크기(정수리~턱 162)를 1로 둔 값 × R7 머리 크기(k) — 하트 크기·테두리도 같은 비율로 줄인다.
-function floatingHearts(g, tall) {
+//  자리는 예전 그림의 머리 크기(정수리~턱 162)를 1로 둔 값 × 지금 머리 크기(k) — 하트 크기·테두리도 같은 비율로 줄인다.
+//  → [{d(SVG 길 — Path2D 로도 그린다), fill, stroke:'#FFFFFF', width(테두리 굵기)}]
+export function heartShapes(g, tall) {
   const A = anchorsOf(g), top = A.hairCrown[1], cx = A.faceAxisX, k = (A.chin[1] - top) / 162, w = 2 * k;
   const spots = tall ? [[-186, 40, 13, '#FF8FB1'], [186, 20, 15, '#FF6F9C'], [184, 100, 11, '#FF8FB1']] : [[-100, -30, 13, '#FF8FB1'], [4, -72, 16, '#FF6F9C'], [102, -40, 12, '#FF8FB1']];
-  return `<g data-step="exp-floating-hearts">${spots.map(([x, y, s, f]) => heart(cx + x * k, top + y * k, s * k, f, w)).join('')}</g>`;
+  return spots.map(([x, y, s, fill]) => ({d: heartPath(cx + x * k, top + y * k, s * k), fill, stroke: '#FFFFFF', width: Number(w.toFixed(2))}));
+}
+function floatingHearts(g, tall) {
+  return `<g data-step="exp-floating-hearts">${heartShapes(g, tall).map((h) => `<path d="${h.d}" fill="${h.fill}" stroke="${h.stroke}" stroke-width="${h.width.toFixed(2)}"/>`).join('')}</g>`;
 }
 // 보기: full = 캔버스 전체 · bust = 얼굴·어깨(작은 칸용 — 마녀 모자 끝 y 19 부터 어깨 아래까지) · char = 캐릭터 전신(위아래 여백 조금) · 그 밖은 "x y w h" 그대로
 const VIEWS = Object.freeze({full: `0 0 ${SIZE} ${SIZE}`, bust: '387 18 250 250', char: '262 12 500 1000'});
+export const VIEW_BOXES = VIEWS;
 
 // 캐릭터 한 장. dj = DJ 캐릭터({gender, hair, hairColor, eyes, nose, mouth} — 예전 값도 받는다), look = {worn:{칸:옷id}, trick:{item,slot}},
 // expression = 레벨 표정({parts}). options: transparent(바탕 없음) · solid(바탕 색) · label(접근성 이름) · view('full'|'bust'|'char'|viewBox 글).
@@ -175,8 +188,10 @@ export function characterSvg(dj = {}, look = {}, {expression = null, transparent
     body = wrap(name, body);
   }
   if (footwear && bodyA.feet) { masks = true; defs.push(maskDef(id, 'ft', inv(bodyA.feet))); body = wrap('ft', body); }
-  let o = transparent ? '' : `<rect width="${SIZE}" height="${SIZE}" style="fill:${solid}"/>`;
-  if (R.background) o += image(assetUrl(R.background), ' data-step="background"');
+  // 바탕(색·배경 그림)은 밖에, 캐릭터는 한 묶음(data-kg-layer="char") 안에 — 큰 화면은 고해상도 캔버스를 겹친 뒤 이 묶음만 숨긴다(kiugi-hd.js)
+  let under = transparent ? '' : `<rect width="${SIZE}" height="${SIZE}" style="fill:${solid}"/>`;
+  if (R.background) under += image(assetUrl(R.background), ' data-step="background"');
+  let o = '';
   o += hairLayer(back, 'hair.back');
   o += body;
   for (const [name, a] of [['outfit', R.outfit], ['bottom', R.bottom], ['top', R.top]]) if (a) o += image(assetUrl(a), ` data-step="${name}"`);
@@ -193,7 +208,7 @@ export function characterSvg(dj = {}, look = {}, {expression = null, transparent
   if (V.hearts) o += floatingHearts(g, Boolean(R.hat));
   if (masks) defs.push(maskFilters(id));
   const box = VIEWS[view] || (typeof view === 'string' && /^\d+ \d+ \d+ \d+$/.test(view) ? view : VIEWS.full);
-  return `<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" role="img"${label ? ` aria-label="${esc(label)}"` : ' aria-hidden="true"'}><defs>${defs.join('')}</defs>${o}</svg>`;
+  return `<svg viewBox="${box}" xmlns="http://www.w3.org/2000/svg" role="img"${label ? ` aria-label="${esc(label)}"` : ' aria-hidden="true"'}><defs>${defs.join('')}</defs>${under}<g data-kg-layer="char">${o}</g></svg>`;
 }
 
 // ── 상점·도감의 옷 한 벌 ──
