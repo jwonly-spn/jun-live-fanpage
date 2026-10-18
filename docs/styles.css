@@ -1146,7 +1146,6 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-rings ul { gap: 6px; }
 .kg-hero.home .kg-hero-copy { gap: 16px; }
 .kg-hero.home .display { font-size: clamp(36px, 9.5vw, 64px); line-height: 1.16; letter-spacing: -.06em; }
-.kg-hero-kicker { margin: 0 0 -8px; color: var(--accent-text); font-weight: 700; font-size: 13px; }
 .kg-hero.home .intro { font-size: 14px; max-width: 32em; line-height: 1.75; }
 .kg-hero.home .kg-hero-stats { padding-top: 6px; }
 .kg-stat-v { font-size: 24px; font-weight: 800; }
@@ -1201,7 +1200,6 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-hero.home .kg-hero-copy { gap: 22px; }
   .kg-hero.home .display { font-size: 62px; }
   .kg-hero.home .intro { font-size: 16px; }
-  .kg-hero-kicker { font-size: 14px; }
   .kg-feed-grid { gap: 36px 26px; }
   .kg-hero.char { grid-template-columns: minmax(0, 430px) minmax(0, 1fr); }
 }
