@@ -220,7 +220,19 @@ a { color: inherit; }
 .kg-body > canvas.kg-hd.is-late { animation: kg-fade .35s ease both; }
 /* 기다리는 동안은 함께하는 펫도 숨겨 두었다가 캐릭터와 함께 보인다(캐릭터 없이 펫만 먼저 보이지 않게) */
 :has(> .kg-stage.is-holding) > .kg-pet-buddy { opacity: 0; }
-.kg-stage.is-holding::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .28) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.6s ease-in-out infinite; pointer-events: none; }/* 우는 눈(표정): 지금은 쓰지 않음(views/cards.js addEyeStates 는 MOTIONS_READY 일 때만) */
+.kg-stage.is-holding::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .28) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.6s ease-in-out infinite; pointer-events: none; }
+/* 처음 나타나기 전의 큰 무대(2026-10-19 사용자 "로딩하는 것처럼 다른 사진이 나왔다 바뀐다"): 무대 색·발밑 그림자 대신 은은한 자리 표시만 두고
+   배경 장면·캐릭터·펫이 한 번에 나타난다(views/cards.js paintHdStage — 예전에는 빈 무대 → 펫 → 배경 → 캐릭터 차례로 보였다) */
+.kg-stage.is-hd-stage:not(.is-shown) { background: rgba(128, 118, 140, .16); }
+.kg-stage.is-hd-stage:not(.is-shown)::after { opacity: 0; }
+.kg-stage.is-hd-stage:not(.is-shown)::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .22) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.6s ease-in-out infinite; pointer-events: none; }
+:has(> .kg-stage.is-hd-stage:not(.is-shown)) > .kg-pet-buddy { opacity: 0; }
+/* 상반신·얼굴 보기의 둥실 하트(2026-10-19 사용자 "하트 잘리는 것도 고쳐줘"): 그림 속 하트(머리 위·옆)는 크게 보면 칸 가장자리에 잘려 보여서 빼고
+   (호환 그림은 여기서 · 고해상도는 lib/kiugi-hd.js), 무대 칸 안 위쪽에 작은 하트 셋을 따로 띄운다(views/character.js zoomHearts — 전신에서는 숨김) */
+.kg-stage.char.hero.view-upper g[data-step="exp-floating-hearts"], .kg-stage.char.hero.view-face g[data-step="exp-floating-hearts"] { display: none; }
+.kg-zoom-hearts { position: absolute; inset: 0; z-index: 3; display: block; width: 100%; height: 100%; pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility .25s; }
+.kg-hero-stage.is-zoom > .kg-zoom-hearts { opacity: 1; visibility: visible; }
+.kg-hero-stage:has(> .kg-stage.is-hd-stage:not(.is-shown)) > .kg-zoom-hearts { opacity: 0; }/* 우는 눈(표정): 지금은 쓰지 않음(views/cards.js addEyeStates 는 MOTIONS_READY 일 때만) */
 .kg-eye-closed, .kg-eye-cry { opacity: 0; }
 .kg-actor.m-cry .kg-eye-open, .kg-actor.m-cry .kg-eye-closed { opacity: 0; }
 .kg-actor.m-cry .kg-eye-cry { opacity: 1; }
@@ -742,6 +754,9 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 /* 펫 칸(왼쪽 아래): 흰 유리 칸에 펫의 보이는 곳만 맞춰 담은 그림(lib/raster.js petTile — 단계가 달라도 꽉 차게) */
 .kg-pet-tile { position: absolute; z-index: 5; left: 14px; bottom: 14px; width: 24%; min-width: 64px; max-width: 96px; aspect-ratio: 1 / 1; border-radius: 20px; overflow: hidden; background: radial-gradient(80% 70% at 50% 40%, rgba(255, 255, 255, .96), rgba(246, 240, 248, .9)); border: 1px solid rgba(255, 255, 255, .8); box-shadow: 0 10px 24px -12px rgba(33, 27, 40, .55); pointer-events: none; }
 .kg-pet-tile > img { display: block; width: 100%; height: 100%; object-fit: contain; opacity: 0; transition: opacity .3s ease; }
+/* 카드의 펫 칸은 캐릭터 사진이 나올 때 함께(2026-10-19 — 캐릭터 없이 펫만 먼저 보이지 않게) */
+.kg-pet-tile { transition: opacity .3s ease; }
+.kg-post-media:has(> .kg-photo:not(.is-ready):not(.is-empty):not(.is-failed)) > .kg-pet-tile { opacity: 0; }
 .kg-pet-tile.is-ready > img { opacity: 1; }
 .kg-pet-tile.is-raw > img { object-fit: cover; }
 .kg-pet-tile::after { content: ""; position: absolute; left: 50%; bottom: 6px; translate: -50% 0; width: 26px; height: 4px; border-radius: 4px; background: var(--season); opacity: .0; }

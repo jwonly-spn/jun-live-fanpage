@@ -107,7 +107,10 @@ export async function liteMarkup(markup, base = '/') {
 //   · 이미 그려진 무대를 다시 그릴 때(입혀 보기에서 옷을 바꿀 때 · 새 답의 모습이 다를 때)는 옛 캐릭터(고해상도)를 그대로 두고, 새 캐릭터가 준비되면 바꿔 끼운다
 //     (옛 그림을 지우고 호환 그림을 다시 보이지 않는다). 기다리는 시간은 조금 더 길게(HD_SWAP_MS — 그동안 옛 모습이 보인다).
 //   · 보이는 동안 한 번만 살며시 나타난다(is-shown): 같은 무대 칸을 화면에 다시 붙여도(캐릭터 페이지가 새 답으로 다시 그릴 때) 다시 나타나지 않는다.
-export const HD_HOLD_MS = 1800, HD_SWAP_MS = 2600;
+//   · 처음 그릴 때도 바탕(입은 배경 장면)은 캐릭터와 함께 나타난다(2026-10-19 사용자 "로딩하는 것처럼 다른 사진이 나왔다 바뀐다" — 예전에는
+//     빈 무대 → 펫 → 배경만 → 캐릭터 → 고해상도로 여러 번 바뀌어 보였다). 그 전까지 무대는 자리 표시만(styles.css .is-hd-stage:not(.is-shown)), 펫도 함께 숨긴다.
+//     기다리는 시간도 조금 늘려(1.8 → 2.5초) 휴대폰에서도 고해상도가 먼저 오면 한 번에 보이게 했다.
+export const HD_HOLD_MS = 2500, HD_SWAP_MS = 2600;
 export async function paintHdStage(stage, markup, { motion = null, hd = null, fallback = null, load = preloadImage, hold = HD_HOLD_MS, swap = HD_SWAP_MS } = {}) {
   const seq = (stage.kgPaintSeq || 0) + 1;
   stage.kgPaintSeq = seq;
@@ -120,8 +123,8 @@ export async function paintHdStage(stage, markup, { motion = null, hd = null, fa
   const old = [...stage.children].filter((el) => !el.classList.contains('kg-stage-keep'));
   const hadActor = old.some((el) => el.classList.contains('kg-actor'));
   actor.classList.add('is-pending');
-  // 처음 그리는 무대의 바탕(입은 배경 장면)은 바로, 다시 그릴 때는 캐릭터와 함께 바꾼다
-  if (backdrop && hadActor) backdrop.classList.add('is-pending');
+  // 바탕(입은 배경 장면)도 캐릭터와 함께 보인다(처음 그릴 때도 · 다시 그릴 때도 — 배경만 먼저 보였다가 캐릭터가 나타나 그림이 여러 번 바뀌어 보이지 않게)
+  if (backdrop) backdrop.classList.add('is-pending');
   if (!hadActor) { stage.replaceChildren(...[backdrop, actor].filter(Boolean)); stage.classList.add('is-holding'); }
   else stage.append(...[backdrop, actor].filter(Boolean));
   if (failed.length) stage.dataset.kgArtError = String(failed.length); else delete stage.dataset.kgArtError;

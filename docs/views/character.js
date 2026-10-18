@@ -25,6 +25,7 @@ import { photoBox } from '../lib/raster.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { upgradeStage, renderHdCharacter } from '../lib/kiugi-hd.js';
+import { faceVariants } from '../kiugi/kiugi-art.js';
 import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview, applySeasonTheme } from './common.js';
 import { characterWardrobe } from './album.js';
 import { art, itemArt, copyLink, idText, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf, paintHdStage } from './cards.js';
@@ -552,13 +553,17 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
     heroStage = same.node;
     burst.go = same.go;
     if (same.lookKey !== lookKey) { same.lookKey = lookKey; same.art.kgRedraw?.(data.worn, data.level, exp); }
-    if (same.petKey !== petKey) { same.petKey = petKey; heroStage.querySelector(':scope > .kg-pet-buddy')?.remove(); const p = petBuddy(buddy, app.base); if (p) heroStage.insertBefore(p, burst.el); heroStage.classList.toggle('has-pet', Boolean(buddy)); }
+    // (무대에 붙어 있는 하트 터지기 칸 앞에 — 이번에 새로 만든 burst.el 은 무대에 없다)
+    if (same.petKey !== petKey) { same.petKey = petKey; heroStage.querySelector(':scope > .kg-pet-buddy')?.remove(); const p = petBuddy(buddy, app.base); if (p) heroStage.insertBefore(p, heroStage.querySelector(':scope > .kg-burst')); heroStage.classList.toggle('has-pet', Boolean(buddy)); }
   } else {
     const artEl = art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero', hd: true, exp });
     heroStage = h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') }, artEl, petBuddy(buddy, app.base), burst.el);
     env.hero = { baseKey, lookKey, petKey, node: heroStage, art: artEl, go: burst.go };
     if (env.view && env.view !== 'full') setHeroView(env, env.view, { now: true });
   }
+  // 상반신·얼굴 보기의 둥실 하트(표정에 하트가 있을 때만 — 표정이 바뀌면 넣고 뺀다)
+  const wantHearts = Boolean(faceVariants(look).hearts), oldHearts = heroStage.querySelector(':scope > .kg-zoom-hearts');
+  if (wantHearts !== Boolean(oldHearts)) { oldHearts?.remove(); if (wantHearts) heroStage.insertBefore(zoomHearts(), heroStage.querySelector(':scope > .kg-burst')); }
   // 보기(2026-10-19 사용자 "얼굴 잘 보이게"): 전신 · 상반신 · 얼굴 — 고해상도로 그 부분만(lib/kiugi-hd.js 가 보이는 부분만 화면 배율로 다시 그린다)
   const viewRow = heroViewRow(env);
   // 무대 두 번 톡톡 = 하트(휴대폰)
@@ -654,6 +659,21 @@ function setHeroView(env, view, { now = false } = {}) {
   for (const a of stage.querySelectorAll(':scope > .kg-actor')) a.classList.remove('is-hd');
   if (now) requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('kg-view-now')));
   for (const b of env.viewBtns || []) b.setAttribute('aria-pressed', String(b.dataset.view === env.view));
+}
+// 상반신·얼굴 보기의 둥실 하트(2026-10-19 사용자 "하트 잘리는 것도 고쳐줘"): 그림 속 하트는 머리 위·옆에 있어 크게 보면 칸 가장자리에 반쯤 잘려 보였다 →
+//  크게 볼 때는 그림 속 하트를 빼고(lib/kiugi-hd.js · styles.css) 무대 칸(2:3) 안 위쪽 양옆에 작은 하트 셋을 띄운다(얼굴을 가리지 않게 · 전신에서는 숨김).
+//  [가로 %, 세로(칸 높이 150 기준), 크기, 색] — 하트 모양·색·흰 테두리는 그림 속 하트(kiugi-art.js heartShapes)와 같다.
+export const ZOOM_HEARTS = Object.freeze([[13, 21, 5, '#FF8FB1'], [86, 13, 6, '#FF6F9C'], [91, 37, 4.2, '#FF8FB1']]);
+const heartD = (x, y, s) => `M${x} ${y + 0.9 * s}C${x - 1.2 * s} ${y + 0.1 * s} ${x - 0.9 * s} ${y - 0.9 * s} ${x} ${y - 0.3 * s}C${x + 0.9 * s} ${y - 0.9 * s} ${x + 1.2 * s} ${y + 0.1 * s} ${x} ${y + 0.9 * s}Z`;
+function zoomHearts() {
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg');
+  svg.setAttribute('class', 'kg-zoom-hearts'); svg.setAttribute('viewBox', '0 0 100 150'); svg.setAttribute('aria-hidden', 'true');
+  for (const [x, y, s, fill] of ZOOM_HEARTS) {
+    const p = document.createElementNS(NS, 'path');
+    p.setAttribute('d', heartD(x, y, s)); p.setAttribute('fill', fill); p.setAttribute('stroke', '#FFFFFF'); p.setAttribute('stroke-width', '0.8'); p.setAttribute('stroke-linejoin', 'round');
+    svg.append(p);
+  }
+  return svg;
 }
 function heroViewRow(env) {
   env.view ||= 'full';

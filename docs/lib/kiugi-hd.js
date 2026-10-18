@@ -174,7 +174,8 @@ function warmHd(renderer, state) {
 }
 
 // 고해상도 캐릭터 한 장 → {canvas(viewport 크기 × scale — 실제 픽셀), result(renderer 가 알려 준 것), renderScale} · 그릴 수 없는 모습이면 null
-export async function renderHdCharacter({ dj, look, expression = null, viewport, scale, base = '/' }) {
+//  hearts: false 면 둥실 하트를 빼고 그린다(캐릭터 페이지 상반신·얼굴 보기 — 머리 위·옆 하트가 칸 가장자리에 잘려 보여서, 그때는 무대 칸 안에 따로 띄운다 · views/character.js)
+export async function renderHdCharacter({ dj, look, expression = null, viewport, scale, base = '/', hearts = true }) {
   const state = hdState(dj, look, expression);
   if (!state) return null;
   const renderer = await loadHd(base);
@@ -184,7 +185,7 @@ export async function renderHdCharacter({ dj, look, expression = null, viewport,
     // 볼 발그레: renderer 가 몸·얼굴·옷을 다 그린 칸(onLayer 'hem' — 앞머리·악세사리·모자를 얹기 전)에 · 둥실 하트: 다 그린 뒤 맨 위
     const onLayer = (label, body) => { if (label === 'hem' && over.blush.length) paintOverlay(body.getContext('2d'), over.blush, viewport, rs); };
     const result = await renderer.render(work, state, { viewport, scale: rs, onLayer });
-    paintOverlay(work.getContext('2d'), over.hearts, viewport, rs);
+    if (hearts !== false) paintOverlay(work.getContext('2d'), over.hearts, viewport, rs);
     const w = Math.max(1, Math.round(viewport[2] * Math.min(HD_MAX_SCALE, scale))), h = Math.max(1, Math.round(viewport[3] * Math.min(HD_MAX_SCALE, scale)));
     if (work.width === w && work.height === h) return { canvas: work, result, state, renderScale: rs };
     const canvas = canvasOf(w, h), x = canvas.getContext('2d');
@@ -224,7 +225,9 @@ export function upgradeStage(stage, opts = {}) {
     fitted = { width: art.width, dpr: window.devicePixelRatio || 1 };
     stage.dataset.kgHd = 'loading';
     let out = null;
-    try { out = await renderHdCharacter({ dj: opts.character, look, expression, ...fit, base: opts.base || '/' }); }
+    // 크게 보는 중(캐릭터 페이지 상반신·얼굴)이면 둥실 하트를 빼고 그린다(칸 가장자리에 잘려 보이지 않게 — 그때 하트는 views/character.js 가 칸 안에 따로)
+    const zoomed = typeof stage.matches === 'function' && stage.matches('.view-upper, .view-face');
+    try { out = await renderHdCharacter({ dj: opts.character, look, expression, ...fit, base: opts.base || '/', hearts: !zoomed }); }
     catch (e) { if (stage.kgHdSeq === seq) { stage.dataset.kgHd = 'fail'; tell('fail'); console.warn('고해상도 그림을 그리지 못해 호환 그림으로 보여요:', e?.message || e); } return; }
     if (!out || stage.kgHdSeq !== seq || !svg.isConnected) { freeCanvas(out?.canvas); return; }
     const c = out.canvas, [x, y, w, h] = fit.viewport;
@@ -235,10 +238,18 @@ export function upgradeStage(stage, opts = {}) {
     const old = svg.parentNode.querySelectorAll(':scope > canvas.kg-hd');
     const actor = svg.closest('.kg-actor');
     // 이미 보이는 캐릭터에 고해상도를 처음 얹을 때(호환 그림이 먼저 보인 뒤 — 늦게 받은 때)는 살며시 겹친다(갑자기 바뀌어 눈을 깜빡이는 것처럼 보이지 않게)
-    if (!old.length && actor && !actor.classList.contains('is-pending')) c.classList.add('is-late');
+    const late = Boolean(!old.length && actor && !actor.classList.contains('is-pending'));
+    if (late) c.classList.add('is-late');
     svg.after(c);
     for (const o of old) { o.remove(); freeCanvas(o); }
-    actor?.classList.add('is-hd');
+    // 늦게 온 고해상도는 살며시 겹치는 동안 호환 그림을 밑에 그대로 두었다가 다 겹친 뒤에 숨긴다
+    //  (2026-10-19 사용자 "다른 사진이 나왔다가 바뀌어요" — 예전에는 겹치기 시작할 때 호환 그림을 바로 숨겨 0.35초 동안 캐릭터가 통째로 사라졌다)
+    if (late) {
+      let done = false;
+      const finish = () => { if (done) return; done = true; if (c.isConnected && stage.kgHdSeq === seq) actor.classList.add('is-hd'); };
+      c.addEventListener('animationend', finish, { once: true });
+      setTimeout(finish, 700);
+    } else actor?.classList.add('is-hd');
     stage.dataset.kgHd = 'on';
     stage.dataset.kgHdScale = String(fit.scale);
     stage.dataset.kgHdRender = String(out.renderScale);

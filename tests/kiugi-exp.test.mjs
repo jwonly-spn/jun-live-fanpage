@@ -99,6 +99,35 @@ test('큰 무대 눈 깜빡임 고침: 숨긴 채 고해상도를 그린 뒤 보
   assert.match(character, /const key = JSON\.stringify\(\[look, pickExp\]\);\s*if \(key === painted\) return;/);
 });
 
+test('처음 열 때 그림이 여러 번 바뀌지 않게(2026-10-19 "로딩하는 것처럼 다른 사진"): 배경·캐릭터·펫 한 번에 · 늦은 고해상도는 호환 그림을 둔 채 겹친 뒤 숨긴다 · 카드 펫은 사진과 함께', async () => {
+  const cards = await src('views/cards.js'), hd = await src('lib/kiugi-hd.js'), css = await src('styles.css');
+  assert.match(cards, /\n  if \(backdrop\) backdrop\.classList\.add\('is-pending'\);/, '처음 그릴 때도 배경은 캐릭터와 함께');
+  assert.doesNotMatch(cards, /if \(backdrop && hadActor\) backdrop\.classList\.add\('is-pending'\)/);
+  // 겹치기 시작할 때 호환 그림을 바로 숨기지 않는다(그 사이 캐릭터가 통째로 사라졌다)
+  assert.match(hd, /if \(late\) \{[\s\S]*?c\.addEventListener\('animationend', finish, \{ once: true \}\);\s*setTimeout\(finish, \d+\);\s*\} else actor\?\.classList\.add\('is-hd'\);/);
+  assert.match(css, /\.kg-stage\.is-hd-stage:not\(\.is-shown\) \{ background:/); assert.match(css, /\.kg-stage\.is-hd-stage:not\(\.is-shown\)::before \{/);
+  assert.match(css, /:has\(> \.kg-stage\.is-hd-stage:not\(\.is-shown\)\) > \.kg-pet-buddy \{ opacity: 0; \}/, '나타나기 전에는 펫도 숨김');
+  assert.match(css, /\.kg-post-media:has\(> \.kg-photo:not\(\.is-ready\):not\(\.is-empty\):not\(\.is-failed\)\) > \.kg-pet-tile \{ opacity: 0; \}/, '카드 펫은 사진이 나올 때');
+});
+
+test('상반신·얼굴 보기의 하트(2026-10-19 "하트 잘리는 것"): 그림 속 하트는 빼고(고해상도·호환) 칸 안에 작은 하트 셋 — 모두 칸 안에 온전히', async () => {
+  const hd = await src('lib/kiugi-hd.js'), css = await src('styles.css'), character = await src('views/character.js');
+  assert.match(hd, /const zoomed = typeof stage\.matches === 'function' && stage\.matches\('\.view-upper, \.view-face'\);/);
+  assert.match(hd, /hearts: !zoomed \}\)/); assert.match(hd, /if \(hearts !== false\) paintOverlay\(work\.getContext\('2d'\), over\.hearts, viewport, rs\);/);
+  assert.match(css, /\.kg-stage\.char\.hero\.view-upper g\[data-step="exp-floating-hearts"\], \.kg-stage\.char\.hero\.view-face g\[data-step="exp-floating-hearts"\] \{ display: none; \}/);
+  assert.match(css, /\.kg-hero-stage\.is-zoom > \.kg-zoom-hearts \{ opacity: 1; visibility: visible; \}/); assert.match(css, /\.kg-zoom-hearts \{[^}]*opacity: 0;[^}]*\}/, '전신에서는 숨김');
+  assert.match(character, /const wantHearts = Boolean\(faceVariants\(look\)\.hearts\)/);
+  const { ZOOM_HEARTS } = await import('../docs/views/character.js');
+  assert.equal(ZOOM_HEARTS.length, 3);
+  for (const [x, y, s] of ZOOM_HEARTS) {
+    assert.ok(x - 1.2 * s - 1 >= 0 && x + 1.2 * s + 1 <= 100, `가로 ${x}`); assert.ok(y - 0.9 * s - 1 >= 0 && y + 0.9 * s + 1 <= 150, `세로 ${y}`);
+    assert.ok(x < 25 || x > 75, '얼굴(가운데)을 가리지 않게 양옆');
+  }
+  // 펫을 바꿔 다시 넣을 때 무대에 붙어 있는 하트 터지기 칸 앞에(새로 만든 burst.el 은 무대에 없다)
+  assert.match(character, /heroStage\.insertBefore\(p, heroStage\.querySelector\(':scope > \.kg-burst'\)\)/);
+  assert.doesNotMatch(character, /heroStage\.insertBefore\(p, burst\.el\)/);
+});
+
 test('고해상도 미리 받기(hdWarmPaths): 이 모습에 쓰는 등록부 그림·호환 그림·마스크만, 모두 renderer bundle 이 아는 길', async () => {
   const index = await json('kiugi-hd/index.json'), manifest = await json('kiugi-hd/02_클로드인계/assets.json');
   const hd = Object.fromEntries(await Promise.all(Object.entries(index.manifests).map(async ([k, e]) => [k, (await json('kiugi-hd/' + e.path)).assets])));
