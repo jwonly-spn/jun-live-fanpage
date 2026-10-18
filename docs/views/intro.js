@@ -73,8 +73,10 @@ function searchParts(ctx) {
     h('div', { class: 'kg-find-row' }, h('span', { class: 'kg-find-icon', 'aria-hidden': 'true' }, icon('search', { size: 20 })), input, submit));
   const saved = savedPanel(ctx, { form, input });
   form.append(saved.el, status,
-    h('p', { class: 'kg-help', id: 'kg_gq_help' }, '방송 채팅에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디로 찾아요. 찾은 캐릭터에서 ', h('b', null, PIN_LABEL), '를 누르면 내 캐릭터가 되고, ',
-      h('b', null, `☆ ${FAV_LABEL}`), '를 누르면 다음부터 이 칸을 누를 때 바로 보여요.'));
+    h('details', { class: 'kg-search-help' },
+      h('summary', null, '아이디 찾는 방법'),
+      h('p', { class: 'kg-help', id: 'kg_gq_help' }, '방송 채팅에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디로 찾아요. 찾은 캐릭터에서 ', h('b', null, PIN_LABEL), '를 누르면 내 캐릭터가 되고, ',
+        h('b', null, `☆ ${FAV_LABEL}`), '를 누르면 다음부터 이 칸을 누를 때 바로 보여요.')));
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     saved.hide();
@@ -213,21 +215,24 @@ export function heroSection(ctx) {
   const spotHost = h('div', { class: 'kg-spot-host' }, h('div', { class: 'kg-spot is-skeleton', 'aria-hidden': 'true' }, h('div', { class: 'kg-spot-head' }, h('span', { class: 'kg-spot-eyebrow' }, '오늘의 주인공')), h('div', { class: 'kg-post spot' }, h('div', { class: 'kg-post-media' }, h('div', { class: 'kg-photo photo' })), h('div', { class: 'kg-post-bar' }))));
   const hero = h('section', { class: 'kg-hero home' },
     h('div', { class: 'kg-hero-copy' },
-      h('p', { class: 'kg-season' }, h('span', { class: 'kg-dot', 'aria-hidden': 'true' }), season, dday),
-      h(ctx.heading, { class: 'display' }, BRAND),
-      h('p', { class: 'intro' }, HERO_TEXT),
-      h('div', { class: 'kg-hero-find', id: 'find' }, searchParts(ctx).form),
-      stats));
+      h('div', { class: 'kg-home-heading' },
+        h(ctx.heading, { class: 'display' }, BRAND),
+        h('p', { class: 'kg-season' }, h('span', { class: 'kg-dot', 'aria-hidden': 'true' }), season, dday)),
+      h('div', { class: 'kg-hero-find', id: 'find' }, searchParts(ctx).form)));
+  const community = h('section', { class: 'kg-community', 'aria-labelledby': 'kg_community_t' },
+    h('div', { class: 'kg-community-head' }, h('h2', { id: 'kg_community_t' }, '함께 키우는 DJ'), stats), ringHost);
   const meNews = h('div', { class: 'kg-me-ping', hidden: true });
-  // 휴대폰: 동그라미 줄 → (새 소식) → 글·찾기 → 오늘의 주인공 · 넓은 화면: 왼쪽에 동그라미 줄·글·찾기, 오른쪽에 오늘의 주인공(styles.css .kg-top)
-  const top = h('div', { class: 'kg-top' }, ringHost, meNews, hero, spotHost);
+  const todayHost = h('div', { class: 'kg-top-today' });
+  ctx.todayHost = todayHost;
+  // 휴대폰: 제목·찾기 → 오늘의 주인공 → DJ 목록·오늘의 하트. PC: 왼쪽 찾기·DJ·하트, 오른쪽 캐릭터.
+  const top = h('div', { class: 'kg-top' }, hero, spotHost, community, todayHost, meNews);
   // home 을 받을 때마다(지난번 답 → 새 답) 채운다. 내 캐릭터 상태(meSection state — 목록 · 그림 · 새 소식 수)가 바뀌어도 다시(ctx.repaintHero)
   ctx.paintHero = (home, { mine = [], looks = new Map(), news = new Map() } = {}) => {
     season.textContent = seasonLine(home.season);
     const left = home.season ? dDay(home.season) : null;
     dday.hidden = !left; if (left) dday.textContent = left;
     stats.replaceChildren(...(home.totals?.djs
-      ? statTiles([{ value: fmt(home.totals.djs), label: '키우기 중인 DJ' }, { value: fmt(home.totals.people), label: '함께 키우는 청취자' }])
+      ? statTiles([{ value: fmt(home.totals.djs), label: '개 방송' }, { value: fmt(home.totals.people), label: '명 참여' }])
       : [h('p', { class: 'kg-hero-note' }, '아직 키우기를 연 DJ가 없어요. 곧 만나요!')]));
     const fc = feedCtx(ctx, home);
     // 내 캐릭터들에 새 소식이 있으면 동그라미 줄 아래 한 줄(누르면 내 캐릭터 칸으로)
@@ -258,7 +263,10 @@ function searchSection(ctx) {
 //  "이게 나예요"·"내 캐릭터에서 빼기"는 내 캐릭터 칸이 바뀐 캐릭터만 고치고(feed.js meSection), 첫 화면 동그라미 줄도 다시 그린다.
 function meBlock(ctx) {
   const slot = h('div', { class: 'kg-me-slot' });
-  const host = h('div', { class: 'kg-daily' }, slot, todayStrip({ streak: bumpStreak(browserStore()) }));
+  const today = todayStrip({ streak: bumpStreak(browserStore()) });
+  const host = h('div', { class: 'kg-daily' }, slot);
+  if (ctx.todayHost) ctx.todayHost.append(today);
+  else host.append(today);
   // 내 캐릭터가 있거나 뺀 자리(되돌리기)가 남아 있으면 위아래로(고르는 법 · 오늘의 하트를 옆으로 늘이지 않게)
   const set = (st) => { ctx.meState = st; host.classList.toggle('has-me', st.mine.length > 0 || st.pending > 0); };
   const m = meSection(ctx, { onFind: () => searchParts(ctx).focus(), rankOf: (e) => popularRank(fastApi.peekHome(), e), onState: (st) => { set(st); ctx.repaintHero?.(); } });

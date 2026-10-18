@@ -87,7 +87,9 @@ export async function renderItems(root, app) {
       h('div', { class: 'kg-wrap' },
         h('section', { class: 'kg-hero small' },
           h('div', { class: 'kg-hero-copy' }, badge, h('h1', { class: 'display' }, '옷 도감'),
-            h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 옷은 레벨과 관계없이 냥만 있으면 살 수 있어요. 방송 채팅에는 옷 목록이 나오지 않으니 여기서 골라요 — 번호를 누르면 명령어(!옷장 상의 11)가 복사되고, 방송 채팅에 붙여 넣으면 사서 바로 입어요. 여러 벌은 내 캐릭터 페이지의 입혀 보기에서 한 줄로 복사해요. 모자는 하나, 악세사리는 머리·얼굴·목·손 자리마다 하나씩 쓸 수 있어요. 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
+            h('p', { class: 'intro' }, '번호를 누르면 옷장 명령이 복사돼요. 방송 채팅에 붙여 넣어 입어요.'),
+            h('details', { class: 'kg-catalog-help' }, h('summary', null, '옷 구매와 착용 안내'),
+              h('p', null, '옷은 레벨과 관계없이 냥만 있으면 살 수 있어요. 여러 벌은 내 캐릭터 페이지의 입혀 보기에서 한 줄로 복사해요. 모자는 하나, 악세사리는 머리·얼굴·목·손 자리마다 하나씩 쓸 수 있어요. 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.')), stats)))),
     main,
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
   const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), (() => { const j = fastApi.home(); return j.cached !== undefined ? Promise.resolve(j.cached) : j.fresh; })().catch(() => null)]);

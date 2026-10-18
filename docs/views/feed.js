@@ -316,8 +316,8 @@ export function meSection(ctx, { onFind = null, rankOf = () => null, onState = n
     list);
   const cta = h('section', { class: 'kg-me-cta', 'aria-labelledby': 'kg_me_cta_t' },
     h('span', { class: 'kg-me-cta-ic', 'aria-hidden': 'true' }, icon('sparkle', { size: 24 })),
-    h('div', { class: 'kg-me-cta-text' }, h('h2', { class: 'kg-me-cta-title', id: 'kg_me_cta_t' }, '내 캐릭터를 정해 두세요'),
-      h('p', null, '내 아이디를 찾아 ', h('b', null, PIN_LABEL), '를 누르면, 들어올 때마다 그동안 받은 하트·오른 레벨·바뀐 옷·인기 순위를 알려 드려요. 여러 방송에서 키운다면 여러 명 정해도 돼요.')),
+    h('div', { class: 'kg-me-cta-text' }, h('h2', { class: 'kg-me-cta-title', id: 'kg_me_cta_t' }, '내 캐릭터'),
+      h('p', null, '아이디를 찾아 ', h('b', null, PIN_LABEL), '를 눌러 두세요. 받은 하트와 달라진 모습을 모아 봐요.')),
     h('button', { type: 'button', class: 'btn btn-accent kg-me-cta-btn', onclick: () => onFind?.() }, icon('search', { size: 18 }), '내 아이디 찾기'));
 
   // 서버에 한 번에 셋씩 묻는다(내 캐릭터가 많아도 한꺼번에 몰리지 않게)
