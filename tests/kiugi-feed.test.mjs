@@ -282,4 +282,5 @@ test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 �
   assert.match(src, /if \(s\.age > SNAP_STALE_MS\) void live\(\)\.then\(\(v\) => remember\(key, v\)/);
   assert.match(src, /if \(demoNow\(\) \|\| !path\) return live\(\);/);
   for (const f of ['index.html', '404.html']) assert.match(await readFile(docs + f, 'utf8'), /<link rel="preconnect" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co" crossorigin>/, f);
+  assert.match(await readFile(docs + 'index.html', 'utf8'), /<link rel="preload" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co\/storage\/v1\/object\/public\/kg-snap\/home\.json" as="fetch" crossorigin>/, '첫 화면은 메인 미리 만든 답을 HTML 을 읽자마자 받기 시작');
 });
