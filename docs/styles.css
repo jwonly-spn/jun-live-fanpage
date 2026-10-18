@@ -1818,3 +1818,19 @@ html.album-preview.halloween-season {
 .album-preview.halloween-season .kg-toggle button[aria-pressed="true"] { color: #2e1b28; }
 .halloween-season .album-detail-wardrobe .album-piece-slot,
 .halloween-season .album-detail-wardrobe .album-clothes-head > span { color: #65536f; }
+
+/* 공지(docs/notice.json — views/common.js noticeBar): 모든 화면 맨 위 한 줄. 글이 길면 줄바꿈, 오른쪽 × 로 닫는다. */
+.kg-topnote { background: var(--accent); color: var(--on-ink, #241a2e); }
+.kg-topnote-in { max-width: 1440px; margin: 0 auto; display: flex; align-items: center; gap: 10px; padding: 9px var(--gutter, 16px); }
+.kg-topnote-tag { flex: none; padding: 2px 8px; border-radius: 999px; background: #241a2e; color: #ffd9a8; font-size: 11px; font-weight: 800; letter-spacing: .02em; }
+html .kg-topnote .kg-topnote-text { color: inherit; flex: 1; min-width: 0; margin: 0; font-size: 13.5px; font-weight: 700; line-height: 1.45; word-break: keep-all; overflow-wrap: anywhere; }
+.kg-topnote-x { flex: none; display: inline-grid; place-items: center; width: 30px; height: 30px; margin: -4px -6px -4px 0; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.kg-topnote-x:hover, .kg-topnote-x:focus-visible { background: #241a2e22; }
+.kg-topnote-x:focus-visible { outline: 2px solid #241a2e; outline-offset: 1px; }
+html:not(.halloween-season) .kg-topnote { background: #f2a65a; color: #2b2020; }
+@media (max-width: 639px) { html .kg-topnote .kg-topnote-text { font-size: 12.5px; } .kg-topnote-in { gap: 8px; padding-block: 8px; } }
+
+/* 할로윈 색에서 즐겨찾기를 켠 단추(밝은 바탕)의 글이 흐려지던 것 — 글·별을 진하게 */
+.kg-fav-btn.is-on { color: #5a3a10; }
+.halloween-season .kg-fav-btn.is-on { background: #ffe6bd; border-color: #f2a75f; color: #4a2c0c; }
+.halloween-season .kg-fav-btn.is-on svg { color: #b4620f; }

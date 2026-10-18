@@ -144,3 +144,30 @@ test('스푼 연결 페이지(spoon.html)는 그대로 있다', async () => {
   assert.match(html, /src="\/spoon\.js"/); assert.match(html, /href="\/spoon\.css"/);
   assert.match(await text('spoon.js'), /functions\/v1\/spoon-link\/callback/);
 });
+
+test('앨범·할로윈 디자인이 실제 사이트 기본 화면(2026-10-18 사용자 "이대로 반영"): 미리 보기 포트·design=album 조건 없음 · 처음부터 클래스', async () => {
+  const common = await text('views/common.js');
+  assert.doesNotMatch(common, /5184|design'\) === 'album'/, '미리 보기 조건이 남아 있으면 실제 사이트에는 예전 화면이 나온다');
+  assert.match(common, /design'\) === 'classic'/, '예전 화면은 ?design=classic 으로만');
+  for (const f of ['index.html', '404.html']) assert.match(await text(f), /<html lang="ko" class="album-preview halloween-season">/, f + ': 자료가 오기 전에도 새 디자인 색');
+});
+
+test('공지(docs/notice.json): 모든 화면 맨 위(비공식 한 줄보다 먼저) · 글자로만 · until 지나면·빈 글이면 안 보임 · ×로 닫으면 그 공지는 이 브라우저에서 안 보임', async () => {
+  const { parseNotice, NOTICE_MAX } = await import('../docs/views/common.js');
+  const j = JSON.parse(await text('notice.json'));
+  assert.equal(typeof j.text, 'string');
+  assert.ok(j.text.trim().length > 0 && j.text.length <= NOTICE_MAX, '공지 글 길이');
+  assert.doesNotMatch(j.text, /닉네임|<|>/);
+  const now = Date.parse('2026-10-18T20:00:00+09:00');
+  assert.deepEqual(parseNotice({ id: 'a', text: '  점검  중이에요 ', until: '2026-10-19T06:00:00+09:00' }, now), { id: 'a', text: '점검 중이에요' });
+  assert.equal(parseNotice({ id: 'a', text: '점검', until: '2026-10-18T19:00:00+09:00' }, now), null, '시각이 지나면 안 보인다');
+  assert.equal(parseNotice({ text: '   ' }, now), null);
+  assert.equal(parseNotice(null, now), null);
+  assert.equal(parseNotice({ text: 'x'.repeat(300) }, now).text.length, NOTICE_MAX);
+  const common = await text('views/common.js');
+  assert.match(common, /return \[\s*noticeBar\(app\),\s*h\('p', \{ class: 'kg-unofficial' \}/, '공지가 맨 위, 그다음 비공식 한 줄');
+  assert.match(common, /h\('p', \{ class: 'kg-topnote-text' \}, n\.text\)/, '공지 글은 글자로만');
+  for (const f of ['views/kiugi.js', 'views/character.js']) assert.doesNotMatch(await text(f), /nightTop\([^)]*\)\[\d\]/, f + ': 머리줄을 번호로 고르면 공지 때문에 엉뚱한 줄이 바뀐다 — .at(-1)');
+  const css = await text('styles.css');
+  for (const cls of ['.kg-topnote ', '.kg-topnote-text', '.kg-topnote-x']) assert.ok(css.includes(cls), cls);
+});

@@ -9,11 +9,10 @@ export const BRAND = '스푼 DJ 키우기';
 export const UNOFFICIAL = '스푼 공식 서비스가 아니에요';
 export const DISCLAIMER = '스푼 DJ 키우기는 청취자들이 방송에서 키운 DJ 캐릭터를 모아 보는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
 
-// 별도 로컬 시안: 기존 미리 보기와 나란히 비교한다. 운영 화면에는 적용하지 않는다.
+// 앨범·할로윈 디자인(2026-10-18 Codex 시안 → 사용자 "이대로 반영"): 이제 기본 화면이다.
+//  예전 밝은 화면은 주소에 ?design=classic 을 붙이면 그 창에서만 볼 수 있다(비교용). index.html·404.html 의 <html> 에도 처음부터 클래스를 달아 둔다(자료가 오기 전 예전 색이 잠깐 보이지 않게).
 export function isAlbumPreview() {
-  return typeof location !== 'undefined' &&
-    ((['127.0.0.1', 'localhost'].includes(location.hostname) && location.port === '5184') ||
-      new URLSearchParams(location.search).get('design') === 'album');
+  return !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('design') === 'classic');
 }
 
 export function applySeasonTheme(season) {
@@ -26,8 +25,46 @@ export function ilink(href, props, ...children) {
   return h('a', { ...props, href, 'data-link': '' }, ...children);
 }
 
-// 맨 위: 비공식 한 줄 + 머리줄(로고 · 찾기 · 옷 도감 · 그 페이지 단추). 머리줄은 화면 위에 붙어 있다(styles.css).
-// actions = 오른쪽 끝에 더할 요소 목록(예: 공유 단추)
+// 공지(2026-10-18 사용자 "키우기 페이지 제일 상단에 공지 쓸 수 있도록"): docs/notice.json 을 고쳐 올리면 모든 화면 맨 위에 한 줄로 나온다.
+//  {id, text, until} — 글이 비었거나 until(ISO 시각)이 지나면 안 보인다. ×로 닫으면 이 브라우저에서는 그 공지(id)를 다시 안 보인다.
+//  GitHub Pages 가 파일을 10분쯤 기억하므로 1분마다 다른 주소(?t=)로 받는다. 글은 글자로만 넣는다(HTML 아님). 한 화면 묶음에서 한 번만 받는다.
+export const NOTICE_FILE = 'notice.json', NOTICE_CLOSED = 'kg_notice_closed', NOTICE_MAX = 140;
+export function parseNotice(j, now = Date.now()) {
+  if (!j || typeof j !== 'object' || typeof j.text !== 'string') return null;
+  const text = j.text.replace(/\s+/g, ' ').trim().slice(0, NOTICE_MAX);
+  if (!text) return null;
+  const until = typeof j.until === 'string' ? Date.parse(j.until) : NaN;
+  if (Number.isFinite(until) && now > until) return null;
+  return { id: typeof j.id === 'string' && j.id.trim() ? j.id.trim().slice(0, 40) : text, text };
+}
+let noticeJob = null;
+function loadNotice(base) {
+  if (!noticeJob) noticeJob = fetch(`${base}${NOTICE_FILE}?t=${Math.floor(Date.now() / 60000)}`, { cache: 'no-store' })
+    .then((r) => (r.ok ? r.json() : null)).then((j) => parseNotice(j)).catch(() => null);
+  return noticeJob;
+}
+function noticeBar(app) {
+  const host = h('div', { class: 'kg-topnote', role: 'status', hidden: true });
+  if (typeof fetch !== 'function') return host;
+  loadNotice(app.base || '/').then((n) => {
+    let closed = null;
+    try { closed = window.localStorage.getItem(NOTICE_CLOSED); } catch { closed = null; }
+    if (!n || closed === n.id) return;
+    host.replaceChildren(
+      h('div', { class: 'kg-topnote-in' },
+        h('span', { class: 'kg-topnote-tag' }, '공지'),
+        h('p', { class: 'kg-topnote-text' }, n.text),
+        h('button', { type: 'button', class: 'kg-topnote-x', 'aria-label': '공지 닫기', onclick: () => {
+          try { window.localStorage.setItem(NOTICE_CLOSED, n.id); } catch { /* 이번 창에서만 */ }
+          host.hidden = true;
+        } }, icon('close', { size: 16 }))));
+    host.hidden = false;
+  });
+  return host;
+}
+
+// 맨 위: 공지(있을 때만) + 비공식 한 줄 + 머리줄(로고 · 찾기 · 옷 도감 · 그 페이지 단추). 머리줄은 화면 위에 붙어 있다(styles.css).
+// actions = 오른쪽 끝에 더할 요소 목록(예: 공유 단추). 머리줄(header)은 늘 마지막 — 다시 그릴 때는 nightTop(…).at(-1)
 export function nightTop(app, { actions = [] } = {}) {
   if (typeof document !== 'undefined') document.documentElement?.classList.toggle('album-preview', isAlbumPreview());
   const route = typeof document !== 'undefined' ? document.body?.dataset?.route : '';
@@ -48,6 +85,7 @@ export function nightTop(app, { actions = [] } = {}) {
   document.addEventListener('kg-me', listen);
   queueMicrotask(() => { meHost.dataset.kgSeen = '1'; });
   return [
+    noticeBar(app),
     h('p', { class: 'kg-unofficial' }, UNOFFICIAL),
     h('header', { class: 'fp-top' },
       h('div', { class: 'fp-top-in' },

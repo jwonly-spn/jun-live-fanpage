@@ -110,7 +110,7 @@ function paintPage(page, { app, catalog, top, night, main }) {
   const shareBtn = h('button', { type: 'button', class: 'fp-nav icon-only', 'aria-label': '공유하기', onclick: () => share(href, `${name} 키우기`) }, icon('share', { size: 19 }));
   // 머리줄에 공유 단추를 더한다(비공식 한 줄은 그대로)
   const header = document.querySelector('.fp-top');
-  header?.replaceWith(nightTop(app, { actions: [shareBtn] })[1]);
+  header?.replaceWith(nightTop(app, { actions: [shareBtn] }).at(-1));
   // 프로필: 휴대폰은 동그라미 사진 옆에 이름·숫자, 넓은 화면은 크게
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },

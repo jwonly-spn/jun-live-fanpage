@@ -420,7 +420,7 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
   document.title = `${data.id} · ${dj.name} 키우기`;
   // 머리줄에 공유 단추(휴대폰은 공유 창, 안 되면 주소 복사)
   const shareBtn = h('button', { type: 'button', class: 'fp-nav icon-only', 'aria-label': '이 캐릭터 공유하기', onclick: () => share(url, `${data.id} · ${dj.name} 키우기`) }, icon('share', { size: 19 }));
-  document.querySelector('.fp-top')?.replaceWith(nightTop(app, { actions: [shareBtn] })[1]);
+  document.querySelector('.fp-top')?.replaceWith(nightTop(app, { actions: [shareBtn] }).at(-1));
 
   const worn = wornList(catalog, seasonId, data.worn);
   const slots = loadoutSlots(catalog, seasonId, data.worn);
