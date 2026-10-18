@@ -10,7 +10,7 @@ import { kiugiApi, fastApi } from '../api.js';
 import { loadCatalog, buildCatalog, slotName, titleOpenDate } from '../lib/kiugi-draw.js';
 import { sameData } from '../lib/swr.js';
 import { listMine, listFavs, addMine, addFav, removeMine, removeFav, charKey, matchSaved, bumpStreak } from '../lib/me.js';
-import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, BRAND } from './common.js';
+import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, BRAND, isAlbumPreview } from './common.js';
 import { seasonLine, dDay } from './kiugi.js';
 import { itemArt, idText } from './cards.js';
 import { photoBox } from '../lib/raster.js';
@@ -57,7 +57,7 @@ export function spotlightPick(home, now = Date.now()) {
 
 // 아이디 찾기: 찾기 칸(첫 화면 안)과 결과 칸(첫 화면 바로 아래, 찾은 뒤에만 보임)을 한 번만 만들어 둘이 함께 쓴다.
 //  찾은 카드에는 "이게 나예요"(내 캐릭터 고르기) 단추가 붙는다.
-function searchParts(ctx) {
+export function searchParts(ctx) {
   if (ctx.search) return ctx.search;
   const input = h('input', { id: 'kg_gq', type: 'search', maxlength: 24, placeholder: '아이디 (예: 밤톨)', autocomplete: 'off', enterkeyhint: 'search', lang: 'ko', 'aria-describedby': 'kg_gq_help' });
   // 찾기 칸 바로 아래 알림(글 검사·오류) — 결과 칸은 첫 화면 아래라 휴대폰에서 안 보일 수 있다
@@ -261,7 +261,7 @@ function searchSection(ctx) {
 }
 // 내 캐릭터(여러 명 — 캐릭터마다 지난 방문 뒤 달라진 것, 고르지 않았으면 고르는 법) + 오늘의 하트 미션 · 연속 방문(한국 날짜 — 이 브라우저에만).
 //  "이게 나예요"·"내 캐릭터에서 빼기"는 내 캐릭터 칸이 바뀐 캐릭터만 고치고(feed.js meSection), 첫 화면 동그라미 줄도 다시 그린다.
-function meBlock(ctx) {
+export function meBlock(ctx) {
   const slot = h('div', { class: 'kg-me-slot' });
   const today = todayStrip({ streak: bumpStreak(browserStore()) });
   const host = h('div', { class: 'kg-daily' }, slot);
@@ -276,7 +276,7 @@ function meBlock(ctx) {
   return host;
 }
 // 둘러보기: 탭(인기 · 새로 꾸민 · DJ별) + 큰 사진 카드. 카드는 같은 캐릭터면 다시 만들지 않는다(새 답이 와도 깜박이지 않게).
-function feedBlock(ctx) {
+export function feedBlock(ctx) {
   let tab = store.get(TAB_KEY, 'popular');
   if (!FEED_TABS.some((t) => t.id === tab)) tab = 'popular';
   const panel = h('div', { class: 'kg-feed-panel', role: 'tabpanel', id: 'kg_feed_panel', tabindex: '-1' });
@@ -368,7 +368,7 @@ function howSection(ctx) {
     h('p', { class: 'note' }, '예시의 "먼치"는 DJ마다 다른 캐릭터 이름이에요.'));
 }
 // 많이 입은 옷 TOP 5(막대는 1등 기준)
-function topItemsSection(ctx) {
+export function topItemsSection(ctx) {
   const host = h('section', { class: 'kg-sec kg-top-items' }, secHead('많이 입은 옷 TOP 5', '메인에 보이는 방송의 캐릭터가 입은 옷이에요.',
     ilink(ctx.app.link({ name: 'items' }), { class: 'kg-more' }, '옷 도감', icon('arrow', { size: 16 }))));
   const body = h('div', { class: 'kg-rank-host' });
@@ -400,6 +400,10 @@ function topItemsSection(ctx) {
 export const LANDING_SECTIONS = [searchSection, meBlock, feedBlock, topItemsSection, howSection];
 
 export async function renderIntro(root, app, { notice = null } = {}) {
+  if (isAlbumPreview()) {
+    const { renderAlbumIntro } = await import('./album.js');
+    return renderAlbumIntro(root, app, { notice });
+  }
   const box = NOTICE[notice] || null;
   document.title = box ? `${box[0]} · ${BRAND}` : BRAND;
   const heroHost = h('div', { class: 'kg-wrap' });

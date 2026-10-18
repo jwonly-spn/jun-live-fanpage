@@ -9,6 +9,13 @@ export const BRAND = '스푼 DJ 키우기';
 export const UNOFFICIAL = '스푼 공식 서비스가 아니에요';
 export const DISCLAIMER = '스푼 DJ 키우기는 청취자들이 방송에서 키운 DJ 캐릭터를 모아 보는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
 
+// 별도 로컬 시안: 기존 미리 보기와 나란히 비교한다. 운영 화면에는 적용하지 않는다.
+export function isAlbumPreview() {
+  return typeof location !== 'undefined' &&
+    ((['127.0.0.1', 'localhost'].includes(location.hostname) && location.port === '5184') ||
+      new URLSearchParams(location.search).get('design') === 'album');
+}
+
 // 사이트 안 링크(app.js가 가로채서 새로고침 없이 이동)
 export function ilink(href, props, ...children) {
   return h('a', { ...props, href, 'data-link': '' }, ...children);
@@ -17,6 +24,7 @@ export function ilink(href, props, ...children) {
 // 맨 위: 비공식 한 줄 + 머리줄(로고 · 찾기 · 옷 도감 · 그 페이지 단추). 머리줄은 화면 위에 붙어 있다(styles.css).
 // actions = 오른쪽 끝에 더할 요소 목록(예: 공유 단추)
 export function nightTop(app, { actions = [] } = {}) {
+  if (typeof document !== 'undefined') document.documentElement?.classList.toggle('album-preview', isAlbumPreview());
   const route = typeof document !== 'undefined' ? document.body?.dataset?.route : '';
   const home = app.link({ name: 'intro' });
   // 내 캐릭터(이 브라우저에 정해 둔 것 — lib/me.js)가 있으면 어느 화면에서든 한 번에: 한 명이면 그 캐릭터 페이지, 여럿이면 첫 화면의 내 캐릭터 칸.
