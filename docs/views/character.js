@@ -25,7 +25,7 @@ import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND } from './common.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
-import { postCard, pinButton, burstLayer, HEART_ALREADY } from './feed.js';
+import { postCard, pinButton, favButton, burstLayer, HEART_ALREADY } from './feed.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
 function browserStorage() { try { return window.localStorage; } catch { return null; } }
@@ -382,7 +382,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
 
 // 캐릭터 페이지(2026-10-18 새 구조 — SNS 프로필, "빠릿빠릿"): 카드를 누르면 그 카드가 이미 아는 것(아이디·레벨·입은 옷·하트·펫·DJ 캐릭터 — lib/swr.js 미리 보기)이나
 //  지난번 답으로 바로 그리고(전신 무대 · 아이디 · 레벨 · 하트 · 입은 옷), 서버 답이 오면(1~2초) 칭호·펫 칸·입혀 보기까지 채운다. 무대 그림은 같은 모습이면 다시 그리지 않는다.
-//  더한 것: "이게 나예요"(내 캐릭터 — 첫 화면에서 매일 달라진 점) · 정보 칸(레벨 · 하트 · 입은 옷 · 펫) · 같은 방송의 다른 캐릭터(큰 카드 — 휴대폰은 옆으로 넘겨 보기) · 무대 두 번 톡톡 = 하트.
+//  더한 것: "이게 나예요"(내 캐릭터 — 여러 명, 첫 화면에서 매일 달라진 점) · ☆ 즐겨찾기(첫 화면 찾기 칸 아래에 바로) · 정보 칸(레벨 · 하트 · 입은 옷 · 펫) · 같은 방송의 다른 캐릭터(큰 카드 — 휴대폰은 옆으로 넘겨 보기) · 무대 두 번 톡톡 = 하트.
 export async function renderCharacter(root, route, app) {
   document.title = BRAND;
   const night = h('div', { class: 'kg-night compact' });
@@ -393,7 +393,7 @@ export async function renderCharacter(root, route, app) {
   const job = fastApi.person(route.slug, route.base);
   const pre = job.cached || peekPreview(route.slug, route.base);
   let footed = false;
-  const foot = () => { if (footed) return; footed = true; shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·펫·하트만 보여요. 내 캐릭터는 이 브라우저에만 기억해요.')); };
+  const foot = () => { if (footed) return; footed = true; shell.append(siteFoot(app, '청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·펫·하트만 보여요. 내 캐릭터·즐겨찾기는 이 브라우저에만 기억해요.')); };
   const env = { app, route, night, main, hero: null };
   const catalog = await catalogJob;
   let shown = null;
@@ -479,7 +479,10 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
   // 무대 두 번 톡톡 = 하트(휴대폰)
   if (!heroStage.kgTap) { heroStage.kgTap = true; let last = 0; heroStage.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') return; const t = performance.now(); if (t - last < 320) { last = 0; heroStage.kgSend?.(); } else last = t; }); }
   heroStage.kgSend = sendNow;
-  const pinRow = h('div', { class: 'kg-pin-row' }, pinButton({ slug: dj.slug, id: data.id, djName: dj.name }, { onPin: () => { if (!partial) observe(storage, snapOf(data, { rank: null })); } }));
+  // 이게 나예요(내 캐릭터 — 여러 명) · ☆ 즐겨찾기(첫 화면 찾기 칸 아래에 바로) — 둘 다 이 브라우저에만 기억
+  const pinRow = h('div', { class: 'kg-pin-row' },
+    pinButton({ slug: dj.slug, id: data.id, djName: dj.name }, { onPin: (entry) => { if (!partial) observe(storage, entry, snapOf(data, { rank: null })); } }),
+    favButton({ slug: dj.slug, id: data.id, djName: dj.name }));
   night.replaceChildren(
     h('div', { class: 'kg-wrap' },
       h('section', { class: 'kg-hero char' },

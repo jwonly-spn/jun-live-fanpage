@@ -5,7 +5,8 @@ import assert from 'node:assert/strict';
 import { readFile, access } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
-import { getMe, setMe, clearMe, isMe, snapOf, diffSnap, observe, streakAfter, bumpStreak, missionOf, VISIT_GAP, HEART_GOAL } from '../docs/lib/me.js';
+import { getMe, listMine, addMine, removeMine, clearMine, isMine, listFavs, addFav, removeFav, isFav, toggleFav, charKey, matchSaved, snapOf, diffSnap, observe, streakAfter, bumpStreak, missionOf,
+  VISIT_GAP, HEART_GOAL, MINE_MAX, FAV_MAX, SNAP_SPARE } from '../docs/lib/me.js';
 import { sendHeart, sentToday, sentCount, heartKey, markSent } from '../docs/lib/hearts.js';
 import { swr, peekCached, sameData, primePreview, peekPreview, _resetSwr } from '../docs/lib/swr.js';
 import { CROPS, cropOf, scaleFor, rasterKey, liteUrl, petFit, hashText, FEMALE } from '../docs/lib/raster.js';
@@ -17,25 +18,101 @@ const memStore = () => { const box = new Map(); return { box, getItem: (k) => (b
 const broken = { getItem() { throw new Error('막힘'); }, setItem() { throw new Error('막힘'); }, removeItem() { throw new Error('막힘'); } };
 const T = Date.parse('2026-10-20T03:00:00Z'); // 한국 2026-10-20 12:00
 
-test('내 캐릭터 고르기(lib/me.js): 주소·아이디 모양만 받고, 바꾸면 지난 모습 기록도 새로, 저장소가 막혀도 이번 창에서는 기억', () => {
+const A = { slug: 'nyangdj7', id: '밤톨#먼치', djName: '먼치' }, B = { slug: 'cuky2345', id: '귤껍질#쿠키', djName: '쿠키' }, C = { slug: 'jery2468', id: '밤톨#젤리', djName: '젤리' };
+const readJson = (s, k) => JSON.parse(s.getItem(k));
+
+test('내 캐릭터 여러 명(lib/me.js): 주소·아이디 모양만 받고, 넣은 차례대로 · 같은 캐릭터는 한 번 · 12명까지 · 빼기와 되돌리기(같은 자리)', () => {
   const s = memStore();
-  assert.equal(getMe(s), null);
-  assert.equal(setMe(s, { slug: 'nyangdj7', id: '밤톨' }), null, '아이디는 전체(밤톨#먼치)');
-  assert.equal(setMe(s, { slug: 'NYANG', id: '밤톨#먼치' }), null, '이상한 주소');
-  const me = setMe(s, { slug: 'nyangdj7', id: '밤톨#먼치', djName: '먼치' }, T);
-  assert.deepEqual(me, { slug: 'nyangdj7', id: '밤톨#먼치', base: '밤톨', djName: '먼치', at: T });
-  assert.equal(isMe(s, 'nyangdj7', '밤톨#먼치'), true); assert.equal(isMe(s, 'nyangdj7', '사탕요정#먼치'), false);
-  observe(s, snapOf({ level: 3, hearts: 1, worn: {} }), T);
-  assert.ok(s.box.has('kg_me_snap'));
-  setMe(s, { slug: 'cuky2345', id: '귤껍질#쿠키' }, T);
-  assert.equal(s.box.has('kg_me_snap'), false, '다른 캐릭터로 바꾸면 지난 모습 기록을 지운다');
-  clearMe(s); assert.equal(getMe(s), null);
-  // 막힌 저장소: 이번 창에서만
-  assert.ok(setMe(broken, { slug: 'nyangdj7', id: '밤톨#먼치' }, T));
+  assert.deepEqual(listMine(s), []); assert.equal(getMe(s), null);
+  assert.deepEqual(addMine(s, { slug: 'nyangdj7', id: '밤톨' }), { ok: false, reason: 'invalid' }, '아이디는 전체(밤톨#먼치)');
+  assert.equal(addMine(s, { slug: 'NYANG', id: '밤톨#먼치' }).ok, false, '이상한 주소');
+  const r = addMine(s, A, T);
+  assert.deepEqual(r, { ok: true, entry: { slug: 'nyangdj7', id: '밤톨#먼치', base: '밤톨', djName: '먼치', at: T }, added: true, index: 0 });
+  addMine(s, B, T + 1); addMine(s, C, T + 2);
+  assert.deepEqual(listMine(s).map((e) => e.id), ['밤톨#먼치', '귤껍질#쿠키', '밤톨#젤리'], '넣은 차례(처음 정한 캐릭터가 맨 앞) — 같은 앞 이름이라도 방송이 다르면 다른 캐릭터');
+  assert.equal(getMe(s).id, '밤톨#먼치', 'getMe = 첫 번째');
+  const again = addMine(s, { ...A, id: '밤톨#먼치'.normalize('NFD'), djName: '먼치2' }, T + 9);
+  assert.equal(again.added, false, '풀어 쓴 한글도 같은 캐릭터 — 한 번만'); assert.equal(listMine(s).length, 3);
+  assert.equal(listMine(s)[0].djName, '먼치2', 'DJ 이름만 새로'); assert.equal(listMine(s)[0].at, T, '넣은 때는 그대로');
+  assert.equal(isMine(s, 'cuky2345', '귤껍질#쿠키'), true); assert.equal(isMine(s, 'nyangdj7', '귤껍질#쿠키'), false, '다른 방송');
+  // 빼기 → 되돌리기(같은 자리 · 같은 넣은 때)
+  const gone = removeMine(s, 'cuky2345', '귤껍질#쿠키');
+  assert.deepEqual(gone, { entry: { slug: 'cuky2345', id: '귤껍질#쿠키', base: '귤껍질', djName: '쿠키', at: T + 1 }, index: 1 });
+  assert.equal(removeMine(s, 'cuky2345', '귤껍질#쿠키'), null, '없는 것');
+  assert.deepEqual(listMine(s).map((e) => e.id), ['밤톨#먼치', '밤톨#젤리']);
+  addMine(s, gone.entry, gone.entry.at, { index: gone.index });
+  assert.deepEqual(listMine(s).map((e) => [e.id, e.at]), [['밤톨#먼치', T], ['귤껍질#쿠키', T + 1], ['밤톨#젤리', T + 2]]);
+  // 12명까지
+  const t = memStore();
+  const names = ['가', '나', '다', '라', '마', '바', '사', '아', '자', '차', '카', '타', '파'];
+  for (let i = 0; i < MINE_MAX; i++) assert.equal(addMine(t, { slug: 'nyangdj7', id: `${names[i]}#먼치` }, T + i).ok, true);
+  assert.deepEqual(addMine(t, { slug: 'nyangdj7', id: '파#먼치' }), { ok: false, reason: 'full', max: 12 });
+  assert.equal(addMine(t, { slug: 'nyangdj7', id: '가#먼치' }).ok, true, '이미 있는 캐릭터는 가득 차도 괜찮다');
+  // 저장소에 이상한 줄이 섞여 있어도 맞는 것만 · 같은 것은 한 번
+  const u = memStore();
+  u.setItem('kg_mine', JSON.stringify([A, { slug: 'x', id: '밤톨#먼치' }, { slug: 'nyangdj7', id: 5 }, null, A, B]));
+  assert.deepEqual(listMine(u).map((e) => e.id), ['밤톨#먼치', '귤껍질#쿠키']);
+  clearMine(s); assert.deepEqual(listMine(s), []); assert.equal(s.box.has('kg_mine_snap'), false);
+});
+
+test('예전 내 캐릭터(하나만 — kg_me)는 처음 읽을 때 목록 하나로 옮기고, 지난 모습(kg_me_snap)도 그 캐릭터 몫으로 — 예전 열쇠는 지운다', () => {
+  const s = memStore();
+  const snap = { base: { level: 3, hearts: 2, worn: {}, rank: null, pet: null, titles: [], season: 's1', at: T - 864e5 }, cur: { level: 4, hearts: 5, worn: {}, rank: null, pet: null, titles: [], season: 's1', at: T - 3600e3 }, curAt: T - 3600e3 };
+  s.setItem('kg_me', JSON.stringify({ slug: 'nyangdj7', id: '밤톨#먼치', djName: '먼치', at: T - 5 * 864e5 }));
+  s.setItem('kg_me_snap', JSON.stringify(snap));
+  assert.deepEqual(listMine(s), [{ slug: 'nyangdj7', id: '밤톨#먼치', base: '밤톨', djName: '먼치', at: T - 5 * 864e5 }], '고른 캐릭터를 그대로');
+  assert.equal(s.box.has('kg_me'), false); assert.equal(s.box.has('kg_me_snap'), false, '예전 열쇠는 지운다');
+  assert.deepEqual(readJson(s, 'kg_mine_snap'), { 'nyangdj7/밤톨#먼치': snap });
+  // 옮긴 지난 모습으로 바로 소식(1시간 전 마지막 모습 → 새 방문)
+  const r = observe(s, listMine(s)[0], snapOf({ season: { id: 's1' }, level: 5, hearts: 9 }, {}, T), T);
+  assert.equal(r.baseline.hearts, 5); assert.deepEqual(r.diff.changes.map((c) => [c.kind, c.from, c.to]), [['hearts', 5, 9], ['level', 4, 5]]);
+  // 한 번 옮긴 뒤에는 다시 옮기지 않는다(다 빼도 빈 목록 그대로)
+  removeMine(s, 'nyangdj7', '밤톨#먼치');
+  s.setItem('kg_me', JSON.stringify({ slug: 'cuky2345', id: '귤껍질#쿠키' }));
+  assert.deepEqual(listMine(s), [], '새 목록이 있으면 예전 열쇠는 보지 않는다');
+  // 예전 값이 깨져 있으면 빈 목록 · 예전 값이 없으면 아무것도 쓰지 않는다
+  const bad = memStore(); bad.setItem('kg_me', '{not json'); assert.deepEqual(listMine(bad), []);
+  const none = memStore(); assert.deepEqual(listMine(none), []); assert.equal(none.box.size, 0);
+  const odd = memStore(); odd.setItem('kg_me', JSON.stringify({ slug: 'NYANG', id: '밤톨' })); assert.deepEqual(listMine(odd), []); assert.deepEqual(readJson(odd, 'kg_mine'), []); assert.equal(odd.box.has('kg_me'), false);
+});
+
+test('내 캐릭터·즐겨찾기: 저장소가 막혀도(사생활 모드 등) 이번 창에서는 기억 · 다른 저장소에는 섞이지 않는다', () => {
+  assert.equal(addMine(broken, A, T).ok, true);
   assert.equal(getMe(broken)?.id, '밤톨#먼치');
-  clearMe(broken); assert.equal(getMe(broken), null);
-  // 깨진 글
-  const bad = memStore(); bad.setItem('kg_me', '{not json'); assert.equal(getMe(bad), null);
+  assert.equal(addFav(broken, B, T).ok, true); assert.equal(isFav(broken, 'cuky2345', '귤껍질#쿠키'), true);
+  assert.deepEqual(listMine(memStore()), [], '쓸 수 있는 저장소에는 이번 창 메모리가 섞이지 않는다');
+  assert.deepEqual(listFavs(memStore()), []);
+  removeFav(broken, 'cuky2345', '귤껍질#쿠키'); clearMine(broken);
+  assert.equal(getMe(broken), null); assert.deepEqual(listFavs(broken), []);
+  // 쓰기만 막힌 저장소(읽기는 됨 — 예전 사파리 사생활 모드): 이번 창 메모리 값이 보인다
+  const ro = { ...memStore(), setItem() { throw new Error('꽉 참'); } };
+  assert.equal(addMine(ro, B, T).ok, true); assert.equal(isMine(ro, 'cuky2345', '귤껍질#쿠키'), true);
+  clearMine(ro);
+});
+
+test('즐겨찾기(lib/me.js): 새로 넣은 것이 맨 앞 · 같은 캐릭터는 한 번 · 30개까지 · 빼기와 되돌리기 · 누를 때마다 넣었다 뺐다 · 찾기 칸 글로 거르기', () => {
+  const s = memStore();
+  assert.equal(addFav(s, { slug: 'nyangdj7', id: '밤톨' }).reason, 'invalid');
+  addFav(s, A, T); addFav(s, B, T + 1);
+  assert.deepEqual(listFavs(s).map((e) => e.id), ['귤껍질#쿠키', '밤톨#먼치'], '새로 넣은 것이 앞');
+  assert.equal(addFav(s, A, T + 5).added, false); assert.equal(listFavs(s).length, 2);
+  assert.equal(isFav(s, 'nyangdj7', '밤톨#먼치'), true); assert.equal(isMine(s, 'nyangdj7', '밤톨#먼치'), false, '즐겨찾기와 내 캐릭터는 따로');
+  const g = removeFav(s, 'cuky2345', '귤껍질#쿠키');
+  assert.equal(g.index, 0); assert.deepEqual(listFavs(s).map((e) => e.id), ['밤톨#먼치']);
+  addFav(s, g.entry, g.entry.at, { index: g.index });
+  assert.deepEqual(listFavs(s).map((e) => e.id), ['귤껍질#쿠키', '밤톨#먼치'], '되돌리면 같은 자리');
+  assert.deepEqual(toggleFav(s, C, T), { ok: true, on: true, entry: { slug: 'jery2468', id: '밤톨#젤리', base: '밤톨', djName: '젤리', at: T } });
+  assert.deepEqual(toggleFav(s, C, T), { ok: true, on: false });
+  // 30개까지(넘으면 넣지 않는다 — 오래된 것을 몰래 지우지 않는다)
+  const t = memStore(), syl = '가나다라마바사아자차카타파하거너더러머버서어저처커터퍼허고노도'.split('');
+  for (let i = 0; i < FAV_MAX; i++) assert.equal(addFav(t, { slug: 'nyangdj7', id: `${syl[i]}#먼치` }, T + i).ok, true);
+  assert.deepEqual(toggleFav(t, { slug: 'nyangdj7', id: '로#먼치' }, T), { ok: false, on: false, reason: 'full', max: 30 });
+  assert.equal(listFavs(t).length, 30);
+  // 찾기 칸 글로 거르기: 아이디 · DJ 이름(띄어쓰기 뺌), 빈 글은 모두
+  const e = listFavs(s)[1];
+  assert.equal(matchSaved(e, ''), true); assert.equal(matchSaved(e, '밤'), true); assert.equal(matchSaved(e, '밤톨#먼'), true); assert.equal(matchSaved(e, ' 먼 치 '), true, 'DJ 이름');
+  assert.equal(matchSaved(e, '귤'), false); assert.equal(matchSaved(e, '밤톨'.normalize('NFD')), true);
+  assert.equal(charKey('nyangdj7', '밤톨#먼치'.normalize('NFD')), 'nyangdj7/밤톨#먼치');
 });
 
 test('지난 방문 뒤 달라진 것(diffSnap): 하트·레벨·옷·인기 순위·펫·칭호, 시즌이 바뀌면 견주지 않는다, 처음이면 first', () => {
@@ -62,18 +139,49 @@ test('지난 방문 뒤 달라진 것(diffSnap): 하트·레벨·옷·인기 순
 
 test('방문 기준(observe): 30분 안에 다시 보면 같은 기준(새로 고쳐도 같은 소식), 30분 넘게 지나 오면 지난번 마지막 모습이 새 기준', () => {
   const s = memStore();
+  addMine(s, A, T);
   const a = snapOf({ level: 3, hearts: 1 }, {}, T);
-  assert.equal(observe(s, a, T).diff.first, true, '처음 정한 뒤 첫 방문');
+  assert.equal(observe(s, A, a, T).diff.first, true, '처음 정한 뒤 첫 방문');
   const b = snapOf({ level: 3, hearts: 4 }, {}, T + 5 * 60e3);
-  assert.equal(observe(s, b, T + 5 * 60e3).diff.first, true, '같은 방문(30분 안) — 기준 그대로(없음)');
+  assert.equal(observe(s, A, b, T + 5 * 60e3).diff.first, true, '같은 방문(30분 안) — 기준 그대로(없음)');
   const c = snapOf({ level: 4, hearts: 6 }, {}, T + 3 * 3600e3);
-  const r = observe(s, c, T + 3 * 3600e3);
+  const r = observe(s, A, c, T + 3 * 3600e3);
   assert.deepEqual(r.baseline.hearts, 4, '새 방문 — 지난번 마지막 모습(하트 4)이 기준');
   assert.deepEqual(r.diff.changes.map((x) => x.kind), ['hearts', 'level']);
-  assert.deepEqual(observe(s, c, T + 3 * 3600e3 + 60e3).diff.changes.map((x) => x.kind), ['hearts', 'level'], '같은 방문 안에서는 같은 소식');
+  assert.deepEqual(observe(s, A, c, T + 3 * 3600e3 + 60e3).diff.changes.map((x) => x.kind), ['hearts', 'level'], '같은 방문 안에서는 같은 소식');
   assert.equal(VISIT_GAP, 30 * 60e3);
-  // 막힌 저장소에서도 멈추지 않는다
-  assert.equal(observe(broken, a, T).diff.first !== undefined, true);
+  // 막힌 저장소에서도 멈추지 않는다 · 모양이 틀린 캐릭터는 적지 않는다
+  assert.equal(observe(broken, A, a, T).diff.first !== undefined, true);
+  const before = s.getItem('kg_mine_snap');
+  assert.equal(observe(s, { slug: 'x', id: '밤톨' }, a, T).diff.first, true); assert.equal(s.getItem('kg_mine_snap'), before);
+});
+
+test('지난 모습은 캐릭터마다 따로 · 뺀 캐릭터 기록은 최근 6개까지 남겨 다시 넣으면 이어서', () => {
+  const s = memStore();
+  addMine(s, A, T); addMine(s, B, T);
+  observe(s, A, snapOf({ level: 2, hearts: 1 }, {}, T), T);
+  observe(s, B, snapOf({ level: 7, hearts: 50 }, {}, T), T);
+  const later = T + 2 * 3600e3;
+  const ra = observe(s, A, snapOf({ level: 3, hearts: 4 }, {}, later), later);
+  const rb = observe(s, B, snapOf({ level: 7, hearts: 50 }, {}, later), later);
+  assert.deepEqual(ra.diff.changes.map((c) => [c.kind, c.from, c.to]), [['hearts', 1, 4], ['level', 2, 3]], '밤톨#먼치 는 그 기록과');
+  assert.deepEqual(rb.diff.changes, [], '귤껍질#쿠키 는 그 기록과(그대로)');
+  assert.deepEqual(Object.keys(readJson(s, 'kg_mine_snap')).sort(), ['cuky2345/귤껍질#쿠키', 'nyangdj7/밤톨#먼치']);
+  // 빼도 기록은 남는다 → 다시 넣고 다음 방문에 이어서
+  removeMine(s, 'nyangdj7', '밤톨#먼치');
+  observe(s, B, snapOf({ level: 7, hearts: 51 }, {}, later + 60e3), later + 60e3);
+  assert.ok(readJson(s, 'kg_mine_snap')['nyangdj7/밤톨#먼치'], '뺀 캐릭터 기록도 남아 있다');
+  addMine(s, A, later + 120e3);
+  const back = observe(s, A, snapOf({ level: 4, hearts: 9 }, {}, later + 3 * 3600e3), later + 3 * 3600e3);
+  assert.equal(back.diff.first, false); assert.equal(back.baseline.hearts, 4, '다시 넣으면 지난번 마지막 모습부터');
+  // 내 캐릭터가 아닌 기록은 최근 본 6개까지만
+  const t = memStore(), syl = '가나다라마바사아자차'.split('');
+  addMine(t, A, T);
+  syl.forEach((x, i) => observe(t, { slug: 'nyangdj7', id: `${x}#먼치` }, snapOf({ level: 1, hearts: i }, {}, T + i), T + i));
+  observe(t, A, snapOf({ level: 1, hearts: 0 }, {}, T + 100), T + 100);
+  const keys = Object.keys(readJson(t, 'kg_mine_snap'));
+  assert.equal(keys.length, 1 + SNAP_SPARE); assert.ok(keys.includes('nyangdj7/밤톨#먼치'));
+  assert.ok(keys.includes('nyangdj7/차#먼치') && !keys.includes('nyangdj7/가#먼치'), '오래된 것부터 지운다');
 });
 
 test('연속 방문(streakAfter·bumpStreak, 한국 날짜)과 하루 하트 미션(missionOf)', () => {

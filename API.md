@@ -25,7 +25,7 @@
   - 캐릭터 사진(`lib/raster.js`): 저장하기와 같은 그리기 함수로 캔버스에 한 번 그려 그림(data: — CSP 는 그대로)으로 둔다. 이번 창 메모리 + 이 브라우저 IndexedDB `kg-raster`(열쇠에 그림 주소 `?v=` 해시가 들어 있어 그림이 바뀌면 새로 그린다).
   - 공통 배경은 가벼운 WebP 사본 `docs/kiugi-lite/`(`tools/make-lite-art.cjs` — Electron 으로, 그림이 바뀌면 다시. `docs/kiugi/` 는 먼치킨 sync 가 통째로 맞춰 쓰므로 그 밖에 둔다). 원본 해시가 다르면 원본을 쓴다.
   - 서버 답 기억(`lib/swr.js` — localStorage `kg_c:*`, 7일)과 시즌 목록 기억(`kg_cat`): 지난 답으로 먼저 그리고 새 답을 받는다. 카드를 누르면 카드가 아는 것으로 캐릭터 페이지를 바로 그린다.
-  - 이 브라우저에만 기억하는 것(서버로 보내지 않음, `lib/me.js`): 내 캐릭터 `kg_me` · 지난 모습 `kg_me_snap` · 연속 방문 `kg_streak` · 오늘 본 DJ `kg_seen_dj` · 마지막 탭 `kg_tab`. 저장소가 막혀 있으면 이번 창에서만.
+  - 이 브라우저에만 기억하는 것(서버로 보내지 않음, 접속 주소(IP)도 쓰지 않음, `lib/me.js`): 내 캐릭터(여러 명, 12명까지) `kg_mine` · 캐릭터마다 지난 모습 `kg_mine_snap` · 즐겨찾기(30개까지 — 메인 찾기 칸 아래에 보임) `kg_fav` · 연속 방문 `kg_streak` · 오늘 본 DJ `kg_seen_dj` · 마지막 탭 `kg_tab`. 예전(하나만) `kg_me`·`kg_me_snap` 은 처음 읽을 때 `kg_mine`·`kg_mine_snap` 으로 옮기고 지운다. 저장소가 막혀 있으면 이번 창에서만.
   - 올리기 전 `tools/stamp.cjs`(deploy-site 가 부른다): index.html·404.html 에 파일 내용 해시 주소 · import map · modulepreload · CSP 해시를 찍는다(GitHub Pages 10분 캐시 때문에 새 파일이 늦게 보이던 것).
 - 화면에는 레벨과 표정 이름만 보이고 애정도 숫자는 보이지 않는다.
 - 하트: 사이트가 이 브라우저 저장소(localStorage)에 무작위 열쇠(32자, `kg_heart_token`)를 만들어 두고 `POST heart`에 실어 보낸다. 오늘 보낸 캐릭터는 `kg_hearted`에 기억해 "♥ 오늘 하트 보냈어요"로 보여 준다(저장소가 막혀 있으면 이번 창에서만).

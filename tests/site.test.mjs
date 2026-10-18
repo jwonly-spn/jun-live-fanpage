@@ -105,10 +105,30 @@ test('모양: 보안 규칙상 style 속성을 쓰지 않고, 화면 클래스�
   //  내 캐릭터(kg-me · kg-me-news · kg-me-cta) · 오늘의 하트 미션(kg-today · kg-mission · kg-streak) · 탭(kg-tabs · kg-tab) · DJ 프로필(kg-profile) · 옆으로 넘겨 보기(kg-swipe)
   for (const cls of ['kg-night', 'kg-unofficial', 'fp-logo', 'kg-hero', 'kg-panel', 'kg-medal', 'kg-stage', 'kg-steps', 'kg-bubble', 'kg-rank-bar', 'kg-worn-one', 'kg-items', 'kg-chip', 'kg-toggle', 'fp-foot-legal',
     'kg-post', 'kg-post-media', 'kg-photo', 'kg-heart-pill', 'kg-pet-tile', 'kg-burst', 'kg-rings', 'kg-ring', 'kg-spot', 'kg-me', 'kg-me-news', 'kg-me-cta', 'kg-today', 'kg-mission', 'kg-streak',
-    'kg-tabs', 'kg-tab', 'kg-feed-grid', 'kg-profile', 'kg-swipe', 'kg-pin-btn'])
+    'kg-tabs', 'kg-tab', 'kg-feed-grid', 'kg-profile', 'kg-swipe', 'kg-pin-btn',
+    // 2026-10-18 내 캐릭터 여러 명(kg-me-list · kg-me-item · kg-me-gone · kg-ring-mine) · ☆ 즐겨찾기(kg-fav-btn) · 찾기 칸 아래 저장한 캐릭터(kg-saved)
+    'kg-me-host', 'kg-me-list', 'kg-me-item', 'kg-me-count', 'kg-me-gone', 'kg-ring-mine', 'kg-fav-btn', 'kg-saved', 'kg-saved-row', 'kg-saved-link', 'kg-saved-x'])
     assert.match(css, new RegExp(`\\.${cls}[\\s{.:,\\[]`), cls);
   for (const gone of ['kg-cast', 'kg-rail', 'kg-card', 'kg-podium']) assert.doesNotMatch(css, new RegExp(`\\.${gone}[\\s{.:,\\[-]`), gone + ' 는 없앴다');
   for (const f of await siteScripts()) assert.doesNotMatch(await text(f), /\bstyle:\s*['"`]|setAttribute\(\s*['"]style/, f + ': style 속성 없음');
+});
+
+test('내 캐릭터·즐겨찾기는 이 브라우저에만(2026-10-18 사용자 "동일 접속 IP 활용해서 하는 건가?" — 아니다): lib/me.js 는 서버에 묻지 않고, 찾기 칸 아래 목록도 받아 둔 답만 쓴다', async () => {
+  const me = await text('lib/me.js');
+  assert.doesNotMatch(me, /fetch\(|XMLHttpRequest|kiugiApi|fastApi|sendBeacon|navigator\./, 'me.js 는 서버로 아무것도 보내지 않는다');
+  assert.deepEqual([...me.matchAll(/^import .* from '([^']+)';$/gm)].map((m) => m[1]), ['./hearts.js'], 'me.js 가 부르는 것은 날짜 도우미뿐');
+  assert.match(me, /localStorage/);
+  const intro = await text('views/intro.js');
+  const from = intro.indexOf('function savedPanel(');
+  const panel = intro.slice(from, intro.indexOf('\nexport function heroSection(', from));
+  assert.ok(panel.length > 200, 'savedPanel 이 있다');
+  assert.doesNotMatch(panel, /kiugiApi|fastApi\.(home|page|person)\(/, '찾기 칸 아래 목록은 서버에 묻지 않는다(그림은 받아 둔 답이 있을 때만 — cachedLook)');
+  assert.match(panel, /cachedLook\(e\)/);
+  // 찾기 칸 · 캐릭터 페이지 · 찾은 카드에 단추
+  const feed = await text('views/feed.js'), character = await text('views/character.js');
+  assert.match(feed, /pinButton\(\{ slug: c\.slug, id: c\.id, djName \}\), favButton\(\{ slug: c\.slug, id: c\.id, djName \}, \{ compact: true \}\)/, '찾은 카드: 이게 나예요 + ☆');
+  assert.match(character, /favButton\(\{ slug: dj\.slug, id: data\.id, djName: dj\.name \}\)/, '캐릭터 페이지: ☆ 즐겨찾기');
+  assert.match(intro, /const saved = savedPanel\(ctx, \{ form, input \}\)/, '메인 찾기 칸 아래');
 });
 
 test('화면에 애정도 숫자를 쓰지 않는다(레벨과 표정 이름만)', async () => {

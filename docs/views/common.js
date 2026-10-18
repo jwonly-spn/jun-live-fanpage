@@ -2,7 +2,7 @@
 // 모습(2026-10-18 새 구조): 밝은 아이보리 바탕 · 먹색 글 · 장밋빛 하트 — SNS 처럼 큰 사진 카드(views/feed.js). 옆으로 넘기는 화살표 줄(rail)은 없앴다.
 // 장식 그림 파일 없음 — 모양은 모두 styles.css(보안 규칙상 style 속성을 쓰지 않는다).
 import { h, icon, toast, copyText } from '../lib/dom.js';
-import { getMe } from '../lib/me.js';
+import { listMine } from '../lib/me.js';
 
 // 사이트 이름(2026-10-08 사용자: "스푼 DJ 키우기" + 맨 위·아래에 비공식 표시)
 export const BRAND = '스푼 DJ 키우기';
@@ -19,8 +19,21 @@ export function ilink(href, props, ...children) {
 export function nightTop(app, { actions = [] } = {}) {
   const route = typeof document !== 'undefined' ? document.body?.dataset?.route : '';
   const home = app.link({ name: 'intro' });
-  let me = null;
-  try { me = getMe(window.localStorage); } catch { me = null; }
+  // 내 캐릭터(이 브라우저에 정해 둔 것 — lib/me.js)가 있으면 어느 화면에서든 한 번에: 한 명이면 그 캐릭터 페이지, 여럿이면 첫 화면의 내 캐릭터 칸.
+  //  다른 단추로 넣고 빼면('kg-me' 알림) 바로 고친다.
+  const meHost = h('span', { class: 'fp-me-host' });
+  const paintMe = () => {
+    let mine = [];
+    try { mine = listMine(window.localStorage); } catch { mine = []; }
+    const one = mine.length === 1 ? mine[0] : null;
+    const href = one ? app.link({ name: 'character', slug: one.slug, base: one.base }) : home + '#me';
+    meHost.replaceChildren(...(mine.length ? [ilink(href, { class: 'fp-nav icon-only fp-me', 'aria-label': one ? `내 캐릭터 ${one.id}` : `내 캐릭터 ${mine.length}명`,
+      'aria-current': one && route === 'character' && location.pathname === href ? 'page' : null }, icon('user', { size: 19 }))] : []));
+  };
+  paintMe();
+  const listen = () => { if (!meHost.isConnected && meHost.dataset.kgSeen) { document.removeEventListener('kg-me', listen); return; } paintMe(); };
+  document.addEventListener('kg-me', listen);
+  queueMicrotask(() => { meHost.dataset.kgSeen = '1'; });
   return [
     h('p', { class: 'kg-unofficial' }, UNOFFICIAL),
     h('header', { class: 'fp-top' },
@@ -30,8 +43,7 @@ export function nightTop(app, { actions = [] } = {}) {
           h('span', { class: 'fp-brand-name' }, BRAND)),
         h('nav', { class: 'fp-actions', 'aria-label': '바로 가기' },
           ilink(home + '#find', { class: 'fp-nav icon-only', 'aria-label': '아이디로 찾기' }, icon('search', { size: 19 })),
-          // 내 캐릭터(이 브라우저에 정해 둔 것 — lib/me.js)가 있으면 어느 화면에서든 한 번에
-          me ? ilink(app.link({ name: 'character', slug: me.slug, base: me.base }), { class: 'fp-nav icon-only fp-me', 'aria-label': `내 캐릭터 ${me.id}`, 'aria-current': route === 'character' && location.pathname === app.link({ name: 'character', slug: me.slug, base: me.base }) ? 'page' : null }, icon('user', { size: 19 })) : null,
+          meHost,
           ilink(app.link({ name: 'items' }), { class: 'fp-nav', 'aria-current': route === 'items' ? 'page' : null }, icon('hanger', { size: 19 }), h('span', null, '옷 도감')),
           ...actions))),
   ];

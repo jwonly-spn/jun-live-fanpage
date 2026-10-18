@@ -1,19 +1,20 @@
 // 메인 페이지(스푼 DJ 키우기) — 2026-10-18 사이트 새 구조(사용자 "화살표 넘기기 말고, 큰 게임 회사처럼 — 매일 들어와 내 캐릭터를 확인하고 싶게, 빠릿빠릿하게"):
-//  첫 화면: DJ 동그라미 줄(키우기 중인 DJ — 맨 앞은 내 캐릭터) · 시즌 · 사이트 이름 · 한 줄 설명 · 아이디로 찾기 · 숫자 + 오늘의 주인공(하트 1위 큰 사진)
-//  그 아래(LANDING_SECTIONS 차례): 찾은 결과 · 내 캐릭터(지난 방문 뒤 달라진 것 — 고르지 않았으면 고르는 법) · 오늘의 하트 미션·연속 방문 ·
+//  첫 화면: DJ 동그라미 줄(키우기 중인 DJ — 맨 앞은 내 캐릭터들) · 시즌 · 사이트 이름 · 한 줄 설명 · 아이디로 찾기 · 숫자 + 오늘의 주인공(하트 1위 큰 사진)
+//   찾기 칸을 누르면 바로 아래에 저장한 캐릭터(내 캐릭터 · ☆ 즐겨찾기 — 이 브라우저에만 기억)가 보여 누르면 바로 그 캐릭터 페이지로(savedPanel).
+//  그 아래(LANDING_SECTIONS 차례): 찾은 결과 · 내 캐릭터(여러 명 — 캐릭터마다 지난 방문 뒤 달라진 것, 고르지 않았으면 고르는 법) · 오늘의 하트 미션·연속 방문 ·
 //   둘러보기(탭: 인기 · 새로 꾸민 · DJ별 — 큰 사진 카드, 휴대폰 한 장 · 태블릿 두 장 · PC 세 장) · 많이 입은 옷 TOP 5 · 이렇게 키워요.
 //  빠르게: 지난번 메인 답(lib/swr.js — 이 브라우저)으로 먼저 그리고 새 답이 오면 달라진 칸만 다시 그린다. 캐릭터 사진은 lib/raster.js(한 번 그려 기억).
 // 없는 주소(notfound)와 마친 팬페이지 주소(ended)도 맨 위에 안내 상자를 붙여 여기서 보여 준다.
-import { h, icon, store } from '../lib/dom.js';
+import { h, icon, store, toast } from '../lib/dom.js';
 import { kiugiApi, fastApi } from '../api.js';
 import { loadCatalog, buildCatalog, slotName, titleOpenDate } from '../lib/kiugi-draw.js';
 import { sameData } from '../lib/swr.js';
-import { getMe, bumpStreak } from '../lib/me.js';
+import { listMine, listFavs, addMine, addFav, removeMine, removeFav, charKey, matchSaved, bumpStreak } from '../lib/me.js';
 import { ilink, errorBox, nightTop, siteFoot, secHead, medal, statTiles, BRAND } from './common.js';
 import { seasonLine, dDay } from './kiugi.js';
-import { itemArt } from './cards.js';
+import { itemArt, idText } from './cards.js';
 import { photoBox } from '../lib/raster.js';
-import { postCard, spotlight, storyRings, todayStrip, meSection, browserStore, PIN_LABEL } from './feed.js';
+import { postCard, spotlight, storyRings, todayStrip, meSection, browserStore, cachedLook, tellSaved, PIN_LABEL, FAV_LABEL, MINE_FULL, FAV_FULL } from './feed.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 const NOTICE = {
@@ -69,11 +70,14 @@ function searchParts(ctx) {
   let seq = 0;
   const form = h('form', { class: 'kg-find', role: 'search', novalidate: true },
     h('label', { for: 'kg_gq', class: 'sr-only' }, '아이디로 찾기'),
-    h('div', { class: 'kg-find-row' }, h('span', { class: 'kg-find-icon', 'aria-hidden': 'true' }, icon('search', { size: 20 })), input, submit),
-    status,
-    h('p', { class: 'kg-help', id: 'kg_gq_help' }, '방송 채팅에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디로 찾아요. 찾은 캐릭터에서 ', h('b', null, PIN_LABEL), '를 누르면 내 캐릭터가 돼요.'));
+    h('div', { class: 'kg-find-row' }, h('span', { class: 'kg-find-icon', 'aria-hidden': 'true' }, icon('search', { size: 20 })), input, submit));
+  const saved = savedPanel(ctx, { form, input });
+  form.append(saved.el, status,
+    h('p', { class: 'kg-help', id: 'kg_gq_help' }, '방송 채팅에서 ', h('code', { class: 'kg-cmd' }, '!아이디'), ' 로 만든 아이디로 찾아요. 찾은 캐릭터에서 ', h('b', null, PIN_LABEL), '를 누르면 내 캐릭터가 되고, ',
+      h('b', null, `☆ ${FAV_LABEL}`), '를 누르면 다음부터 이 칸을 누를 때 바로 보여요.'));
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    saved.hide();
     const my = ++seq, key = idKey(input.value);
     if (!key) { status.textContent = '아이디를 적어 주세요.'; input.focus(); return; }
     if (!QUERY_RULE.test(key)) { status.textContent = '아이디는 한글 1~6자예요. 예: 밤톨 또는 밤톨#먼치'; input.focus(); return; }
@@ -84,7 +88,7 @@ function searchParts(ctx) {
       const n = r.results?.length || 0;
       status.textContent = n ? `${n}${r.more ? '+' : ''}명을 찾았어요. 아래에서 보세요.` : `'${key}' 아이디를 찾지 못했어요.`;
       title.textContent = n ? `'${key}' 찾은 캐릭터` : `'${key}' 아이디를 찾지 못했어요`;
-      note.textContent = n ? (r.more ? '비슷한 아이디가 더 있어요. 정확히 적으면 더 잘 찾아요.' : `내 캐릭터면 ${PIN_LABEL}를 눌러 두세요. 매일 달라진 점을 알려 드려요.`) : '이번 시즌 아이디가 맞는지 확인해 주세요. 방송에서 냥을 모으면 5분쯤 뒤에 보여요.';
+      note.textContent = n ? (r.more ? '비슷한 아이디가 더 있어요. 정확히 적으면 더 잘 찾아요.' : `내 캐릭터면 ${PIN_LABEL}, 자주 볼 캐릭터면 ☆ ${FAV_LABEL}를 눌러 두세요.`) : '이번 시즌 아이디가 맞는지 확인해 주세요. 방송에서 냥을 모으면 5분쯤 뒤에 보여요.';
       const fc = feedCtx(ctx, home);
       grid.replaceChildren(...(r.results || []).map((c, i) => postCard(c, fc, { pin: true, tag: i === 0 && r.exact ? '찾았어요' : null, eager: i < 2 })));
       results.hidden = false;
@@ -96,6 +100,108 @@ function searchParts(ctx) {
   return (ctx.search = { form, results, focus });
 }
 const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// 찾기 칸 바로 아래 "저장한 캐릭터"(2026-10-18 사용자 "처음에 검색해서 즐겨찾기를 누르면 다음 접속부터는 검색할 때 밑에 클릭만 하면 그 캐릭터를 볼 수 있게"):
+//  찾기 칸을 누르면(또는 적으면 그 글이 든 것만) 내 캐릭터 · ☆ 즐겨찾기 목록이 칸 바로 아래에 열린다 — 누르면 그 캐릭터 페이지로, ×로 빼기(그 자리에 되돌리기).
+//  저장한 것이 없으면(또는 적은 글과 맞는 것이 없으면) 열리지 않는다. 이 브라우저에만 기억한 것(lib/me.js)이고 서버에 묻지 않는다 — 그림은 이미 받아 둔 답이 있을 때만.
+//  키보드: ↓ 로 목록에 들어가 ↑↓ 로 옮기고, Esc 로 닫는다. 칸 밖을 누르거나 다른 곳으로 옮기면 닫힌다.
+function savedPanel(ctx, { form, input }) {
+  const storage = browserStore();
+  const el = h('div', { class: 'kg-saved', id: 'kg_saved', role: 'group', 'aria-label': '저장한 캐릭터', hidden: true });
+  input.setAttribute('aria-controls', 'kg_saved');
+  let sig = null, rows = [], want = false, pressing = false;
+  const pic = (e) => {
+    const look = cachedLook(e);
+    return look
+      ? h('span', { class: 'kg-saved-pic', 'aria-hidden': 'true' }, photoBox({ catalog: ctx.catalog, character: look.character, worn: look.worn, level: look.level, seasonId: look.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }))
+      : h('span', { class: 'kg-saved-pic plain', 'aria-hidden': 'true' }, e.base.slice(0, 1));
+  };
+  const row = (kind, e) => {
+    const li = h('li', { class: 'kg-saved-row' });
+    const link = ilink(ctx.app.link({ name: 'character', slug: e.slug, base: e.base }), { class: 'kg-saved-link' }, pic(e),
+      h('span', { class: 'kg-saved-text' }, h('b', null, ...idText(e.id)), h('small', null, e.djName ? `${e.djName} 키우기` : '캐릭터 보기')));
+    link.addEventListener('click', () => hide());
+    const where = kind === 'mine' ? '내 캐릭터' : FAV_LABEL;
+    li.append(link, h('button', { type: 'button', class: 'kg-saved-x', 'aria-label': `${e.id} ${where}에서 빼기`, title: `${where}에서 빼기`, onclick: () => drop(kind, e, li) }, icon('close', { size: 16 })));
+    rows.push({ kind, e, li });
+    return li;
+  };
+  // 저장한 것이 바뀌었을 때만 다시 만든다(사진 칸을 매번 새로 만들지 않게)
+  const build = (force = false) => {
+    const mine = listMine(storage), own = new Set(mine.map((e) => charKey(e.slug, e.id)));
+    const favs = listFavs(storage).filter((e) => !own.has(charKey(e.slug, e.id)));
+    const s = JSON.stringify([mine, favs]);
+    if (!force && s === sig) return;
+    sig = s; rows = [];
+    const group = (kind, title, list) => (list.length ? h('div', { class: 'kg-saved-group' },
+      h('p', { class: 'kg-saved-label' }, title, h('span', { class: 'kg-saved-n' }, String(list.length))),
+      h('ul', { class: 'kg-saved-list', 'aria-label': title }, ...list.map((e) => row(kind, e)))) : null);
+    el.replaceChildren(...[group('mine', '내 캐릭터', mine), group('fav', FAV_LABEL, favs),
+      mine.length && !favs.length ? h('p', { class: 'kg-saved-hint' }, '캐릭터 페이지에서 ', h('b', null, `☆ ${FAV_LABEL}`), '를 누르면 여기에 모여요.') : null].filter(Boolean));
+  };
+  // 적은 글로 거르기(맞는 것이 없으면 닫는다)
+  const filter = () => {
+    let any = false;
+    for (const r of rows) { const show = matchSaved(r.e, input.value); r.li.hidden = !show; any ||= show; }
+    for (const g of el.querySelectorAll('.kg-saved-group')) g.hidden = ![...g.querySelectorAll('.kg-saved-row')].some((li) => !li.hidden);
+    const hint = el.querySelector('.kg-saved-hint');
+    if (hint) hint.hidden = Boolean(idKey(input.value));
+    el.hidden = !(want && any);
+  };
+  const show = () => {
+    const was = !el.hidden;
+    want = true; build(); filter();
+    // 휴대폰: 열릴 때 찾기 칸을 화면 위쪽으로(자판에 목록이 가리지 않게)
+    if (!was && !el.hidden && typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches) setTimeout(() => { if (!el.hidden) form.scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }); }, 260);
+  };
+  const hide = () => { want = false; el.hidden = true; };
+  function drop(kind, e, li) {
+    const r = kind === 'mine' ? removeMine(storage, e.slug, e.id) : removeFav(storage, e.slug, e.id);
+    if (!r) return;
+    const where = kind === 'mine' ? '내 캐릭터' : FAV_LABEL;
+    const back = h('button', { type: 'button', class: 'kg-saved-undo', onclick: () => {
+      const res = (kind === 'mine' ? addMine : addFav)(storage, r.entry, r.entry.at, { index: r.index });
+      if (!res.ok) { toast(res.reason === 'full' ? (kind === 'mine' ? MINE_FULL : FAV_FULL) : '되돌리지 못했어요.', 'error'); return; }
+      tellSaved(kind, { key: charKey(e.slug, e.id), added: true, from: el });
+      build(true); filter();
+      rows.find((x) => x.kind === kind && x.e.slug === e.slug && x.e.id === e.id)?.li.querySelector('a')?.focus();
+    } }, '되돌리기');
+    li.classList.add('is-gone');
+    const n = li.closest('.kg-saved-group')?.querySelector('.kg-saved-n');
+    if (n) n.textContent = String(Math.max(0, Number(n.textContent) - 1));
+    li.replaceChildren(h('span', { class: 'kg-saved-gone' }, h('b', null, e.id), ` · ${where}에서 뺐어요`), back);
+    tellSaved(kind, { key: charKey(e.slug, e.id), added: false, from: el });
+    back.focus();
+  }
+  input.addEventListener('focus', show);
+  input.addEventListener('click', () => { if (el.hidden) show(); });
+  input.addEventListener('input', () => { if (want) filter(); else show(); });
+  // 목록을 누르는 동안에는 찾기 칸에서 포커스가 빠져도 닫지 않는다(휴대폰은 링크를 누를 때 포커스가 먼저 빠진다)
+  el.addEventListener('pointerdown', () => { pressing = true; setTimeout(() => { pressing = false; }, 700); });
+  form.addEventListener('focusout', () => setTimeout(() => { if (!pressing && !form.contains(document.activeElement)) hide(); }, 0));
+  const outside = (e) => { if (!form.isConnected && form.dataset.kgSeen) { document.removeEventListener('pointerdown', outside); return; } if (want && !form.contains(e.target)) hide(); };
+  document.addEventListener('pointerdown', outside);
+  queueMicrotask(() => { form.dataset.kgSeen = '1'; });
+  // 키보드: ↓ 로 목록에 들어가고 ↑↓ 로 옮기기, Esc 로 닫기
+  form.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !el.hidden) { e.preventDefault(); hide(); input.focus(); return; }
+    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+    if (e.target === input && el.hidden) { if (e.key === 'ArrowDown') { show(); } if (el.hidden) return; }
+    const stops = [...el.querySelectorAll('.kg-saved-row:not([hidden]) a, .kg-saved-row:not([hidden]) .kg-saved-undo')];
+    if (!stops.length) return;
+    e.preventDefault();
+    if (e.target === input) { if (e.key === 'ArrowDown') stops[0].focus(); return; }
+    const i = stops.indexOf(document.activeElement);
+    if (i < 0) return;
+    if (e.key === 'ArrowDown') stops[Math.min(i + 1, stops.length - 1)].focus();
+    else if (i === 0) input.focus(); else stops[i - 1].focus();
+  });
+  // 다른 곳(캐릭터 카드의 단추)에서 넣고 빼면, 열려 있을 때 바로 고친다
+  const changed = (e) => { if (!form.isConnected && form.dataset.kgSeen) { document.removeEventListener('kg-me', changed); document.removeEventListener('kg-fav', changed); return; } if (e.detail?.from !== el && want) { build(); filter(); } };
+  document.addEventListener('kg-me', changed);
+  document.addEventListener('kg-fav', changed);
+  return { el, show, hide };
+}
 
 // 첫 화면: DJ 동그라미 줄 · 시즌 · 사이트 이름 · 한 줄 설명 · 찾기 칸 · 숫자 + 오늘의 주인공. 자료는 받은 뒤에 채운다(지난번 답이 있으면 바로).
 // heading: 위에 알림 상자가 있으면 'h2'(제목이 두 번 h1 이 되지 않게).
@@ -115,8 +221,8 @@ export function heroSection(ctx) {
   const meNews = h('div', { class: 'kg-me-ping', hidden: true });
   // 휴대폰: 동그라미 줄 → (새 소식) → 글·찾기 → 오늘의 주인공 · 넓은 화면: 왼쪽에 동그라미 줄·글·찾기, 오른쪽에 오늘의 주인공(styles.css .kg-top)
   const top = h('div', { class: 'kg-top' }, ringHost, meNews, hero, spotHost);
-  // home 을 받을 때마다(지난번 답 → 새 답) 채운다
-  ctx.paintHero = (home, { me = null, meLook = null, news = 0 } = {}) => {
+  // home 을 받을 때마다(지난번 답 → 새 답) 채운다. 내 캐릭터 상태(meSection state — 목록 · 그림 · 새 소식 수)가 바뀌어도 다시(ctx.repaintHero)
+  ctx.paintHero = (home, { mine = [], looks = new Map(), news = new Map() } = {}) => {
     season.textContent = seasonLine(home.season);
     const left = home.season ? dDay(home.season) : null;
     dday.hidden = !left; if (left) dday.textContent = left;
@@ -124,10 +230,15 @@ export function heroSection(ctx) {
       ? statTiles([{ value: fmt(home.totals.djs), label: '키우기 중인 DJ' }, { value: fmt(home.totals.people), label: '함께 키우는 청취자' }])
       : [h('p', { class: 'kg-hero-note' }, '아직 키우기를 연 DJ가 없어요. 곧 만나요!')]));
     const fc = feedCtx(ctx, home);
-    // 내 캐릭터에 새 소식이 있으면 동그라미 줄 아래 한 줄(누르면 내 캐릭터 칸으로)
-    meNews.hidden = !(me && news);
-    if (me && news) meNews.replaceChildren(ilink(ctx.app.link({ name: 'intro' }) + '#me', { class: 'kg-me-ping-link' }, icon('sparkle', { size: 16 }), h('span', null, `내 캐릭터에 새 소식 ${news}개`), icon('arrow', { size: 16 })));
-    ringHost.replaceChildren(storyRings(home.djs, fc, { me, meLook, news, onMe: () => (me ? document.getElementById('me')?.scrollIntoView({ block: 'start', behavior: reduced() ? 'auto' : 'smooth' }) : searchParts(ctx).focus()) }));
+    // 내 캐릭터들에 새 소식이 있으면 동그라미 줄 아래 한 줄(누르면 내 캐릭터 칸으로)
+    const rings = mine.map((e) => { const k = charKey(e.slug, e.id); return { entry: e, look: looks.get(k) || cachedLook(e), news: news.get(k) || 0 }; });
+    const total = rings.reduce((s, r) => s + r.news, 0);
+    meNews.hidden = !total;
+    if (total) meNews.replaceChildren(ilink(ctx.app.link({ name: 'intro' }) + '#me', { class: 'kg-me-ping-link' }, icon('sparkle', { size: 16 }), h('span', null, `내 캐릭터에 새 소식 ${total}개`), icon('arrow', { size: 16 })));
+    // 다시 그려도 옆으로 넘겨 둔 자리는 그대로
+    const ringLeft = ringHost.querySelector('.kg-rings ul')?.scrollLeft || 0;
+    ringHost.replaceChildren(storyRings(home.djs, fc, { mine: rings, onMine: (e) => ctx.meFocus?.(charKey(e.slug, e.id)), onAdd: () => searchParts(ctx).focus() }));
+    if (ringLeft) { const ul = ringHost.querySelector('.kg-rings ul'); if (ul) ul.scrollLeft = ringLeft; }
     const pick = spotlightPick(home);
     if (!pick) { spotHost.replaceChildren(); top.classList.add('solo'); return; }
     top.classList.remove('solo');
@@ -143,21 +254,17 @@ export function heroSection(ctx) {
 function searchSection(ctx) {
   return searchParts(ctx).results;
 }
-// 내 캐릭터(지난 방문 뒤 달라진 것 — 고르지 않았으면 고르는 법) + 오늘의 하트 미션 · 연속 방문(한국 날짜 — 이 브라우저에만).
-//  "이게 나예요"·"다른 캐릭터로"를 누르면 내 캐릭터 칸을 다시 그린다.
+// 내 캐릭터(여러 명 — 캐릭터마다 지난 방문 뒤 달라진 것, 고르지 않았으면 고르는 법) + 오늘의 하트 미션 · 연속 방문(한국 날짜 — 이 브라우저에만).
+//  "이게 나예요"·"내 캐릭터에서 빼기"는 내 캐릭터 칸이 바뀐 캐릭터만 고치고(feed.js meSection), 첫 화면 동그라미 줄도 다시 그린다.
 function meBlock(ctx) {
   const slot = h('div', { class: 'kg-me-slot' });
   const host = h('div', { class: 'kg-daily' }, slot, todayStrip({ streak: bumpStreak(browserStore()) }));
-  const draw = () => {
-    const m = meSection(ctx, { onFind: () => searchParts(ctx).focus(), rankOf: (me) => popularRank(fastApi.peekHome(), me) });
-    slot.replaceChildren(m.el);
-    ctx.meState = { me: getMe(browserStore()), meLook: m.cachedLook || null, news: 0 };
-    host.classList.toggle('has-me', Boolean(ctx.meState.me));
-    m.ready.then((r) => { ctx.meState = { ...ctx.meState, meLook: r.look || ctx.meState.meLook, news: r.news }; ctx.repaintHero?.(); });
-  };
-  draw();
-  const again = () => { if (!host.isConnected) { document.removeEventListener('kg-me', again); return; } draw(); ctx.repaintHero?.(); };
-  document.addEventListener('kg-me', again);
+  // 내 캐릭터가 있거나 뺀 자리(되돌리기)가 남아 있으면 위아래로(고르는 법 · 오늘의 하트를 옆으로 늘이지 않게)
+  const set = (st) => { ctx.meState = st; host.classList.toggle('has-me', st.mine.length > 0 || st.pending > 0); };
+  const m = meSection(ctx, { onFind: () => searchParts(ctx).focus(), rankOf: (e) => popularRank(fastApi.peekHome(), e), onState: (st) => { set(st); ctx.repaintHero?.(); } });
+  slot.append(m.el);
+  ctx.meFocus = m.focusItem;
+  set(m.state());
   return host;
 }
 // 둘러보기: 탭(인기 · 새로 꾸민 · DJ별) + 큰 사진 카드. 카드는 같은 캐릭터면 다시 만들지 않는다(새 답이 와도 깜박이지 않게).
@@ -295,7 +402,7 @@ export async function renderIntro(root, app, { notice = null } = {}) {
       box ? h('div', { class: 'kg-wrap' }, h('div', { class: 'kg-notice', role: 'alert' }, h('h1', { class: 'kg-notice-title' }, box[0]), h('p', null, box[1]))) : null,
       heroHost),
     main,
-    siteFoot(app, '이 사이트에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 캐릭터·연속 방문·오늘 보낸 하트는 이 브라우저에만 기억해요.')));
+    siteFoot(app, '이 사이트에는 청취자가 방송에서 직접 만든 아이디와 레벨·입은 옷·하트만 보여요. 내 캐릭터·즐겨찾기·연속 방문·오늘 보낸 하트는 이 브라우저에만 기억해요(서버로 보내지 않아요).')));
   const catalog = await loadCatalog(app.base).catch(() => buildCatalog([]));
   const job = fastApi.home();
   const ctx = { app, heading: box ? 'h2' : 'h1', catalog, home: () => job.fresh };
