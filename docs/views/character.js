@@ -23,7 +23,8 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
-import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND } from './common.js';
+import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview } from './common.js';
+import { characterWardrobe } from './album.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
 import { postCard, pinButton, favButton, burstLayer, HEART_ALREADY } from './feed.js';
 
@@ -508,12 +509,16 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
           h('div', { class: 'kg-heart-row' }, heartBtn,
             h('button', { type: 'button', class: 'btn btn-line kg-copy-btn', onclick: () => copyLink(url, copyBox) }, icon('link', { size: 18 }), '링크 복사')),
           pinRow,
+          isAlbumPreview() ? h('a', { href: '#wardrobe', class: 'btn btn-line album-closet-jump' }, icon('hanger', { size: 18 }), '캐릭터 옷장') : null,
           h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요(휴대폰은 캐릭터를 두 번 톡톡). 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
           status, copyBox))));
   // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다). 서버 답(단 칭호)을 받은 뒤에만.
   const tryOn = partial ? null : tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id });
+  const closet = !partial && isAlbumPreview() ? h('section', { class: 'kg-sec album-detail-wardrobe', id: 'wardrobe' },
+    secHead('캐릭터 옷장', '입은 옷을 확인하고 다른 옷을 입혀 봐요.', tryOn?.openBtn || null),
+    characterWardrobe(data, { app, catalog, onTry: () => tryOn?.open(), onCopyCode: copyCode })) : null;
   main.replaceChildren(...[
-    h('section', { class: 'kg-sec' },
+    closet || h('section', { class: 'kg-sec' },
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.', tryOn?.openBtn || null),
       // 입은 옷만 칸으로(그림 · 칸 이름 · 옷 이름 · 번호 복사), 빈 칸은 아래 한 줄로 모은다(2026-10-18 새 구조 — 빈 네모가 많아 어수선하지 않게)
       worn.length

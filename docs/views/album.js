@@ -5,44 +5,47 @@ import { loadCatalog, buildCatalog, wornList, itemCodeOf } from '../lib/kiugi-dr
 import { sameData } from '../lib/swr.js';
 import { charKey } from '../lib/me.js';
 import { ilink, nightTop, siteFoot, errorBox, BRAND } from './common.js';
-import { art, itemArt, baseOf, idText, buddyOf } from './cards.js';
+import { art, itemArt, idText, buddyOf } from './cards.js';
 import { petTile } from '../lib/raster.js';
-import { heartPill, pinButton, favButton, storyRings, todayStrip } from './feed.js';
-import { searchParts, feedBlock, meBlock, topItemsSection, spotlightPick } from './intro.js';
+import { storyRings, todayStrip } from './feed.js';
+import { searchParts, feedBlock, meBlock } from './intro.js';
 import { seasonLine, dDay } from './kiugi.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 
-function wardrobe(card, home, ctx) {
-  const dj = home.djs?.find((d) => d.slug === card.slug);
-  const character = card.character || dj?.character;
-  const seasonId = home.season?.id || ctx.catalog.last;
-  const href = ctx.app.link({ name: 'character', slug: card.slug, base: baseOf(card.id) });
-  const pieces = wornList(ctx.catalog, seasonId, card.worn).filter((it) => it.slot !== 'bg').slice(0, 4);
-  const heart = heartPill({ slug: card.slug, id: card.id, seasonId, hearts: card.hearts }, { big: true });
+export function characterWardrobe(card, { app, catalog, onTry, onCopyCode }) {
+  const ctx = { app, catalog };
+  const dj = card.dj || {};
+  const character = dj.character;
+  const seasonId = card.season?.id || catalog.last;
+  const pieces = wornList(ctx.catalog, seasonId, card.worn);
   const level = h('span', { class: 'album-level' }, `Lv.${card.level || 1}`);
   const pet = buddyOf(ctx.catalog, card.pet);
   const person = h('div', { class: 'album-person' },
     h('div', { class: 'album-person-name' }, h('span', null, `${dj?.name || card.djName || 'DJ'} 키우기`),
-      ilink(href, null, h('h3', null, ...idText(card.id)))), heart.el);
+      h('h3', null, ...idText(card.id))),
+    ilink(app.link({ name: 'items' }), { class: 'album-detail-catalog' }, '옷 도감', icon('arrow', { size: 15 })));
   const stage = art(ctx.catalog, character, card.worn, card.level, { seasonId, base: ctx.app.base, eager: true, label: `${card.id} 전신 캐릭터`, kind: 'album-body' });
   const look = h('div', { class: 'album-look' },
-    h('div', { class: 'album-look-top' }, h('span', { class: 'album-sticker' }, icon('sparkle', { size: 14 }), '오늘의 캐릭터'), level),
-    ilink(href, { class: 'album-fullbody', 'aria-label': `${card.id} 캐릭터 보기` }, stage,
+    h('div', { class: 'album-look-top' }, h('span', { class: 'album-sticker' }, icon('hanger', { size: 14 }), '현재 모습'), level),
+    h('div', { class: 'album-fullbody' }, stage,
       pet ? petTile(pet, ctx.app.base, { label: `함께하는 펫 ${pet.name}` }) : null), person);
   const clothes = h('section', { class: 'album-clothes', 'aria-labelledby': 'album_worn_t' },
     h('div', { class: 'album-clothes-head' }, h('h3', { id: 'album_worn_t' }, icon('hanger', { size: 18 }), '입은 옷'), h('span', null, `${pieces.length}벌`)),
-    h('div', { class: 'album-clothes-grid' }, ...pieces.map((it) => ilink(href + '#try', { class: 'album-piece', 'aria-label': `${it.name} · 입혀 보기` },
-      h('span', { class: 'album-piece-slot' }, it.slotName),
-      itemArt(ctx.catalog, it.id, { base: ctx.app.base, gender: character?.gender || 'f', label: it.name }),
-      h('span', { class: 'album-piece-code' }, itemCodeOf(ctx.catalog, seasonId, it.id) || it.slotName))),
+    h('div', { class: 'album-clothes-grid' }, ...pieces.map((it) => {
+      const code = itemCodeOf(ctx.catalog, seasonId, it.id);
+      return h('div', { class: 'album-piece' },
+        h('button', { type: 'button', class: 'album-piece-preview', 'aria-label': `${it.name} · 입혀 보기`, onclick: onTry },
+          h('span', { class: 'album-piece-slot' }, it.slotName),
+          itemArt(ctx.catalog, it.id, { base: ctx.app.base, gender: character?.gender || 'f', label: it.name })),
+        h('span', { class: 'album-piece-name' }, it.name),
+        code ? h('button', { type: 'button', class: 'album-piece-code', 'aria-label': `${code} 명령 복사`, onclick: () => onCopyCode?.(code) }, icon('copy', { size: 12 }), code) : null);
+    }),
       pieces.length < 4 ? ilink(ctx.app.link({ name: 'items' }), { class: 'album-piece album-piece-more' },
         icon('hanger', { size: 30 }), h('span', null, '다른 옷 보기'), icon('arrow', { size: 16 })) : null),
     !pieces.length ? h('p', { class: 'album-plain' }, '기본 옷을 입고 있어요.') : null,
-    ilink(href + '#try', { class: 'album-try' }, '입혀 보기', icon('arrow', { size: 18 })),
-    h('div', { class: 'album-person-actions' }, pinButton({ slug: card.slug, id: card.id, djName: dj?.name || card.djName }), favButton({ slug: card.slug, id: card.id, djName: dj?.name || card.djName }, { compact: true })));
+    h('button', { type: 'button', class: 'album-try', onclick: onTry }, '입혀 보기', icon('arrow', { size: 18 })));
   const board = h('div', { class: 'album-lookboard' }, look, clothes);
-  board.kgHeart = heart;
   return board;
 }
 
@@ -73,26 +76,20 @@ export async function renderAlbumIntro(root, app, { notice = null } = {}) {
   const job = fastApi.home();
   const ctx = { app, catalog, home: () => job.fresh, todayHost: sidebarToday };
   const search = searchParts(ctx);
-  const board = h('div', { class: 'album-board-host' }, h('div', { class: 'album-board-loading', role: 'status' }, '옷장을 여는 중…'));
   const rings = h('div', { class: 'album-broadcasts' });
   const mine = meBlock(ctx);
   const albumCount = h('span', { class: 'album-count' });
   const header = h('header', { class: 'album-heading' },
     h(notice ? 'h2' : 'h1', null, BRAND),
-    h('div', { class: 'album-search', id: 'find' }, search.form));
-  const cover = h('section', { class: 'album-wardrobe', 'aria-labelledby': 'album_wardrobe_t' },
-    h('div', { class: 'album-section-head' },
-      h('h2', { id: 'album_wardrobe_t' }, icon('hanger', { size: 20 }), '캐릭터 옷장'),
-      ilink(app.link({ name: 'items' }), null, '옷장 도감', icon('arrow', { size: 16 }))), board);
+    h('section', { class: 'album-search', id: 'find', 'aria-labelledby': 'album_search_t' },
+      h('h2', { id: 'album_search_t' }, '내 캐릭터 찾기'), search.form));
   const collection = h('section', { class: 'album-collection', id: 'album', 'aria-labelledby': 'album_collection_t' },
     h('div', { class: 'album-section-head' }, h('h2', { id: 'album_collection_t' }, '캐릭터 앨범', albumCount),
       h('span', { class: 'album-pocket-note' }, icon('heart', { size: 15 }), '하루 한 번, 하트')), feedBlock(ctx));
-  content.append(header, search.results, cover,
+  content.append(header, search.results, h('div', { class: 'album-mine' }, mine), collection,
     h('section', { class: 'album-broadcast-section', 'aria-label': '방송별 캐릭터' }, h('h2', null, '방송별 앨범'), rings),
-    h('div', { class: 'album-mobile-today' }, todayStrip()),
-    h('div', { class: 'album-mine' }, mine), collection,
-    h('section', { class: 'album-closet-picks' }, topItemsSection(ctx)));
-  let last = null, signature = '';
+    h('div', { class: 'album-mobile-today' }, todayStrip()));
+  let last = null;
   const paint = (home) => {
     last = home;
     season.textContent = seasonLine(home.season);
@@ -102,22 +99,15 @@ export async function renderAlbumIntro(root, app, { notice = null } = {}) {
       h('div', null, h('b', null, fmt(home.totals?.people)), h('span', null, '캐릭터')));
     albumCount.textContent = fmt(home.totals?.people);
     const fc = { ...ctx, season: home.season, seasonId: home.season?.id || catalog.last, lookOf: (slug) => home.djs?.find((d) => d.slug === slug)?.character };
-    const pick = spotlightPick(home);
-    if (pick) {
-      const next = JSON.stringify([pick.card.slug, pick.card.id, pick.card.worn, pick.card.level, home.djs?.find((d) => d.slug === pick.card.slug)?.character]);
-      if (signature !== next) { signature = next; board.replaceChildren(wardrobe(pick.card, home, ctx)); }
-      else board.firstElementChild?.kgHeart?.set(pick.card.hearts);
-    } else board.replaceChildren(h('p', { class: 'empty' }, '아직 앨범에 캐릭터가 없어요. 방송에서 아이디를 만들면 보여요.'));
     const state = ctx.meState || { mine: [], looks: new Map(), news: new Map() };
     rings.replaceChildren(storyRings(home.djs, fc, {
       mine: state.mine.map((entry) => ({ entry, look: state.looks.get(charKey(entry.slug, entry.id)), news: state.news.get(charKey(entry.slug, entry.id)) || 0 })),
       onMine: (e) => ctx.meFocus?.(charKey(e.slug, e.id)), onAdd: search.focus,
     }));
     ctx.paintFeed?.(home);
-    ctx.paintTop?.(home);
   };
   ctx.repaintHero = () => { if (last) paint(last); };
   if (job.cached) paint(job.cached);
   try { const fresh = await job.fresh; if (!job.cached || !sameData(fresh, job.cached)) paint(fresh); }
-  catch (e) { if (!job.cached) board.replaceChildren(errorBox('옷장을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.', () => app.navigate(location.pathname, { replace: true }))); }
+  catch (e) { if (!job.cached) collection.replaceChildren(errorBox('캐릭터 앨범을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요.', () => app.navigate(location.pathname, { replace: true }))); }
 }

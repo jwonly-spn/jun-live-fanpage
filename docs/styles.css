@@ -1605,3 +1605,51 @@ html.album-preview {
   .album-piece-more > span { font-size: 8px; }
   .album-piece-more > svg:last-child { width: 12px; height: 12px; }
 }
+
+/* 메인의 목적: 내 캐릭터 찾기 → 내 캐릭터 → 앨범과 하트.
+   옷장 무대와 입은 옷 선반은 캐릭터 상세에만 둔다. */
+.album-search > h2 { margin: 0 0 8px; font-size: 13px; font-weight: 750; letter-spacing: -.025em; }
+.album-heading { align-items: center; }
+.album-search .kg-find-row input { min-height: 42px; }
+.album-search .kg-find-row .btn { min-height: 42px; }
+.album-mine { scroll-margin-top: 90px; }
+.album-mine .kg-me-list.one .kg-me-item { grid-template-columns: minmax(0, 270px) minmax(0, 1fr); gap: 22px; }
+.album-mine .kg-me-news { border-radius: 10px; border-color: #252c3930; background: #ebeeda; }
+.album-mine .kg-post { border-radius: 8px; border-color: #252c3940; padding: 6px; box-shadow: 2px 3px 0 #252c3912; }
+.album-mine .kg-post-media { border-radius: 4px; }
+.album-collection .kg-heart-pill { min-height: 44px; min-width: 52px; background: #ece7ef; }
+.album-detail-wardrobe { scroll-margin-top: 90px; }
+.album-detail-catalog { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; color: var(--text-2); min-height: 44px; font-size: 11px; text-decoration: none; }
+.album-piece-preview { border: 0; padding: 0; background: none; width: 100%; display: flex; flex-direction: column; gap: 5px; align-items: stretch; text-align: left; }
+.album-piece-name { font-size: 11px; line-height: 1.5; font-weight: 650; text-align: center; }
+.album-piece button.album-piece-code { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; min-height: 44px; border: 1px solid #252c3930; border-radius: 5px; background: #eef0e2; margin-top: auto; }
+.album-detail-wardrobe .album-clothes-grid { align-items: stretch; }
+.album-detail-wardrobe .album-look { justify-content: space-between; }
+.album-closet-jump { min-height: 44px; border-radius: 7px; font-size: 13px; background: #e7ecd2; border-color: #252c3940; }
+@media (min-width: 960px) {
+  .album-detail-wardrobe .album-clothes-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 639px) {
+  .album-heading { align-items: stretch; gap: 19px; }
+  .album-main { gap: 24px; }
+  .album-search > h2 { font-size: 12px; margin-bottom: 7px; }
+  .album-mine .kg-me-list.one .kg-me-item { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .album-mine .kg-me-list.one .kg-post { max-width: 300px; width: 100%; margin-inline: auto; }
+  .album-detail-wardrobe .album-lookboard { grid-template-columns: minmax(0, 1fr); }
+  .album-detail-wardrobe .album-look { display: none; }
+  .album-detail-wardrobe .album-clothes { padding: 15px; gap: 14px; }
+  .album-detail-wardrobe .album-clothes-head h3 { font-size: 14px; }
+  .album-detail-wardrobe .album-piece { padding: 8px; gap: 6px; }
+  .album-detail-wardrobe .album-piece-slot { font-size: 10px; }
+  .album-detail-wardrobe .album-piece-name { font-size: 11px; }
+  .album-detail-wardrobe .album-piece-code { font-size: 11px; }
+  .album-detail-wardrobe .album-try { min-height: 44px; font-size: 13px; }
+}
+@media (max-width: 639px) {
+  .album-mine .kg-me-list.one .kg-me-news { order: 0; }
+  .album-mine .kg-daily:not(.has-me) .kg-me-cta { grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; padding: 12px; gap: 9px; }
+  .album-mine .kg-daily:not(.has-me) .kg-me-cta-ic { width: 28px; height: 28px; }
+  .album-mine .kg-daily:not(.has-me) .kg-me-cta-text p { display: none; }
+  .album-mine .kg-daily:not(.has-me) .kg-me-cta-title { font-size: 14px; }
+  .album-mine .kg-daily:not(.has-me) .kg-me-cta-btn { grid-column: auto; margin: 0; padding-inline: 10px; font-size: 11px; min-height: 42px; }
+}
