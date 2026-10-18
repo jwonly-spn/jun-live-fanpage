@@ -9,7 +9,7 @@ import { h, toast } from '../lib/dom.js';
 import { fastApi } from '../api.js';
 import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate, motionList, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { CLOSET_CMD, motionCommand, MOTION_OFF } from '../lib/try-on.js';
-import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
+import { loading, nightTop, siteFoot, secHead, statTiles, BRAND, applySeasonTheme } from './common.js';
 import { seasonBadge } from './kiugi.js';
 import { itemArt, art } from './cards.js';
 
@@ -94,6 +94,7 @@ export async function renderItems(root, app) {
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
   const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), (() => { const j = fastApi.home(); return j.cached !== undefined ? Promise.resolve(j.cached) : j.fresh; })().catch(() => null)]);
   const seasonId = home?.season?.id || catalog.last;
+  applySeasonTheme(home?.season || catalog.seasons?.[seasonId]);
   const counts = new Map((home?.items || []).map((x) => [x.id, x.count]));
   const { groups, rewards, titles, rule } = itemGroups(catalog, seasonId, counts);
   // 모션(2026-10-15): 시즌 목록 motions — 옷처럼 칸마다 움직이는 예시 캐릭터(기본 캐릭터, 여자·남자 단추를 따른다)

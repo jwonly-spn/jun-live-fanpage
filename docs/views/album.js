@@ -4,7 +4,7 @@ import { fastApi } from '../api.js';
 import { loadCatalog, buildCatalog, wornList, itemCodeOf } from '../lib/kiugi-draw.js';
 import { sameData } from '../lib/swr.js';
 import { charKey } from '../lib/me.js';
-import { ilink, nightTop, siteFoot, errorBox, BRAND } from './common.js';
+import { ilink, nightTop, siteFoot, errorBox, BRAND, applySeasonTheme } from './common.js';
 import { art, itemArt, idText, buddyOf } from './cards.js';
 import { petTile } from '../lib/raster.js';
 import { storyRings, todayStrip, postCard } from './feed.js';
@@ -107,6 +107,7 @@ export async function renderAlbumIntro(root, app, { notice = null } = {}) {
     countdown.hidden = !days;
     countdown.textContent = /^D-\d+$/.test(days || '') ? `종료까지 ${days.slice(2)}일` : (days || '');
     const halloween = /할로윈/.test(`${home.season?.name || ''} ${home.season?.theme || ''}`);
+    applySeasonTheme(home.season);
     seasonBanner.classList.toggle('is-halloween', halloween);
     seasonMark.textContent = halloween ? '🎃' : '●';
     counters.replaceChildren(h('div', null, h('b', null, fmt(home.totals?.djs)), h('span', null, '방송')),

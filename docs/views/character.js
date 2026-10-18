@@ -23,7 +23,7 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
-import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview } from './common.js';
+import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview, applySeasonTheme } from './common.js';
 import { characterWardrobe } from './album.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
 import { postCard, pinButton, favButton, burstLayer, HEART_ALREADY } from './feed.js';
@@ -414,6 +414,7 @@ export async function renderCharacter(root, route, app) {
 function paintCharacter(data, catalog, env, { partial = false } = {}) {
   const { app, route, night, main } = env;
   const dj = data.dj || {}, seasonId = data.season?.id || null;
+  applySeasonTheme(data.season);
   const djLink = app.link({ name: 'kiugi', slug: dj.slug });
   const url = location.origin + app.link({ name: 'character', slug: dj.slug, base: route.base });
   document.title = `${data.id} · ${dj.name} 키우기`;

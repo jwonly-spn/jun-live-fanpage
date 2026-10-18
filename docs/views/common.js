@@ -1,6 +1,6 @@
 // 화면 공통 조각: 사이트 이름, 맨 위(비공식 한 줄 · 머리줄), 바닥글, 칸 제목, 순위 배지, 사이트 안 링크, 불러오기 표시, 오류 상자, 공유.
 // 모습(2026-10-18 새 구조): 밝은 아이보리 바탕 · 먹색 글 · 장밋빛 하트 — SNS 처럼 큰 사진 카드(views/feed.js). 옆으로 넘기는 화살표 줄(rail)은 없앴다.
-// 장식 그림 파일 없음 — 모양은 모두 styles.css(보안 규칙상 style 속성을 쓰지 않는다).
+// 모양은 styles.css, 할로윈 장식은 docs/design의 작은 SVG를 사용한다. style 속성은 쓰지 않는다.
 import { h, icon, toast, copyText } from '../lib/dom.js';
 import { listMine } from '../lib/me.js';
 
@@ -14,6 +14,11 @@ export function isAlbumPreview() {
   return typeof location !== 'undefined' &&
     ((['127.0.0.1', 'localhost'].includes(location.hostname) && location.port === '5184') ||
       new URLSearchParams(location.search).get('design') === 'album');
+}
+
+export function applySeasonTheme(season) {
+  if (typeof document !== 'undefined') document.documentElement.classList.toggle('halloween-season',
+    isAlbumPreview() && /할로윈/.test(`${season?.name || ''} ${season?.theme || ''}`));
 }
 
 // 사이트 안 링크(app.js가 가로채서 새로고침 없이 이동)

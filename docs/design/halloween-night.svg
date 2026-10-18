@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="600" viewBox="0 0 1440 600" fill="none">
+<defs>
+ <radialGradient id="glow"><stop stop-color="#f7a556" stop-opacity=".2"/><stop offset="1" stop-color="#f7a556" stop-opacity="0"/></radialGradient>
+ <mask id="crescent"><circle cx="1298" cy="92" r="52" fill="white"/><circle cx="1318" cy="77" r="48" fill="black"/></mask>
+ <path id="bat" d="M0 8C-8-5-27-10-42-8L-33 9-24 4-17 17-9 12 0 26 9 12 17 17 24 4 33 9 42-8C27-10 8-5 0 8Z"/>
+</defs>
+<circle cx="1298" cy="92" r="160" fill="url(#glow)"/>
+<circle cx="1298" cy="92" r="52" fill="#ffc781" mask="url(#crescent)" opacity=".75"/>
+<g fill="#a89ac4" opacity=".5"><circle cx="340" cy="28" r="2"/><circle cx="470" cy="115" r="1.5"/><circle cx="730" cy="45" r="2"/><circle cx="1020" cy="33" r="1.5"/><circle cx="1190" cy="170" r="2"/><circle cx="1370" cy="240" r="1.5"/><circle cx="280" cy="260" r="1"/><circle cx="1080" cy="280" r="1"/><circle cx="660" cy="215" r="1"/></g>
+<g fill="#100b18" stroke="#aa80bd" stroke-opacity=".25" stroke-width="1" opacity=".9"><use href="#bat" transform="translate(1250 150) rotate(-12) scale(.65)"/><use href="#bat" transform="translate(1310 330) rotate(17) scale(.45)"/><use href="#bat" transform="translate(1220 250) rotate(-8) scale(.38)"/></g>
+<g stroke="#b9a1cf" opacity=".22" stroke-width="1">
+ <path d="M0 0 156 0M0 0 151 49M0 0 126 92M0 0 92 126M0 0 49 151M0 0 0 156"/>
+ <path d="M30 0Q26 8 28 9Q24 17 24 18Q17 22 18 25Q9 25 9 29Q4 27 0 30M65 0Q57 17 62 20Q50 34 53 38Q35 45 38 53Q18 54 20 62Q8 59 0 65M105 0Q93 26 100 32Q83 53 85 62Q59 74 62 85Q30 89 32 100Q14 96 0 105M150 0Q133 37 143 46Q118 77 121 88Q85 107 88 121Q43 127 46 143Q20 137 0 150"/>
+</g>
+</svg>

@@ -9,7 +9,7 @@ import { relativeTime, formatDate } from '../lib/text.js';
 import { loadCatalog, buildCatalog, expressionFor } from '../lib/kiugi-draw.js';
 import { photoBox } from '../lib/raster.js';
 import { sameData } from '../lib/swr.js';
-import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
+import { ilink, loading, errorBox, share, nightTop, siteFoot, secHead, statTiles, BRAND, applySeasonTheme } from './common.js';
 import { heartText } from './cards.js';
 import { postCard, markDjSeen } from './feed.js';
 
@@ -101,6 +101,7 @@ export async function renderKiugi(root, route, app) {
 }
 
 function paintPage(page, { app, catalog, top, night, main }) {
+  applySeasonTheme(page.season);
   const name = page.name || page.character?.name || 'DJ';
   const seasonId = page.season?.id || null;
   document.title = `${name} 키우기 · ${BRAND}`;

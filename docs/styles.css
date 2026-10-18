@@ -1705,3 +1705,116 @@ html.album-preview {
   .album-season-banner { font-size: 10px; gap: 5px; padding: 5px 7px; }
   .album-countdown { font-size: 9px; }
 }
+
+/* 할로윈 시즌: 배치는 유지하고 밤의 보라색과 호박빛으로 전체 표면을 바꾼다. */
+html.album-preview.halloween-season {
+  --bg: #191322; --bg-2: #21192d; --paper: #30243d;
+  --panel: #2a2037; --panel-2: #392a48; --panel-3: #4b385c;
+  --text: #f5edfc; --text-2: #c6b7d3; --text-3: #b6a4c7;
+  --ink: #ffe4bd; --ink-2: #f7c884; --on-ink: #271c30;
+  --accent: #f2a75f; --accent-2: #ffc082; --accent-text: #ffd1a0;
+  --accent-soft: #503047; --line: #d2b3ed29; --line-2: #d2b3ed55;
+  --ring: linear-gradient(135deg, #ffb366, #aa79cc);
+}
+.halloween-season .fp { background-color: #191322; color: #f5edfc; }
+.halloween-season .album-site { background-image: url('/design/halloween-night.svg'), radial-gradient(ellipse 80% 580px at 76% 0, #392146, transparent); background-position: center 94px, center top; background-size: 1440px 600px, auto; background-repeat: no-repeat; }
+.halloween-season .kg-unofficial { color: #c8b8d6; background: #251b31; }
+.halloween-season .fp-top { background: #1b1425f5; border-bottom-color: #b391cf38; }
+.halloween-season .fp-logo { color: #24182e; background: #f2a75f; border-color: #f7c894; box-shadow: 2px 2px 0 #08050d; }
+.halloween-season .fp-brand, .halloween-season .fp-nav { color: #eee1f8; }
+.halloween-season .fp-nav:hover, .halloween-season .fp-nav[aria-current="page"] { background: #3b294c; color: #ffc78e; }
+.halloween-season .album-heading { border-color: #b98bce55; }
+.halloween-season .album-sidebar { background: #261b34; border: 1px solid #74518466; box-shadow: 4px 5px 0 #0e0915; }
+.halloween-season .album-spine { color: #fff0dc; border-color: #bc97da33; }
+.halloween-season .album-spine svg, .halloween-season .album-ending { color: #ffc58c; }
+.halloween-season .album-index a.is-active { color: #2e1b28; background: #f0a866; box-shadow: 2px 2px 0 #100a18; }
+.halloween-season .album-index a.is-active:hover { background: #ffc38b; }
+.halloween-season .album-season-dot { background: #ffb76c; box-shadow: 0 0 12px #ffaf6580; }
+.halloween-season .album-side-season, .halloween-season .album-counters span { color: #c6b4d7; }
+.halloween-season .album-counters { border-color: #bc97da33; }
+.halloween-season .album-counters b { color: #fff0dc; }
+.halloween-season .album-sidebar .kg-mission { background: #382640; }
+.halloween-season .album-sidebar .kg-mission-ic { color: #271c30; background: #f6b879; }
+.halloween-season .album-sidebar .kg-streak { border-color: #bc97da33; }
+.halloween-season .album-title-block > h1, .halloween-season .album-title-block > h2 { color: #fff0dc; text-shadow: 0 3px 18px #0a061366; }
+.halloween-season .album-season-banner.is-halloween { color: #ffe1bb; border-color: #edaa6470; background: #3c2636; box-shadow: 0 0 25px #eb944c12; }
+.halloween-season .album-countdown { background: #f0a866; color: #2e1b28; }
+.halloween-season .album-search .kg-find-row { background: #fff8ed; border-color: #f2b879; box-shadow: 0 0 0 3px #f0a8660d; }
+.halloween-season .album-search input, .halloween-season .album-search .kg-find-icon { color: #49364e; }
+.halloween-season .album-search input::placeholder { color: #7d6a80; }
+.halloween-season .album-search .kg-find-row .btn { color: #281b28; background: #f0a866; }
+.halloween-season .album-search .kg-search-help { color: #c8b7d7; }
+.halloween-season .album-section-head { color: #f5e8fc; }
+.halloween-season .album-podium .album-section-head h2 > svg { color: #ffbc74; }
+.halloween-season .album-pocket-note { color: #c8b7d7; }
+.halloween-season .kg-post, .halloween-season .kg-item {
+  --text: #30243b; --text-2: #65536f; --text-3: #7a6784; --paper: #fff8ed;
+  --ink: #34233e; --on-ink: #fff8ed; --accent: #9f416c; --accent-text: #8b375c; --accent-soft: #f3e0e7;
+  color: #30243b;
+}
+.halloween-season .album-podium .kg-post { background: #fff8ed; border-color: #d6b8d4; box-shadow: 0 7px 22px #07040d55; }
+.halloween-season .album-podium .kg-heart-pill { background: #f3e0e7; color: #8b375c; }
+.halloween-season .album-mine .kg-me-cta { background: #302139; border: 1px dashed #bd8bc177; }
+.halloween-season .album-mine .kg-me-cta-ic { color: #ffca94; background: #51344e; }
+.halloween-season .album-mine .kg-me-cta-title { color: #f5e8fc; }
+.halloween-season .album-mine .kg-me-cta-btn { color: #2e1b28; background: #f0a866; }
+.halloween-season .album-mine .kg-me-news { background: #302139; border-color: #bd8bc155; }
+.halloween-season .album-count { background: #f0a866; color: #2e1b28; border-color: #f6c58c; }
+.halloween-season .album-collection .kg-tabs-bar { background: #3b294c; border-color: #a47bb36b; }
+.halloween-season .album-collection .kg-tab { color: #c8b7d7; }
+.halloween-season .album-collection .kg-tab[aria-selected="true"] { color: #ffd3a3; }
+.halloween-season .album-collection .kg-tab::after { background: #f0a866; }
+.halloween-season .album-collection .kg-feed-panel { background: repeating-linear-gradient(0deg, transparent 0 31px, #debfef05 31px 32px), #281d35; border-color: #a47bb36b; box-shadow: 4px 5px 0 #100a19; }
+.halloween-season .album-collection .kg-feed-head { color: #f5e8fc; }
+.halloween-season .album-collection .kg-post { background: #fff8ed; border-color: #c9aacb; box-shadow: 2px 3px 0 #09050f55; }
+.halloween-season .album-collection .kg-post::before { background: #efa967e8; border-color: #b06b3b80; }
+.halloween-season .album-collection .kg-post:nth-child(3n + 2)::before { background: #ae8acbe8; border-color: #78589880; }
+.halloween-season .album-collection .kg-post:nth-child(3n)::before { background: #d4c5a4e8; border-color: #a99b7480; }
+.halloween-season .album-broadcast-section { border-color: #c09ad055; }
+.halloween-season .album-broadcasts .kg-ring { color: #eee1f8; }
+.halloween-season .album-broadcasts .kg-ring-pic.plain { background: #34243e; color: #ffc78e; }
+.halloween-season .album-mobile-today .kg-mission { background: #32213e; border-color: #bc97da40; }
+.halloween-season .kg-step { background: #2b1f36; border-color: #a47bb340; }
+.halloween-season .kg-step-n { background: #f0a866; color: #2e1b28; }
+.halloween-season .kg-bubble { background: #3c2a49; border-color: #a47bb340; }
+.halloween-season .kg-bubble-tag { color: #ffd3a3; background: #52344f; }
+.halloween-season .fp-foot { background: #21172b; border-color: #a47bb340; color: #c8b7d7; }
+.halloween-season .fp-foot-brand, .halloween-season .fp-foot-links a { color: #e9d8f5; }
+.halloween-season .kg-night, .halloween-season .kg-night.compact { background: radial-gradient(ellipse at 90% 0, #38214277, transparent 65%), #191322; }
+.halloween-season .kg-profile { background: #30213e; border-color: #a47bb36b; box-shadow: 4px 4px 0 #100a19; }
+.halloween-season .kg-season { color: #ffe1bb; background: #3c2636; border-color: #edaa6470; }
+.halloween-season .kg-dday { color: #2e1b28; background: #f0a866; }
+.halloween-season .kg-toolbar { background: #21172bf5; border-color: #a47bb340; }
+.halloween-season .kg-filter { color: #d9c8e7; background: #30213e; border-color: #a47bb355; }
+.halloween-season .kg-filter[aria-pressed="true"] { color: #2e1b28; background: #f0a866; }
+.halloween-season .kg-toggle { background: #30213e; }
+.halloween-season .kg-toggle button { color: #d9c8e7; }
+.halloween-season .kg-toggle button[aria-pressed="true"] { color: #2e1b28; background: #f0a866; }
+.halloween-season .kg-item { background: #fff8ed; border-color: #c9aacb; box-shadow: 2px 3px 0 #100a19; }
+.halloween-season .kg-facts { background: #30213e; border-color: #a47bb36b; }
+.halloween-season .kg-heart-btn.btn-accent { background: #f0a866; color: #2e1b28; }
+.halloween-season .kg-hero.char .kg-heart-row { background: linear-gradient(180deg, #19132200, #191322 18px); }
+.halloween-season .album-closet-jump { color: #ffd3a3; background: #3b294c; border-color: #a47bb36b; }
+.halloween-season .album-detail-wardrobe .album-lookboard { --text: #30243b; --text-2: #65536f; color: #30243b; border-color: #a47bb36b; }
+.halloween-season .album-detail-wardrobe .album-look { background: repeating-linear-gradient(90deg, transparent 0 57px, #ffffff05 57px 59px), #51405f; color: #fff0dc; }
+.halloween-season .album-detail-wardrobe .album-person-name > span { color: #d8c3e5; }
+.halloween-season .album-detail-catalog { color: #ffe0b5; }
+.halloween-season .album-detail-wardrobe .album-clothes { background: #dfd3e2; }
+.halloween-season .album-detail-wardrobe .album-try { color: #2e1b28; background: #f0a866; }
+.halloween-season .kg-try-top { background: #30213e; border-color: #a47bb36b; }
+@media (max-width: 959px) {
+  .halloween-season .album-sidebar { border: 0; background: none; box-shadow: none; }
+  .halloween-season .album-index a { color: #dfcceb; background: #30213e; border-color: #a47bb344; }
+  .halloween-season .album-index a.is-active { color: #2e1b28; background: #f0a866; }
+}
+@media (max-width: 639px) {
+  .halloween-season .album-site { background-position: right -350px top 70px, center top; background-size: 1050px auto, auto; }
+}
+@media (max-width: 639px) {
+  .halloween-season .album-site { background-position: right -50px top 130px, center top; }
+}
+.halloween-season .kg-pet-name { color: #4b3558; }
+.halloween-season .kg-filter[aria-pressed="true"] .kg-filter-n { color: #573344; }
+.album-preview.halloween-season .kg-toggle button[aria-pressed="true"] { color: #2e1b28; }
+.halloween-season .album-detail-wardrobe .album-piece-slot,
+.halloween-season .album-detail-wardrobe .album-clothes-head > span { color: #65536f; }
