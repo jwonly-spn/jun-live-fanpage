@@ -33,7 +33,7 @@ const EMPTY = () => ({ updated: null, name: '', season: null, character: null, t
 const pick = (p, cols) => (p ? structuredClone(Object.fromEntries(cols.map((c) => [c, p[c]]))) : null);
 
 export function memoryStore(clock) {
-  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null };
+  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, snaps: new Map() };
   const byNameKey = (key) => [...s.pages.values()].find((p) => p.name_key === key) || null;
   return Object.assign(s, {
     ipSalt: async () => 'salt',
@@ -80,9 +80,13 @@ export function memoryStore(clock) {
         for (const [k, h] of s.hearts) if (h.slug === p.slug) s.hearts.delete(k);
       }
     },
-    cleanNonces: async () => {}
+    cleanNonces: async () => {},
+    // 미리 만든 답(공개 저장소 kg-snap 흉내): 경로 → 받은 JSON
+    putSnap: async (path, text) => { s.snaps.set(path, JSON.parse(text)); }
   });
 }
+// 나중에 하는 일(later — 미리 만든 답 올리기)이 끝나게 잠깐 기다린다
+export const settle = () => new Promise((r) => setTimeout(r, 5));
 
 // 시험 세계: 시계·store·handler. cacheMs 0(메인·전체 찾기 목록을 기억하지 않음), chance 0.5(가끔 하는 정리는 안 함)
 export function world({ chance = () => 0.5, cacheMs = 0 } = {}) {

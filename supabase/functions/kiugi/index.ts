@@ -83,7 +83,12 @@ const store = {
     const slugs = (rows || []).map((r: any) => r.slug);
     for (const part of chunks(slugs, 100)) await q(db.from('kg_hearts').delete().in('slug', part));
   },
-  cleanNonces: (now: number) => q(db.from('junlive_access_nonces').delete().lt('expires', now))
+  cleanNonces: (now: number) => q(db.from('junlive_access_nonces').delete().lt('expires', now)),
+  // 미리 만든 답(2026-10-18 — 사이트가 먼저 읽는 공개 파일, 버킷 kg-snap · supabase/kiugi-snap.sql). 실패해도 답에는 영향 없음(기록만).
+  putSnap: async (path: string, text: string) => {
+    const { error } = await db.storage.from('kg-snap').upload(path, new Blob([text], { type: 'application/json' }), { upsert: true, contentType: 'application/json', cacheControl: '5' });
+    if (error) console.error('kg-snap', path, error.message);
+  }
 };
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;

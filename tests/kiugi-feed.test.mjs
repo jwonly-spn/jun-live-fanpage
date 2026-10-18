@@ -257,3 +257,29 @@ test('DJ 동그라미 줄: 가장자리까지 넘기는 줄(음수 여백 + 안�
   assert.match(rule, /scroll-snap-type: x/);
   assert.match(rule, /scroll-padding-inline: var\(--gutter\)/);
 });
+test('미리 만든 답(api.js readSnap): 10분 안에 만든 파일만 · 닫힌 페이지·모양 틀림·없음·오류는 null(함수로) · snapAt 은 빼고 나이를 알려 준다', async () => {
+  const { readSnap, validHome, validPage, SNAP_BASE } = await import('../docs/api.js');
+  const now = () => T;
+  const res = (j, ok = true) => async (url) => { assert.ok(url.startsWith(SNAP_BASE)); return { ok, json: async () => j }; };
+  const home = { season: null, popular: [], recent: [], items: [], djs: [], totals: { djs: 0, people: 0 } };
+  let r = await readSnap('home.json', validHome, { fetchImpl: res({ ...home, snapAt: T - 30000 }), now });
+  assert.deepEqual(r, { data: home, age: 30000 });
+  assert.equal(await readSnap('home.json', validHome, { fetchImpl: res({ ...home, snapAt: T - 11 * 60000 }), now }), null, '10분 넘은 파일은 쓰지 않는다');
+  assert.equal(await readSnap('home.json', validHome, { fetchImpl: res({ popular: [], snapAt: T }), now }), null, '모양이 틀리면');
+  assert.equal(await readSnap('home.json', validHome, { fetchImpl: res({ ...home }), now }), null, 'snapAt 없으면');
+  assert.equal(await readSnap('page/abcdefgh.json', validPage('abcdefgh'), { fetchImpl: res({ closed: true, snapAt: T }), now }), null, '닫힌 페이지');
+  assert.equal(await readSnap('page/abcdefgh.json', validPage('abcdefgh'), { fetchImpl: res({ slug: 'zzzzzzzz', top: [], snapAt: T }), now }), null, '다른 페이지');
+  assert.equal(await readSnap('home.json', validHome, { fetchImpl: res(null, false), now }), null, '없는 파일(404 등)');
+  assert.equal(await readSnap('home.json', validHome, { fetchImpl: async () => { throw new Error('끊김'); }, now }), null, '네트워크 오류');
+  r = await readSnap('page/abcdefgh.json', validPage('abcdefgh'), { fetchImpl: res({ slug: 'abcdefgh', top: [], snapAt: T }), now });
+  assert.equal(r.data.slug, 'abcdefgh'); assert.equal('snapAt' in r.data, false);
+});
+
+test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 1분 넘은 파일이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 사이트가 서버에 미리 연결(preconnect)', async () => {
+  const src = await readFile(docs + 'api.js', 'utf8');
+  assert.match(src, /viaSnap\(key, 'home\.json', validHome, \(\) => kiugiApi\.home\(\)\)/);
+  assert.match(src, /viaSnap\(key, SLUG_RE\.test\(String\(slug\)\) \? `page\/\$\{slug\}\.json` : '', validPage\(slug\), \(\) => kiugiApi\.page\(slug\)\)/);
+  assert.match(src, /if \(s\.age > SNAP_STALE_MS\) void live\(\)\.then\(\(v\) => remember\(key, v\)/);
+  assert.match(src, /if \(demoNow\(\) \|\| !path\) return live\(\);/);
+  for (const f of ['index.html', '404.html']) assert.match(await readFile(docs + f, 'utf8'), /<link rel="preconnect" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co" crossorigin>/, f);
+});

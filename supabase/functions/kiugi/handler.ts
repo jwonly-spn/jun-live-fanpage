@@ -27,6 +27,7 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 //  heart(vote, expires, slug, season, pid, now) → {hearts, already} (투표 열쇠가 처음이면 +1, 한 번에 처리)
 //  cleanVotes(now) · pruneHearts(slug, season, keep:Set) → 이 페이지의 지난 시즌·없어진 아이디 하트 줄 지우기
 //  expire(before)(seen 이 before 보다 오래된 페이지: 내용·이름 열쇠·하트 지우기) · cleanNonces(now)
+//  putSnap(path, text)(있으면) — 공개 저장소 kg-snap 에 미리 만든 답(home.json · page/<slug>.json)을 덮어쓴다
 export function createHandler(store: Record<string, any>, opts: Record<string, any> = {}) {
   const now: () => number = opts.now || Date.now;
   const random: (n: number) => Uint8Array = opts.random || ((n: number) => crypto.getRandomValues(new Uint8Array(n)));
@@ -48,6 +49,37 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   async function ipHash(req: Request) { return (await v.sha256hex('ip:' + await store.ipSalt() + ':' + clientIp(req))).slice(0, 32); }
   async function limit(key: string, seconds: number, max: number, message = '요청이 많아요. 잠시 뒤에 다시 해 주세요.') {
     if (!await store.hit(key, seconds, max)) throw v.fail(429, message);
+  }
+  // 보는 사람 한도(주소 해시 → 횟수)를 데이터 읽기와 함께 묻는다(2026-10-18 "사이트 반응 빠르게": 예전에는 한도 → 페이지 → 하트를 차례로 물어 데이터베이스를 4~5번 오갔다)
+  const limitBy = (req: Request, tag: string, max: number, message?: string) => (async () => limit(`kg:${tag}:${await ipHash(req)}`, 60, max, message))();
+
+  // 미리 만든 답(같은 날): 메인·DJ 페이지 답을 공개 저장소(kg-snap)에도 올려 둔다 — 사이트가 이 파일을 먼저 읽어 서버가 깨어나는 1~2초를 건너뛴다.
+  //  store.putSnap(path, text) 이 있을 때만. 같은 파일은 이 함수 안에서 snapGapMs(기본 15초)에 한 번(force 면 바로 — 먼치킨이 새 옷을 올렸을 때).
+  //  파일에는 답 그대로 + snapAt(만든 때). 닫힌 페이지는 {closed:true} 로 덮는다(사이트는 그 파일을 쓰지 않고 서버에 묻는다).
+  const snapGapMs: number = opts.snapGapMs ?? 15000;
+  const snapAt = new Map<string, number>();
+  function putSnap(path: string, body: Record<string, unknown>, force = false) {
+    if (typeof store.putSnap !== 'function') return;
+    const t = now();
+    if (!force && t - (snapAt.get(path) || 0) < snapGapMs) return;
+    snapAt.set(path, t);
+    later(Promise.resolve().then(() => store.putSnap(path, JSON.stringify({ ...body, snapAt: t }))));
+  }
+  const snapPath = (slug: string) => `page/${slug}.json`;
+  // 이 DJ 페이지의 미리 만든 답을 새로(올리기·하트 뒤) — 실패해도 조용히
+  function refreshPageSnap(slug: string, force = false) {
+    if (typeof store.putSnap !== 'function') return;
+    if (!force && now() - (snapAt.get(snapPath(slug)) || 0) < snapGapMs) return;
+    later((async () => {
+      const [row, rows] = await Promise.all([store.publicPage(slug), store.heartRows([slug])]);
+      if (!row || row.updated === null || row.updated === undefined || !approved(await store.device(row.device_id))) { putSnap(snapPath(slug), { closed: true }, true); return; }
+      putSnap(snapPath(slug), v.pageOut(row, v.heartMap(rows || [], slug, row.season?.id)), force);
+    })());
+  }
+  // 메인 미리 만든 답을 새로(올리기 뒤 — 이 함수의 30초 기억은 건드리지 않고 새로 만든다)
+  function refreshHomeSnap() {
+    if (typeof store.putSnap !== 'function' || now() - (snapAt.get('home.json') || 0) < snapGapMs) return;
+    later((async () => putSnap('home.json', await buildHome()))());
   }
   const approved = (dev: any) => dev?.state === 'approved' && !dev.review;
   // 승인된 기기가 올린 페이지만 보여 준다(관리 화면에서 차단하면 그 DJ 페이지도 닫힌다).
@@ -72,20 +104,25 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     return out;
   }
 
+  // 한도 확인 · 페이지 줄 · 하트 줄을 한꺼번에 묻고(데이터베이스 왕복 한 번), 기기 승인만 그 뒤에
+  async function pageAndHearts(req: Request, tag: string, max: number, slug: string, read: (slug: string) => Promise<any>, message?: string) {
+    const [, row, rows] = await Promise.all([limitBy(req, tag, max, message), read(slug), store.heartRows([slug])]);
+    const shownRow = await shown(row);
+    return { row: shownRow, hearts: v.heartMap(rows || [], slug, shownRow.season?.id) as Map<string, number> };
+  }
+
   async function page(url: URL, req: Request) {
     const slug = v.slugOf(url.searchParams.get('slug'));
-    await limit(`kg:p:${await ipHash(req)}`, 60, 60);
-    const row = await shown(await store.publicPage(slug));
-    const hearts = (await heartsFor([row as any])).get(slug);
-    return json(v.pageOut(row, hearts), 200, 'public, max-age=10'); // 옷 입힌 것이 빨리 보이게(2026-10-16, 예전 30초)
+    const { row, hearts } = await pageAndHearts(req, 'p', 60, slug, store.publicPage);
+    const out = v.pageOut(row, hearts);
+    putSnap(snapPath(slug), out);
+    return json(out, 200, 'public, max-age=10'); // 옷 입힌 것이 빨리 보이게(2026-10-16, 예전 30초)
   }
 
   async function find(url: URL, req: Request) {
     const slug = v.slugOf(url.searchParams.get('slug'));
     const key = v.query(url.searchParams.get('q'));
-    await limit(`kg:f:${await ipHash(req)}`, 60, 30, '찾기를 너무 자주 했어요. 잠시 뒤에 다시 해 주세요.');
-    const row = await shown(await store.people(slug));
-    const hearts = (await heartsFor([row as any])).get(slug) || new Map();
+    const { row, hearts } = await pageAndHearts(req, 'f', 30, slug, store.people, '찾기를 너무 자주 했어요. 잠시 뒤에 다시 해 주세요.');
     return json(v.findPeople(row.people, key, v.FIND_LIMIT, (k) => hearts.get(k) || 0), 200, 'public, max-age=15');
   }
 
@@ -93,38 +130,41 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   async function person(url: URL, req: Request) {
     const slug = v.slugOf(url.searchParams.get('slug'));
     const key = v.query(url.searchParams.get('id'));
-    await limit(`kg:c:${await ipHash(req)}`, 60, 60);
-    const row = await shown(await store.people(slug));
+    const { row, hearts: heartsOf } = await pageAndHearts(req, 'c', 60, slug, store.people);
     const hit = row.season ? v.findOne(row.people, key) : null;
     if (!hit) throw v.fail(404, NO_PERSON);
-    const hearts = (await heartsFor([row as any])).get(slug)?.get(hit.p.k) || 0;
+    const hearts = heartsOf.get(hit.p.k) || 0;
     return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
   }
 
   // 메인 페이지: 지금 시즌 · 인기(하트) 12 · 새로 꾸민 8 · 옷마다 입은 수 · DJ 목록 · 합계
   async function buildHome() {
-    const pages = await mainPages(false);
+    // 페이지 목록과 하트 많은 줄을 함께 묻는다(2026-10-18 — 예전에는 차례로)
+    const [pages, topRows] = await Promise.all([mainPages(false), store.topHearts(200)]);
     const season = v.pickSeason(pages);
     // 인기·새로 꾸민·옷 수는 지금 시즌 페이지만(지난 시즌에 멈춘 페이지의 옷이 섞이지 않게)
     const inSeason = season ? pages.filter((p) => p.season?.id === season.id) : [];
     const bySlug = new Map(inSeason.map((p) => [p.slug, p]));
     // 인기: 하트 많은 줄부터, 지금 사람 목록에 있는 아이디만(지운 아이디의 하트는 빼고)
-    const popular: Record<string, unknown>[] = [];
-    const peopleOf = new Map<string, Person[] | null>();
-    for (const r of (await store.topHearts(200)) || []) {
-      if (popular.length >= v.HOME_POPULAR) break;
-      const p = bySlug.get(r.slug);
-      if (!p || r.season !== season?.id || !(r.hearts > 0)) continue;
-      if (!peopleOf.has(r.slug)) peopleOf.set(r.slug, peopleOf.size < 40 ? ((await store.people(r.slug))?.people || []) : null);
-      const hit = peopleOf.get(r.slug)?.find((x: any) => x && x.k === r.pid && v.FULL_ID.test(x.id));
-      if (hit) popular.push(v.card(hit, r.slug, p.name, r.hearts));
-    }
+    const candidates = ((topRows || []) as any[]).filter((r) => bySlug.has(r.slug) && r.season === season?.id && r.hearts > 0);
     // 새로 꾸민: 페이지마다 요약해 둔 8명을 모아 ch 최근 순으로 8명
     const recentRaw = inSeason.flatMap((p) => (Array.isArray(p.summary?.recent) ? p.summary.recent : []).map((x: any) => ({ ...x, slug: p.slug, djName: p.name })))
       .filter((x: any) => typeof x.id === 'string' && v.FULL_ID.test(x.id) && Number.isSafeInteger(x.ch))
       .sort((a: any, b: any) => b.ch - a.ch)
       .slice(0, v.HOME_RECENT);
-    const recentHearts = await heartsFor(recentRaw.map((x: any) => bySlug.get(x.slug)!));
+    // 인기에 나올 수 있는 페이지(하트 많은 순으로 처음 나온 40곳)의 사람 목록 · 새로 꾸민 사람들의 하트를 한꺼번에
+    const needSlugs = [...new Set(candidates.map((r) => r.slug as string))].slice(0, 40);
+    const [peopleLists, recentHearts] = await Promise.all([
+      Promise.all(needSlugs.map(async (slug) => [slug, ((await store.people(slug))?.people || []) as Person[]] as const)),
+      heartsFor(recentRaw.map((x: any) => bySlug.get(x.slug)!))
+    ]);
+    const peopleOf = new Map<string, Person[]>(peopleLists);
+    const popular: Record<string, unknown>[] = [];
+    for (const r of candidates) {
+      if (popular.length >= v.HOME_POPULAR) break;
+      const hit = peopleOf.get(r.slug)?.find((x: any) => x && x.k === r.pid && v.FULL_ID.test(x.id));
+      if (hit) popular.push(v.card(hit, r.slug, bySlug.get(r.slug)!.name, r.hearts));
+    }
     const recent = recentRaw.map((x: any) => v.card(x, x.slug, x.djName, recentHearts.get(x.slug)?.get(x.k) || 0));
     // 옷마다 입은 사람 수(메인에 보이는 지금 시즌 페이지만)
     const tally: Record<string, number> = {};
@@ -135,8 +175,9 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     return { season, popular, recent, items, djs, totals: { djs: djs.length, people: djs.reduce((s, d) => s + d.count, 0) } };
   }
   async function home(req: Request) {
-    await limit(`kg:m:${await ipHash(req)}`, 60, 60);
-    return json(await cached('home', buildHome), 200, 'public, max-age=60');
+    const [, out] = await Promise.all([limitBy(req, 'm', 60), cached('home', buildHome)]);
+    putSnap('home.json', out);
+    return json(out, 200, 'public, max-age=60');
   }
 
   // 전체 찾기(메인에 보이는 페이지만): 전체 아이디는 캐릭터 이름 열쇠로 바로, 앞 부분만이면 같은 사람 먼저·들어 있는 사람 다음 10명
@@ -191,6 +232,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const vote = await v.sha256hex(`${await store.ipSalt()}:${b.token}:${v.kstDay(at)}:${season}:${slug}:${pid}`);
     const r = await store.heart(vote, v.nextKstMidnight(at) + 86400000, slug, season, pid, at);
     if (chance() < 0.02) later(store.cleanVotes(at));
+    if (r?.already !== true) refreshPageSnap(slug); // 미리 만든 DJ 페이지 답의 하트 수도(15초에 한 번)
     return json({ hearts: Number(r?.hearts) || 0, already: r?.already === true });
   }
 
@@ -217,7 +259,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     // 끄면(또는 키우기를 끄면) 내용만 지운다. 주소·캐릭터 이름은 이 기기에 그대로 묶어 둔다(다시 켜면 같은 주소).
     // 끈 채로도 마지막으로 올린 때(seen)는 적는다 — 60일 동안 아무것도 안 올리면 캐릭터 이름을 놓아준다.
     if (!snap.enabled) {
-      if (found) await store.clearSnapshot(found.slug, at);
+      if (found) { await store.clearSnapshot(found.slug, at); putSnap(snapPath(found.slug), { closed: true }, true); refreshHomeSnap(); }
       return json({ ok: true, enabled: false, slug: found?.slug || null, url: found ? urlOf(found.slug) : null });
     }
     // 캐릭터 이름은 사이트 전체에서 하나만(먼저 쓴 방송이 가진다)
@@ -237,6 +279,9 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     if (saved === 'name') throw v.fail(409, NAME_TAKEN);
     // 지난 시즌·없어진 아이디의 하트 줄 정리(시즌이 바뀌었거나 가끔)
     if (snap.season && (before?.season?.id !== snap.season.id || chance() < 0.1)) later(store.pruneHearts(found.slug, snap.season.id, new Set(people.map((p) => p.k))));
+    // 미리 만든 답: 이 DJ 페이지는 바로(새 옷이 사이트에 곧장 보이게), 메인은 15초에 한 번
+    refreshPageSnap(found.slug, true);
+    refreshHomeSnap();
     return json({ ok: true, enabled: true, slug: found.slug, url: urlOf(found.slug), count: snap.count });
   }
 
@@ -246,7 +291,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       const url = new URL(req.url);
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
-        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true });
+        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true, snaps: typeof store.putSnap === 'function' });
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);
         if (route === 'person') return await person(url, req);

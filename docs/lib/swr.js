@@ -48,6 +48,8 @@ export function swr(key, fetcher, { storage = local(), fresh = 15000, now = Date
   }
   return { cached: usable ? usable.v : undefined, age: usable ? t - usable.at : Infinity, fresh: job };
 }
+// 받은 답을 기억만(화면은 그대로 — 뒤에서 새로 받은 답을 다음 화면부터 쓰게)
+export function remember(key, value, { storage = local(), now = Date.now } = {}) { write(storage, key, value, now()); }
 // 이미 받은 답만(없으면 undefined) — 화면을 먼저 그릴 때
 export function peekCached(key, { storage = local(), now = Date.now } = {}) {
   const rec = read(storage, key);

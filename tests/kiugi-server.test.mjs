@@ -223,7 +223,7 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal((await w.get('page?slug=nope')).status, 404);
   assert.equal((await w.get('page?slug=abcdefgh')).status, 404);
   r = await body(await w.get('health'));
-  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true });
+  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true, snaps: true });
   assert.equal((await w.handle(new Request(BASE + 'page', { method: 'OPTIONS' }))).status, 204);
   // 주소마다 찾기는 1분에 30번
   for (let i = 0; i < 29; i++) await find(w, slug, '밤', '9.9.9.9');

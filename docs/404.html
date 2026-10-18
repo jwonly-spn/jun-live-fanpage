@@ -3,18 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-4lwmwbAh17VoN5CANH54XCEIPchqkwboIUavcrJPLJ4='; style-src 'self' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://aksegkhhugqvvaidgvro.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-VqfwRUCoz/M1+5tfalUAp4ptRa2qIIDvmCODZMM+Mnk='; style-src 'self' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://aksegkhhugqvvaidgvro.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="description" content="스푼 DJ 키우기 — 청취자들이 방송에서 키운 DJ 캐릭터를 구경하고 하트를 보내는 비공식 팬 사이트(스푼 공식 서비스가 아니에요)">
 <meta name="theme-color" content="#f4efe8">
 <title>스푼 DJ 키우기</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://aksegkhhugqvvaidgvro.supabase.co" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" integrity="sha384-uR1wgObmx89ZQ4VVXHdzjbDJZ1PvBK01K+E3GebmaBKdZ87qRJvBWPoPbzWeEd5T" crossorigin="anonymous">
 <link rel="stylesheet" href="/styles.css?v=6fdaac7ee1">
 <!--kg-stamp-->
-<script type="importmap">{"imports":{"/app.js":"/app.js?v=3d7e498961","/api.js":"/api.js?v=7a0c0210d1","/mock.js":"/mock.js?v=e414815d45","/lib/dom.js":"/lib/dom.js?v=b75eff5999","/lib/hearts.js":"/lib/hearts.js?v=cbcd492cf5","/lib/kiugi-draw.js":"/lib/kiugi-draw.js?v=dd4733ad1d","/lib/kiugi-save.js":"/lib/kiugi-save.js?v=2fb9ddc0d0","/lib/me.js":"/lib/me.js?v=83873e6312","/lib/raster.js":"/lib/raster.js?v=fc9f3f36a4","/lib/route.js":"/lib/route.js?v=87a6568741","/lib/swr.js":"/lib/swr.js?v=e8c60ac08d","/lib/text.js":"/lib/text.js?v=08b77729d9","/lib/try-on.js":"/lib/try-on.js?v=d1ba401e9e","/views/cards.js":"/views/cards.js?v=6d2c8611cc","/views/character.js":"/views/character.js?v=ea7e81e163","/views/common.js":"/views/common.js?v=696440aefa","/views/feed.js":"/views/feed.js?v=0ce93c98a3","/views/intro.js":"/views/intro.js?v=36d9116e48","/views/items.js":"/views/items.js?v=972c6f774a","/views/kiugi.js":"/views/kiugi.js?v=5571c30ff0","/kiugi/kiugi-art.js":"/kiugi/kiugi-art.js?v=6ce13b9ce9","/kiugi/kiugi-hair-color.js":"/kiugi/kiugi-hair-color.js?v=5ebc44b320","/kiugi/kiugi-look.js":"/kiugi/kiugi-look.js?v=aec54b5c13","/kiugi/kiugi-r7-data.js":"/kiugi/kiugi-r7-data.js?v=16a5ecbca3"}}</script>
+<script type="importmap">{"imports":{"/app.js":"/app.js?v=3d7e498961","/api.js":"/api.js?v=08dc93d8f5","/mock.js":"/mock.js?v=e414815d45","/lib/dom.js":"/lib/dom.js?v=b75eff5999","/lib/hearts.js":"/lib/hearts.js?v=cbcd492cf5","/lib/kiugi-draw.js":"/lib/kiugi-draw.js?v=dd4733ad1d","/lib/kiugi-save.js":"/lib/kiugi-save.js?v=2fb9ddc0d0","/lib/me.js":"/lib/me.js?v=83873e6312","/lib/raster.js":"/lib/raster.js?v=fc9f3f36a4","/lib/route.js":"/lib/route.js?v=87a6568741","/lib/swr.js":"/lib/swr.js?v=7a56537f79","/lib/text.js":"/lib/text.js?v=08b77729d9","/lib/try-on.js":"/lib/try-on.js?v=d1ba401e9e","/views/cards.js":"/views/cards.js?v=6d2c8611cc","/views/character.js":"/views/character.js?v=ea7e81e163","/views/common.js":"/views/common.js?v=696440aefa","/views/feed.js":"/views/feed.js?v=0ce93c98a3","/views/intro.js":"/views/intro.js?v=36d9116e48","/views/items.js":"/views/items.js?v=5089f7defe","/views/kiugi.js":"/views/kiugi.js?v=5571c30ff0","/kiugi/kiugi-art.js":"/kiugi/kiugi-art.js?v=6ce13b9ce9","/kiugi/kiugi-hair-color.js":"/kiugi/kiugi-hair-color.js?v=5ebc44b320","/kiugi/kiugi-look.js":"/kiugi/kiugi-look.js?v=aec54b5c13","/kiugi/kiugi-r7-data.js":"/kiugi/kiugi-r7-data.js?v=16a5ecbca3"}}</script>
 <link rel="modulepreload" href="/app.js?v=3d7e498961">
-<link rel="modulepreload" href="/api.js?v=7a0c0210d1">
+<link rel="modulepreload" href="/api.js?v=08dc93d8f5">
 <link rel="modulepreload" href="/lib/dom.js?v=b75eff5999">
 <link rel="modulepreload" href="/lib/hearts.js?v=cbcd492cf5">
 <link rel="modulepreload" href="/lib/kiugi-draw.js?v=dd4733ad1d">
@@ -22,7 +23,7 @@
 <link rel="modulepreload" href="/lib/me.js?v=83873e6312">
 <link rel="modulepreload" href="/lib/raster.js?v=fc9f3f36a4">
 <link rel="modulepreload" href="/lib/route.js?v=87a6568741">
-<link rel="modulepreload" href="/lib/swr.js?v=e8c60ac08d">
+<link rel="modulepreload" href="/lib/swr.js?v=7a56537f79">
 <link rel="modulepreload" href="/lib/text.js?v=08b77729d9">
 <link rel="modulepreload" href="/lib/try-on.js?v=d1ba401e9e">
 <link rel="modulepreload" href="/views/cards.js?v=6d2c8611cc">
@@ -30,7 +31,7 @@
 <link rel="modulepreload" href="/views/common.js?v=696440aefa">
 <link rel="modulepreload" href="/views/feed.js?v=0ce93c98a3">
 <link rel="modulepreload" href="/views/intro.js?v=36d9116e48">
-<link rel="modulepreload" href="/views/items.js?v=972c6f774a">
+<link rel="modulepreload" href="/views/items.js?v=5089f7defe">
 <link rel="modulepreload" href="/views/kiugi.js?v=5571c30ff0">
 <link rel="modulepreload" href="/kiugi/kiugi-art.js?v=6ce13b9ce9">
 <link rel="modulepreload" href="/kiugi/kiugi-hair-color.js?v=5ebc44b320">

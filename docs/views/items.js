@@ -6,7 +6,7 @@
 // 2026-10-09 사용자 "키우기.com 이랑 방송 채팅창에서 보여지는 상품 번호를 같게 해서 바로 번호로 구매": 번호(상의11·칭호1)는 먼치킨 채팅 상점과 같은 글이고, 누르면 복사된다.
 //  "시즌 보상은 칭호로 통일": 시즌 칭호는 그림 없이 따로(얻은 시즌과 다음 시즌까지 효과). 예전 그림의 왕관·날개·오라(악세11~13)는 R7 에 없다.
 import { h, toast } from '../lib/dom.js';
-import { kiugiApi } from '../api.js';
+import { fastApi } from '../api.js';
 import { loadCatalog, buildCatalog, titleUntil, titleImageUrl, titleOpenDate, motionList, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { CLOSET_CMD, motionCommand, MOTION_OFF } from '../lib/try-on.js';
 import { loading, nightTop, siteFoot, secHead, statTiles, BRAND } from './common.js';
@@ -90,7 +90,7 @@ export async function renderItems(root, app) {
             h('p', { class: 'intro' }, '이번 시즌에 살 수 있는 옷을 모았어요. 옷은 레벨과 관계없이 냥만 있으면 살 수 있어요. 방송 채팅에는 옷 목록이 나오지 않으니 여기서 골라요 — 번호를 누르면 명령어(!옷장 상의 11)가 복사되고, 방송 채팅에 붙여 넣으면 사서 바로 입어요. 여러 벌은 내 캐릭터 페이지의 입혀 보기에서 한 줄로 복사해요. 모자는 하나, 악세사리는 머리·얼굴·목·손 자리마다 하나씩 쓸 수 있어요. 같은 번호 옷은 캐릭터 성별에 맞는 몸 버전으로 입혀져요.'), stats)))),
     main,
     siteFoot(app, '입은 사람 수는 메인 페이지에 보이는 방송만 세요.')));
-  const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), kiugiApi.home().catch(() => null)]);
+  const [catalog, home] = await Promise.all([loadCatalog(app.base).catch(() => buildCatalog([])), (() => { const j = fastApi.home(); return j.cached !== undefined ? Promise.resolve(j.cached) : j.fresh; })().catch(() => null)]);
   const seasonId = home?.season?.id || catalog.last;
   const counts = new Map((home?.items || []).map((x) => [x.id, x.count]));
   const { groups, rewards, titles, rule } = itemGroups(catalog, seasonId, counts);
