@@ -1857,6 +1857,10 @@ html.album-preview.halloween-season {
 .halloween-season .album-sticker, .halloween-season .album-level { color: #2b2030; }
 .halloween-season .album-sticker svg { color: #2b2030; }
 .halloween-season .kg-try-badge { color: #2b2030; }
+/* 줄 단추에 마우스를 올리면 흰 바탕이 되어 밝은 글자가 안 보이던 것(2026-10-19 — "이게 나예요"·"즐겨찾기" 등): 어두운 표면에서는 한 단계 밝은 보라, 밝은 카드 안은 예전처럼 흰색 */
+.halloween-season .btn-line:hover:not(:disabled) { background: #45335a; border-color: #c9a3e2aa; }
+.halloween-season .kg-post .btn-line:hover:not(:disabled), .halloween-season .kg-item .btn-line:hover:not(:disabled) { background: #fff; border-color: rgba(42, 32, 50, .3); }
+.halloween-season .kg-pin-btn.is-me:hover:not(:disabled) { background: var(--ink-2); border-color: transparent; }
 .halloween-season .kg-try-tile.is-tried .kg-try-badge { color: #2e1b28; }
 .halloween-season .album-detail-catalog { color: #ffe0b5; }
 .halloween-season .album-detail-wardrobe .album-clothes { background: #dfd3e2; }
