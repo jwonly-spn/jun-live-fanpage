@@ -214,7 +214,8 @@ export function heroSection(ctx) {
   const hero = h('section', { class: 'kg-hero home' },
     h('div', { class: 'kg-hero-copy' },
       h('p', { class: 'kg-season' }, h('span', { class: 'kg-dot', 'aria-hidden': 'true' }), season, dday),
-      h(ctx.heading, { class: 'display' }, BRAND),
+      h('p', { class: 'kg-hero-kicker' }, '방송이 끝나도, 함께 자라요'),
+      h(ctx.heading, { class: 'display' }, '오늘도 만나,', h('br'), '나의 캐릭터'),
       h('p', { class: 'intro' }, HERO_TEXT),
       h('div', { class: 'kg-hero-find', id: 'find' }, searchParts(ctx).form),
       stats));
