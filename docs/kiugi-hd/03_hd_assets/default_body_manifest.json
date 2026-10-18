@@ -1,0 +1,307 @@
+{
+  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "assets": {
+    "female": {
+      "path": "03_hd_assets/body/female_native_default_clothes.png",
+      "rect": [
+        368.45791245791247,
+        225.4837261503928,
+        293.638608305275,
+        748.5162738496072
+      ],
+      "pixelSize": [
+        448,
+        1142
+      ],
+      "sha256": "bc07a05980296d2846e0d7d6c993494d74e00ca192a250f0f6bdeed9d1fc12a7",
+      "source": "03_제작기록/r9/wardrobe_hd/default_body/female_complete_native_v1.png",
+      "sourceSha256": "dfa64feb7abc265fd0d33120168bb797064212ab6df4d38874c52f31e091795c",
+      "density": 1.5256849315068493,
+      "nativeDetail": "New complete native gray T-shirt, gray shorts, trainers and body, separate from 238 wardrobe variants; no compatibility PNG changed.",
+      "wholeFigureRegistration": {
+        "uniformScale": 0.6554433221099888,
+        "offset": [
+          176.41301907968574,
+          32.12794612794613
+        ],
+        "nativeWaistY": 546,
+        "nativeFloorY": 1437,
+        "targetWaistY": 390,
+        "targetFloorY": 974,
+        "method": "One uniform complete-character transform, no independent limb/face scaling."
+      },
+      "minimumBodyY": 225,
+      "footwearOnlyMinimumY": 850,
+      "sourceRgbCoreChanged": 0,
+      "armReplacementMask": {
+        "path": "03_hd_assets/body/female_native_default_arms_replace.png",
+        "rect": [
+          176.41301907968574,
+          32.12794612794613,
+          671.1739618406285,
+          1006.7609427609427
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "6824e8fb4c60a31cfab2ecb3dcc9e3eee2915c425b4b26191632e764ed3afeb9",
+        "mask": true
+      },
+      "upperReplacementMask": {
+        "path": "03_hd_assets/body/female_native_default_upper_replace.png",
+        "rect": [
+          176.41301907968574,
+          32.12794612794613,
+          671.1739618406285,
+          1006.7609427609427
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "93b4f431fdc8f7507bf790a5e7d861095a63d792a508916af71d5317920a9fe5",
+        "mask": true,
+        "method": "Replace the actual native default upper body/arms; preserve its actual shorts and legs. Old body arm masks are only for the old compatibility body."
+      },
+      "face": {
+        "path": "03_hd_assets/body/female_native_default_face_neck.png",
+        "rect": [
+          461.72886762360446,
+          91.93939393939394,
+          101.56299840510366,
+          148.00637958532695
+        ],
+        "pixelSize": [
+          398,
+          580
+        ],
+        "sha256": "9012dfdb7ab5ac55cb43ed76a961b3d666f6eeda230d572f6bdd84f67d58f9ec",
+        "logicalClearRect": [
+          430,
+          60,
+          170,
+          168
+        ],
+        "supportedFeatures": {
+          "eyes": 1,
+          "nose": 1,
+          "mouth": 1,
+          "expression": "normal"
+        },
+        "detail": "native_generated_face_source",
+        "source": "03_제작기록/r9/hd/female_face_master.png",
+        "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5",
+        "neckAlphaOnlyCleanup": {
+          "minimumLogicalY": 218,
+          "changedAlphaPixels": 723,
+          "faceAbove211Unchanged": true,
+          "method": "Clip old gray T-shirt/neck side remnants to the actual native default body silhouette; preserve the complete face and every retained RGB pixel."
+        }
+      },
+      "footwearCompanion": {
+        "paint": {
+          "path": "03_hd_assets/body/default_footwear/female_default_gray_footwear.png",
+          "rect": [
+            461.5308641975309,
+            845.5331088664423,
+            141.5757575757576,
+            128.4668911335578
+          ],
+          "pixelSize": [
+            216,
+            196
+          ],
+          "sha256": "cbc4bc00c03d249b3c5a7276a19ee2550f1b7af136df59c71d53d1cb495e2fbf"
+        },
+        "replacementMask": {
+          "path": "03_hd_assets/body/default_footwear/female_default_footwear_replace.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e55334ee8e7ab935e11ec775aa2af6d80f9e39d21e1b97e76f5a53eec102f742",
+          "mask": true
+        },
+        "composition": "source-over",
+        "method": "Existing native default gray footwear after actual body underpaint; alpha-only crop and staggered ankle overlap.",
+        "guideSkinMask": {
+          "path": "03_hd_assets/body/default_footwear/female_default_guide_skin_mask.png",
+          "rect": [
+            461.5308641975309,
+            845.5331088664423,
+            141.5757575757576,
+            128.4668911335578
+          ],
+          "pixelSize": [
+            216,
+            196
+          ],
+          "sha256": "759b0125664697375da823cd3b858950a0762c44644707b38d9f1e4b74e1b2bb",
+          "mask": true
+        },
+        "skinJoinEndY": 885
+      }
+    },
+    "male": {
+      "path": "03_hd_assets/body/male_native_default_clothes.png",
+      "rect": [
+        374.5030450669915,
+        225.5968331303289,
+        278.252131546894,
+        734.4031668696712
+      ],
+      "pixelSize": [
+        427,
+        1127
+      ],
+      "sha256": "c00954f3be7ee7c05d9b81e4956e555832ab65a99b4fd0a90ba60198e2c53959",
+      "source": "03_제작기록/r9/wardrobe_hd/default_body/male_complete_native_v1.png",
+      "sourceSha256": "3a8a8c5eadfa76ed9882a5a9d2d4f1761137418e62eb38f5343d25a9adc79df1",
+      "density": 1.5345794392523364,
+      "nativeDetail": "New complete native gray T-shirt, gray shorts, trainers and body, separate from 238 wardrobe variants; no compatibility PNG changed.",
+      "wholeFigureRegistration": {
+        "uniformScale": 0.6516443361753959,
+        "offset": [
+          178.35809987819732,
+          21.63215590742999
+        ],
+        "nativeWaistY": 619,
+        "nativeFloorY": 1440,
+        "targetWaistY": 425,
+        "targetFloorY": 960,
+        "method": "One uniform complete-character transform, no independent limb/face scaling."
+      },
+      "minimumBodyY": 225,
+      "footwearOnlyMinimumY": 850,
+      "sourceRgbCoreChanged": 0,
+      "armReplacementMask": {
+        "path": "03_hd_assets/body/male_native_default_arms_replace.png",
+        "rect": [
+          178.35809987819732,
+          21.63215590742999,
+          667.2838002436054,
+          1000.925700365408
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "e407877260217960ed4eb5a0685a84d92db22355f3aad637363a67b1bb7d6fcd",
+        "mask": true
+      },
+      "upperReplacementMask": {
+        "path": "03_hd_assets/body/male_native_default_upper_replace.png",
+        "rect": [
+          178.35809987819732,
+          21.63215590742999,
+          667.2838002436054,
+          1000.925700365408
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "fe176deef6e38685feddd39bea6aff73e5dab46998201e45966be8b59baec707",
+        "mask": true,
+        "method": "Replace the actual native default upper body/arms; preserve its actual shorts and legs. Old body arm masks are only for the old compatibility body."
+      },
+      "face": {
+        "path": "03_hd_assets/body/male_native_default_face_neck.png",
+        "rect": [
+          467.5980861244019,
+          100.10526315789474,
+          90.07974481658691,
+          139.84051036682615
+        ],
+        "pixelSize": [
+          353,
+          548
+        ],
+        "sha256": "096d0b2d982f3110bf387b47baa986df526083cfa046c328b683bc4a36b80b72",
+        "logicalClearRect": [
+          430,
+          60,
+          170,
+          168
+        ],
+        "supportedFeatures": {
+          "eyes": 1,
+          "nose": 1,
+          "mouth": 1,
+          "expression": "normal"
+        },
+        "detail": "native_generated_face_source",
+        "source": "03_제작기록/r9/hd/male_face_master.png",
+        "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517",
+        "neckAlphaOnlyCleanup": {
+          "minimumLogicalY": 218,
+          "changedAlphaPixels": 3161,
+          "faceAbove211Unchanged": true,
+          "method": "Clip old gray T-shirt/neck side remnants to the actual native default body silhouette; preserve the complete face and every retained RGB pixel."
+        }
+      },
+      "footwearCompanion": {
+        "paint": {
+          "path": "03_hd_assets/body/default_footwear/male_default_gray_footwear.png",
+          "rect": [
+            418.8148599269184,
+            845.3105968331304,
+            233.9403166869671,
+            114.68940316686967
+          ],
+          "pixelSize": [
+            359,
+            176
+          ],
+          "sha256": "55fda247e6d31cd1672add8a8496b7b5e01f5e118376c30be2a49edf886ace3b"
+        },
+        "replacementMask": {
+          "path": "03_hd_assets/body/default_footwear/male_default_footwear_replace.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e55334ee8e7ab935e11ec775aa2af6d80f9e39d21e1b97e76f5a53eec102f742",
+          "mask": true
+        },
+        "composition": "source-over",
+        "method": "Existing native default gray footwear after actual body underpaint; alpha-only crop and staggered ankle overlap.",
+        "guideSkinMask": {
+          "path": "03_hd_assets/body/default_footwear/male_default_guide_skin_mask.png",
+          "rect": [
+            418.8148599269184,
+            845.3105968331304,
+            233.9403166869671,
+            114.68940316686967
+          ],
+          "pixelSize": [
+            359,
+            176
+          ],
+          "sha256": "c2fbcf6c58c608e3af53b13b33a2c0ca00e01fb654025f412b1f8806986ac461",
+          "mask": true
+        },
+        "skinJoinEndY": 885
+      }
+    }
+  },
+  "scope": "Working native default gray clothes/body. Only used where a default gray upper/lower garment or default trainer is visible; complete native wardrobe variants retain their existing tested body path.",
+  "registryKind": "native_source_registration",
+  "readinessAuthority": [
+    "STATUS.json",
+    "02_클로드인계/HANDOFF_READY.json"
+  ]
+}

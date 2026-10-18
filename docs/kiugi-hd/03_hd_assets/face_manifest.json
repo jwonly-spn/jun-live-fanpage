@@ -1,0 +1,73 @@
+{
+  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "logicalCanvas": [
+    1024,
+    1024
+  ],
+  "assets": {
+    "male": {
+      "path": "03_hd_assets/face/male_default_face.png",
+      "rect": [
+        467.5980861244019,
+        100.10526315789474,
+        90.07974481658691,
+        139.84051036682615
+      ],
+      "pixelSize": [
+        353,
+        548
+      ],
+      "sha256": "e94f2844b18cff373e976d25bbd8fdf33c574dea31213a86da0707369ee2c150",
+      "logicalClearRect": [
+        430,
+        60,
+        170,
+        168
+      ],
+      "supportedFeatures": {
+        "eyes": 1,
+        "nose": 1,
+        "mouth": 1,
+        "expression": "normal"
+      },
+      "detail": "native_generated_face_source",
+      "source": "03_제작기록/r9/hd/male_face_master.png",
+      "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+    },
+    "female": {
+      "path": "03_hd_assets/face/female_default_face.png",
+      "rect": [
+        461.72886762360446,
+        91.93939393939394,
+        101.56299840510366,
+        148.00637958532695
+      ],
+      "pixelSize": [
+        398,
+        580
+      ],
+      "sha256": "a47caae8282e8f0ca4409597b36bef6445cef1fc8d16f6fafef6ecaf9215d9f3",
+      "logicalClearRect": [
+        430,
+        60,
+        170,
+        168
+      ],
+      "supportedFeatures": {
+        "eyes": 1,
+        "nose": 1,
+        "mouth": 1,
+        "expression": "normal"
+      },
+      "detail": "native_generated_face_source",
+      "source": "03_제작기록/r9/hd/female_face_master.png",
+      "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+    }
+  },
+  "scope": "Default eyes/nose/mouth01 normal expression prototype; other features still legacy and explicitly fall back. Not final handoff.",
+  "registryKind": "native_source_registration",
+  "readinessAuthority": [
+    "STATUS.json",
+    "02_클로드인계/HANDOFF_READY.json"
+  ]
+}

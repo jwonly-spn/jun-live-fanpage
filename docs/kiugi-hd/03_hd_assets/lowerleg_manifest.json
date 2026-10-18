@@ -1,0 +1,103 @@
+{
+  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "assets": {
+    "female": {
+      "path": "03_제작기록/r9/wardrobe_hd/lowerleg/female_lowerleg.png",
+      "rect": [
+        452.10526315789474,
+        740.2631578947369,
+        146.8421052631579,
+        233.42105263157893
+      ],
+      "pixelSize": [
+        558,
+        887
+      ],
+      "sha256": "1e29f71ac0514f25aafeb76530c4cda8ae6c2bce255ad225a2392cc3932a6516",
+      "source": "03_제작기록/r9/wardrobe_hd/lowerleg/female_native_v1.png",
+      "sourceSha256": "4cd950710c9dc6c93b26ac33e881416f0c1154b3c53b5d891ebaf2f0da487128",
+      "density": 3.8000000000000003,
+      "replacementMask": {
+        "path": "03_제작기록/r9/wardrobe_hd/lowerleg/female_replace.png",
+        "rect": [
+          0,
+          0,
+          1024,
+          1024
+        ],
+        "pixelSize": [
+          1024,
+          1024
+        ],
+        "sha256": "0fbab85eabec020be92edae7d1c19d3d9ec1a3d976271e4cc5ae04ce1908b30a",
+        "mask": true
+      },
+      "sourceRgbCoreChanged": 0,
+      "wholeLowerlegRegistration": {
+        "uniformScale": 0.2631578947368421,
+        "offset": [
+          365,
+          655
+        ],
+        "guideViewport": [
+          365,
+          655,
+          330,
+          330
+        ]
+      }
+    },
+    "male": {
+      "path": "03_제작기록/r9/wardrobe_hd/lowerleg/male_lowerleg.png",
+      "rect": [
+        417.36842105263156,
+        740.2631578947369,
+        238.94736842105263,
+        219.21052631578945
+      ],
+      "pixelSize": [
+        908,
+        833
+      ],
+      "sha256": "fae92bc7a2aef05d7a4ce6e394d25376f1fe2ad8c8061037e745a04b342e0222",
+      "source": "03_제작기록/r9/wardrobe_hd/lowerleg/male_native_v1.png",
+      "sourceSha256": "5f7b069058c56566b1745941b6b910911dcaf417a56d84f2b7ee42a8922309bc",
+      "density": 3.8000000000000003,
+      "replacementMask": {
+        "path": "03_제작기록/r9/wardrobe_hd/lowerleg/male_replace.png",
+        "rect": [
+          0,
+          0,
+          1024,
+          1024
+        ],
+        "pixelSize": [
+          1024,
+          1024
+        ],
+        "sha256": "3a1d36caa9d02a054f6faa437af4759126e99d2e8fa9bec20d5d92772bbe784e",
+        "mask": true
+      },
+      "sourceRgbCoreChanged": 0,
+      "wholeLowerlegRegistration": {
+        "uniformScale": 0.2631578947368421,
+        "offset": [
+          365,
+          655
+        ],
+        "guideViewport": [
+          365,
+          655,
+          330,
+          330
+        ]
+      }
+    }
+  },
+  "use": "Only when native shoes are selected; native foot skin under footwear replaces rejected old SD rectangular patch.",
+  "registryKind": "native_source_registration",
+  "readinessAuthority": [
+    "STATUS.json",
+    "02_클로드인계/HANDOFF_READY.json"
+  ]
+}

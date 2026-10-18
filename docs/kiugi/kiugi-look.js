@@ -1,17 +1,19 @@
-// DJ 키우기 캐릭터 모양 규칙(새 그림체 R7, 2026-10-18 — 그림 목록 kiugi-r7-data.js). 화면(kiugi-art.js·kiugi-ui.js·kiugi-creator.js)·엔진(src/bot/kiugi/rules.mjs)·키우기 사이트가 함께 쓴다(문서·DOM 없이).
-// R7 캐릭터 = 성별(몸) + 머리 모양 1~10 + 눈·코·입 1~2 + 머리색. 머리·눈·코·입은 그 성별 전용 그림을 번호로 고른다(반대 성별 그림은 쓰지 않는다).
+// DJ 키우기 캐릭터 모양 규칙(새 그림체 R7 → R9, 2026-10-18 — 그림 목록 kiugi-r9-data.js). 화면(kiugi-art.js·kiugi-ui.js·kiugi-creator.js)·엔진(src/bot/kiugi/rules.mjs)·키우기 사이트가 함께 쓴다(문서·DOM 없이).
+// R9 캐릭터 = 성별(몸) + 머리 모양 1~10 + 눈 1~2 · 코 1~7 · 입 1~7 + 머리색. 머리·눈·코·입은 그 성별 전용 그림을 번호로 고른다(반대 성별 그림은 쓰지 않는다).
 // 피부색은 고르지 않는다: 옷 그림에 드러난 맨살이 함께 그려져 있어 피부를 바꾸면 옷의 맨살과 어긋난다(패키지 기술연결가이드).
 // 값은 모두 글자('1'~'10')로 둔다(키우기 사이트 서버가 모양 열쇠를 글자로만 받는다).
 // 예전 그림(V3~V5)의 눈·코·입 3~10, 예전(V2) 열쇠(eyes:'round' 처럼)는 1번으로 읽는다 — 새 그림은 눈·코·입이 2가지씩이라(DJ 화면이 한 번 알리고 다시 고르게 한다 — faceReset).
 //  머리는 예전처럼 1~10 그대로, V2 머리 열쇠(hair:'bob')는 가장 가까운 번호로(LEGACY). 저장된 값은 DJ 가 다시 저장할 때 바뀐다.
-import {ART} from './kiugi-r7-data.js';
+import {ART} from './kiugi-r9-data.js';
 import {PALETTE, resolve as resolveHairColor} from './kiugi-hair-color.js';
 
-// 머리 모양 번호(1~10) · 눈·코·입 번호(1~2)
+// 머리 모양 번호(1~10) · 눈 번호(1~2) · 코·입 번호(1~7 — 새 그림체 R9, 2026-10-18)
 export const NUMBERS = Object.freeze(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']);
 export const HAIR_NUMBERS = NUMBERS;
 export const FACE_NUMBERS = Object.freeze(['1', '2']);
 export const FACE_KEYS = Object.freeze(['eyes', 'nose', 'mouth']);
+// 칸마다 고를 수 있는 번호(눈 1~2 · 코 1~7 · 입 1~7)
+export const FACE_NUMBERS_OF = Object.freeze({eyes: FACE_NUMBERS, nose: Object.freeze(NUMBERS.slice(0, 7)), mouth: Object.freeze(NUMBERS.slice(0, 7))});
 export const GENDERS = Object.freeze({f: '여자', m: '남자'});
 // 머리색(tone-map-v1 — 패키지 hair-color.js 그대로): 머리 그림의 밝기(0~255)를 색마다 정한 256단계 표로 바꾼다(RGB 만 · 알파 그대로).
 //  저장 값은 열쇠 8개(black·brown·light·blond·pink·purple·sky·silver). HAIR_COLORS 는 그 색의 대표색, 이름은 팔레트 이름.
@@ -32,7 +34,7 @@ export function hairColorKey(value) {
 const named = (list, o) => Object.freeze(Object.fromEntries(list.map((n) => [n, o?.[n] || n + '번'])));
 // 이름표(패키지 assets.json 의 name): 머리는 성별마다 다르고, 눈·코·입은 남녀가 같은 이름이다(그림은 성별마다 따로).
 export const HAIR_NAMES = Object.freeze({f: named(NUMBERS, ART.names.hair?.f), m: named(NUMBERS, ART.names.hair?.m)});
-export const FACE_NAMES = Object.freeze({eyes: named(FACE_NUMBERS, ART.names.eyes?.f), nose: named(FACE_NUMBERS, ART.names.nose?.f), mouth: named(FACE_NUMBERS, ART.names.mouth?.f)});
+export const FACE_NAMES = Object.freeze({eyes: named(FACE_NUMBERS_OF.eyes, ART.names.eyes?.f), nose: named(FACE_NUMBERS_OF.nose, ART.names.nose?.f), mouth: named(FACE_NUMBERS_OF.mouth, ART.names.mouth?.f)});
 
 // 예전 V2 열쇠 → 번호. 머리: V2 웹툰풍 20종의 차례(그 번호의 지금 성별 그림). 눈·코·입: 새 그림은 2가지라 모두 1번(표정용 열쇠 happy·wink·heart 도).
 const ONE = (keys) => Object.freeze(Object.fromEntries(keys.map((k) => [k, '1'])));
@@ -54,7 +56,7 @@ export function lookValue(key, value) {
   if (key !== 'hair' && !FACE_KEYS.includes(key)) return null;
   const v = typeof value === 'number' && Number.isInteger(value) ? String(value) : typeof value === 'string' ? value.trim() : '';
   if (key === 'hair') return NUMBERS.includes(v) ? v : Object.hasOwn(LEGACY.hair, v) ? LEGACY.hair[v] : null;
-  if (FACE_NUMBERS.includes(v)) return v;
+  if (FACE_NUMBERS_OF[key].includes(v)) return v;
   return NUMBERS.includes(v) || Object.hasOwn(LEGACY[key], v) ? '1' : null;
 }
 // DJ 캐릭터(저장된 값·사이트 자료 무엇이든) → {gender, hair, hairColor, eyes, nose, mouth}. 빈 칸·모르는 값은 기본값(1번·갈색·여자).
@@ -66,4 +68,4 @@ export function normalizeLook(dj = {}) {
 // 예전(V2) 값이 들어 있는지(화면 안내용 — "예전 캐릭터를 새 그림으로 바꿔 읽었어요")
 export const isLegacyLook = (dj = {}) => ['hair', ...FACE_KEYS].some((k) => typeof dj?.[k] === 'string' && Object.hasOwn(LEGACY[k], dj[k])) || Object.hasOwn(dj || {}, 'skin');
 // 저장된 눈·코·입 가운데 새 그림(1~2)에 없는 값이 있는지(예전 그림의 3~10 · 예전 열쇠) — DJ 화면이 "눈·코·입을 다시 골라 주세요"를 알린다(저장하면 사라진다)
-export const faceReset = (dj = {}) => Boolean(dj) && FACE_KEYS.some((k) => dj[k] !== undefined && dj[k] !== null && dj[k] !== '' && !FACE_NUMBERS.includes(typeof dj[k] === 'number' ? String(dj[k]) : String(dj[k]).trim()));
+export const faceReset = (dj = {}) => Boolean(dj) && FACE_KEYS.some((k) => dj[k] !== undefined && dj[k] !== null && dj[k] !== '' && !FACE_NUMBERS_OF[k].includes(typeof dj[k] === 'number' ? String(dj[k]) : String(dj[k]).trim()));

@@ -1,0 +1,82 @@
+{
+  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "assets": {
+    "female": {
+      "paint": {
+        "path": "03_hd_assets/lower_body/female_bare_legs_no_guide_shoes.png",
+        "rect": [
+          290,
+          320,
+          450,
+          675
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "259cafe4a8f2afc142cb414b34607d098d50dd6a4fd3241ef637c9ecace456be"
+      },
+      "replacementMask": {
+        "path": "03_hd_assets/lower_body/female_canonical_legs_replace.png",
+        "rect": [
+          0,
+          0,
+          1024,
+          1024
+        ],
+        "pixelSize": [
+          1024,
+          1024
+        ],
+        "sha256": "9f42f06981d33c703c394d68fbf5eec7c87b3c108b7ee886add808a8b5771d1a",
+        "mask": true
+      },
+      "source": "03_hd_assets/lower_body/female_complete_source_v2.png",
+      "sourceSha256": "b807236f0518a2b09bada1e440c909f19d7a0adebd96c82bb178dfd63b65c917",
+      "density": 2.2755555555555556,
+      "method": "Common native lower-body anatomy edited from a complete fixed-body wearing painting with both arms removed by image tool; no arm pixels or thresholded white-highlight holes. Original body replacement is applied before native upper-body paint.",
+      "guideFootwearRemoved": true
+    },
+    "male": {
+      "paint": {
+        "path": "03_hd_assets/lower_body/male_bare_legs_no_guide_shoes.png",
+        "rect": [
+          290,
+          320,
+          450,
+          675
+        ],
+        "pixelSize": [
+          1024,
+          1536
+        ],
+        "sha256": "984d2eb9a52ea236cfccce9ab9c17358db27702cca4b38e1e8ddb334045e0829"
+      },
+      "replacementMask": {
+        "path": "03_hd_assets/lower_body/male_canonical_legs_replace.png",
+        "rect": [
+          0,
+          0,
+          1024,
+          1024
+        ],
+        "pixelSize": [
+          1024,
+          1024
+        ],
+        "sha256": "9e14f1fa68877aa69dac6cecbeb5b47969b2dfe34dd7d6c1d18e5d0c4f11690f",
+        "mask": true
+      },
+      "source": "03_hd_assets/lower_body/male_complete_source_v2.png",
+      "sourceSha256": "b5fd72f431a5221bd55f39661c8ba308341b5a2daa6d8a2563f1793e8b37e8e9",
+      "density": 2.2755555555555556,
+      "method": "Common native lower-body anatomy edited from a complete fixed-body wearing painting with both arms removed by image tool; no arm pixels or thresholded white-highlight holes. Original body replacement is applied before native upper-body paint.",
+      "guideFootwearRemoved": true
+    }
+  },
+  "registryKind": "native_source_registration",
+  "readinessAuthority": [
+    "STATUS.json",
+    "02_클로드인계/HANDOFF_READY.json"
+  ]
+}

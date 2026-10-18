@@ -27,9 +27,11 @@ app.disableHardwareAcceleration();
 app.on('window-all-closed', () => {});
 
 const QUALITY = 0.86;
-// 원본 그림 목록: kiugi-r7-data.js 의 공통 배경(dir /kiugi/bg/)
+// 원본 그림 목록: 그림 목록 파일(kiugi-<판>-data.js — R9 는 kiugi-r9-data.js)의 공통 배경(dir /kiugi/bg/)
 function backgrounds() {
-  const src = fs.readFileSync(path.join(docs, 'kiugi', 'kiugi-r7-data.js'), 'utf8');
+  const name = fs.readdirSync(path.join(docs, 'kiugi')).filter((n) => /^kiugi-[a-z]\d+-data\.js$/.test(n)).sort().pop();
+  if (!name) throw Error('그림 목록(kiugi-<판>-data.js)이 없어요');
+  const src = fs.readFileSync(path.join(docs, 'kiugi', name), 'utf8');
   const list = [];
   for (const m of src.matchAll(/\{[^{}]*"category":"background"[^{}]*\}/g)) {
     const a = JSON.parse(m[0]);

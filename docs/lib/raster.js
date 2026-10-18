@@ -13,8 +13,7 @@
 // DOM·캔버스는 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 칸·열쇠·자리 셈을 시험한다).
 import { characterPlan, planUrls, paintPlan, artUrl, savePetUrl, alphaBox } from './kiugi-save.js';
 import { recolor } from '../kiugi/kiugi-hair-color.js';
-import { ART } from '../kiugi/kiugi-r7-data.js';
-import { expressionFor, preloadImage } from './kiugi-draw.js';
+import { expressionFor, preloadImage, ART } from './kiugi-draw.js';
 
 export const SIZE = 1024;
 export const CROPS = Object.freeze({

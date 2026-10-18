@@ -207,6 +207,10 @@ a { color: inherit; }
 .kg-actor { container-type: size; }
 .kg-actor > .kg-body { position: absolute; inset: 0; }
 .kg-body > svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* 고해상도 캐릭터(2026-10-18 R9 — lib/kiugi-hd.js): 큰 무대만. 칸에 보이는 부분만 그린 캔버스를 1024 캔버스 칸 안 같은 자리에 겹치고(자리·크기는 js 가 퍼센트로),
+   다 그려지면 호환 그림(svg)을 숨긴다 — 그 전에는 호환 그림이 보인다(깜박이지 않게). 캔버스 픽셀 = 칸 화면 크기 × 화면 배율이라 늘이지 않는다. */
+.kg-body > canvas.kg-hd { position: absolute; display: block; pointer-events: none; }
+.kg-actor.is-hd > .kg-body > svg { visibility: hidden; }
 /* 우는 눈(표정): 지금은 쓰지 않음(views/cards.js addEyeStates 는 MOTIONS_READY 일 때만) */
 .kg-eye-closed, .kg-eye-cry { opacity: 0; }
 .kg-actor.m-cry .kg-eye-open, .kg-actor.m-cry .kg-eye-closed { opacity: 0; }

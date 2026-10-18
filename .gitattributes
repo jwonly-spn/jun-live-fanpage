@@ -1,0 +1,3 @@
+# 고해상도 그림(2026-10-18 새 그림체 R9 — Codex 패키지 DJ_STYLE_20261018_REDO_R9)은 패키지와 바이트가 같아야 한다(해시 확인 — tests/kiugi-hd.test.mjs).
+#  renderer.js · renderer-hd.js · assets.json · 등록부 *_manifest.json 은 CRLF 줄바꿈이라, 줄바꿈을 바꾸지 않게(이 PC 의 git 은 core.autocrlf=true) 글자 파일로 다루지 않는다.
+docs/kiugi-hd/** -text

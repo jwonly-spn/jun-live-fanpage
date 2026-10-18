@@ -13,6 +13,10 @@ const DOCS = path.join(__dirname, '..', 'docs');
 const START = '<!--kg-stamp-->', END = '<!--/kg-stamp-->';
 const hash = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slice(0, 10);
 const NO_PRELOAD = new Set(['/mock.js']);
+// 고해상도 그림 쪽 파일(2026-10-18 R9)은 큰 화면에서만 필요해 처음부터 받지 않는다 — 먼치킨 sync 가 docs/kiugi/ 에 넣는 고해상도 모듈·패키지 그리는 코드 사본·고해상도 목록
+//  (kiugi-hd.js · kiugi-r9-renderer.js · kiugi-r9-renderer-hd.js · kiugi-r9-hair-color.js · kiugi-r9-hd-data.js 같은 이름). 표(import map)에는 그대로 둔다.
+const NO_PRELOAD_RE = /^\/kiugi\/kiugi-(?:hd|r\d+-(?:hd-data|renderer|renderer-hd|hair-color))\.js$/;
+const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m);
 
 // 화면 모듈(사이트 맨 앞 기준 주소): 맨 위 app.js·api.js·mock.js + lib/ · views/ · kiugi/ 의 .js (spoon.js 는 따로 있는 페이지라 뺀다)
 function modules(docs = DOCS) {
@@ -35,7 +39,7 @@ function plan(docs = DOCS) {
     css: `/styles.css?v=${hash(read('/styles.css'))}`,
     app: imports['/app.js'],
     map,
-    preload: list.filter((m) => !NO_PRELOAD.has(m)).map((m) => imports[m]),
+    preload: list.filter(preloadable).map((m) => imports[m]),
     cspHash: `'sha256-${crypto.createHash('sha256').update(map).digest('base64')}'`,
   };
 }
@@ -59,7 +63,7 @@ function stamp({ docs = DOCS, check = false, log = console.log } = {}) {
   log(stale ? (check ? '다시 찍어야 해요: node tools/stamp.cjs' : `찍었어요: 모듈 ${p.preload.length + 1}개 · ${p.css}`) : '그대로예요(이미 찍혀 있음).');
   return { stale, plan: p };
 }
-module.exports = { stamp, plan, stampHtml, modules };
+module.exports = { stamp, plan, stampHtml, modules, preloadable };
 
 if (require.main === module) {
   const { stale } = stamp({ check: process.argv.includes('--check') });

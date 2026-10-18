@@ -145,7 +145,8 @@ test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·�
   const character = await src('views/character.js'), items = await src('views/items.js'), cards = await src('views/cards.js'), kiugi = await src('views/kiugi.js'), intro = await src('views/intro.js');
   // 캐릭터 페이지
   assert.match(character, /const motion = MOTIONS_READY \? motionOf\(catalog, data\.motion\) : null;/, '모르는 모션은 모션 없음(스위치가 꺼져 있으면 늘 없음)');
-  assert.match(character, /eager: true, motion: motion\?\.id, kind: 'hero' \}\)/, '무대 캐릭터가 그 모션을 한다');
+  // (2026-10-18 R9: 큰 무대는 hd: true — 고해상도로 바꿔 그린다)
+  assert.match(character, /eager: true, motion: motion\?\.id, kind: 'hero', hd: true \}\)/, '무대 캐릭터가 그 모션을 한다');
   assert.match(character, /motion \? h\('span', \{ class: 'kg-motion-chip' \}/); assert.match(character, /motionGuide\(catalog, seasonId\)/);
   // 입혀 보기: 모션 탭 · 미리 보기 캐릭터가 고른 모션 · 따로 복사(MOTION_COPIED) · 탭 id 가 옷 묶음과 겹치지 않는다
   const { MOTION_TAB, MOTION_EMPTY, TITLE_TAB, motionGuide } = await import('../docs/views/character.js');

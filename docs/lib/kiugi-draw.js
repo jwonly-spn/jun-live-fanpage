@@ -2,9 +2,11 @@
 // 사이트 보안 규칙(CSP: 인라인 style 금지)과 사이트 주소(BASE) 때문에 그린 SVG 글을 조금 고친다(cspSafeSvg).
 // DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 그대로 불러 쓴다).
 import { characterSvg, itemSvg, svgUrls } from '../kiugi/kiugi-art.js';
-import { ART } from '../kiugi/kiugi-r7-data.js';
+import { ART } from '../kiugi/kiugi-r9-data.js';
 import { formatDate } from './text.js';
 
+// 그림 목록(먼치킨이 만든 kiugi-<판>-data.js) — 사이트 안에서는 여기 한 곳에서만 부른다(판 이름이 바뀌면 이 줄만 고친다: R7 → R9 2026-10-18)
+export { ART };
 const ART_PACKAGE = `${ART.packageId}:${ART.version}`;
 
 export const STAGE = '#EFE9F8';

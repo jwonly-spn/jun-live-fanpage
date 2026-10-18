@@ -23,6 +23,7 @@ import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE,
   motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
+import { upgradeStage, renderHdCharacter } from '../lib/kiugi-hd.js';
 import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview, applySeasonTheme } from './common.js';
 import { characterWardrobe } from './album.js';
 import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
@@ -88,7 +89,8 @@ export function saveButton(card, { base = '/' } = {}) {
     if (busy) return;
     busy = true;
     btn.disabled = true; btn.setAttribute('aria-busy', 'true'); btn.classList.add('is-busy'); label.textContent = SAVE_BUSY;
-    try { await saveCharacterImage(card(), { base, returnTo: btn }); }
+    // 캐릭터는 고해상도(R9 원본 그림)로 — 못 받으면 호환 그림(lib/kiugi-save.js)
+    try { await saveCharacterImage(card(), { base, returnTo: btn, hd: renderHdCharacter }); }
     catch (e) { console.error(e); toast(SAVE_FAILED, 'error'); }
     finally { busy = false; btn.disabled = false; btn.removeAttribute('aria-busy'); btn.classList.remove('is-busy'); label.textContent = SAVE_LABEL; }
   });
@@ -265,7 +267,8 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
     if (!markup) { stage.replaceChildren(h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요')); stage.removeAttribute('aria-busy'); return; }
     // 캐릭터는 숨쉬고, 고른 모션(pickMotion — 그림을 다 받은 때의 것)을 한다
     paintMarkup(stage, markup, { make: (m) => actorNodes(m, { motion: pickMotion }), fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요') })
-      .then((done) => { if (done) stage.removeAttribute('aria-busy'); })
+      // 호환 그림을 먼저 보이고 고해상도(R9 원본 그림)로 바꾼다 — 옷을 바꿀 때마다 앞 것은 버린다(lib/kiugi-hd.js)
+      .then((done) => { if (done) { stage.removeAttribute('aria-busy'); upgradeStage(stage, { character: dj.character, worn: look, level, catalog, seasonId, base: app.base }); } })
       .catch((e) => { console.error(e); stage.removeAttribute('aria-busy'); });
   };
   // 미리 보기 위 칭호 배지: 고른 칭호, 없으면 지금 단 칭호(둘 다 없으면 숨김). 그림이 바뀔 때만 주소를 바꾼다(깜박이지 않게).
@@ -474,7 +477,7 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
   const heroKey = JSON.stringify([dj.character, data.worn, level, motion?.id || null, buddy ? [buddy.id, buddy.stage] : null]);
   const reuse = env.hero && env.hero.key === heroKey ? env.hero.node : null;
   const heroStage = reuse || h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') },
-    art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero' }),
+    art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero', hd: true }),
     petBuddy(buddy, app.base));
   if (!reuse) { heroStage.append(burst.el); env.hero = { key: heroKey, node: heroStage, go: burst.go }; }
   else burst.go = env.hero.go;

@@ -25,7 +25,8 @@ export function characterWardrobe(card, { app, catalog, onTry, onCopyCode }) {
     h('div', { class: 'album-person-name' }, h('span', null, `${dj?.name || card.djName || 'DJ'} 키우기`),
       h('h3', null, ...idText(card.id))),
     ilink(app.link({ name: 'items' }), { class: 'album-detail-catalog' }, '옷 도감', icon('arrow', { size: 15 })));
-  const stage = art(ctx.catalog, character, card.worn, card.level, { seasonId, base: ctx.app.base, eager: true, label: `${card.id} 전신 캐릭터`, kind: 'album-body' });
+  // 현재 모습(전신 — 큰 칸): 고해상도(R9 원본 그림)로 바꿔 보인다
+  const stage = art(ctx.catalog, character, card.worn, card.level, { seasonId, base: ctx.app.base, eager: true, label: `${card.id} 전신 캐릭터`, kind: 'album-body', hd: true });
   const look = h('div', { class: 'album-look' },
     h('div', { class: 'album-look-top' }, h('span', { class: 'album-sticker' }, icon('hanger', { size: 14 }), '현재 모습'), level),
     h('div', { class: 'album-fullbody' }, stage,

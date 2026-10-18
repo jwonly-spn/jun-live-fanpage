@@ -52,7 +52,8 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
   }
   // 2026-10-18 새 구조: views/feed.js(큰 사진 카드·DJ 동그라미·내 캐릭터) · lib/me.js(내 캐릭터·연속 방문) · lib/raster.js(캐릭터 사진) · lib/swr.js(서버 답 기억)
   assert.deepEqual((await readdir(docs + 'views')).sort(), ['album.js', 'cards.js', 'character.js', 'common.js', 'feed.js', 'intro.js', 'items.js', 'kiugi.js']);
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'text.js', 'try-on.js']);
+  // 2026-10-18 R9: lib/kiugi-hd.js(큰 무대·저장하기 고해상도 — 패키지 renderer-hd.js 를 docs/kiugi-hd/ 에서 불러 쓴다)
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-hd.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'text.js', 'try-on.js']);
   for (const f of await siteScripts()) {
     const src = await text(f);
     assert.doesNotMatch(src, /views\/(fan|studio|mobile|story|forms|photos)|lib\/(config|days|device|image|photo|samples)\.js/, f);

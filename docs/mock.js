@@ -35,12 +35,12 @@ const OUTFITS = [
   { top: 'top_12', bottom: 'bottom_15', shoes: 'shoe_01', neck: 'accessory_03', hat: 'hat_19' },
   { top: 'top_25', bottom: 'bottom_12', shoes: 'shoe2_03', head: 'acc2_01', crown: 'acc2_11', bg: 'halloween-night' },
 ];
-// DJ 캐릭터(R7 값: 머리 1~10 · 눈·코·입 1~2). 쿠키는 일부러 예전 그림의 눈·코·입 번호(5·5·8 — 예전 판 먼치킨이 올린 자료는 1번으로 그린다),
+// DJ 캐릭터(R9 값: 머리 1~10 · 눈 1~2 · 코·입 1~7 — 먼치는 R9 에서 새로 생긴 코 4·입 6). 쿠키는 일부러 지금 그림에 없는 번호(눈 5·코 9·입 8 — 1번으로 그린다),
 //  젤리는 일부러 예전(V2) 값 — 예전 판 먼치킨이 올린 자료도 가장 비슷한 그림으로 그리는지 보려고.
 const DJS = [
-  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: '2', hairColor: 'pink', eyes: '2', nose: '1', mouth: '2' },
+  { slug: DEMO_KIUGI_SLUG, character: { name: '먼치', gender: 'f', hair: '2', hairColor: 'pink', eyes: '2', nose: '4', mouth: '6' },
     bases: ['밤톨', '사탕요정', '달무리', '먼치팬', '호박꽃', '별사탕', '새벽달', '구름빵', '보름달', '솜사탕', '밤하늘', '유령친구', '마녀수프', '박쥐날개', '꿀호떡', '달빛소나기', '호박등', '사탕유령', '밤톨이네', '작은밤톨', '초코칩'] },
-  { slug: 'cuky2345', character: { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '5', mouth: '8' },
+  { slug: 'cuky2345', character: { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '9', mouth: '8' },
     bases: ['귤껍질', '여름밤', '별사탕', '밤톨', '솜사탕', '초코칩'] },
   { slug: 'jery2468', character: { name: '젤리', gender: 'f', hair: 'f_twin', hairColor: 'sky', skin: 's1', eyes: 'happy', nose: 'dot', mouth: 'cat' },
     bases: ['달무리', '사탕요정', '여름밤', '꿀호떡'] },

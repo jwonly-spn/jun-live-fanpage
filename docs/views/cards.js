@@ -3,6 +3,7 @@
 import { h, icon, toast } from '../lib/dom.js';
 import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, MOTIONS_READY } from '../lib/kiugi-draw.js';
 import { loadLite, liteUrl } from '../lib/raster.js';
+import { upgradeStage } from '../lib/kiugi-hd.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
@@ -101,7 +102,8 @@ let observer = null;
 //  그림 V3(2026-10-09): 그림 파일을 모두 받은 뒤 한 번에 넣는다(paintMarkup — 반쯤 그려진 모습이 보이지 않게).
 //  actor: 캐릭터 그림이면 true — 바탕과 캐릭터를 나눠 캐릭터만 숨쉬게(motion = 모션 id). 옷 한 벌 그림(옷 도감 칸)은 움직이지 않는다.
 //  lite: 사이트 BASE — 주면 공통 배경 그림을 가벼운 사본(docs/kiugi-lite/ WebP — 1.5MB → 0.15MB)으로 바꿔 그린다. 사본을 못 받으면 원본으로 다시 그린다.
-export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null, lite = null } = {}) {
+//  hd: 큰 무대(캐릭터 페이지 전신 · 캐릭터 옷장 현재 모습)면 {character, worn, level, catalog, seasonId, base} — 호환 그림을 그린 뒤 고해상도로 바꾼다(lib/kiugi-hd.js)
+export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null, lite = null, hd = null } = {}) {
   const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') });
   const noart = () => h('span', { class: 'kg-noart' }, label);
   const draw = async () => {
@@ -111,8 +113,9 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
     const opts = { fallback: noart(), ...(actor ? { make: (m) => actorNodes(m, { motion }) } : {}) };
     try {
       const light = lite ? await liteMarkup(markup, lite) : markup;
-      await paintMarkup(stage, light, opts);
-      if (light !== markup && stage.dataset.kgArtError) await paintMarkup(stage, markup, opts);
+      let done = await paintMarkup(stage, light, opts);
+      if (light !== markup && stage.dataset.kgArtError) done = await paintMarkup(stage, markup, opts);
+      if (done && hd && actor) upgradeStage(stage, hd);
     } catch (e) { console.error(e); stage.replaceChildren(noart()); }
   };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
@@ -125,10 +128,12 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
 }
 // DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대는 styles.css). 캐릭터 칸은 세로(char)로 잘라 크게 보인다. kind: 무대 모양 더하기(hero·bare 등)
 //  캐릭터는 늘 숨쉰다. motion: 그 사람이 하는 모션 id(먼치킨이 보낸 것 — 시즌 목록에 있는 것만, 모르면 숨쉬기만)
-export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null } = {}) {
+//  hd: true 면 큰 무대 — 호환 그림을 먼저 보이고 고해상도(R9 원본 그림 — lib/kiugi-hd.js)로 바꾼다. 카드·목록 같은 작은 칸은 쓰지 않는다(자료를 아끼게).
+export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null, hd = false } = {}) {
   const cls = 'char' + (kind ? ' ' + kind : '');
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label, { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null, lite: base });
+  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label,
+    { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null, lite: base, hd: hd ? { character, worn, level, catalog, seasonId, base } : null });
 }
 // ---- 함께하는 펫(캐릭터 페이지 무대 · 입혀 보기 · 메인 카드 · 메인 첫 화면 1등 — 2026-10-16 사용자 "펫 좀 크게 · 메인 화면에서도 보이게") ----
 // 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라

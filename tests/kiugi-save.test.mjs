@@ -1,5 +1,6 @@
 // 캐릭터 이미지로 저장(lib/kiugi-save.js): 캔버스에 그릴 차례가 화면 그림(kiugi-art.js characterSvg·layersOf)과 같은지, 배치·글·파일 이름·저장 방법.
-// 새 그림체 R7(2026-10-18): 그리는 규칙은 패키지 renderer.js(캔버스) 그대로 — 실제 브라우저에서 renderer.js 와 픽셀로 견준 것은 시험 밖(숨은 Electron)에서 한다.
+// 새 그림체 R7 → R9(2026-10-18): 그리는 규칙은 패키지 renderer.js(캔버스) 그대로 — 실제 브라우저에서 renderer.js 와 픽셀로 견준 것은 시험 밖(숨은 Electron)에서 한다.
+//  고해상도(R9 renderer-hd.js)로 저장하는 길은 hd 함수를 넘길 때만(캐릭터 페이지) — 여기서는 hd 를 흉내 내 자리·크기만 본다.
 // 아이디는 모두 지어낸 것(밤톨·사탕요정·달무리, 캐릭터 이름 먼치·쿠키).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -7,8 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { characterSvg, layersOf, svgUrls, hairColorOf, SIZE } from '../docs/kiugi/kiugi-art.js';
 import hairColor, { recolor, table, PALETTE } from '../docs/kiugi/kiugi-hair-color.js';
-import { ART } from '../docs/kiugi/kiugi-r7-data.js';
-import { buildCatalog, characterMarkup, expressionFor } from '../docs/lib/kiugi-draw.js';
+import { buildCatalog, characterMarkup, expressionFor, ART } from '../docs/lib/kiugi-draw.js';
 import {
   characterPlan, planSteps, planUrls, artUrl, paintPlan, tintedHair, tintKey, TINT_CACHE_MAX, coverRect, labelParts, levelParts, levelText, saveFileName, saveMode,
   SAVE_W, SAVE_H, SAVE_LAYOUT, SITE_MARK, SITE_DOMAIN, UNOFFICIAL_MARK, SAVE_LABEL, renderSaveImage, saveCharacterImage, canvasBlob, alphaBox, placeCharacter, characterCanvas,
@@ -21,7 +21,7 @@ const catalog = async () => { const m = await read('manifest.json'); return buil
 // 지어낸 DJ 캐릭터와 입은 옷 묶음(체험 모드 옷 묶음 + 마스크·밑단·신발 목 자르기·모자·악세사리 자리가 걸리는 것)
 const DJS = [
   { name: '먼치', gender: 'f', hair: '9', hairColor: 'pink', eyes: '2', nose: '1', mouth: '2' },
-  { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '5', mouth: '8' }, // 예전 그림의 눈·코·입 번호 → 1번
+  { name: '쿠키', gender: 'm', hair: '5', hairColor: 'brown', eyes: '5', nose: '5', mouth: '8' }, // 지금 그림에 없는 눈 5·입 8 → 1번(코 5 는 R9 에 있다)
   { name: '젤리', gender: 'f', hair: 'f_twin', hairColor: 'sky', skin: 's1', eyes: 'happy', nose: 'dot', mouth: 'cat' }, // 예전(V2) 값
   {},
 ];
@@ -151,10 +151,10 @@ test('그림 주소: 사이트 BASE 아래(공통 배경은 kiugi/bg/), 화면 S
     const urls = planUrls(characterPlan(dj, { worn }, ex), B);
     const page = svgUrls(characterMarkup(c, dj, worn, 10, { seasonId: 's1', base: B, stage: null }));
     assert.deepEqual([...urls].sort(), [...page].sort(), JSON.stringify(worn));
-    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/(r7|bg)\/[a-z0-9_]+\.png\?v=[0-9a-f]{12}$/);
+    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/(r9|bg)\/[a-z0-9_]+\.png\?v=[0-9a-f]{12}$/);
   }
-  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/'), '/kiugi/r7/female_body.png?v=0123456789ab');
-  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/x'), '/x/kiugi/r7/female_body.png?v=0123456789ab');
+  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/'), `${ART.dir}female_body.png?v=0123456789ab`);
+  assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/x'), `/x${ART.dir}female_body.png?v=0123456789ab`);
   assert.equal(artUrl({ file: 'background_03.png', dir: '/kiugi/bg/', v: '0123456789ab' }, B), '/jun-live-fanpage/kiugi/bg/background_03.png?v=0123456789ab');
   // 배경은 맨 앞(잘라 채우기로 따로 그린다)
   const withBg = characterPlan(DJS[0], { worn: WORN[1] }, null);
@@ -247,7 +247,7 @@ test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고
   assert.deepEqual(out.slice(8, 12), [0, 0, 0, 0], '투명은 그대로'); assert.equal(out[15], 128);
   assert.equal(tintedHair(doc, 'IMG', asset, 'blond', cache), c, '같은 머리·같은 색은 다시 만들지 않는다');
   assert.equal(tintKey(asset, 'blond'), `${ART.packageId}:tone-map-v1:female_hair_09_back:0123456789ab:blond`); assert.equal(hairColor.VERSION, 'tone-map-v1');
-  assert.match(ART.packageId, /^DJ_STYLE_20261018_LINES_R8$/); // 2026-10-18 R8(외곽선·긴 머리) — 파일·id·좌표는 R7 그대로
+  assert.match(ART.packageId, /^DJ_STYLE_20261018_REDO_R9$/); // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
   for (const k of ['black', 'pink', 'sky', 'silver']) tintedHair(doc, 'IMG', asset, k, cache);
   assert.equal(cache.size, TINT_CACHE_MAX); assert.equal(c.width, 0, '오래된 것부터 비운다(캔버스 메모리 돌려주기)');
   assert.deepEqual(Object.keys(PALETTE), ['black', 'brown', 'light', 'blond', 'pink', 'purple', 'sky', 'silver']);
@@ -438,7 +438,9 @@ test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장�
   assert.match(src, /pet: buddy \? \{ id: buddy\.id, season: buddy\.season, stage: buddy\.stage \} : null/, '함께하는 펫도 같이 찍는다(2026-10-16)');
   assert.match(src, /hintSaveButton\(saveBtn\)/, '브라우저에서 ?save=1 로 열리면 저장하기를 알려 준다');
   // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래 — 2026-10-18 새 구조: 무대(heroStage = 그림 + 펫)는 같은 모습이면 다시 쓰고, 그 바로 아래 저장하기
-  assert.match(src, /kind: 'hero' \}\),\s*petBuddy\(buddy, app\.base\)\);/, '무대 = 캐릭터 그림 + 함께하는 펫');
+  //  (2026-10-18 R9: 무대 그림은 hd: true — 고해상도로 바꿔 그린다)
+  assert.match(src, /kind: 'hero', hd: true \}\),\s*petBuddy\(buddy, app\.base\)\);/, '무대 = 캐릭터 그림 + 함께하는 펫');
+  assert.match(src, /saveCharacterImage\(card\(\), \{ base, returnTo: btn, hd: renderHdCharacter \}\)/, '저장 그림의 캐릭터는 고해상도로(못 받으면 호환 그림)');
   assert.match(src, /h\('div', \{ class: 'kg-hero-art' \},\s*(\/\/[^\n]*\s*)?heroStage,\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
   assert.match(src, /h\('div', \{ class: 'kg-heart-row' \}, heartBtn,\s*h\('button', \{ type: 'button', class: 'btn btn-line kg-copy-btn', onclick: \(\) => copyLink\(url, copyBox\) \}, icon\('link', \{ size: 18 \}\), '링크 복사'\)\),/, '하트·링크 복사 줄은 예전 그대로(저장 단추를 섞지 않는다)');
   assert.match(src, /expression: look, seasonName: data\.season\?\.name \|\| '', hearts/, '화면과 같은 표정·시즌·지금 하트 수');

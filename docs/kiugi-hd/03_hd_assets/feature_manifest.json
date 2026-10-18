@@ -1,0 +1,1359 @@
+{
+  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "logicalCanvas": [
+    1024,
+    1024
+  ],
+  "assets": {
+    "male_mouth_03": {
+      "path": "03_hd_assets/features/male_mouth_03.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "6c463f7ac3cd6507847432eef238ca64fb6a7a79b282d52ce597ae9bec013b9b",
+      "source": "03_제작기록/r9/native_features/male_mouth_03_v1.png",
+      "sourceSha256": "9cb84382e6b09267459917284ec2deea77d92c121de0a4b012a2a8929052f697",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 3,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_nose_03": {
+      "path": "03_hd_assets/features/female_nose_03.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "2207b6dccbee220b1b36cbf54d50fcf44eccd2f8737f73a1b819157c1ce64167",
+      "source": "03_제작기록/r9/native_features/female_nose_03_v1.png",
+      "sourceSha256": "e16cf6e8ef85baf7d37fbf15197512a7005e957bfe431c4b87e73f5b9e3a3806",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 3,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_nose_03": {
+      "path": "03_hd_assets/features/male_nose_03.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "3da0c8f49324047371a1baab3e38f3bf4665d7701a825e285472dd78a6398313",
+      "source": "03_제작기록/r9/native_features/male_nose_03_v1.png",
+      "sourceSha256": "14d306ca194fe57a1f68f48255c9716af41f8f80d737d82626585ec62dfe0c44",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 3,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_03": {
+      "path": "03_hd_assets/features/female_mouth_03.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "7fb7efecd1e53a936395cd595d140da1d0637eeffd25871d4dd209872b92bb50",
+      "source": "03_제작기록/r9/native_features/female_mouth_03_v1.png",
+      "sourceSha256": "fe0e0ac593e0664013648120d6acd3d64b9b9546b8bab12dbcbdbf8b70d26953",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 3,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_nose_04": {
+      "path": "03_hd_assets/features/female_nose_04.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "8be47781e2939894cc51b6239ed7d001b056b3582cd0ca6c450b1eddf998f9ea",
+      "source": "03_제작기록/r9/native_features/female_nose_04_v1.png",
+      "sourceSha256": "d619f41ce56226a65fe5f8bada6f2fb6bd14c50b640f3d7fe8e7db458e2e8d31",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 4,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_nose_04": {
+      "path": "03_hd_assets/features/male_nose_04.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "dce678c0ba94350e9fe0ec7a3e882d4c3de7e909db31e7b004c6b39e0870b8a1",
+      "source": "03_제작기록/r9/native_features/male_nose_04_v1.png",
+      "sourceSha256": "5419ddcd6d27732b1d5447d0f5f5c668cdc016f19a276dc4ba674b76633ed7f2",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 4,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_04": {
+      "path": "03_hd_assets/features/male_mouth_04.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "459ee4e47723c65f7976808bb528fc7163186c8755a137c2ac984260eadeb76e",
+      "source": "03_제작기록/r9/native_features/male_mouth_04_v1.png",
+      "sourceSha256": "f4de3c3be37e4a7425d3b6c71cdaac5142a17cbc38b286a3e8dd15ff37c9aa3a",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 4,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_04": {
+      "path": "03_hd_assets/features/female_mouth_04.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "fa730392f89af671c4311bd78fa99408516e18c4a90bd04e5431f4f4fc6dfe89",
+      "source": "03_제작기록/r9/native_features/female_mouth_04_v1.png",
+      "sourceSha256": "19cd0ed1cbce342ba4459cff6caf549f4aaab5430aa36f2be8d187aae0c62c3d",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 4,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_nose_05": {
+      "path": "03_hd_assets/features/female_nose_05.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "e179caaf3cac7ad0e6372ecdf369a33d141820ece891b6212cb9c85c2e266c18",
+      "source": "03_제작기록/r9/native_features/female_nose_05_v1.png",
+      "sourceSha256": "67e3a3cf82ad14913936e685de7e41bee5c1d35d94a9b80ca54e7b44bd83a4c1",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 5,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_nose_05": {
+      "path": "03_hd_assets/features/male_nose_05.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "285618fe80a66996e1c0b5e843ffa86a432e61baeff59ae948376a1dd0eb319f",
+      "source": "03_제작기록/r9/native_features/male_nose_05_v1.png",
+      "sourceSha256": "fe37ba89ccdfc663fcbee26c6add0e8e366ed218d2a1d718f109ddc0c471d542",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 5,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_nose_06": {
+      "path": "03_hd_assets/features/male_nose_06.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "2eeee1931415a5956ab25bcc8b2da49d861155ab1c0f1b5b04d18161499f09a1",
+      "source": "03_제작기록/r9/native_features/male_nose_06_v1.png",
+      "sourceSha256": "e0025840e842e3c2ab67e9370a7be39eb51fe860cc8fbb2b695201302d903661",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 6,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_nose_06": {
+      "path": "03_hd_assets/features/female_nose_06.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "031396462edb856dc284f5046e426a9f9de63d53535abd56787d72892b98bc5b",
+      "source": "03_제작기록/r9/native_features/female_nose_06_v1.png",
+      "sourceSha256": "4156d5fdb0615051dbb657293d33e82aab31a2847ba229025a6598ac6c59c88c",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 6,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_nose_07": {
+      "path": "03_hd_assets/features/female_nose_07.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "fcaadf56e5714b9ec52fb1ab586cd0a15c13b4958b7e2f0fd9dfb65abc618327",
+      "source": "03_제작기록/r9/native_features/female_nose_07_v1.png",
+      "sourceSha256": "96926eb581d7d458742ed94bfc881c131995791eaa363c0d7047ac2bf4da5923",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 7,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_nose_07": {
+      "path": "03_hd_assets/features/male_nose_07.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "e8949b2224304ad1cdccc8e87d89deaa553dc9fa4474804cd9f0c9f0e1b0f3b7",
+      "source": "03_제작기록/r9/native_features/male_nose_07_v1.png",
+      "sourceSha256": "db86ce2f3348d6b8ccbf6d4a06dbe5b0f1b13e7c4839c4efca3901ef565dab60",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 7,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_05": {
+      "path": "03_hd_assets/features/female_mouth_05.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "00a3c04f9e28c8732ddc85f46eb33102ea89a5ed169a2a1d8049b44eab845540",
+      "source": "03_제작기록/r9/native_features/female_mouth_05_v1.png",
+      "sourceSha256": "a0df0739008234da064c164e9c99829c7bc7d2e85c8db1077712a3d696a8e837",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 5,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_05": {
+      "path": "03_hd_assets/features/male_mouth_05.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "22ade82cb41f89e922b7083057ace8685a1887476c85f03122b50a695ba5e697",
+      "source": "03_제작기록/r9/native_features/male_mouth_05_v1.png",
+      "sourceSha256": "eaa5392233a21646d8bd0096304930cc7cff141d0bd535f6fd74bb6e77eb87e2",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 5,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_06": {
+      "path": "03_hd_assets/features/female_mouth_06.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "b0deb00eb112e89f53158f9178b320a37d3b457dbc150bdfc787d53b28d1e645",
+      "source": "03_제작기록/r9/native_features/female_mouth_06_v1.png",
+      "sourceSha256": "5671ee31f472b897fb2c8cf9c649d4c4473e044722488dd2d4afd18b0c1e0d1b",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 6,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_06": {
+      "path": "03_hd_assets/features/male_mouth_06.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "4be2c9483efddaa529590fe98d92df13677e1256420c1d7d849b543154dad332",
+      "source": "03_제작기록/r9/native_features/male_mouth_06_v1.png",
+      "sourceSha256": "a82ce4f4aabe8fd1582c8ac428d11dccb084c4c53818c1e2c573a6853c037988",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 6,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_07": {
+      "path": "03_hd_assets/features/female_mouth_07.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "9d341d039757e8c6af4b1ecdd81a5cea898902d8983608d2b51347816c1df02c",
+      "source": "03_제작기록/r9/native_features/female_mouth_07_v1.png",
+      "sourceSha256": "6bc58d3324da59960d74049fbe2aaad9595242ead0dbc352cf9a7d4f8430cda6",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 7,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_07": {
+      "path": "03_hd_assets/features/male_mouth_07.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "bbfb6424281b1f29f2e2011db5d98251568a913555633809e0251fab18db556d",
+      "source": "03_제작기록/r9/native_features/male_mouth_07_v1.png",
+      "sourceSha256": "61f8bac8063cd27760cf7df9ce0ffc2c53ec61a7e85f5d5dfba5197f6040af0b",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 7,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_03_smile": {
+      "path": "03_hd_assets/features/female_mouth_03_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "ee46a23beb02d266cec1ccfc0193a67dd7a6582123e39a7c30d06d3ba54ea010",
+      "source": "03_제작기록/r9/native_features/female_mouth_03_smile_v1.png",
+      "sourceSha256": "9bb473df19d0bd58d84ca886998c3b7ce87d33f35adbd3d5102b79a84161567b",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 3,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_03_smile": {
+      "path": "03_hd_assets/features/male_mouth_03_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "1412919b41a349f7dbc0e79ff28c8be7d002176a55532348ac17b5b0d6953c00",
+      "source": "03_제작기록/r9/native_features/male_mouth_03_smile_v1.png",
+      "sourceSha256": "32bae38733fe8f7383055c3ae359a37bfad84279f319f50e5c0b7fbbc235b0c7",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 3,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_04_smile": {
+      "path": "03_hd_assets/features/female_mouth_04_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "c8c280a716bf89ae4f76eb2d69e4521efba7c32f7fd5679f74f99bf774f1df12",
+      "source": "03_제작기록/r9/native_features/female_mouth_04_smile_v1.png",
+      "sourceSha256": "4a7bf6c9682f30f8dd36083d55b0ccbc5edd9a1cf0e374dc65c19f29c6368fe9",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 4,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_04_smile": {
+      "path": "03_hd_assets/features/male_mouth_04_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "b20787195ac32d09efc741436a38e48ac518e1c860a8fd4bfa32496050d61d43",
+      "source": "03_제작기록/r9/native_features/male_mouth_04_smile_v1.png",
+      "sourceSha256": "2cecb750e5ba78b5b3fc24efce2114b41586bd7ad95f77fdf493a1563c082f65",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 4,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_eyes_01_smile": {
+      "path": "03_hd_assets/features/female_eyes_01_smile.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "53a223d5003f87f9c413df48224cc149c9e29dce032bd47fdc52ceee2d056eaa",
+      "source": "03_제작기록/r9/native_features/female_eyes_01_smile_v1.png",
+      "sourceSha256": "6b606ec1bddc565a0feb255d0fdaf813b11031aa563acb6f445426403f0efedc",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 1,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_eyes_01_smile": {
+      "path": "03_hd_assets/features/male_eyes_01_smile.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "f095c5c366d29c3052e283a927019ac892bcebdfdfef03c927ce061d1459e266",
+      "source": "03_제작기록/r9/native_features/male_eyes_01_smile_v1.png",
+      "sourceSha256": "969ce830fdeb9bc9d929821b0a88402bb3c9f388b286d54fa4e91b5d35e2ef5e",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 1,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_05_smile": {
+      "path": "03_hd_assets/features/female_mouth_05_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "12a24f55ee12d73314d71562da84ca1fdd8ff6ba472d936d3ffc619e4bb5f70b",
+      "source": "03_제작기록/r9/native_features/female_mouth_05_smile_v1.png",
+      "sourceSha256": "df6835fd2c75e488e1fa7dad64489df47ebbaf5bb7c7443e85c7ab8e8a3f2b33",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 5,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_06_smile": {
+      "path": "03_hd_assets/features/female_mouth_06_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "18d00a39d6adce1f05c046ffdd8dfa5e43e13ffa6e690354591e993399d45177",
+      "source": "03_제작기록/r9/native_features/female_mouth_06_smile_v1.png",
+      "sourceSha256": "f174691aa9518ebdf8c9be10d129761a01055e6e059ec7df16037d83f4b5c591",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 6,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_05_smile": {
+      "path": "03_hd_assets/features/male_mouth_05_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "2ac4efb56596ecfcacca45ed80c030d37a0480d1f3ac82cb9c90e13c0af37319",
+      "source": "03_제작기록/r9/native_features/male_mouth_05_smile_v1.png",
+      "sourceSha256": "1978851f99bd24eb18c24680931bfba186c785138f56686db6722c7047fd0a57",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 5,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_06_smile": {
+      "path": "03_hd_assets/features/male_mouth_06_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "96b407e32cd9569b48c9c6efa5e622673eb2d285be90d9cfc97e4f4bd2d6e095",
+      "source": "03_제작기록/r9/native_features/male_mouth_06_smile_v1.png",
+      "sourceSha256": "58441ed3275d5b1a40fd49c45d0b6471d2045a04607fcef5a14b08f0e5cb47bb",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 6,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_07_smile": {
+      "path": "03_hd_assets/features/female_mouth_07_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "94250cc41a1c793b846ffee2f6d9e689374d34d7887a18d1cac6062211fb4336",
+      "source": "03_제작기록/r9/native_features/female_mouth_07_smile_v1.png",
+      "sourceSha256": "d43697fd67719ca077e6d75f6b79374740fb2674d642d4b1e31ca8643af43df0",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 7,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_07_smile": {
+      "path": "03_hd_assets/features/male_mouth_07_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "0c0564c4b481d6b3e5934190338455209bc1f6b4b0b5f34ac1155a08f780a8d7",
+      "source": "03_제작기록/r9/native_features/male_mouth_07_smile_v1.png",
+      "sourceSha256": "e8fd63d44e436d3d483d0f0fb6329b9428f62d7d7b453f6f81bfee19bd847f9b",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 7,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_01_smile": {
+      "path": "03_hd_assets/features/female_mouth_01_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "118c0f762d0ccf9d3cd56f040feb7520d3c7f01653d4282b731cadaca818bf71",
+      "source": "03_제작기록/r9/native_features/female_mouth_01_smile_v1.png",
+      "sourceSha256": "d1f0a84ba9c50e895f736bc70f4fe7f9223db579e0cf0e2a081e511524fd01b1",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 1,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_01_smile": {
+      "path": "03_hd_assets/features/male_mouth_01_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "9556c1aea8e1268d613b13fa10799e7f7fb8f446bc1be9f6345f761c43e2bc7a",
+      "source": "03_제작기록/r9/native_features/male_mouth_01_smile_v1.png",
+      "sourceSha256": "4b31e9d11ba494d0e157cb7a3ed72b9a73d461fbda61e4345b076c8f69199e5d",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 1,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_eyes_01_cry": {
+      "path": "03_hd_assets/features/female_eyes_01_cry.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "1aaf7d0dd9accd76695b76d4b7097a7047d71553336482ded5d774f3b9cc35f7",
+      "source": "03_제작기록/r9/native_features/female_eyes_01_cry_v1.png",
+      "sourceSha256": "1d0209b68bf99d9471bc082b0aeef4ee531140390725c14d7c4185a4384092ee",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 1,
+      "expression": "cry",
+      "sourceRgbPainted": false
+    },
+    "female_eyes_02": {
+      "path": "03_hd_assets/features/female_eyes_02.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "41025531c87a77a8fff4ebfe0df6a5e8fddf688e0c01d8a09355aae82c190dfd",
+      "source": "03_제작기록/r9/native_features/female_eyes_02_v1.png",
+      "sourceSha256": "af04d5bd6bf916965b05b46d8476a8262e23970799526e1c950230da1609a215",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_eyes_02_cry": {
+      "path": "03_hd_assets/features/female_eyes_02_cry.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "72e2a30802780f9f46bd54d02300c6cca183fb3da1c9239d4aeb4859e5e865c4",
+      "source": "03_제작기록/r9/native_features/female_eyes_02_cry_v1.png",
+      "sourceSha256": "9ffc47f799dc074a56d8f1660a9c796f9cb156160adb906f49ba19eae5e51abe",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "cry",
+      "sourceRgbPainted": false
+    },
+    "female_eyes_02_smile": {
+      "path": "03_hd_assets/features/female_eyes_02_smile.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "6ff9e6216ba7d533f6dd6271a65f8e1773950ba39b111832f872959a128104b9",
+      "source": "03_제작기록/r9/native_features/female_eyes_02_smile_v1.png",
+      "sourceSha256": "43c1034750b0a5a3f8253d7c9e854781ab8dc514695e1cab8f90ffa4ea7e3a76",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_02": {
+      "path": "03_hd_assets/features/female_mouth_02.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "f56769e2f3b785b30613aca77b560b6c8557f2d7bec05de075ad1ba1f375c8f0",
+      "source": "03_제작기록/r9/native_features/female_mouth_02_v1.png",
+      "sourceSha256": "535a4d36f438069308cb8d7b4a2e80ee82249c4ed470f578972b54ebe4561fc6",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "female_mouth_02_smile": {
+      "path": "03_hd_assets/features/female_mouth_02_smile.png",
+      "rect": [
+        492.8612440191388,
+        186.8676236044657,
+        40.06379585326953,
+        15.055821371610843
+      ],
+      "pixelSize": [
+        157,
+        59
+      ],
+      "density": 3.91875,
+      "sha256": "9d5cc2f2cef6dc689b7b92ec65bcc4c4b719252c92c072d0ab1dc44b02304adb",
+      "source": "03_제작기록/r9/native_features/female_mouth_02_smile_v1.png",
+      "sourceSha256": "63980de7eea03afdbf8c420abbbd81fc8e5a30e03b3d96e441f91de09579c14f",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 2,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "female_nose_02": {
+      "path": "03_hd_assets/features/female_nose_02.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        20.92503987240829
+      ],
+      "pixelSize": [
+        68,
+        82
+      ],
+      "density": 3.91875,
+      "sha256": "4a989733ffe126e849f8478eef6abb3233fea29464f9bf23439624502f7c419e",
+      "source": "03_제작기록/r9/native_features/female_nose_02_v1.png",
+      "sourceSha256": "5789e6be44ed1b7aa728fe5101034b60558260096ae6365e13c1fb9d5050a2ef",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_eyes_01_cry": {
+      "path": "03_hd_assets/features/male_eyes_01_cry.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "c3fde434b93207f223ea1053a3f9a67b36461fda61f833a1c008533d3c438a53",
+      "source": "03_제작기록/r9/native_features/male_eyes_01_cry_v1.png",
+      "sourceSha256": "b9af9021a6505da04772643b010610893970f31568373b46b13144744d99ecc4",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 1,
+      "expression": "cry",
+      "sourceRgbPainted": false
+    },
+    "male_eyes_02": {
+      "path": "03_hd_assets/features/male_eyes_02.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "7729d15db12016f5cb35690c77188ed4debdb4ae3af909c7abcd65e1e9ca8d5b",
+      "source": "03_제작기록/r9/native_features/male_eyes_02_v1.png",
+      "sourceSha256": "ee748861257945c2d187c2e367d4f3b518a8ed08ca90e7d625ff31cb2a4939fe",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_eyes_02_cry": {
+      "path": "03_hd_assets/features/male_eyes_02_cry.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "5135075d99a59a5076cb5c9032ac44bf824a15a9d245447f7a04f9d57d6fc4b3",
+      "source": "03_제작기록/r9/native_features/male_eyes_02_cry_v1.png",
+      "sourceSha256": "cb61b49acd7c7bbca22dc6371372101ab98c0411178cb2adadfab2284dbb13cf",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "cry",
+      "sourceRgbPainted": false
+    },
+    "male_eyes_02_smile": {
+      "path": "03_hd_assets/features/male_eyes_02_smile.png",
+      "rect": [
+        472.4465709728868,
+        146.548644338118,
+        80.38277511961722,
+        31.897926634768737
+      ],
+      "pixelSize": [
+        315,
+        125
+      ],
+      "density": 3.91875,
+      "sha256": "c2898077a47b73032e025b53e3249d89cdbe6c06a57e367b083c418eac58e41b",
+      "source": "03_제작기록/r9/native_features/male_eyes_02_smile_v1.png",
+      "sourceSha256": "6bdc9d1bb889d9f159ddb346ed1e70b73235c84062b521bf370f9f3dfe1f5ef2",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "eyes",
+      "number": 2,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_02": {
+      "path": "03_hd_assets/features/male_mouth_02.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "3ec1b94440b4cd5252f3de8b74ef38915d0c04b83f54d5cbd7acfdf6621f1c3f",
+      "source": "03_제작기록/r9/native_features/male_mouth_02_v1.png",
+      "sourceSha256": "6c27d73c66417a37a0fbce9961a537b3646b863e6d0861b349aa275fc06a2465",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    },
+    "male_mouth_02_smile": {
+      "path": "03_hd_assets/features/male_mouth_02_smile.png",
+      "rect": [
+        492.8612440191388,
+        185.59170653907495,
+        40.06379585326953,
+        14.290271132376395
+      ],
+      "pixelSize": [
+        157,
+        56
+      ],
+      "density": 3.91875,
+      "sha256": "8ab52c0abef18e4fe73491b7bc4fad804815af60be6e5d22c89ae36c20c63de3",
+      "source": "03_제작기록/r9/native_features/male_mouth_02_smile_v1.png",
+      "sourceSha256": "267ec168a8f07c47de2d723843814993216798656928ede49ebb006454c72a20",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "mouth",
+      "number": 2,
+      "expression": "smile",
+      "sourceRgbPainted": false
+    },
+    "male_nose_02": {
+      "path": "03_hd_assets/features/male_nose_02.png",
+      "rect": [
+        504.59968102073367,
+        165.68740031897926,
+        17.352472089314194,
+        19.39393939393939
+      ],
+      "pixelSize": [
+        68,
+        76
+      ],
+      "density": 3.91875,
+      "sha256": "61c6c6b65d717c900db0312a1b9140e4fa222c1e519d194895c8cb4dac5aa308",
+      "source": "03_제작기록/r9/native_features/male_nose_02_v1.png",
+      "sourceSha256": "402ccbcf17b36358c43f29a00d8cc8bc24288f2e2eb6be9b3fa7cddb59c16a8c",
+      "wholePortraitTransform": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "category": "nose",
+      "number": 2,
+      "expression": "normal",
+      "sourceRgbPainted": false
+    }
+  },
+  "scope": "Native-source feature patches over the same complete native face; currently produced candidates only, not final artwork approval.",
+  "registryKind": "native_source_registration",
+  "readinessAuthority": [
+    "STATUS.json",
+    "02_클로드인계/HANDOFF_READY.json"
+  ]
+}

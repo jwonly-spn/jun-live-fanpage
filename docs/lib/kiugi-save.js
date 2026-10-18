@@ -18,11 +18,10 @@
 //   바로 내려받을 수 없는 곳(아이폰·아이패드 — 사진 앱에 넣을 수 없다, 앱 안 브라우저(카카오톡 등)) → 파일을 담은 공유 창(“이미지 저장”을 고른다).
 //   공유 창도 안 되면(예전 아이폰·앱 안 브라우저) → 그림을 보여 주고 길게 눌러 저장.
 // DOM·캔버스는 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 그릴 차례·배치·글·파일 이름을 시험한다).
-import { ART } from '../kiugi/kiugi-r7-data.js';
 import hairColor, { recolor } from '../kiugi/kiugi-hair-color.js';
 import { normalizeLook } from '../kiugi/kiugi-look.js';
 import { SIZE, partOf, resolveLook, faceVariants, anchorsOf, ACCESSORY_ORDER } from '../kiugi/kiugi-art.js';
-import { preloadImage } from './kiugi-draw.js';
+import { preloadImage, ART } from './kiugi-draw.js';
 import { h, icon, toast, copyText } from './dom.js';
 
 export const SAVE_W = 1080;
@@ -67,6 +66,12 @@ export function alphaBox(data, w, hgt, min = 16) {
   let x0 = w, y0 = hgt, x1 = -1, y1 = -1;
   for (let y = 0; y < hgt; y++) for (let x = 0; x < w; x++) if (data[(y * w + x) * 4 + 3] > min) { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
   return x1 < 0 ? { x0: 0, y0: 0, x1: w, y1: hgt } : { x0, y0, x1: x1 + 1, y1: y1 + 1 };
+}
+// 고해상도로 그릴 칸(1024 좌표 [x, y, w, h] — 정수): 호환 그림의 알파 상자를 조금(4) 넉넉히, 캔버스 안
+export function hdViewportOf(box, pad = 4) {
+  const x0 = Math.max(0, Math.floor(box.x0) - pad), y0 = Math.max(0, Math.floor(box.y0) - pad);
+  const x1 = Math.min(SIZE, Math.ceil(box.x1) + pad), y1 = Math.min(SIZE, Math.ceil(box.y1) + pad);
+  return [x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0)];
 }
 // 알파 상자 → 그릴 자리 {x, y, f(줄이는 배수 ≤ 1), bottom(발끝 y)}: 상자 가운데 = 그림 가운데, 위·아래·옆 여백 안에 들어가게.
 export function placeCharacter(box) {
@@ -424,8 +429,12 @@ async function fontsReady(doc, text) {
   await Promise.race([wait, new Promise((r) => setTimeout(r, 3000))]);
 }
 
+// 고해상도 캐릭터(2026-10-18 R9): hd({dj, look, expression, viewport, scale, base}) → {canvas} | null (lib/kiugi-hd.js renderHdCharacter — 캐릭터 페이지가 넘겨 준다).
+//  자리·크기는 지금처럼 호환 그림(1024)의 알파 상자로 정하고, 그 칸만 고해상도로 저장 그림 크기(char.s × 줄인 배수)에 바로 그려 그대로 올린다(늘이고 줄이지 않는다).
+//  고해상도로 그릴 수 없는 모습이거나 HD_WAIT 안에 못 그리면 호환 그림 그대로. hd 를 안 주면(노드 시험) 호환 그림.
+export const HD_WAIT = 15000;
 // card = {id, character(DJ 캐릭터), worn, level, expression(레벨 표정), seasonName, hearts, pet({id, season, stage} — 함께하는 펫, 없으면 null)} → 1080×1350 캔버스
-export async function renderSaveImage(card, { base = '/', load = preloadImage, doc = document } = {}) {
+export async function renderSaveImage(card, { base = '/', load = preloadImage, doc = document, hd = null } = {}) {
   const plan = characterPlan(card.character || {}, { worn: card.worn && typeof card.worn === 'object' ? card.worn : {} }, card.expression);
   const urls = planUrls(plan, base), images = new Map();
   await Promise.all(urls.map(async (u) => { images.set(u, await load(u)); }));
@@ -463,8 +472,21 @@ export async function renderSaveImage(card, { base = '/', load = preloadImage, d
   const shade = tone === 'scene' ? '0, 0, 0' : '58, 44, 72', deep = tone === 'scene' ? 0.55 : 0.32;
   ellipseGlow(ctx, L.center.x + dx, at.bottom - 6, L.shadow.rx * at.f, L.shadow.ry * at.f, [[0, `rgba(${shade}, ${deep})`], [1, `rgba(${shade}, 0)`]]);
   if (pet) ellipseGlow(ctx, pet.x + (pet.box.x0 + pet.box.x1) / 2, at.bottom - 4, (pet.box.x1 - pet.box.x0) * 0.42, L.shadow.ry * at.f * 0.8, [[0, `rgba(${shade}, ${deep - 0.04})`], [1, `rgba(${shade}, 0)`]]);
-  // 4) 캐릭터(1024 그림을 char.s × 줄이는 배수로 한 번만) · 그 앞에 펫
-  ctx.drawImage(ch, at.x + dx, at.y, ch.width * s * at.f, ch.height * s * at.f);
+  // 4) 캐릭터(1024 그림을 char.s × 줄이는 배수로 한 번만 — 고해상도면 그 크기로 바로 그린 것) · 그 앞에 펫
+  const S = s * at.f;
+  let hdDone = false;
+  if (hd) {
+    const v = hdViewportOf(raw);
+    let timer = 0;
+    const job = Promise.resolve().then(() => hd({ dj: card.character || {}, look: { worn: card.worn && typeof card.worn === 'object' ? card.worn : {} }, expression: card.expression, viewport: v, scale: S, base }));
+    try {
+      const out = await Promise.race([job, new Promise((resolve) => { timer = setTimeout(() => resolve(null), HD_WAIT); })]);
+      if (out?.canvas) { ctx.drawImage(out.canvas, Math.round(at.x + dx + v[0] * S), Math.round(at.y + v[1] * S)); free(out.canvas); hdDone = true; }
+      else job.then((late) => free(late?.canvas), () => {}); // 늦게 끝난 고해상도 캔버스는 바로 비운다
+    } catch (e) { console.warn('저장 그림을 고해상도로 그리지 못해 호환 그림으로 저장해요:', e?.message || e); }
+    finally { clearTimeout(timer); }
+  }
+  if (!hdDone) ctx.drawImage(ch, at.x + dx, at.y, ch.width * S, ch.height * S);
   free(ch);
   if (pet) { ctx.drawImage(pet.canvas, pet.x, pet.y); free(pet.canvas); }
   // 5) 맨 위 사이트 표시 · 맨 아래 아이디 · 레벨 줄
@@ -567,8 +589,8 @@ export function hintSaveButton(btn, search = location.search) {
 }
 
 // 만들고 저장하기. → 'shared' · 'downloaded' · 'preview' · 'cancelled'
-export async function saveCharacterImage(card, { base = '/', returnTo = null } = {}) {
-  const canvas = await renderSaveImage(card, { base });
+export async function saveCharacterImage(card, { base = '/', returnTo = null, hd = null } = {}) {
+  const canvas = await renderSaveImage(card, { base, hd });
   let blob;
   try { blob = await canvasBlob(canvas); } finally { free(canvas); }
   const name = saveFileName(card.id);

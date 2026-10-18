@@ -18,21 +18,30 @@ const catalog = async () => {
   return buildCatalog(await Promise.all(manifest.seasons.map(read)), { files: manifest.files, adjust: {} });
 };
 
-test('새 그림체 R7 그림 목록(2026-10-18 Codex R7 → 같은 날 R8 DJ_STYLE_20261018_LINES_R8 — 파일·id 그대로): 몸 2·머리 40·눈 12·코 4·입 8·옷 240 + 공통 배경 10, 주소 ?v= 는 해시 앞 12자, 그림·마스크가 모두 사이트에 있다', async () => {
-  const { ART } = await import('../docs/kiugi/kiugi-r7-data.js');
+// 그림 목록(먼치킨이 만든 kiugi-<판>-data.js — 사이트는 lib/kiugi-draw.js 한 곳에서 부른다) · 그 그림 폴더 이름(r9)
+const { ART } = await import('../docs/lib/kiugi-draw.js');
+const DIR = ART.dir.replace(/^\/kiugi\/|\/$/g, '');
+
+test('새 그림체 R9 그림 목록(2026-10-18 Codex DJ_STYLE_20261018_REDO_R9 — R7 과 같은 파일 이름·id 규칙, 코·입 1~7): 몸 2·머리 40·눈 12·코 14·입 28·옷 240 + 공통 배경 10, 주소 ?v= 는 해시 앞 12자, 그림·마스크가 모두 사이트에 있다', async () => {
   const manifest = await read('manifest.json');
-  assert.equal(ART.packageId, 'DJ_STYLE_20261018_LINES_R8'); assert.equal(ART.version, 'r7'); assert.equal(ART.dir, '/kiugi/r7/'); assert.equal(ART.size, 1024);
+  assert.equal(ART.packageId, 'DJ_STYLE_20261018_REDO_R9'); assert.equal(ART.version, 'r9'); assert.equal(ART.dir, '/kiugi/r9/'); assert.equal(ART.size, 1024);
   const count = {};
   for (const a of ART.assets) count[a.category] = (count[a.category] || 0) + 1;
-  assert.deepEqual(count, { body: 2, eyes: 12, nose: 4, mouth: 8, hair: 40, top: 40, bottom: 40, shoe: 40, accessory: 40, hat: 40, outfit: 40, background: 10 });
-  const r7 = new Set(manifest.files.r7), bg = new Set(manifest.files.bg);
+  assert.deepEqual(count, { body: 2, eyes: 12, nose: 14, mouth: 28, hair: 40, top: 40, bottom: 40, shoe: 40, accessory: 40, hat: 40, outfit: 40, background: 10 });
+  // 코·입 1~7(남녀 각각, 입은 기본·웃는 입) · 눈 1~2(기본·웃는 눈·우는 눈)
+  for (const g of ['female', 'male']) for (let n = 1; n <= 7; n++) {
+    assert.ok(ART.assets.some((a) => a.category === 'nose' && a.body === g && a.number === n), `${g} 코 ${n}`);
+    for (const e of ['normal', 'smile']) assert.ok(ART.assets.some((a) => a.category === 'mouth' && a.body === g && a.number === n && (a.expression || 'normal') === e), `${g} 입 ${n} ${e}`);
+  }
+  const art = new Set(manifest.files[DIR]), bg = new Set(manifest.files.bg);
   for (const a of ART.assets) {
     assert.match(a.v, /^[0-9a-f]{12}$/, a.id);
-    assert.ok((a.category === 'background' ? bg : r7).has(a.file), a.file);
+    assert.ok((a.category === 'background' ? bg : art).has(a.file), a.file);
     if (a.category === 'background') assert.equal(a.dir, '/kiugi/bg/', a.id + ' 공통 배경은 kiugi/bg/');
-    for (const k of ['cut', 'hem', 'hair', 'feet', 'shaft']) if (a[k]) { assert.ok(r7.has(a[k].file), a[k].file); assert.match(a[k].v, /^[0-9a-f]{12}$/); }
+    for (const k of ['cut', 'hem', 'hair', 'feet', 'shaft']) if (a[k]) { assert.ok(art.has(a[k].file), a[k].file); assert.match(a[k].v, /^[0-9a-f]{12}$/); }
   }
-  assert.equal(manifest.files.r7.length, 576, '그림 306 + 마스크 236 + 신발 목 자르기 34');
+  assert.equal(manifest.files[DIR].length, 606, '그림 336 + 마스크 236 + 신발 목 자르기 34');
+  assert.equal(manifest.files.r7, undefined, '예전 R7·R8 그림 폴더(r7)는 뺐다');
   assert.equal(manifest.files.bg.length, 10);
   // 기준점(anchors.json — 볼 발그레·둥실 하트 자리): 남녀 모두 얼굴 축·정수리·턱·눈·코·입
   for (const g of ['female', 'male']) for (const k of ['faceAxisX', 'hairCrown', 'chin', 'eyes', 'nose', 'mouth', 'floorY']) assert.ok(ART.anchors[g][k] !== undefined, `${g}.${k}`);
@@ -47,19 +56,22 @@ test('주소 k/<8자>: 헷갈리는 글자·다른 길이는 notfound, 만들고
   assert.equal(KIUGI_DEMO.slug, DEMO_KIUGI_SLUG);
 });
 
-test('사이트에 복사한 키우기 파일(새 그림체 R7): 그림 스크립트·모양 규칙·머리색(tone-map-v1)·그림 목록·시즌 목록·manifest, 예전 V5·V4·V3·V2 그림 폴더는 없다', async () => {
+test('사이트에 복사한 키우기 파일(새 그림체 R9): 그림 스크립트·모양 규칙·머리색(tone-map-v1)·그림 목록·시즌 목록·manifest, 예전 R7·V5·V4·V3·V2 그림 폴더는 없다', async () => {
   const manifest = await read('manifest.json');
   assert.equal(manifest.v, 1); assert.ok(manifest.seasons.includes('season-s1.json'));
-  for (const old of ['v5', 'v4', 'v3', 's1']) assert.equal(manifest.files[old], undefined, `예전 그림 폴더 ${old} 는 사이트에서도 뺐다`);
+  for (const old of ['r7', 'v5', 'v4', 'v3', 's1']) assert.equal(manifest.files[old], undefined, `예전 그림 폴더 ${old} 는 사이트에서도 뺐다`);
   const s1 = await read('season-s1.json');
-  assert.equal(s1.season.id, 's1'); assert.equal(s1.art, 'r7'); assert.equal(s1.items.length, 130, '한벌옷·상의·하의·신발·모자·악세사리 20씩 · 배경 10');
-  for (const f of ['top_20_male.png', 'bottom_20_female_hem.png', 'bottom_20_female_shaft.png', 'hat_16_female.png', 'hat_16_female_hair.png', 'accessory_17_male.png', 'female_eyes_02_cry.png', 'male_mouth_01_smile.png', 'female_body_feet.png']) assert.ok(manifest.files.r7.includes(f), f);
+  // 시즌 목록의 art 는 먼치킨 시즌 파일 그대로(R7 에서 생긴 칸 — 새 그림체 판)
+  assert.equal(s1.season.id, 's1'); assert.match(s1.art, /^r(7|9)$/); assert.equal(s1.items.length, 130, '한벌옷·상의·하의·신발·모자·악세사리 20씩 · 배경 10');
+  for (const f of ['top_20_male.png', 'bottom_20_female_hem.png', 'bottom_20_female_shaft.png', 'hat_16_female.png', 'hat_16_female_hair.png', 'accessory_17_male.png', 'female_eyes_02_cry.png', 'male_mouth_01_smile.png', 'female_body_feet.png',
+    'female_nose_07.png', 'male_nose_03.png', 'female_mouth_07_smile.png', 'male_mouth_05.png']) assert.ok(manifest.files[DIR].includes(f), f);
   // 시즌 칭호 5개(입는 칸 없음): 배지 그림은 titles/<id>.png — manifest 의 titles 목록과 파일이 모두 있다
   assert.equal(s1.seasonRewards.length, 5);
   for (const r of s1.seasonRewards) { assert.equal(r.slot, undefined, r.id + ' 칸 없음(칭호)'); assert.equal(r.image, `titles/${r.id}.png`, r.id); }
   assert.deepEqual([...manifest.files.titles].sort(), s1.seasonRewards.map((r) => r.id + '.png').sort());
   for (const f of manifest.files.titles) assert.deepEqual([...(await readFile(new URL('../docs/kiugi/titles/' + f, import.meta.url))).subarray(0, 4)], [0x89, 0x50, 0x4e, 0x47], f + ' PNG');
-  for (const name of ['kiugi-art.js', 'kiugi-look.js', 'kiugi-hair-color.js', 'kiugi-r7-data.js']) await readFile(new URL('../docs/kiugi/' + name, import.meta.url));
+  for (const name of ['kiugi-art.js', 'kiugi-look.js', 'kiugi-hair-color.js', `kiugi-${DIR}-data.js`]) await readFile(new URL('../docs/kiugi/' + name, import.meta.url));
+  await assert.rejects(readFile(new URL('../docs/kiugi/kiugi-r7-data.js', import.meta.url)));
   await assert.rejects(readFile(new URL('../docs/kiugi/kiugi-v5-data.js', import.meta.url)));
   await assert.rejects(readFile(new URL('../docs/kiugi/v5/hair-color-luts.json', import.meta.url)));
   await assert.rejects(readFile(new URL('../docs/kiugi/kiugi-v4-data.js', import.meta.url)));
@@ -97,7 +109,7 @@ test('옷 표·레벨 표정(새 그림체 R7): 한벌옷·상의·하의·신�
   assert.equal(expressionFor(buildCatalog([]), 's1', 5).name, '기본');
 });
 
-test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 주소에 맞게: style→fill, 그림 파일은 BASE/kiugi/r7(배경 bg) 아래, 마스크는 속성으로', async () => {
+test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 주소에 맞게: style→fill, 그림 파일은 BASE/kiugi/r9(배경 bg) 아래, 마스크는 속성으로', async () => {
   assert.equal(cspSafeSvg('<svg><rect style="fill:var(--kg-stage,#EFE9F8)"/><image href="/kiugi/r7/a.png?v=0123456789ab"/><image href="/kiugi/bg/b.png?v=0123456789ab"/><g style="opacity:.5"/></svg>', B),
     '<svg><rect fill="#EFE9F8"/><image href="/jun-live-fanpage/kiugi/r7/a.png?v=0123456789ab"/><image href="/jun-live-fanpage/kiugi/bg/b.png?v=0123456789ab"/><g/></svg>');
   const c = await catalog();
@@ -105,7 +117,7 @@ test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 �
   const svg = characterMarkup(c, { name: '먼치', gender: 'f', hair: 'long', hairColor: 'pink', skin: 's2' }, { outfit: 'outfit_03', top: 'top_01', shoes: 'shoe_02', head: 'accessory_06', face: '<script>', hat: 'hat_16', aura: 'moonlight-aura' }, 8, { seasonId: 's1', base: B, label: '밤톨이님의 "캐릭터"' });
   assert.doesNotMatch(svg, / style="/); assert.match(svg, new RegExp(`fill="${STAGE}"`));
   for (const f of ['female_body', 'female_body_feet', 'female_hair_02_back', 'female_hair_02_front', 'outfit_03_female', 'outfit_03_female_cut', 'outfit_03_female_hem', 'outfit_03_female_shaft', 'shoe_02_female', 'shoe_02_female_cut', 'accessory_06_female', 'hat_16_female', 'hat_16_female_hair'])
-    assert.match(svg, new RegExp(`href="/jun-live-fanpage/kiugi/r7/${f}\\.png\\?v=[0-9a-f]{12}"`), f);
+    assert.match(svg, new RegExp(`href="/jun-live-fanpage/kiugi/${DIR}/${f}\\.png\\?v=[0-9a-f]{12}"`), f);
   assert.doesNotMatch(svg, /top_01_female/, '한벌옷이 상의를 덮는다');
   assert.match(svg, /mask="url\(#kg[a-z0-9]+_c0\)"/); assert.match(svg, /mask-type="alpha"/);
   assert.doesNotMatch(svg, /href="\/kiugi\//);
@@ -114,10 +126,15 @@ test('그림 글을 사이트 규칙(CSP: 인라인 style 금지)과 사이트 �
   assert.match(svg, /^<svg viewBox="0 0 1024 1024"/);
   assert.ok(svg.indexOf('data-step="accessory.head"') < svg.indexOf('data-step="hat"'), '모자는 머리 장식 위(맨 위)');
   // 옷 한 벌(도감): 기본 캐릭터가 그 옷만 입은 모습, 성별 버전, 예전 그림의 옷·예전 시즌 보상 id 는 이름 자리 표시(그림 없음)
-  assert.match(itemMarkup(c, 'outfit_05', { base: B, gender: 'm' }), /kiugi\/r7\/outfit_05_male\.png/);
-  assert.match(itemMarkup(c, 'top_05', { base: B }), /kiugi\/r7\/top_05_female\.png/);
-  assert.match(itemMarkup(c, 'hat_05', { base: B, gender: 'm' }), /kiugi\/r7\/hat_05_male\.png/);
-  assert.match(itemMarkup(c, 'accessory_09', { base: B }), /kiugi\/r7\/accessory_09_female\.png/);
+  assert.match(itemMarkup(c, 'outfit_05', { base: B, gender: 'm' }), new RegExp(`kiugi/${DIR}/outfit_05_male\\.png`));
+  assert.match(itemMarkup(c, 'top_05', { base: B }), new RegExp(`kiugi/${DIR}/top_05_female\\.png`));
+  assert.match(itemMarkup(c, 'hat_05', { base: B, gender: 'm' }), new RegExp(`kiugi/${DIR}/hat_05_male\\.png`));
+  assert.match(itemMarkup(c, 'accessory_09', { base: B }), new RegExp(`kiugi/${DIR}/accessory_09_female\\.png`));
+  // R9 에서 새로 생긴 코·입 번호(3~7)는 그 그림으로, 없는 번호(8~)는 1번으로
+  const face = characterMarkup(c, { gender: 'm', hair: '3', nose: '6', mouth: '7', eyes: '2' }, {}, 3, { seasonId: 's1', base: B });
+  for (const f of ['male_nose_06', 'male_mouth_07_smile', 'male_eyes_02_smile']) assert.match(face, new RegExp(`kiugi/${DIR}/${f}\\.png`), f);
+  const old = characterMarkup(c, { gender: 'f', nose: '8', mouth: '9', eyes: '3' }, {}, 1, { seasonId: 's1', base: B });
+  for (const f of ['female_nose_01', 'female_mouth_01', 'female_eyes_01']) assert.match(old, new RegExp(`kiugi/${DIR}/${f}\\.png`), f);
   for (const id of ['pumpkin-crown', 'acc2_11', 'shoe2_03', 'top_25']) assert.doesNotMatch(itemMarkup(c, id, { base: B, gender: 'm' }), /<image/, id + ' 는 예전 그림의 옷 — 이름 자리 표시');
   assert.match(itemMarkup(c, 'witch-hat', { base: B }), />witch-hat</);
   // 배경(BG10 — 그림체와 상관없는 공통 배경 kiugi/bg/): 맨 아래 장면(남녀 같은 그림), 옷 도감 칸은 장면 전체

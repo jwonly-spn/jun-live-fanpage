@@ -10,7 +10,7 @@ import { getMe, listMine, addMine, removeMine, clearMine, isMine, listFavs, addF
 import { sendHeart, sentToday, sentCount, heartKey, markSent } from '../docs/lib/hearts.js';
 import { swr, peekCached, sameData, primePreview, peekPreview, _resetSwr } from '../docs/lib/swr.js';
 import { CROPS, cropOf, scaleFor, rasterKey, liteUrl, petFit, hashText, FEMALE } from '../docs/lib/raster.js';
-import { ART } from '../docs/kiugi/kiugi-r7-data.js';
+import { ART } from '../docs/lib/kiugi-draw.js';
 
 const require = createRequire(import.meta.url);
 const docs = fileURLToPath(new URL('../docs/', import.meta.url));

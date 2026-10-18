@@ -1,4 +1,4 @@
-// DJ 키우기 그림(새 그림체 R7, 2026-10-18 — Codex 패키지 DJ_STYLE_TEST_20261017_EDGES_R7, 사용자 승인. 다음 R8 은 외곽선만 굵게 — 파일 이름·id·번호가 같아 이 규칙 그대로).
+// DJ 키우기 그림(새 그림체 R7 → R9, 2026-10-18 — Codex 패키지 DJ_STYLE_20261018_REDO_R9. renderer.js 는 R7 과 같아 이 규칙 그대로 — 파일 이름·id 규칙도 같고 코·입 번호만 1~7).
 //  방송 관리 창과 키우기 사이트가 같은 파일로 그린다(문서·DOM 없이 SVG 글을 만든다).
 // 그림 파일: app/public/kiugi/r7/*.png(tools/import-kiugi-r7.mjs 가 패키지에서 해시를 확인해 복사) + 공통 배경 app/public/kiugi/bg/(그림체와 상관없는 장면 10장 — V5 에서 옮김),
 //  목록은 kiugi-r7-data.js(만든 파일), 머리색은 kiugi-hair-color.js(패키지 hair-color.js 와 같은 결과 — 가져오기 도구가 확인).
@@ -14,17 +14,17 @@
 //    R7 머리 그림은 아주 옅은 색이 섞여 있어(완전한 회색이 아니다) 밝기를 먼저 구한다(feColorMatrix → feComponentTransfer table, sRGB). 몸·옷·눈에는 쓰지 않는다.
 //  · 마스크는 그림의 알파만 쓴다. SVG 에서는 <mask mask-type="alpha"> 안에서 흰색 + 알파 뒤집기(지우기 = 1−a) 또는 그대로(남기기)로 쓴다.
 //  · 머리·눈·코·입은 캐릭터 성별 전용 그림(반대 성별 id 를 쓰지 않는다). 옷·신발·모자·악세사리는 디자인 번호를 지키고 캐릭터 성별의 몸 버전을 고른다.
-//  · 그림 주소는 /kiugi/r7/(배경은 /kiugi/bg/) + ?v=<해시 앞 12자> — 예전 그림이 캐시에 남지 않는다(마스크도 마스크 파일 해시).
+//  · 그림 주소는 /kiugi/r9/(배경은 /kiugi/bg/) + ?v=<해시 앞 12자> — 예전 그림이 캐시에 남지 않는다(마스크도 마스크 파일 해시).
 // 옷 id = 그림 디자인 이름: outfit_01~20(한벌옷) · top_01~20(상의) · bottom_01~20(하의) · shoe_01~20(신발) · hat_01~20(모자) · accessory_01~20(악세사리 — 자리는 그림 목록) · background_01~10(배경).
 //  예전 그림(V2~V5)의 옷 id(acc2_·shoe2_·reward_·V3 accessory_ 의 예전 뜻 등)는 R7 로 바꿀 때 한 번 냥을 돌려주고 지웠다(features/kiugi.mjs migrateArt) — 그림 목록에 없는 id 는 그리지 않는다.
 // 입은 옷 = {outfit, top, bottom, shoes, hat, head, face, neck, hand, bg}. 배경 background_01~10 은 남녀가 같은 그림(성별을 바꿔도 그대로).
 // 레벨 표정: 눈·코·입은 DJ 가 고른 번호 그대로 두고 표정 판(눈 웃음·울음, 입 웃음 — 그림에 있는 것)만 바꾼다 + 볼 발그레·둥실 하트는 얼굴 기준점(anchors.json)에 맞춰 겹친다.
-import {ART} from './kiugi-r7-data.js';
+import {ART} from './kiugi-r9-data.js';
 import hairColor, {table as hairTable} from './kiugi-hair-color.js';
 import {normalizeLook, HAIR_COLORS, HAIR_COLOR_NAMES, HAIR_SWATCHES, hairSwatch, hairColorKey, LOOK_DEFAULT} from './kiugi-look.js';
 export {HAIR_COLORS, HAIR_COLOR_NAMES, HAIR_SWATCHES, hairSwatch, hairColorKey};
 
-export const ART_VERSION = 'r7';
+export const ART_VERSION = 'r9';
 // 머리색 방식 판(캐시·시험용): 패키지 hair-color 의 VERSION('tone-map-v1')
 export const HAIR_TONE_VERSION = hairColor.VERSION;
 export const SIZE = 1024;
