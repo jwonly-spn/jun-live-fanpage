@@ -164,7 +164,9 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
   assert.equal(page.json.top.length, 3); assert.equal(page.json.top[0].rank, 1);
   assert.deepEqual(page.json.top.map((p) => p.id), ['밤톨#먼치', '사탕요정#먼치', '달무리#먼치']);
   // 서버(publicPerson)와 같은 모양: 단 칭호가 있는 사람만 titles 칸이 있다
-  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => !['titles', 'motion', 'pets', 'pet'].includes(k)).sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  for (const p of page.json.top) { assert.deepEqual(Object.keys(p).filter((k) => !['titles', 'motion', 'pets', 'pet', 'exp'].includes(k)).sort(), ['hearts', 'id', 'level', 'rank', 'worn']); assert.match(p.id, /^[가-힣]{1,6}#먼치$/); }
+  // 고른 표정(2026-10-19 — 먼치킨 !표정): 고른 사람만 exp 칸(1~10)
+  assert.deepEqual(page.json.top.map((p) => p.exp ?? null), [null, 9, 2]);
   // 펫(2026-10-16 — 서버 publicPerson 처럼 1~3등도 pets·pet): 체험 자료는 1~3등만 펫이 있다
   assert.deepEqual(page.json.top.map((p) => p.pet?.id ?? null), ['ghost', 'blackcat', 'mummy']);
   assert.deepEqual(page.json.top.map((p) => p.titles ?? null), [['title-halloween-insa'], ['title-candy-plz'], null]);
@@ -192,7 +194,10 @@ test('체험 모드 가짜 서버: 열린 페이지·닫힌 페이지·없는 �
 test('화면 글: 순위·아이디·레벨 표정·하트(애정도 숫자 없음), 시즌 끝나는 날, 찾기 칸 검사', async () => {
   const c = await catalog();
   assert.deepEqual(personLine({ rank: 4, id: '사탕요정#먼치', level: 7, love: 2345, hearts: 3 }, c, 's1'), { title: '4등 · 사탕요정#먼치', sub: 'Lv.7 두근두근 · ♥ 3' });
-  assert.equal(levelLine(c, 's1', 8), 'Lv.8 하트 가득'); assert.equal(heartText(1234), '♥ 1,234'); assert.equal(baseOf('밤톨#먼치'), '밤톨');
+  assert.equal(levelLine(c, 's1', 8), 'Lv.8 하트 가득');
+  // 고른 표정(exp — 열려 있으면 그 이름, 레벨보다 높으면 레벨 표정)
+  assert.deepEqual(personLine({ rank: 2, id: '사탕요정#먼치', level: 7, hearts: 3, exp: 3 }, c, 's1').sub, 'Lv.7 방긋 · ♥ 3');
+  assert.equal(levelLine(c, 's1', 8, 2), 'Lv.8 발그레'); assert.equal(levelLine(c, 's1', 8, 9), 'Lv.8 하트 가득', '아직 안 열린 표정은 레벨 표정'); assert.equal(heartText(1234), '♥ 1,234'); assert.equal(baseOf('밤톨#먼치'), '밤톨');
   assert.equal(seasonLine({ name: '할로윈', endsAt: '2026-11-30T14:59:59.000Z' }, Date.parse('2026-10-20T00:00:00Z')), '할로윈 시즌 · 11월 30일까지');
   assert.equal(seasonLine(null), '다음 시즌 준비 중');
   assert.equal(josa('먼치킨', '을', '를'), '먼치킨을'); assert.equal(josa('먼치', '을', '를'), '먼치를');
@@ -212,7 +217,7 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   assert.ok(home.popular.every((c, i, a) => c.hearts > 0 && (i === 0 || a[i - 1].hearts >= c.hearts)), '하트 많은 순');
   // 카드 모양(서버 card 와 같게): 단 칭호가 있는 사람만 titles 칸
   //  함께하는 펫이 있는 사람만 pet 칸(만난 펫 목록 pets 는 카드에 없다 — 서버 card 의 petOf, 2026-10-16 메인 카드에 펫)
-  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => !['titles', 'motion', 'pet'].includes(k)).sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
+  for (const card of [...home.popular, ...home.recent]) assert.deepEqual(Object.keys(card).filter((k) => !['titles', 'motion', 'pet', 'exp'].includes(k)).sort(), ['djName', 'hearts', 'id', 'level', 'slug', 'worn'], card.id);
   assert.deepEqual(home.popular[0].pet, { id: 'ghost', stage: 3 }, '1등(밤톨#먼치)은 장난 유령과 함께');
   assert.ok([...home.popular, ...home.recent].some((x) => !Object.hasOwn(x, 'pet')), '펫이 없는 사람은 pet 칸이 없다');
   assert.equal(home.popular[0].motion, 'dance', '카드에도 하는 모션(사이트 카드는 숨쉬기만)');
@@ -225,8 +230,10 @@ test('체험 모드: 메인(home)·캐릭터(person)·전체 찾기(search)·하
   const person = await handle('GET', 'kiugi/person', { slug: 'cuky2345', id: '귤껍질' });
   assert.equal(person.status, 200);
   // 펫(2026-10-15): 체험 모드 1~3등은 만난 펫(pets)·함께하는 펫(pet)이 있다
-  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'hearts', 'id', 'level', 'motion', 'pet', 'pets', 'season', 'titles', 'worn']);
-  assert.equal(person.json.motion, 'cry');
+  //  (2026-10-19: 고른 표정 exp — 귤껍질은 1번 "기본"을 골랐다)
+  assert.deepEqual(Object.keys(person.json).sort(), ['dj', 'exp', 'hearts', 'id', 'level', 'motion', 'pet', 'pets', 'season', 'titles', 'worn']);
+  assert.equal(person.json.motion, 'cry'); assert.equal(person.json.exp, 1);
+  assert.ok(!('exp' in (await handle('GET', 'kiugi/person', { slug: 'cuky2345', id: '별사탕' })).json), '고르지 않은 사람은 exp 칸이 없다');
   assert.equal(person.json.id, '귤껍질#쿠키'); assert.equal(person.json.dj.name, '쿠키');
   // 캐릭터(person)는 서버처럼 titles 를 늘 배열로(단 칭호 하나 또는 빈 배열)
   assert.deepEqual(person.json.titles, ['title-halloween-insa']);

@@ -84,6 +84,31 @@ test('모션(0.15.86~): motion 은 영문 소문자 id 하나만, 이상하면 �
   const sum = v.summarize(v.withChanges(s.people.map((p) => ({ ...p, worn: { top: 'top_01' } })), [], 1));
   assert.equal(sum.recent.find((x) => x.id === '밤톨#먼치').motion, 'kkang');
 });
+// 표정 고르기(2026-10-19 — 먼치킨 !표정): exp 는 1~10 정수만, 아니면 칸이 없다(예전 판은 보내지 않는다 = 자동) · 1~3등·카드·한 사람·새로 꾸민 줄에도
+test('표정(exp): 1~10 정수만 싣고, 이상하면 칸이 없다 · 1~3등·카드·한 사람·새로 꾸민 줄에도 · 표정만 바꿔도 새로 꾸민 때', () => {
+  assert.deepEqual(v.expField({ exp: 3 }), { exp: 3 });
+  assert.deepEqual(v.expField({ exp: 1 }), { exp: 1 }); assert.deepEqual(v.expField({ exp: 10 }), { exp: 10 });
+  for (const bad of [0, 11, -1, 2.5, '3', null, undefined, NaN, Infinity, [3], { n: 3 }, true]) assert.deepEqual(v.expField({ exp: bad }), {}, JSON.stringify(bad));
+  assert.deepEqual(v.expField(null), {}); assert.deepEqual(v.expField('exp'), {});
+  const s = v.snapshot(PAYLOAD([PERSON('밤톨', 500, { exp: 3 }), PERSON('사탕요정', 10, { exp: 99 }), PERSON('달무리', 5)]));
+  assert.equal(s.people[0].exp, 3);
+  assert.equal(Object.hasOwn(s.people[1], 'exp'), false, '모양이 틀리면 칸도 없다');
+  assert.equal(Object.hasOwn(s.people[2], 'exp'), false, '예전 판(표정 없음)은 칸이 없다');
+  assert.equal(s.top[0].exp, 3);
+  assert.equal(Object.hasOwn(s.top[2], 'exp'), false);
+  assert.equal(v.publicPerson(s.people[0], 1).exp, 3);
+  assert.equal(Object.hasOwn(v.publicPerson(s.people[2], 3), 'exp'), false);
+  assert.equal(v.card(s.people[0], 'abcdefgh', '먼치', 0).exp, 3);
+  assert.equal(Object.hasOwn(v.card(s.people[2], 'abcdefgh', '먼치', 0), 'exp'), false);
+  const dressed = s.people.map((p) => ({ ...p, worn: { top: 'top_01' } }));
+  const first = v.withChanges(dressed, [], 1);
+  assert.equal(v.summarize(first).recent.find((x) => x.id === '밤톨#먼치').exp, 3);
+  // 옷은 그대로 · 표정만 바꾸면 새로 꾸민 때가 바뀐다(같으면 그대로)
+  const again = v.withChanges(dressed, first, 2);
+  assert.deepEqual(again.map((p) => p.ch), [1, 1, 1]);
+  const changed = v.withChanges(dressed.map((p) => (p.id === '달무리#먼치' ? { ...p, exp: 2 } : p)), first, 3);
+  assert.deepEqual(changed.map((p) => [p.id, p.ch]), [['밤톨#먼치', 1], ['사탕요정#먼치', 1], ['달무리#먼치', 3]]);
+});
 test('검사(v2): 판 번호·캐릭터 이름·시즌·끄기·쉬는 중·인원 상한', () => {
   assert.deepEqual(v.snapshot({ enabled: false, extra: 1 }), { enabled: false });
   assert.throws(() => v.snapshot({ ...PAYLOAD(), v: 1 }), /업데이트/, 'v1(스푼 이름을 올리던 판)은 받지 않는다');
@@ -223,7 +248,7 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal((await w.get('page?slug=nope')).status, 404);
   assert.equal((await w.get('page?slug=abcdefgh')).status, 404);
   r = await body(await w.get('health'));
-  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true, snaps: true });
+  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true, exp: true, snaps: true });
   assert.equal((await w.handle(new Request(BASE + 'page', { method: 'OPTIONS' }))).status, 204);
   // 주소마다 찾기는 1분에 30번
   for (let i = 0; i < 29; i++) await find(w, slug, '밤', '9.9.9.9');

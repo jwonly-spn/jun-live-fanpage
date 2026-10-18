@@ -134,7 +134,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const hit = row.season ? v.findOne(row.people, key) : null;
     if (!hit) throw v.fail(404, NO_PERSON);
     const hearts = heartsOf.get(hit.p.k) || 0;
-    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
+    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), ...v.expField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
   }
 
   // 메인 페이지: 지금 시즌 · 인기(하트) 12 · 새로 꾸민 8 · 옷마다 입은 수 · DJ 목록 · 합계
@@ -291,7 +291,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       const url = new URL(req.url);
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
-        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true, snaps: typeof store.putSnap === 'function' });
+        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);
         if (route === 'person') return await person(url, req);

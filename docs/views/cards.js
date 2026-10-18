@@ -1,15 +1,16 @@
 // 그림 칸(캐릭터 무대 SVG · 옷 한 벌 · 함께하는 펫)과 글 도우미 — 캐릭터 페이지·옷 도감·입혀 보기·큰 사진 카드(views/feed.js)가 함께 쓴다.
 // DOM 은 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 글 도우미를 쓴다). 그림은 화면 가까이 왔을 때 그린다(그림 파일이 커서 휴대폰 메모리를 아끼려고).
 import { h, icon, toast } from '../lib/dom.js';
-import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, MOTIONS_READY } from '../lib/kiugi-draw.js';
+import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, preloadImage, MOTIONS_READY } from '../lib/kiugi-draw.js';
+import { svgUrls } from '../kiugi/kiugi-art.js';
 import { loadLite, liteUrl } from '../lib/raster.js';
 import { upgradeStage } from '../lib/kiugi-hd.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 export const heartText = (n) => `♥ ${fmt(n)}`;
-// 카드 한 줄 글: 레벨과 표정 이름만(애정도 숫자는 보이지 않는다)
-export const levelLine = (catalog, seasonId, level) => `Lv.${level} ${expressionFor(catalog, seasonId, level).name}`;
+// 카드 한 줄 글: 레벨과 (보이는) 표정 이름만(애정도 숫자는 보이지 않는다) — exp: 고른 표정(열려 있으면 그 이름)
+export const levelLine = (catalog, seasonId, level, exp = null) => `Lv.${level} ${expressionFor(catalog, seasonId, level, exp).name}`;
 
 // 아이디 글: 앞 부분은 크게, "#캐릭터 이름"은 작게(읽으면 그대로 "밤톨#먼치")
 export function idText(id) {
@@ -97,14 +98,63 @@ export async function liteMarkup(markup, base = '/') {
   const lite = await loadLite(base);
   return String(markup).replace(/ href="([^"]+)"/g, (all, u) => { const l = liteUrl(u, lite, base); return l === u ? all : ` href="${l}"`; });
 }
+// ---- 큰 무대(고해상도) 그리기 — 2026-10-19 "눈 깜빡임" 고침 ----
+//  R9 의 웃는 눈(eyes_*_smile)은 호환 그림이 감은 초승달 눈, 고해상도 그림이 뜬 눈이라 호환 그림 → 고해상도로 바뀔 때 눈을 감았다 뜨는 것처럼 보였다
+//  (그림 원본 차이는 Codex 에 부탁 — 여기서는 바뀌는 순간이 보이지 않게만 한다):
+//   · 새 캐릭터 칸은 숨긴 채(is-pending) 무대에 얹고 고해상도를 그린다 — 다 되면 고해상도로 바로 보인다(호환 그림은 보이지 않는다).
+//     무대에는 그동안 은은한 자리 표시(is-holding). HD_HOLD_MS 안에 안 되면 호환 그림을 보이고, 고해상도가 오면 살며시 겹친다(canvas.is-late).
+//     고해상도를 쓸 수 없는 조합·데이터 절약 모드·실패·보이지 않는 칸이면 바로 호환 그림.
+//   · 이미 그려진 무대를 다시 그릴 때(입혀 보기에서 옷을 바꿀 때 · 새 답의 모습이 다를 때)는 옛 캐릭터(고해상도)를 그대로 두고, 새 캐릭터가 준비되면 바꿔 끼운다
+//     (옛 그림을 지우고 호환 그림을 다시 보이지 않는다). 기다리는 시간은 조금 더 길게(HD_SWAP_MS — 그동안 옛 모습이 보인다).
+//   · 보이는 동안 한 번만 살며시 나타난다(is-shown): 같은 무대 칸을 화면에 다시 붙여도(캐릭터 페이지가 새 답으로 다시 그릴 때) 다시 나타나지 않는다.
+export const HD_HOLD_MS = 1800, HD_SWAP_MS = 2600;
+export async function paintHdStage(stage, markup, { motion = null, hd = null, fallback = null, load = preloadImage, hold = HD_HOLD_MS, swap = HD_SWAP_MS } = {}) {
+  const seq = (stage.kgPaintSeq || 0) + 1;
+  stage.kgPaintSeq = seq;
+  const failed = [];
+  await Promise.all(svgUrls(markup).map((u) => Promise.resolve().then(() => load(u)).catch(() => { failed.push(u); })));
+  if (stage.kgPaintSeq !== seq) return false;
+  const nodes = actorNodes(markup, { motion });
+  if (!nodes) { stage.replaceChildren(...(fallback ? [fallback] : [])); return true; }
+  const [backdrop, actor] = nodes;
+  const old = [...stage.children].filter((el) => !el.classList.contains('kg-stage-keep'));
+  const hadActor = old.some((el) => el.classList.contains('kg-actor'));
+  actor.classList.add('is-pending');
+  // 처음 그리는 무대의 바탕(입은 배경 장면)은 바로, 다시 그릴 때는 캐릭터와 함께 바꾼다
+  if (backdrop && hadActor) backdrop.classList.add('is-pending');
+  if (!hadActor) { stage.replaceChildren(...[backdrop, actor].filter(Boolean)); stage.classList.add('is-holding'); }
+  else stage.append(...[backdrop, actor].filter(Boolean));
+  if (failed.length) stage.dataset.kgArtError = String(failed.length); else delete stage.dataset.kgArtError;
+  let shown = false, timer = 0;
+  const reveal = () => {
+    if (shown || stage.kgPaintSeq !== seq) return;
+    shown = true; clearTimeout(timer);
+    for (const el of old) if (el.parentNode === stage) { el.remove(); el.querySelectorAll?.('canvas.kg-hd').forEach((c) => { c.width = 0; c.height = 0; }); }
+    stage.classList.remove('is-holding');
+    for (const el of [backdrop, actor]) if (el) {
+      el.classList.remove('is-pending');
+      // 처음이면 살며시 나타나고(한 번만), 바꿔 끼울 때는 바로(옛 모습과 같은 자리라 그대로 이어진다)
+      if (!hadActor && !stage.classList.contains('is-shown')) el.classList.add('is-revealing');
+    }
+    stage.classList.add('is-shown');
+    stage.dispatchEvent(new CustomEvent('kg-stage-shown'));
+  };
+  actor.addEventListener('animationend', () => actor.classList.remove('is-revealing'));
+  backdrop?.addEventListener('animationend', () => backdrop.classList.remove('is-revealing'));
+  timer = setTimeout(reveal, hadActor ? swap : hold);
+  if (hd) upgradeStage(stage, { ...hd, actor, onState: () => reveal() });
+  else reveal();
+  return true;
+}
+
 let observer = null;
 // 그림 칸: make() 가 SVG 글을 돌려준다. eager 면 바로, 아니면 화면 가까이 왔을 때. kind: 무대 모양(styles.css .kg-stage.<kind>)
 //  그림 V3(2026-10-09): 그림 파일을 모두 받은 뒤 한 번에 넣는다(paintMarkup — 반쯤 그려진 모습이 보이지 않게).
 //  actor: 캐릭터 그림이면 true — 바탕과 캐릭터를 나눠 캐릭터만 숨쉬게(motion = 모션 id). 옷 한 벌 그림(옷 도감 칸)은 움직이지 않는다.
 //  lite: 사이트 BASE — 주면 공통 배경 그림을 가벼운 사본(docs/kiugi-lite/ WebP — 1.5MB → 0.15MB)으로 바꿔 그린다. 사본을 못 받으면 원본으로 다시 그린다.
-//  hd: 큰 무대(캐릭터 페이지 전신 · 캐릭터 옷장 현재 모습)면 {character, worn, level, catalog, seasonId, base} — 호환 그림을 그린 뒤 고해상도로 바꾼다(lib/kiugi-hd.js)
+//  hd: 큰 무대(캐릭터 페이지 전신 · 캐릭터 옷장 현재 모습)면 {character, worn, level, exp, catalog, seasonId, base} — 고해상도로 그린다(위 paintHdStage · lib/kiugi-hd.js)
 export function lazyStage(make, label, { eager = false, kind = '', actor = false, motion = null, lite = null, hd = null } = {}) {
-  const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') });
+  const stage = h('div', { class: 'kg-stage' + (kind ? ' ' + kind : '') + (hd && actor ? ' is-hd-stage' : '') });
   const noart = () => h('span', { class: 'kg-noart' }, label);
   const draw = async () => {
     let markup = null;
@@ -113,11 +163,17 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
     const opts = { fallback: noart(), ...(actor ? { make: (m) => actorNodes(m, { motion }) } : {}) };
     try {
       const light = lite ? await liteMarkup(markup, lite) : markup;
+      if (hd && actor) {
+        // 배경 사본을 못 받으면 원본으로(그림을 다 받은 뒤 한 번에)
+        const ok = await Promise.all(svgUrls(light).map((u) => preloadImage(u).then(() => true, () => false)));
+        await paintHdStage(stage, ok.every(Boolean) ? light : markup, { motion, hd, fallback: noart() });
+        return;
+      }
       let done = await paintMarkup(stage, light, opts);
       if (light !== markup && stage.dataset.kgArtError) done = await paintMarkup(stage, markup, opts);
-      if (done && hd && actor) upgradeStage(stage, hd);
     } catch (e) { console.error(e); stage.replaceChildren(noart()); }
   };
+  stage.kgRepaint = (nextMake, nextHd) => { make = nextMake; hd = nextHd; return draw(); };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
   observer ||= new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { observer.unobserve(e.target); e.target.kgDraw?.(); }
@@ -128,12 +184,18 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
 }
 // DJ 캐릭터에 옷을 입힌 그림(바탕 없이 — 무대는 styles.css). 캐릭터 칸은 세로(char)로 잘라 크게 보인다. kind: 무대 모양 더하기(hero·bare 등)
 //  캐릭터는 늘 숨쉰다. motion: 그 사람이 하는 모션 id(먼치킨이 보낸 것 — 시즌 목록에 있는 것만, 모르면 숨쉬기만)
-//  hd: true 면 큰 무대 — 호환 그림을 먼저 보이고 고해상도(R9 원본 그림 — lib/kiugi-hd.js)로 바꾼다. 카드·목록 같은 작은 칸은 쓰지 않는다(자료를 아끼게).
-export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null, hd = false } = {}) {
+//  hd: true 면 큰 무대 — 고해상도(R9 원본 그림 — lib/kiugi-hd.js · 위 paintHdStage)로 그린다. 카드·목록 같은 작은 칸은 쓰지 않는다(자료를 아끼게).
+//  exp: 고른 표정(먼치킨 !표정 — 열려 있으면 그 표정, 아니면 레벨 표정)
+//  큰 무대는 stage.kgRedraw(worn, level, exp) 로 같은 칸에 다시 그린다(옛 모습을 둔 채 새 모습이 준비되면 바꿔 끼운다).
+export function art(catalog, character, worn, level, { seasonId = null, base = '/', label = '', eager = false, kind = '', motion = null, hd = false, exp = null } = {}) {
   const cls = 'char' + (kind ? ' ' + kind : '');
   if (!character) return h('div', { class: 'kg-stage ' + cls }, h('span', { class: 'kg-noart' }, label));
-  return lazyStage(() => characterMarkup(catalog, character, worn, level, { seasonId, base, label, stage: null }), label,
-    { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null, lite: base, hd: hd ? { character, worn, level, catalog, seasonId, base } : null });
+  const makeOf = (w, l, x) => () => characterMarkup(catalog, character, w, l, { seasonId, base, label, stage: null, exp: x });
+  const hdOf = (w, l, x) => (hd ? { character, worn: w, level: l, exp: x, catalog, seasonId, base } : null);
+  const stage = lazyStage(makeOf(worn, level, exp), label,
+    { eager, kind: cls, actor: true, motion: MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null, lite: base, hd: hdOf(worn, level, exp) });
+  stage.kgRedraw = (w, l, x = null) => stage.kgRepaint(makeOf(w, l, x), hdOf(w, l, x));
+  return stage;
 }
 // ---- 함께하는 펫(캐릭터 페이지 무대 · 입혀 보기 · 메인 카드 · 메인 첫 화면 1등 — 2026-10-16 사용자 "펫 좀 크게 · 메인 화면에서도 보이게") ----
 // 펫 그림(2026-10-15 Codex 패키지 DJ_PET_S1_20261015_HALLOWEEN): pets/<시즌>/pet_<id>_<단계>.png — 512×512 투명, 모든 단계가 같은 바닥선(y=470)·같은 배율이라

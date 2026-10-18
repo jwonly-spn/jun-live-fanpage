@@ -126,11 +126,27 @@ export function titleList(catalog, ids) {
 export const titleImageUrl = (t, base = '/') => (t?.image ? (String(base).endsWith('/') ? base : base + '/') + 'kiugi/' + t.image : '');
 
 // 레벨 표정(레벨마다 바뀐다): 그 시즌 목록에서 레벨 이하 중 가장 높은 것
-export function expressionFor(catalog, seasonId, level) {
-  const list = (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.expressions || [];
+//  exp(2026-10-19 사용자 "옷 입히기처럼 표정도 사이트에서 고르고 명령어 복사" — 먼치킨 !표정 으로 고른 표정 번호 1~10, 서버가 보낸 것):
+//   그 번호의 표정이 시즌 목록에 있고 그 사람 레벨 이하(열린 표정)면 그 표정, 아니면(없음·자동·레벨보다 높음 — 시즌이 바뀌어 레벨이 내려간 때 등) 레벨 표정.
+export const EXP_MAX = 10;
+export const validExp = (exp) => Number.isInteger(exp) && exp >= 1 && exp <= EXP_MAX;
+const expressionsOf = (catalog, seasonId) => (catalog?.seasons?.[seasonId] || catalog?.seasons?.[catalog?.last])?.expressions || [];
+export function expressionFor(catalog, seasonId, level, exp = null) {
+  const list = expressionsOf(catalog, seasonId);
+  if (validExp(exp) && exp <= Number(level)) { const e = list.find((x) => Number(x.level) === exp); if (e) return e; }
   let pick = list[0] || DEFAULT_EXPRESSION;
   for (const e of list) if (Number(e.level) <= Number(level)) pick = e;
   return pick;
+}
+// 고른 표정이 실제로 쓰이는가(고른 번호가 있고 열린 표정일 때 그 번호, 아니면 null = 자동)
+export function shownExp(catalog, seasonId, level, exp = null) {
+  if (!validExp(exp) || exp > Number(level)) return null;
+  return expressionsOf(catalog, seasonId).some((x) => Number(x.level) === exp) ? exp : null;
+}
+// 표정 목록(입혀 보기 표정 탭): [{level(번호), name, desc, parts, open(이 레벨에서 고를 수 있나)}] — 시즌 목록 차례
+export function expressionList(catalog, seasonId, level = 1) {
+  return expressionsOf(catalog, seasonId).filter((e) => Number.isInteger(Number(e?.level)) && typeof e?.name === 'string')
+    .map((e) => ({ level: Number(e.level), name: e.name, desc: String(e.desc || ''), parts: Array.isArray(e.parts) ? e.parts : [], open: Number(e.level) <= Number(level) }));
 }
 
 const attr = (s) => String(s).replace(/["<>&]/g, encodeURIComponent);
@@ -144,10 +160,10 @@ export function cspSafeSvg(svg, base = '/') {
     .replace(/ style="[^"]*"/g, '');
 }
 
-// 캐릭터 한 장(글): DJ 캐릭터에 청취자가 입힌 옷, 레벨 표정. stage: 바탕 색 · null 이면 바탕 없이(화면의 무대 그림이 보인다 — 배경 옷을 입으면 그 배경)
-export function characterMarkup(catalog, character, worn, level, { seasonId = null, base = '/', label = '', stage = STAGE } = {}) {
+// 캐릭터 한 장(글): DJ 캐릭터에 청취자가 입힌 옷, 레벨 표정(exp — 고른 표정이 열려 있으면 그것). stage: 바탕 색 · null 이면 바탕 없이(화면의 무대 그림이 보인다 — 배경 옷을 입으면 그 배경)
+export function characterMarkup(catalog, character, worn, level, { seasonId = null, base = '/', label = '', stage = STAGE, exp = null } = {}) {
   const svg = characterSvg(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} },
-    { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1), solid: stage || STAGE, transparent: stage === null, label });
+    { items: catalog?.items || {}, art: catalog?.art || null, expression: expressionFor(catalog, seasonId, level || 1, exp), solid: stage || STAGE, transparent: stage === null, label });
   return cspSafeSvg(svg, base);
 }
 // 캐릭터 그림 글 → {scene, body}(2026-10-15 사용자 "캐릭터들이 2D 게임 대기 모션처럼 숨쉬듯이"): 캐릭터만 움직이고 바탕은 가만히 있게 둘로 나눈다.

@@ -115,7 +115,7 @@ function savedPanel(ctx, { form, input }) {
   const pic = (e) => {
     const look = cachedLook(e);
     return look
-      ? h('span', { class: 'kg-saved-pic', 'aria-hidden': 'true' }, photoBox({ catalog: ctx.catalog, character: look.character, worn: look.worn, level: look.level, seasonId: look.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }))
+      ? h('span', { class: 'kg-saved-pic', 'aria-hidden': 'true' }, photoBox({ catalog: ctx.catalog, character: look.character, worn: look.worn, level: look.level, exp: look.exp ?? null, seasonId: look.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }))
       : h('span', { class: 'kg-saved-pic plain', 'aria-hidden': 'true' }, e.base.slice(0, 1));
   };
   const row = (kind, e) => {

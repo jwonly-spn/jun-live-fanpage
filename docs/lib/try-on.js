@@ -189,6 +189,24 @@ export function motionLine(catalog, pick, now = null) {
 }
 export const MOTION_COPIED = (line) => (line === MOTION_OFF ? '복사했어요 · 방송 채팅에 붙여 넣으면 모션을 멈춰요' : '복사했어요 · 방송 채팅에 붙여 넣으면 모션을 사서 바로 해요');
 
+// ---- 표정(2026-10-19 사용자 "옷 입히기처럼 사이트에서 고르고 명령어로 바로 복사 붙여넣기 할 수 있게") ----
+//  먼치킨 "!표정 방긋"(표정 이름 그대로 — 시즌 목록 expressions 의 name) · "!표정 자동"(레벨 표정으로 되돌리기). 냥은 들지 않는다.
+//  고를 수 있는 것 = 지금 레벨까지 열린 표정(레벨 n 이면 1~n). 옷 한 줄과는 따로 복사한다(먼치킨 명령이 다르다).
+export const EXP_CMD = '!표정';
+export const EXP_AUTO = `${EXP_CMD} 자동`;
+export const expCommand = (e) => (e?.name ? `${EXP_CMD} ${e.name}` : '');
+export const EXP_LOCKED = (n) => `Lv.${n}이 되면 쓸 수 있어요`;
+export const EXP_COPIED = (line) => (line === EXP_AUTO ? '복사했어요 · 방송 채팅에 붙여 넣으면 레벨 표정으로 돌아가요' : '복사했어요 · 방송 채팅에 붙여 넣으면 표정이 바로 바뀌어요');
+// 표정 채팅 한 줄: 고른 표정 번호(pick — null = 자동)가 지금(now — 서버가 보낸 고른 표정, 열린 것만 · null = 자동)과 같으면 ''(명령이 필요 없다),
+//  자동을 고르면 "!표정 자동", 아니면 "!표정 <이름>". list = expressionList(…) — 목록에 없거나 잠긴 번호는 명령을 만들지 않는다.
+export function expLine(list, pick, now = null) {
+  const p = Number.isInteger(pick) ? (list || []).find((e) => e.level === pick && e.open) || null : null;
+  const n = Number.isInteger(now) ? (list || []).find((e) => e.level === now) || null : null;
+  if ((p?.level ?? null) === (n?.level ?? null)) return '';
+  if (Number.isInteger(pick) && !p) return '';
+  return p ? expCommand(p) : EXP_AUTO;
+}
+
 // 복사했을 때 알림: 옷만 · 칭호만 · 둘 다 · 맨몸부터(bare)
 export const copiedText = ({ clothes = 0, title = false, bare = false } = {}) =>
   (bare ? `복사했어요 · 방송 채팅에 붙여 넣으면 ${clothes || title ? '옷을 모두 벗고 고른 것만 입어요' : '옷을 모두 벗어요'}`

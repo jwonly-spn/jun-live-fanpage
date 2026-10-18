@@ -41,7 +41,7 @@ export function josa(word, a, b) {
 
 // 찾기 결과 한 줄의 글(시험에서 바로 쓴다): 순위·아이디, 레벨·표정, 하트(애정도 숫자는 없음)
 export function personLine(p, catalog, seasonId) {
-  return { title: `${p.rank}등 · ${p.id}`, sub: `Lv.${p.level} ${expressionFor(catalog, seasonId, p.level).name} · ${heartText(p.hearts)}` };
+  return { title: `${p.rank}등 · ${p.id}`, sub: `Lv.${p.level} ${expressionFor(catalog, seasonId, p.level, Number.isInteger(p.exp) ? p.exp : null).name} · ${heartText(p.hearts)}` };
 }
 export function seasonLine(season, now = Date.now()) {
   if (!season) return '다음 시즌 준비 중';

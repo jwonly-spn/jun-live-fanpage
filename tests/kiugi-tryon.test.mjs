@@ -160,7 +160,7 @@ test('캐릭터 페이지가 입혀 보기를 잇는다: "입은 옷" 제목 옆
   const character = await src('views/character.js');
   assert.match(character, /from '\.\.\/lib\/try-on\.js'/);
   // 2026-10-18 새 구조: 카드가 아는 것으로 먼저 그릴 때(partial — 단 칭호를 아직 모른다)는 입혀 보기를 서버 답이 온 뒤에 단다
-  assert.match(character, /const tryOn = partial \? null : tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy, motion: motion\?\.id \}\)/, '단 칭호·하는 모션도 넘긴다');
+  assert.match(character, /const tryOn = partial \? null : tryOnPanel\(\{ catalog, seasonId, dj, worn: data\.worn, titles: data\.titles, level, app, pet: buddy, motion: motion\?\.id, exp \}\)/, '단 칭호·하는 모션·고른 표정(2026-10-19)도 넘긴다');
   assert.match(character, /secHead\('입은 옷', [^\n]+, tryOn\?\.openBtn \|\| null\)/, '"입은 옷" 제목 옆 단추');
   assert.match(character, /tryOn\?\.section,/, '입은 옷 칸 바로 아래');
   assert.match(character, /\]\.filter\(Boolean\)\);/, '빈 칸(null)을 넣지 않는다');
@@ -286,7 +286,8 @@ test('칭호 값·알림: 합계에 칭호 값(단 칭호는 빼고), 상점이 
 test('캐릭터 페이지 입혀 보기의 칭호 탭: 옷 묶음 뒤 "칭호" · 하나만 고르기 · 단 칭호는 "다는 중" · 미리 보기 위 배지 · 옷 도감 안내에 여는 날', async () => {
   const src = (p) => readFile(new URL('../docs/' + p, import.meta.url), 'utf8');
   const character = await src('views/character.js');
-  assert.match(character, /const tabList = \[\.\.\.groups, \.\.\.\(titles\.length \? \[\{ slot: TITLE_TAB, name: '칭호', items: titles, title: true \}\] : \[\]\)\]/, '칭호가 있는 시즌만, 옷 묶음 뒤에');
+  //  (2026-10-19: 옷 묶음과 칭호 사이에 표정 탭)
+  assert.match(character, /const tabList = \[\.\.\.groups, \.\.\.\(exps\.length \? \[\{ slot: EXP_TAB, name: '표정', items: exps, exp: true \}\] : \[\]\), \.\.\.\(titles\.length \? \[\{ slot: TITLE_TAB, name: '칭호', items: titles, title: true \}\] : \[\]\)\]/, '칭호가 있는 시즌만, 옷 묶음·표정 뒤에');
   assert.match(character, /onclick: \(\) => pickTitle\(t\.id\)/); assert.match(character, /toast\(TITLE_WORN\)/, '단 칭호를 누르면 알림만');
   assert.match(character, /'다는 중'/); assert.match(character, /'달아 봄'/);
   assert.match(character, /titleOpenDate\(rule\)/, '여는 날은 시즌 목록에서'); assert.match(character, /`\$\{openDate\}부터`/);
@@ -340,7 +341,7 @@ test('맨몸부터(2026-10-15 — 먼치킨 0.15.84 !다벗기): 입은 옷을 �
   // 화면: 맨몸부터 단추 · 원래대로가 끈다 · 바탕은 base()
   const src = await readFile(new URL('../docs/views/character.js', import.meta.url), 'utf8');
   assert.match(src, /class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false'/);
-  assert.match(src, /onclick: \(\) => \{ pickMotion = nowMotion; tried = \[\]; title = null; bare = false; sync\(\); \}/, '원래대로는 고른 모션도 지금 하는 모션으로');
+  assert.match(src, /onclick: \(\) => \{ pickMotion = nowMotion; pickExp = nowExp; tried = \[\]; title = null; bare = false; sync\(\); \}/, '원래대로는 고른 모션·표정도 지금 것으로');
   assert.match(src, /tryLine\(tried, catalog, sid, \{ title, wornTitle, bare \}\)/);
   assert.match(src, /have\.has\(id\) \? '가진 옷' : ''/);
 });

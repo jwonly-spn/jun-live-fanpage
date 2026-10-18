@@ -16,16 +16,20 @@ import { recolor } from '../kiugi/kiugi-hair-color.js';
 import { expressionFor, preloadImage, ART } from './kiugi-draw.js';
 
 export const SIZE = 1024;
+//   photoMale(2026-10-19 사용자 "얼굴 잘 보이게" — 남자 캐릭터는 몸 그림이 크고 어깨가 넓어 카드에서 작아 보이고 얼굴이 작아 보였다):
+//    남자 카드만 같은 2:3 칸을 조금 좁게(1.07배 가까이) 잘라 머리·얼굴이 여자 카드와 비슷한 크기로 보이게 — 그림은 늘이거나 찌그러뜨리지 않는다(자르는 칸만, 가로 가운데 512 그대로).
+//    위는 모자 꼭대기(y 19 안팎)·레벨 둥실 하트가 잘리지 않게 y 2부터, 아래는 엉덩이 조금 아래(허벅지 위쪽)까지.
 export const CROPS = Object.freeze({
   photo: Object.freeze([309, 4, 406, 609]),
+  photoMale: Object.freeze([322, 2, 380, 570]),
   bust: Object.freeze([392, 34, 240, 240]),
   full: Object.freeze([181, 8, 661, 992]),
 });
 // 여자 캐릭터 줄이기(무대 .kg-actor.is-f 와 같게): 발바닥(512, 974) 기준 0.91배 + 14px 올림
 export const FEMALE = Object.freeze({ s: 0.91, ox: 512, oy: 974, dy: -14 });
 const isFemale = (character) => String(character?.gender || 'f') !== 'm';
-// 칸 [x, y, w, h](남녀 같은 칸)
-export const cropOf = (kind) => [...(CROPS[kind] || CROPS.photo)];
+// 칸 [x, y, w, h] — 카드 사진(photo)은 남자 캐릭터(gender 'm')면 남자 칸, 그 밖은 남녀 같은 칸
+export const cropOf = (kind, character = null) => [...(kind === 'photo' && character && !isFemale(character) ? CROPS.photoMale : CROPS[kind] || CROPS.photo)];
 // 그릴 배율: 칸 화면 너비(CSS px) × 화면 배율(3까지) ÷ 칸 너비 → 정해 둔 단계로 올림(비슷한 크기는 같은 그림을 다시 쓴다), 1024 원본보다 크게는 그리지 않는다
 export const SCALES = Object.freeze([0.25, 0.35, 0.5, 0.7, 1]);
 export function scaleFor(cssWidth, dpr, cropW) {
@@ -48,11 +52,15 @@ export function hashText(s) {
   for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 16777619); b = Math.imul(b ^ c, 2246822519); }
   return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0');
 }
-// 사진 한 장의 열쇠: 그림 주소(?v= 해시 포함 — 그림이 바뀌면 열쇠도 바뀐다) · 칸 · 배율 · 펫 · 그리는 방법 판
-export const RASTER_VERSION = 'r1';
-export function rasterKey(urls, { kind = 'photo', s = 1, female = false, pet = null } = {}) {
-  return `${RASTER_VERSION}:${kind}:${s}:${female ? 'f' : 'm'}:${hashText([...urls, pet || ''].join('|'))}`;
+// 사진 한 장의 열쇠: 그림 주소(?v= 해시 포함 — 그림이 바뀌면 열쇠도 바뀐다) · 칸 · 배율 · 펫 · 표정 겹치기 · 그리는 방법 판
+//  face: 표정 겹치기(볼 발그레 · 둥실 하트 — 그림 파일이 아니라 캔버스로 그려 주소만으로는 표정 1·2 가 같은 열쇠였다, 2026-10-19 고침)
+//  r2(2026-10-19): 남자 카드 칸(photoMale)·표정 겹치기 — 예전(r1) 사진은 쓰지 않는다
+export const RASTER_VERSION = 'r2';
+export function rasterKey(urls, { kind = 'photo', s = 1, female = false, pet = null, face = '' } = {}) {
+  return `${RASTER_VERSION}:${kind}:${s}:${female ? 'f' : 'm'}:${hashText([...urls, pet || '', face ? 'face:' + face : ''].join('|'))}`;
 }
+// 표정 겹치기 글(시즌 목록 parts 중 그림 파일이 아닌 것 — exp-blush · exp-floating-hearts)
+export const faceExtras = (expression) => (Array.isArray(expression?.parts) ? expression.parts.filter((p) => /^exp-/.test(p)).sort().join(',') : '');
 
 // ---- 가벼운 사본(docs/kiugi-lite/index.json — tools/make-lite-art.cjs) ----
 let liteJob = null;
@@ -160,7 +168,7 @@ const toBlob = (c) => new Promise((resolve, reject) => {
 // 한 장 그리기 → 캔버스. job = {plan, images(원본 주소 → 그림), kind, s, character, base}
 function paint(job) {
   const { plan, images, kind, s, character, base } = job;
-  const [cx, cy, cw, ch] = cropOf(kind), W = cw * s, H = ch * s, female = kind !== 'bust' && isFemale(character);
+  const [cx, cy, cw, ch] = cropOf(kind, character), W = cw * s, H = ch * s, female = kind !== 'bust' && isFemale(character);
   // 캐릭터 칸(칸 크기만 — 1024 전체를 그리지 않아 빠르다): 1024 좌표 → 칸 좌표(× s) · 여자는 발바닥 기준 0.91배
   const base0 = [s, 0, 0, s, -cx * s, -cy * s];
   const mat = female ? [s * FEMALE.s, 0, 0, s * FEMALE.s, s * (FEMALE.ox - FEMALE.ox * FEMALE.s) - cx * s, s * (FEMALE.oy - FEMALE.oy * FEMALE.s + FEMALE.dy) - cy * s] : base0;
@@ -187,13 +195,14 @@ function paint(job) {
 const MEM = new Map(), WAIT = new Map();
 // 이번 창에서 그린 사진 셈(속도 재기·시험용): mem(메모리) · db(이 브라우저 캐시) · drawn(새로 그림) · ms(새로 그린 시간 합)
 export const rasterStats = { mem: 0, db: 0, drawn: 0, ms: 0 };
-// 사진 한 장 → {url(data:), w, h} (같은 열쇠는 한 번만 그린다). opts = {catalog, character, worn, level, seasonId, base, kind, cssWidth, dpr}
+// 사진 한 장 → {url(data:), w, h} (같은 열쇠는 한 번만 그린다). opts = {catalog, character, worn, level, exp(고른 표정), seasonId, base, kind, cssWidth, dpr}
 export async function rasterize(opts) {
-  const { catalog, character, worn = {}, level = 1, seasonId = null, base = '/', kind = 'photo' } = opts;
-  const plan = characterPlan(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} }, expressionFor(catalog, seasonId, level || 1));
-  const crop = cropOf(kind), s = scaleFor(opts.cssWidth, opts.dpr, crop[2]);
+  const { catalog, character, worn = {}, level = 1, exp = null, seasonId = null, base = '/', kind = 'photo' } = opts;
+  const expression = expressionFor(catalog, seasonId, level || 1, exp);
+  const plan = characterPlan(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} }, expression);
+  const crop = cropOf(kind, character), s = scaleFor(opts.cssWidth, opts.dpr, crop[2]);
   const urls = planUrls(plan, base);
-  const key = rasterKey(urls, { kind, s, female: isFemale(character) });
+  const key = rasterKey(urls, { kind, s, female: isFemale(character), face: faceExtras(expression) });
   if (MEM.has(key)) { rasterStats.mem++; return MEM.get(key); }
   if (WAIT.has(key)) return WAIT.get(key);
   const job = (async () => {
@@ -293,9 +302,9 @@ export function photoBox(opts, { eager = false, label = '', onFail = null, class
   return box;
 }
 // 그림 받기만 미리(예: 캐릭터를 누르기 직전 — 캐릭터 페이지 큰 그림이 바로 뜨게)
-export function prefetchLook({ catalog, character, worn = {}, level = 1, seasonId = null, base = '/' }) {
+export function prefetchLook({ catalog, character, worn = {}, level = 1, exp = null, seasonId = null, base = '/' }) {
   try {
-    const plan = characterPlan(character || {}, { worn: worn || {} }, expressionFor(catalog, seasonId, level || 1));
+    const plan = characterPlan(character || {}, { worn: worn || {} }, expressionFor(catalog, seasonId, level || 1, exp));
     const urls = planUrls(plan, base);
     loadLite(base).then((lite) => { for (const u of urls) preloadImage(liteUrl(u, lite, base)).catch(() => {}); });
   } catch { /* 무시 */ }

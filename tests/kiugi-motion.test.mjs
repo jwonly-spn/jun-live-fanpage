@@ -146,14 +146,16 @@ test('화면이 모션을 잇는다: 캐릭터 무대(모션)·레벨 옆 칩·�
   // 캐릭터 페이지
   assert.match(character, /const motion = MOTIONS_READY \? motionOf\(catalog, data\.motion\) : null;/, '모르는 모션은 모션 없음(스위치가 꺼져 있으면 늘 없음)');
   // (2026-10-18 R9: 큰 무대는 hd: true — 고해상도로 바꿔 그린다)
-  assert.match(character, /eager: true, motion: motion\?\.id, kind: 'hero', hd: true \}\)/, '무대 캐릭터가 그 모션을 한다');
+  assert.match(character, /eager: true, motion: motion\?\.id, kind: 'hero', hd: true, exp \}\)/, '무대 캐릭터가 그 모션을 한다(2026-10-19 — 고른 표정 exp 도)');
   assert.match(character, /motion \? h\('span', \{ class: 'kg-motion-chip' \}/); assert.match(character, /motionGuide\(catalog, seasonId\)/);
   // 입혀 보기: 모션 탭 · 미리 보기 캐릭터가 고른 모션 · 따로 복사(MOTION_COPIED) · 탭 id 가 옷 묶음과 겹치지 않는다
   const { MOTION_TAB, MOTION_EMPTY, TITLE_TAB, motionGuide } = await import('../docs/views/character.js');
   assert.equal(MOTION_TAB, 'motion'); assert.notEqual(MOTION_TAB, TITLE_TAB); assert.match(MOTION_EMPTY, /채팅 한 줄/);
   assert.equal(typeof motionGuide, 'function'); assert.equal(motionGuide(buildCatalog([]), 's1'), null, '모션이 없는 시즌은 안내도 없다');
   assert.match(character, /if \(motions\.length\) tabList\.push\(\{ slot: MOTION_TAB, name: '모션', items: motions, motion: true \}\);/);
-  assert.match(character, /make: \(m\) => actorNodes\(m, \{ motion: pickMotion \}\)/);
+  // (2026-10-19 눈 깜빡임 고침: 미리 보기는 paintHdStage — 그 안에서 actorNodes(m, { motion }) 로 그린다)
+  assert.match(character, /paintHdStage\(stage, markup, \{ motion: pickMotion,/);
+  assert.match(cards, /const nodes = actorNodes\(markup, \{ motion \}\);/);
   assert.match(character, /mLine = motionLine\(catalog, pickMotion, nowMotion\);/); assert.match(character, /setStageMotion\(stage, pickMotion\);/);
   assert.match(character, /toast\(MOTION_COPIED\(mLine\)\)/); assert.match(character, /selectNodeContents\(mLineEl\)/, '복사가 안 되면 글을 골라 둔다');
   // 옷 도감: 모션 묶음(필터 · 칸), 칸마다 움직이는 예시 캐릭터와 명령 복사

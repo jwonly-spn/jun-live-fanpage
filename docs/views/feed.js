@@ -9,7 +9,7 @@
 // DOM 은 함수 안에서만(노드 시험에서 글 도우미를 불러 쓴다).
 import { h, icon, toast, store } from '../lib/dom.js';
 import { kiugiApi, fastApi } from '../api.js';
-import { expressionFor } from '../lib/kiugi-draw.js';
+import { expressionFor, titleList, titleImageUrl } from '../lib/kiugi-draw.js';
 import { photoBox, petTile, prefetchLook } from '../lib/raster.js';
 import { sendHeart, sentToday, heartKey, sentCount, kstDay } from '../lib/hearts.js';
 import { listMine, addMine, removeMine, isMine, isFav, addFav, removeFav, charKey, missionOf, snapOf, observe, MINE_MAX, FAV_MAX } from '../lib/me.js';
@@ -88,21 +88,24 @@ export function burstLayer() {
 export function postCard(c, ctx, opts = {}) {
   const { app, catalog, seasonId = null } = ctx;
   const character = c.character || ctx.lookOf?.(c.slug) || null;
-  const level = Math.max(1, Number(c.level) || 1), expr = expressionFor(catalog, seasonId, level).name;
+  // 표정: 먼치킨 !표정 으로 고른 표정(exp — 열려 있으면), 아니면 레벨 표정
+  const level = Math.max(1, Number(c.level) || 1), exp = Number.isInteger(c.exp) ? c.exp : null, expr = expressionFor(catalog, seasonId, level, exp).name;
   const base = baseOf(c.id), href = app.link({ name: 'character', slug: c.slug, base });
   const djName = c.djName || ctx.djNameOf?.(c.slug) || '';
   const pet = character ? buddyOf(catalog, c.pet) : null;
-  const label = `${c.id} 캐릭터 · Lv.${level} ${expr}`;
+  // 단 칭호(2026-10-19 사용자 "카드에도 칭호"): 사진에는 그리지 않고 아래 글 칸에 작게(배지 그림, 없으면 글자)
+  const title = titleList(catalog, c.titles)[0] || null;
+  const label = `${c.id} 캐릭터 · Lv.${level} ${expr}${title ? ` · 칭호 ${title.name}` : ''}`;
   // 캐릭터 페이지가 바로 그릴 수 있게 아는 것을 미리 둔다(서버 답은 그 뒤에 — 1~2초)
-  primePreview(c.slug, base, { id: c.id, level, worn: c.worn || {}, hearts: c.hearts, pet: c.pet || null, ...(c.titles ? { titles: c.titles } : {}), season: ctx.season || (seasonId ? { id: seasonId } : null), dj: { slug: c.slug, name: djName, character } });
-  const photo = photoBox({ catalog, character, worn: c.worn, level, seasonId, base: app.base, kind: 'photo' }, {
+  primePreview(c.slug, base, { id: c.id, level, worn: c.worn || {}, hearts: c.hearts, pet: c.pet || null, ...(c.titles ? { titles: c.titles } : {}), ...(exp ? { exp } : {}), season: ctx.season || (seasonId ? { id: seasonId } : null), dj: { slug: c.slug, name: djName, character } });
+  const photo = photoBox({ catalog, character, worn: c.worn, level, exp, seasonId, base: app.base, kind: 'photo' }, {
     eager: opts.eager, label,
     // 캔버스로 그리지 못하면(예전 브라우저 등) 예전 SVG 그림으로 — 같은 칸 자르기(styles.css .kg-stage.photo-cut)
-    onFail: (box) => box.replaceWith(art(catalog, character, c.worn, level, { seasonId, base: app.base, label, eager: true, kind: 'photo-cut' })),
+    onFail: (box) => box.replaceWith(art(catalog, character, c.worn, level, { seasonId, base: app.base, label, eager: true, kind: 'photo-cut', exp })),
   });
   const burst = burstLayer();
   const heart = heartPill({ slug: c.slug, id: c.id, seasonId, hearts: c.hearts }, { onSent: burst.go, big: opts.variant === 'spot' });
-  const warm = () => { void fastApi.person(c.slug, c.id).fresh.catch(() => {}); prefetchLook({ catalog, character, worn: c.worn, level, seasonId, base: app.base }); };
+  const warm = () => { void fastApi.person(c.slug, c.id).fresh.catch(() => {}); prefetchLook({ catalog, character, worn: c.worn, level, exp, seasonId, base: app.base }); };
   // 사진 전체를 덮는 링크(화면 읽기·키보드는 아래 아이디 링크 하나로 — 같은 곳이라 두 번 읽지 않게)
   const cover = h('a', { class: 'kg-post-cover', href, 'data-link': '', tabindex: '-1', 'aria-hidden': 'true' });
   let lastTap = 0, tapTimer = 0, ptype = '';
@@ -120,8 +123,11 @@ export function postCard(c, ctx, opts = {}) {
   const tag = opts.tag ? h('span', { class: 'kg-post-tag' }, opts.tag) : null;
   const petEl = pet ? petTile(pet, app.base, { label: `함께하는 펫 ${pet.name} ${'★'.repeat(pet.stage)}` }) : null;
   const media = h('div', { class: 'kg-post-media' + (character ? '' : ' no-art') }, photo, rank, tag, petEl, burst.el, cover);
-  const who = ilink(href, { class: 'kg-post-who', 'aria-label': `${c.id} · Lv.${level} ${expr}${djName ? ` · ${djName} 키우기` : ''} — 캐릭터 보기` },
+  const titleEl = title ? h('span', { class: 'kg-post-title' + (title.image ? '' : ' is-word') },
+    title.image ? h('img', { class: 'kg-post-title-img', src: titleImageUrl(title, app.base), alt: '', decoding: 'async', loading: opts.eager ? 'eager' : 'lazy' }) : title.name) : null;
+  const who = ilink(href, { class: 'kg-post-who', 'aria-label': `${c.id} · Lv.${level} ${expr}${title ? ` · 칭호 ${title.name}` : ''}${djName ? ` · ${djName} 키우기` : ''} — 캐릭터 보기` },
     h('b', { class: 'kg-post-id' }, ...idText(c.id)),
+    titleEl,
     h('span', { class: 'kg-post-sub' }, h('span', { class: 'kg-lv' }, `Lv.${level}`), h('span', { class: 'kg-post-expr' }, expr),
       djName && opts.showDj !== false ? h('span', { class: 'kg-post-dj' }, `${djName} 키우기`) : null));
   who.addEventListener('pointerdown', warm, { passive: true });
@@ -209,11 +215,11 @@ export function markDjSeen(slug, now = Date.now()) { const list = seenDjs(now).f
 export function storyRings(djs, ctx, { mine = [], onMine = null, onAdd = null } = {}) {
   const seen = new Set(seenDjs());
   // cssWidth: 동그라미 크기(그리기 전에도 같은 배율 — 이 브라우저 사진 캐시 열쇠가 바뀌지 않게)
-  const pic = (character, worn = {}, level = 1, label = '') => h('span', { class: 'kg-ring-pic' }, photoBox({ catalog: ctx.catalog, character, worn, level, seasonId: ctx.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }, { label, eager: true, low: true }));
+  const pic = (character, worn = {}, level = 1, label = '', exp = null) => h('span', { class: 'kg-ring-pic' }, photoBox({ catalog: ctx.catalog, character, worn, level, exp, seasonId: ctx.seasonId, base: ctx.app.base, kind: 'bust', cssWidth: 82 }, { label, eager: true, low: true }));
   const items = [];
   for (const { entry: e, look = null, news = 0 } of mine) {
     const tag = e.id.slice(e.id.indexOf('#'));
-    const face = look ? pic(look.character, look.worn, look.level) : h('span', { class: 'kg-ring-pic plain' }, icon('user', { size: 26 }));
+    const face = look ? pic(look.character, look.worn, look.level, '', look.exp ?? null) : h('span', { class: 'kg-ring-pic plain' }, icon('user', { size: 26 }));
     // 동그라미 오른쪽 아래 작은 사람 표시 = 내 캐릭터(DJ 동그라미와 구별)
     face.append(h('span', { class: 'kg-ring-mine', 'aria-hidden': 'true' }, icon('user', { size: 12 })));
     items.push(h('li', null, h('button', { type: 'button', class: 'kg-ring is-me' + (news ? ' has-news' : ''), onclick: () => onMine?.(e), 'aria-label': `내 캐릭터 ${e.id}${news ? ` · 새 소식 ${news}개` : ''}` },
@@ -280,7 +286,7 @@ export function newsHead(diff) {
   return diff.up ? ['지난 방문 뒤로 이만큼 자랐어요!', ''] : ['지난 방문 뒤로 달라진 것', ''];
 }
 // 캐릭터 그림에 쓸 것(DJ 캐릭터 · 입은 옷 · 레벨 · 시즌) — 캐릭터 답에서
-export const lookOfPerson = (data) => (data?.dj?.character ? { character: data.dj.character, worn: data.worn || {}, level: data.level, seasonId: data.season?.id || null } : null);
+export const lookOfPerson = (data) => (data?.dj?.character ? { character: data.dj.character, worn: data.worn || {}, level: data.level, exp: Number.isInteger(data.exp) ? data.exp : null, seasonId: data.season?.id || null } : null);
 // 이 브라우저가 이미 받아 둔 답에서만 찾는다(서버에 묻지 않는다): 캐릭터 답 → 메인 인기·새로 꾸민 카드 + DJ 캐릭터 → DJ 페이지 1~3등. 없으면 null.
 export function cachedLook(entry) {
   const p = lookOfPerson(fastApi.peekPerson(entry.slug, entry.id));
@@ -289,9 +295,10 @@ export function cachedLook(entry) {
   const home = fastApi.peekHome();
   const dj = (home?.djs || []).find((d) => d.slug === entry.slug);
   const c = [...(home?.popular || []), ...(home?.recent || [])].find((x) => x.slug === entry.slug && isIt(x));
-  if (dj?.character && c) return { character: dj.character, worn: c.worn || {}, level: c.level, seasonId: home.season?.id || null };
+  const expOf = (x) => (Number.isInteger(x?.exp) ? x.exp : null);
+  if (dj?.character && c) return { character: dj.character, worn: c.worn || {}, level: c.level, exp: expOf(c), seasonId: home.season?.id || null };
   const page = fastApi.peekPage(entry.slug), t = (page?.top || []).find(isIt);
-  if (page?.character && t) return { character: page.character, worn: t.worn || {}, level: t.level, seasonId: page.season?.id || null };
+  if (page?.character && t) return { character: page.character, worn: t.worn || {}, level: t.level, exp: expOf(t), seasonId: page.season?.id || null };
   return null;
 }
 
@@ -340,7 +347,7 @@ export function meSection(ctx, { onFind = null, rankOf = () => null, onState = n
   // replaceChildren 에 null 을 넘기면 "null" 글자가 생기므로 빈 것은 뺀다. 아래 줄(내 캐릭터 페이지 · 빼기)은 늘 끝에.
   const setNews = (it, kids) => it.news.replaceChildren(...kids.filter(Boolean), it.acts);
   function showCard(it, data) {
-    const k = JSON.stringify([data.worn, data.level, data.pet, data.dj?.character]);
+    const k = JSON.stringify([data.worn, data.level, data.exp ?? null, data.titles ?? null, data.pet, data.dj?.character]);
     if (k === it.shown) { it.cardHost.querySelector('.kg-post')?.kgHeart?.set(data.hearts); return; }
     it.shown = k;
     it.cardHost.replaceChildren(postCard({ ...data, slug: it.entry.slug, djName: data.dj?.name || it.entry.djName, character: data.dj?.character || null },

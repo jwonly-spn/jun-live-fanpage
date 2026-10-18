@@ -439,9 +439,11 @@ test('캐릭터 페이지: 캐릭터 그림 바로 아래 따로 있는 "저장�
   assert.match(src, /hintSaveButton\(saveBtn\)/, '브라우저에서 ?save=1 로 열리면 저장하기를 알려 준다');
   // 2026-10-15: 그림과 함께하는 펫 표(kg-hero-stage) 바로 아래 — 2026-10-18 새 구조: 무대(heroStage = 그림 + 펫)는 같은 모습이면 다시 쓰고, 그 바로 아래 저장하기
   //  (2026-10-18 R9: 무대 그림은 hd: true — 고해상도로 바꿔 그린다)
-  assert.match(src, /kind: 'hero', hd: true \}\),\s*petBuddy\(buddy, app\.base\)\);/, '무대 = 캐릭터 그림 + 함께하는 펫');
+  //  (2026-10-19: 고른 표정 exp 도 · 모습이 바뀌면 같은 무대 칸에 다시 그린다 — 눈 깜빡임 고침)
+  assert.match(src, /const artEl = art\(catalog, dj\.character, [^\n]*kind: 'hero', hd: true, exp \}\);\s*heroStage = h\('div', \{ class: 'kg-hero-stage'[^\n]*\}, artEl, petBuddy\(buddy, app\.base\), burst\.el\);/, '무대 = 캐릭터 그림 + 함께하는 펫');
   assert.match(src, /saveCharacterImage\(card\(\), \{ base, returnTo: btn, hd: renderHdCharacter \}\)/, '저장 그림의 캐릭터는 고해상도로(못 받으면 호환 그림)');
-  assert.match(src, /h\('div', \{ class: 'kg-hero-art' \},\s*(\/\/[^\n]*\s*)?heroStage,\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
+  //  (2026-10-19: 그림 바로 아래 보기 단추 줄(전신·상반신·얼굴), 그 아래 저장하기)
+  assert.match(src, /h\('div', \{ class: 'kg-hero-art' \},\s*(\/\/[^\n]*\s*)?heroStage,\s*dj\.character \? viewRow : null,\s*saveBtn \? h\('div', \{ class: 'kg-save-row' \}, saveBtn\) : null\),/, '그림 칸(kg-hero-art) 안, 그림 바로 아래');
   assert.match(src, /h\('div', \{ class: 'kg-heart-row' \}, heartBtn,\s*h\('button', \{ type: 'button', class: 'btn btn-line kg-copy-btn', onclick: \(\) => copyLink\(url, copyBox\) \}, icon\('link', \{ size: 18 \}\), '링크 복사'\)\),/, '하트·링크 복사 줄은 예전 그대로(저장 단추를 섞지 않는다)');
   assert.match(src, /expression: look, seasonName: data\.season\?\.name \|\| '', hearts/, '화면과 같은 표정·시즌·지금 하트 수');
   const { saveButton } = await import('../docs/views/character.js');

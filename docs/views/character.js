@@ -16,17 +16,18 @@ import { h, icon, toast, copyText } from '../lib/dom.js';
 import { kiugiApi, fastApi } from '../api.js';
 import { sameData, peekPreview } from '../lib/swr.js';
 import { observe, snapOf } from '../lib/me.js';
-import { loadCatalog, buildCatalog, wornList, expressionFor, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, paintMarkup, petStage, motionOf, motionList, motionDoing, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
+import { loadCatalog, buildCatalog, wornList, expressionFor, expressionList, shownExp, itemCodeOf, titleList, titleImageUrl, titleOpenDate, characterMarkup, petStage, motionOf, motionList, motionDoing, MOTIONS_READY, MOTION_WAIT } from '../lib/kiugi-draw.js';
 import { copyCode, chatHint, titleEffects, itemGroups, motionPriceText } from './items.js';
 import { applyTryOn, toggleTry, canTry, itemShown, wornIds, bareWorn, BARE_NOTE, tryCodes, tryLine, tryTotal, tryNotes, tryNote, copiedText,
   toggleTitle, canTitle, pickedTitle, shownTitle, titleOf, wornTitleOf, TRY_MAX, TRY_FULL, TITLE_WORN,
-  motionLine, motionCommand, MOTION_OFF, MOTION_COPIED } from '../lib/try-on.js';
+  motionLine, motionCommand, MOTION_OFF, MOTION_COPIED, expLine, EXP_LOCKED, EXP_COPIED } from '../lib/try-on.js';
+import { photoBox } from '../lib/raster.js';
 import { heartKey, sentToday, sendHeart } from '../lib/hearts.js';
 import { saveCharacterImage, hintSaveButton, SAVE_LABEL, SAVE_BUSY, SAVE_FAILED } from '../lib/kiugi-save.js';
 import { upgradeStage, renderHdCharacter } from '../lib/kiugi-hd.js';
 import { ilink, loading, nightTop, siteFoot, secHead, share, BRAND, isAlbumPreview, applySeasonTheme } from './common.js';
 import { characterWardrobe } from './album.js';
-import { art, itemArt, copyLink, idText, actorNodes, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf } from './cards.js';
+import { art, itemArt, copyLink, idText, setStageMotion, stars, petImage, petImageUrl, petBuddy, buddyOf, paintHdStage } from './cards.js';
 import { postCard, pinButton, favButton, burstLayer, HEART_ALREADY } from './feed.js';
 
 // 이 브라우저 저장소(막혀 있으면 null — lib/hearts.js 가 이번 창에서만 기억)
@@ -107,9 +108,14 @@ export const TITLE_TAB = 'title';
 //  옷 한 줄과 따로 "!모션 춤"(모션 없이를 고르면 "!모션 끄기")을 복사한다. 지금 하는 모션(서버가 보낸 motion)은 "하는 중" — 미리 보기도 처음엔 그 모션.
 export const MOTION_TAB = 'motion';
 export const MOTION_EMPTY = '모션을 고르면 여기에 채팅 한 줄이 생겨요';
+// 표정 탭(2026-10-19 사용자 "옷 입히기처럼 사이트에서 고르고 명령어로 바로 복사"): 옷 묶음 뒤(칭호 앞). "자동(레벨 표정)" + 시즌 표정 10개 —
+//  지금 레벨까지 열린 표정만 고를 수 있고(잠긴 것은 "Lv.n" — 누르면 "Lv.n이 되면 쓸 수 있어요"), 고르면 미리 보기 표정이 바뀐다.
+//  옷 채팅과 따로 "!표정 방긋"(자동을 고르면 "!표정 자동")을 복사한다 — 고른 것이 있으면 위 채팅 칸 아래에도 한 줄(어느 탭에서든 보인다).
+//  지금 고른 표정(서버가 보낸 exp — 열린 것만)은 "쓰는 중".
+export const EXP_TAB = 'expression';
 // pet(2026-10-15 사용자 "펫이 여기 같이 나와야 한다 귀엽고 이쁘게"): 함께하는 펫 — 미리 보기 오른쪽 아래에 같이 선다(옷과 상관없이 그대로)
-// motion: 지금 하는 모션 id(서버가 보낸 것 — 시즌 목록에 없으면 모션 없음)
-export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app, pet = null, motion = null }) {
+// motion: 지금 하는 모션 id(서버가 보낸 것 — 시즌 목록에 없으면 모션 없음) · exp: 지금 고른 표정 번호(서버가 보낸 것 — 없으면 자동)
+export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], level, app, pet = null, motion = null, exp = null }) {
   const sid = catalog?.seasons?.[seasonId] ? seasonId : catalog?.last;
   const { groups, titles = [], rule = null } = itemGroups(catalog, sid);
   if (!dj?.character || !groups.length) return null;
@@ -117,8 +123,11 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const reduced = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
   // 지금 단 칭호(시즌 목록에 있는 것만) · 칭호 상점이 열리기 전이면 여는 날("10월 30일")
   const wornTitle = wornTitleOf(catalog, wearing), openDate = titleOpenDate(rule);
-  // 탭 = 옷 묶음들 + (칭호가 있는 시즌이면) 칭호
-  const tabList = [...groups, ...(titles.length ? [{ slot: TITLE_TAB, name: '칭호', items: titles, title: true }] : [])];
+  // 표정: 시즌 표정 목록(열림 표시) · 지금 고른 표정(열린 것만, 없으면 null = 자동) · 미리 보는 표정(pickExp — null = 자동)
+  const exps = expressionList(catalog, sid, level), nowExp = shownExp(catalog, sid, level, exp);
+  let pickExp = nowExp;
+  // 탭 = 옷 묶음들 + 표정 + (칭호가 있는 시즌이면) 칭호
+  const tabList = [...groups, ...(exps.length ? [{ slot: EXP_TAB, name: '표정', items: exps, exp: true }] : []), ...(titles.length ? [{ slot: TITLE_TAB, name: '칭호', items: titles, title: true }] : [])];
   // + (모션이 있는 시즌이면) 모션 — 지금 하는 모션(nowMotion)과 미리 보는 모션(pickMotion)
   const motions = MOTIONS_READY ? motionList(catalog, sid) : [], nowMotion = MOTIONS_READY ? motionOf(catalog, motion)?.id || null : null;
   let pickMotion = nowMotion;
@@ -130,15 +139,20 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const openLabel = h('span', null, TRY_TITLE);
   const openBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-open', 'aria-expanded': 'false', 'aria-controls': 'try' }, icon('hanger', { size: 19 }), openLabel);
   const section = h('section', { class: 'kg-sec kg-try', id: 'try', hidden: true, tabindex: '-1', 'aria-labelledby': 'try-title' });
-  // 미리 보기(위에 칭호 배지) · 채팅 한 줄 · 단추 · 합계
-  const stage = h('div', { class: 'kg-stage char kg-try-stage' });
+  // 미리 보기(위에 칭호 띠 — 그림 바깥, 2026-10-19 사용자: 그림 위에 겹쳐 캐릭터·배경을 가리지 않게) · 채팅 한 줄 · 단추 · 합계
+  const stage = h('div', { class: 'kg-stage char kg-try-stage is-hd-stage' });
   const badgeImg = h('img', { class: 'kg-try-title-img', alt: '', decoding: 'async' });
   const badgeWord = h('b', { class: 'kg-title-word' });
   const titleTag = h('div', { class: 'kg-try-title', hidden: true });
-  const lookEl = h('div', { class: 'kg-try-look' + (pet ? ' has-pet' : '') }, titleTag, stage, petBuddy(pet, app.base));
+  const lookEl = h('div', { class: 'kg-try-look' + (pet ? ' has-pet' : '') }, titleTag, h('div', { class: 'kg-try-stage-wrap' }, stage, petBuddy(pet, app.base)));
   const lineEl = h('p', { class: 'kg-try-line is-empty', id: 'try-line' }, TRY_EMPTY);
   const copyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-copy', disabled: true, 'aria-describedby': 'try-line', onclick: () => copyLine() }, icon('copy', { size: 18 }), h('span', null, '복사'));
-  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { pickMotion = nowMotion; tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
+  const resetBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-reset', disabled: true, onclick: () => { pickMotion = nowMotion; pickExp = nowExp; tried = []; title = null; bare = false; sync(); } }, icon('undo', { size: 18 }), h('span', null, '원래대로'));
+  // 표정 채팅 한 줄(고른 표정이 지금과 다를 때만 — 옷 채팅 아래)
+  let eLine = '';
+  const eLineEl = h('p', { class: 'kg-try-line', id: 'try-exp-line' });
+  const eCopyBtn = h('button', { type: 'button', class: 'btn btn-accent kg-try-ecopy', 'aria-label': '표정 채팅 복사', title: '표정 채팅 복사', 'aria-describedby': 'try-exp-line', onclick: () => copyExp() }, icon('copy', { size: 18 }));
+  const expRow = h('div', { class: 'kg-try-exprow', role: 'group', 'aria-label': '표정 채팅', hidden: true }, eLineEl, eCopyBtn);
   // 맨몸부터: 누르면 켜고 끄기(켜면 입은 옷이 모두 벗겨진 모습에서 시작 — 고른 옷은 그대로 둔다)
   const bareBtn = h('button', { type: 'button', class: 'btn btn-line kg-try-bare', 'aria-pressed': 'false', title: '입은 옷을 모두 벗긴 모습에서 입혀 봐요 (!다벗기)',
     onclick: () => { bare = !bare; sync(); } }, icon('hanger', { size: 18 }), h('span', null, '맨몸부터'));
@@ -148,7 +162,7 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
   const gridHost = h('div', { class: 'kg-try-grid-host' });
   const top = h('div', { class: 'kg-try-top' },
     lookEl,
-    h('div', { class: 'kg-try-cmd' }, h('span', { class: 'kg-try-label' }, '채팅에 붙여 넣기'), lineEl, h('div', { class: 'kg-try-actions' }, copyBtn, resetBtn, bareBtn), sum, hint),
+    h('div', { class: 'kg-try-cmd' }, h('span', { class: 'kg-try-label' }, '채팅에 붙여 넣기'), lineEl, h('div', { class: 'kg-try-actions' }, copyBtn, resetBtn, bareBtn), sum, hint, expRow),
     tabs);
   const lists = new Map(), tiles = new Map(), titleTiles = new Map(), tabBtns = new Map();
 
@@ -235,8 +249,42 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
       : now ? `지금 ${motionDoing(now)}이에요` : '모션을 누르면 미리 볼 수 있어요';
     setStageMotion(stage, pickMotion);
   };
+  // 표정 칸: 얼굴 그림(지금 입은 옷 그대로 그 표정 — 작은 사진) · 번호(Lv.n) · 이름 · 한 줄 설명. 잠긴 표정은 어둡게 + "Lv.n" 자물쇠.
+  //  "자동" 칸: 레벨 표정(지금 레벨의 표정 이름) — 고른 표정을 그만 쓰고 싶을 때.
+  const expTiles = new Map();
+  const autoExp = expressionFor(catalog, sid, level);
+  const expTile = (e) => {
+    const id = e ? e.level : null, mine = id === nowExp, locked = Boolean(e && !e.open);
+    const badge = h('span', { class: 'kg-try-badge', 'aria-hidden': 'true' });
+    const btn = h('button', { type: 'button', class: 'kg-try-pick', 'aria-pressed': 'false', onclick: () => pickExpTile(e),
+      'aria-label': e ? [`표정 ${e.name}`, `Lv.${e.level}`, locked ? EXP_LOCKED(e.level) : null, mine ? '지금 쓰는 중' : null].filter(Boolean).join(' · ') : `자동 — 레벨 표정(${autoExp.name})${mine ? ' · 지금' : ''}` }, e ? e.name : '자동');
+    const face = photoBox({ catalog, character: dj.character, worn: base(), level: Math.max(level, e?.level || 1), exp: e ? e.level : null, seasonId: sid, base: app.base, kind: 'bust', cssWidth: 104 }, { label: '' });
+    const li = h('li', { class: 'kg-try-tile is-exp' + (mine ? ' is-worn' : '') + (locked ? ' is-locked' : '') },
+      h('div', { class: 'kg-try-media kg-try-exp-media', 'aria-hidden': 'true' }, face, badge, locked ? h('span', { class: 'kg-try-lock' }, icon('lock', { size: 14 }), `Lv.${e.level}`) : null),
+      h('span', { class: 'kg-try-code', 'aria-hidden': 'true' }, e ? `Lv.${e.level}` : `레벨 표정 · ${autoExp.name}`),
+      btn,
+      h('span', { class: 'kg-try-desc', 'aria-hidden': 'true' }, e ? e.desc : '레벨이 오르면 표정이 저절로 바뀌어요'));
+    expTiles.set(id, { li, btn, badge, locked });
+    return li;
+  };
+  const expGrid = (g) => h('div', { class: 'kg-try-exps' },
+    h('p', { class: 'kg-try-tab-note' }, `지금 레벨(Lv.${level})까지 열린 표정을 고를 수 있어요. 표정을 누르면 미리 보기 얼굴이 바뀌고, 옷 채팅과 따로 표정 채팅 한 줄이 생겨요(냥은 들지 않아요).`),
+    h('ul', { class: 'kg-try-grid is-exps', 'aria-label': '표정' }, expTile(null), ...g.items.map(expTile)));
+  // 표정 누르기: 고르기 / 고른 표정을 다시 누르면 지금 표정으로 되돌리기 · 잠긴 표정은 알림만
+  const pickExpTile = (e) => {
+    if (e && !e.open) { toast(EXP_LOCKED(e.level)); return; }
+    const id = e ? e.level : null;
+    pickExp = id === pickExp ? nowExp : id;
+    sync();
+  };
+  const copyExp = async () => {
+    if (!eLine) return;
+    if (await copyText(eLine)) { toast(EXP_COPIED(eLine)); return; }
+    try { const sel = getSelection(), r = document.createRange(); r.selectNodeContents(eLineEl); sel.removeAllRanges(); sel.addRange(r); } catch { /* 고르기도 안 되는 브라우저 */ }
+    toast('복사하지 못했어요. 위 표정 채팅 글을 길게 눌러 복사해 주세요.', 'error');
+  };
   const listOf = (g) => {
-    if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : g.motion ? motionGrid(g) : h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit'))));
+    if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : g.motion ? motionGrid(g) : g.exp ? expGrid(g) : h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit'))));
     return lists.get(g.slot);
   };
   const showTab = (slot, { scroll = false } = {}) => {
@@ -259,16 +307,22 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
     }
   };
 
-  // 미리 보기 다시 그리기(그림 파일을 다 받은 뒤 한 번에 — 빨리 여러 번 눌러도 마지막 것만)
+  // 미리 보기 다시 그리기(그림 파일을 다 받은 뒤 한 번에 — 빨리 여러 번 눌러도 마지막 것만). 같은 모습·표정이면 다시 그리지 않는다.
+  //  고해상도(R9 원본 그림)로 — 옷·표정을 바꿀 때 지금 모습은 그대로 두고, 새 모습이 준비되면 바꿔 끼운다(views/cards.js paintHdStage — 눈 깜빡임 없이)
+  let painted = null;
   const paint = (look, codes) => {
+    const key = JSON.stringify([look, pickExp]);
+    if (key === painted) return;
+    painted = key;
     stage.setAttribute('aria-busy', 'true');
     let markup = null;
-    try { markup = characterMarkup(catalog, dj.character, look, level, { seasonId, base: app.base, label: codes.length ? `입혀 본 모습: ${codes.join(', ')}` : bare ? '맨몸' : '지금 입은 모습', stage: null }); } catch (e) { console.error(e); }
+    try { markup = characterMarkup(catalog, dj.character, look, level, { seasonId, base: app.base, label: codes.length ? `입혀 본 모습: ${codes.join(', ')}` : bare ? '맨몸' : '지금 입은 모습', stage: null, exp: pickExp }); } catch (e) { console.error(e); }
     if (!markup) { stage.replaceChildren(h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요')); stage.removeAttribute('aria-busy'); return; }
-    // 캐릭터는 숨쉬고, 고른 모션(pickMotion — 그림을 다 받은 때의 것)을 한다
-    paintMarkup(stage, markup, { make: (m) => actorNodes(m, { motion: pickMotion }), fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요') })
-      // 호환 그림을 먼저 보이고 고해상도(R9 원본 그림)로 바꾼다 — 옷을 바꿀 때마다 앞 것은 버린다(lib/kiugi-hd.js)
-      .then((done) => { if (done) { stage.removeAttribute('aria-busy'); upgradeStage(stage, { character: dj.character, worn: look, level, catalog, seasonId, base: app.base }); } })
+    const done = () => { if (painted === key) stage.removeAttribute('aria-busy'); };
+    stage.addEventListener('kg-stage-shown', done, { once: true });
+    // 캐릭터는 고른 모션(pickMotion — 그림을 다 받은 때의 것)을 한다
+    paintHdStage(stage, markup, { motion: pickMotion, fallback: h('span', { class: 'kg-noart' }, '그림을 그리지 못했어요'),
+      hd: { character: dj.character, worn: look, level, exp: pickExp, catalog, seasonId, base: app.base } })
       .catch((e) => { console.error(e); stage.removeAttribute('aria-busy'); });
   };
   // 미리 보기 위 칭호 배지: 고른 칭호, 없으면 지금 단 칭호(둘 다 없으면 숨김). 그림이 바뀔 때만 주소를 바꾼다(깜박이지 않게).
@@ -300,23 +354,33 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
       t.li.classList.toggle('is-on', on); t.li.classList.toggle('is-tried', isPicked); t.li.classList.toggle('is-off', id === wornTitle && !on);
       t.badge.textContent = id === wornTitle ? '다는 중' : isPicked ? '달아 봄' : '';
     }
+    for (const [id, t] of expTiles) {
+      const on = id === pickExp;
+      t.btn.setAttribute('aria-pressed', String(on));
+      t.li.classList.toggle('is-on', on); t.li.classList.toggle('is-tried', on && id !== nowExp); t.li.classList.toggle('is-off', id === nowExp && !on);
+      t.badge.textContent = id === nowExp ? (id ? '쓰는 중' : '지금') : on ? '골라 봄' : '';
+    }
     for (const g of tabList) {
-      const b = tabBtns.get(g.slot), n = g.title ? (picked ? 1 : 0) : g.motion ? (pickMotion !== nowMotion ? 1 : 0) : g.items.filter((it) => tried.includes(it.id)).length, badge = b?.querySelector('.kg-try-n');
+      const b = tabBtns.get(g.slot), n = g.title ? (picked ? 1 : 0) : g.motion ? (pickMotion !== nowMotion ? 1 : 0) : g.exp ? (pickExp !== nowExp ? 1 : 0) : g.items.filter((it) => tried.includes(it.id)).length, badge = b?.querySelector('.kg-try-n');
       if (!b) continue;
       badge.textContent = String(n); badge.hidden = !n;
-      b.setAttribute('aria-label', n ? (g.title ? `${g.name}, 달아 본 칭호 1개` : g.motion ? `${g.name}, 골라 본 모션 있음` : `${g.name}, 입혀 본 옷 ${n}벌`) : g.name);
+      b.setAttribute('aria-label', n ? (g.title ? `${g.name}, 달아 본 칭호 1개` : g.motion ? `${g.name}, 골라 본 모션 있음` : g.exp ? `${g.name}, 골라 본 표정 있음` : `${g.name}, 입혀 본 옷 ${n}벌`) : g.name);
     }
     if (motions.length) syncMotion();
+    // 표정 채팅(옷 채팅과 따로): 고른 표정이 지금과 다를 때만
+    eLine = expLine(exps, pickExp, nowExp);
+    expRow.hidden = !eLine; eLineEl.textContent = eLine; top.classList.toggle('has-exp', Boolean(eLine));
     line = tryLine(tried, catalog, sid, { title, wornTitle, bare });
-    lineEl.textContent = line || TRY_EMPTY;
+    lineEl.textContent = line || (eLine ? '옷은 그대로예요' : TRY_EMPTY);
     lineEl.classList.toggle('is-empty', !line);
-    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked && !bare && pickMotion === nowMotion;
+    copyBtn.disabled = !line; resetBtn.disabled = !tried.length && !picked && !bare && pickMotion === nowMotion && pickExp === nowExp;
     // 값: 지금 입은 옷은 가진 옷이라 빼고 센다(맨몸부터로 벗긴 옷을 다시 입어도 냥이 들지 않는다)
     const total = tryTotal(tried, catalog, { worn, title, wornTitle }), used = tried.length + (picked ? 1 : 0);
+    const expNote = pickExp !== nowExp ? `표정 ${pickExp ? exps.find((e) => e.level === pickExp)?.name || '' : `자동(${autoExp.name})`}` : null;
     sum.textContent = used
       ? [total.count ? `${total.count}벌` : null, picked ? '칭호 1개' : null, `합계 ${fmt(total.price)}냥`,
-        used >= TRY_MAX ? (picked ? `옷과 칭호를 합쳐 ${TRY_MAX}개까지` : `한 번에 ${TRY_MAX}벌까지`) : null].filter(Boolean).join(' · ')
-      : bare ? BARE_NOTE : '지금 입은 모습이에요';
+        used >= TRY_MAX ? (picked ? `옷과 칭호를 합쳐 ${TRY_MAX}개까지` : `한 번에 ${TRY_MAX}벌까지`) : null, expNote].filter(Boolean).join(' · ')
+      : expNote ? `${expNote} · 냥은 들지 않아요` : bare ? BARE_NOTE : '지금 입은 모습이에요';
     hint.textContent = tryNotes(base(), tried, catalog, { title, wornTitle, level }).join(' · ');
     showBadge();
     keepTab();
@@ -461,7 +525,9 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
 
   const titles = titleList(catalog, data.titles);
   const level = Number(data.level) || 1;
-  const look = expressionFor(catalog, seasonId, level), expression = look.name;
+  // 표정: 먼치킨 !표정 으로 고른 표정(exp — 지금 레벨까지 열린 것이면 그것), 아니면 레벨 표정
+  const exp = shownExp(catalog, seasonId, level, Number.isInteger(data.exp) ? data.exp : null);
+  const look = expressionFor(catalog, seasonId, level, exp), expression = look.name;
   const fact = (label, value) => h('div', { class: 'kg-fact' }, h('dt', null, label), h('dd', null, value));
   // 저장하기: 화면의 캐릭터와 같은 것(DJ 캐릭터 · 입은 옷 · 레벨 표정)으로 그린다. DJ 캐릭터가 없으면(그림 없음) 단추도 없다.
   const pets = partial ? [] : petList(catalog, data), buddyCard = partial ? buddyOf(catalog, data.pet) : null;
@@ -473,14 +539,28 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
   // 모션(2026-10-15): 지금 하는 모션(시즌 목록에 있는 것만) — 무대 캐릭터가 그 모션을 하고, 레벨 옆에 "💃 춤추는 중"
   const motion = MOTIONS_READY ? motionOf(catalog, data.motion) : null;
   const metPets = pets.filter((p) => p.stage > 0).length;
-  // 무대(전신): 같은 모습이면 지난번 그림 칸을 그대로 쓴다(미리 보기 → 서버 답으로 바꿀 때 깜박이지 않게)
-  const heroKey = JSON.stringify([dj.character, data.worn, level, motion?.id || null, buddy ? [buddy.id, buddy.stage] : null]);
-  const reuse = env.hero && env.hero.key === heroKey ? env.hero.node : null;
-  const heroStage = reuse || h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') },
-    art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero', hd: true }),
-    petBuddy(buddy, app.base));
-  if (!reuse) { heroStage.append(burst.el); env.hero = { key: heroKey, node: heroStage, go: burst.go }; }
-  else burst.go = env.hero.go;
+  // 무대(전신): 같은 모습이면 지난번 그림 칸을 그대로 쓴다(미리 보기 → 서버 답으로 바꿀 때 다시 그리지 않게 — 눈 깜빡임 고침 2026-10-19).
+  //  모습이 달라졌으면(옷·레벨·표정) 같은 무대 칸에 다시 그린다 — 지금 그림(고해상도)은 그대로 두고 새 그림이 준비되면 바꿔 끼운다(views/cards.js paintHdStage).
+  //  열쇠는 칸 차례와 상관없이(옷 {칸: id} 를 칸 이름 차례로) 만든다.
+  const sortedWorn = Object.entries(data.worn && typeof data.worn === 'object' ? data.worn : {}).sort(([a], [b]) => (a < b ? -1 : 1));
+  const lookKey = JSON.stringify([sortedWorn, level, exp]);
+  const baseKey = JSON.stringify([dj.slug, data.id, dj.character, motion?.id || null]);
+  const petKey = JSON.stringify(buddy ? [buddy.id, buddy.stage] : null);
+  const same = env.hero && env.hero.baseKey === baseKey ? env.hero : null;
+  let heroStage;
+  if (same) {
+    heroStage = same.node;
+    burst.go = same.go;
+    if (same.lookKey !== lookKey) { same.lookKey = lookKey; same.art.kgRedraw?.(data.worn, data.level, exp); }
+    if (same.petKey !== petKey) { same.petKey = petKey; heroStage.querySelector(':scope > .kg-pet-buddy')?.remove(); const p = petBuddy(buddy, app.base); if (p) heroStage.insertBefore(p, burst.el); heroStage.classList.toggle('has-pet', Boolean(buddy)); }
+  } else {
+    const artEl = art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, label: `${data.id} 캐릭터${motion ? ` · ${motionDoing(motion)}` : ''}`, eager: true, motion: motion?.id, kind: 'hero', hd: true, exp });
+    heroStage = h('div', { class: 'kg-hero-stage' + (buddy ? ' has-pet' : '') }, artEl, petBuddy(buddy, app.base), burst.el);
+    env.hero = { baseKey, lookKey, petKey, node: heroStage, art: artEl, go: burst.go };
+    if (env.view && env.view !== 'full') setHeroView(env, env.view, { now: true });
+  }
+  // 보기(2026-10-19 사용자 "얼굴 잘 보이게"): 전신 · 상반신 · 얼굴 — 고해상도로 그 부분만(lib/kiugi-hd.js 가 보이는 부분만 화면 배율로 다시 그린다)
+  const viewRow = heroViewRow(env);
   // 무대 두 번 톡톡 = 하트(휴대폰)
   if (!heroStage.kgTap) { heroStage.kgTap = true; let last = 0; heroStage.addEventListener('pointerup', (e) => { if (e.pointerType !== 'touch') return; const t = performance.now(); if (t - last < 320) { last = 0; heroStage.kgSend?.(); } else last = t; }); }
   heroStage.kgSend = sendNow;
@@ -494,6 +574,7 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
         h('div', { class: 'kg-hero-art' },
           // 함께하는 펫은 캐릭터 오른쪽 발치에 선다(캐릭터는 무대 한가운데 그대로 — 펫이 다리에 겹쳐도 된다, styles.css)
           heroStage,
+          dj.character ? viewRow : null,
           saveBtn ? h('div', { class: 'kg-save-row' }, saveBtn) : null),
         h('div', { class: 'kg-hero-copy' },
           ilink(djLink, { class: 'kg-crumb' }, `${dj.name} 키우기`, icon('arrow', { size: 14 })),
@@ -517,10 +598,21 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
           h('p', { class: 'kg-hero-note' }, '하트는 하루에 한 번 보낼 수 있어요(휴대폰은 캐릭터를 두 번 톡톡). 링크를 보내서 친구에게 하트를 부탁해 보세요.'),
           status, copyBox))));
   // 입혀 보기: "입은 옷" 제목 옆 단추로 열고, 칸은 입은 옷 바로 아래(주소가 #try 면 열어 둔다). 서버 답(단 칭호)을 받은 뒤에만.
-  const tryOn = partial ? null : tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id });
+  const tryOn = partial ? null : tryOnPanel({ catalog, seasonId, dj, worn: data.worn, titles: data.titles, level, app, pet: buddy, motion: motion?.id, exp });
+  // 캐릭터 옷장의 "현재 모습"(큰 무대)도 같은 모습이면 지난번 칸을 그대로(다시 그릴 때마다 고해상도를 새로 그리지 않게), 달라졌으면 같은 칸에 다시 그린다
+  let closetStage = null;
+  if (!partial && isAlbumPreview() && dj.character) {
+    if (env.closet && env.closet.baseKey === baseKey) {
+      closetStage = env.closet.node;
+      if (env.closet.lookKey !== lookKey) { env.closet.lookKey = lookKey; closetStage.kgRedraw?.(data.worn, data.level, exp); }
+    } else {
+      closetStage = art(catalog, dj.character, data.worn, data.level, { seasonId, base: app.base, eager: true, label: `${data.id} 전신 캐릭터`, kind: 'album-body', hd: true, exp });
+      env.closet = { baseKey, lookKey, node: closetStage };
+    }
+  }
   const closet = !partial && isAlbumPreview() ? h('section', { class: 'kg-sec album-detail-wardrobe', id: 'wardrobe' },
     secHead('캐릭터 옷장', '입은 옷을 확인하고 다른 옷을 입혀 봐요.', tryOn?.openBtn || null),
-    characterWardrobe(data, { app, catalog, onTry: () => tryOn?.open(), onCopyCode: copyCode })) : null;
+    characterWardrobe(data, { app, catalog, onTry: () => tryOn?.open(), onCopyCode: copyCode, stage: closetStage })) : null;
   main.replaceChildren(...[
     closet || h('section', { class: 'kg-sec' },
       secHead('입은 옷', worn.length ? `${worn.length}벌을 입고 있어요. 번호를 누르면 같은 옷을 사는 채팅이 복사돼요.` : '아직 아무것도 입지 않았어요.', tryOn?.openBtn || null),
@@ -542,6 +634,32 @@ function paintCharacter(data, catalog, env, { partial = false } = {}) {
       h('div', { class: 'kg-banner-text' }, h('b', null, `${dj.name} 키우기`), h('p', null, '이번 시즌 1~3등과 내 아이디 찾기는 DJ 키우기 페이지에 있어요.')),
       ilink(djLink, { class: 'btn btn-line' }, `${dj.name} 키우기 보기`, icon('arrow', { size: 16 })))].filter(Boolean));
   if (tryOn && location.hash === '#try') tryOn.open({ scroll: false });
+}
+
+// ---- 무대 보기: 전신 · 상반신 · 얼굴(2026-10-19 사용자 "얼굴 잘 보이게") ----
+//  무대 칸(2:3)은 그대로 두고 그 안의 캐릭터 칸(1024 캔버스)만 키워 그 부분이 보이게 한다(styles.css .kg-stage.char.hero.view-upper · .view-face —
+//  남녀 기준점 anchors.json 의 머리 꼭대기(hairCrown)·얼굴 가운데 줄(faceAxisX)로 자리를 맞춘다. 여자는 무대에서 0.91배라 그만큼 옮긴 자리).
+//  고해상도는 lib/kiugi-hd.js 가 칸 크기가 바뀐 것을 보고 보이는 부분만 화면 배율(최대 4)로 다시 그린다 — 호환 그림을 늘려 보이지 않는다.
+//  바뀌는 동안은 지금 고해상도 그림이 같이 커지고(잠깐 흐릴 수 있다), 그림 밖은 호환 그림이 채운다. 배경 장면은 그대로(커지지 않는다), 함께하는 펫은 전신에서만.
+//  고른 보기는 이 화면에서만 기억한다(저장하기는 늘 전신 사진).
+export const HERO_VIEWS = Object.freeze([['full', '전신'], ['upper', '상반신'], ['face', '얼굴']]);
+function setHeroView(env, view, { now = false } = {}) {
+  env.view = HERO_VIEWS.some(([v]) => v === view) ? view : 'full';
+  const node = env.hero?.node, stage = env.hero?.art;
+  if (!node || !stage) return;
+  if (now) stage.classList.add('kg-view-now');
+  for (const [v] of HERO_VIEWS) stage.classList.toggle('view-' + v, v === env.view && v !== 'full');
+  node.classList.toggle('is-zoom', env.view !== 'full');
+  // 바뀌는 동안 고해상도 그림 밖(지금 그림이 덮지 못한 곳)이 비지 않게 호환 그림을 밑에 보인다 — 새 고해상도가 오면 다시 숨는다
+  for (const a of stage.querySelectorAll(':scope > .kg-actor')) a.classList.remove('is-hd');
+  if (now) requestAnimationFrame(() => requestAnimationFrame(() => stage.classList.remove('kg-view-now')));
+  for (const b of env.viewBtns || []) b.setAttribute('aria-pressed', String(b.dataset.view === env.view));
+}
+function heroViewRow(env) {
+  env.view ||= 'full';
+  const btns = HERO_VIEWS.map(([v, name]) => h('button', { type: 'button', class: 'kg-view-btn', 'data-view': v, 'aria-pressed': String(env.view === v), onclick: () => { if (env.view !== v) setHeroView(env, v); } }, name));
+  env.viewBtns = btns;
+  return h('div', { class: 'kg-view-row', role: 'group', 'aria-label': '캐릭터 보기' }, ...btns);
 }
 
 // 같은 방송의 다른 캐릭터: DJ 페이지 1~3등 + 메인 인기·새로 꾸민 목록에서 이 방송 것(지난번 답이 있으면 바로, 없으면 받아서). 나는 빼고 여섯까지.

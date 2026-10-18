@@ -13,7 +13,8 @@ import { seasonLine, dDay } from './kiugi.js';
 
 const fmt = (n) => Number(n || 0).toLocaleString('ko-KR');
 
-export function characterWardrobe(card, { app, catalog, onTry, onCopyCode }) {
+// stage: 캐릭터 페이지가 넘겨 주는 "현재 모습" 무대 칸(같은 모습이면 다시 그릴 때 같은 칸을 그대로 쓴다 — views/character.js). 없으면 여기서 만든다.
+export function characterWardrobe(card, { app, catalog, onTry, onCopyCode, stage: given = null }) {
   const ctx = { app, catalog };
   const dj = card.dj || {};
   const character = dj.character;
@@ -25,8 +26,8 @@ export function characterWardrobe(card, { app, catalog, onTry, onCopyCode }) {
     h('div', { class: 'album-person-name' }, h('span', null, `${dj?.name || card.djName || 'DJ'} 키우기`),
       h('h3', null, ...idText(card.id))),
     ilink(app.link({ name: 'items' }), { class: 'album-detail-catalog' }, '옷 도감', icon('arrow', { size: 15 })));
-  // 현재 모습(전신 — 큰 칸): 고해상도(R9 원본 그림)로 바꿔 보인다
-  const stage = art(ctx.catalog, character, card.worn, card.level, { seasonId, base: ctx.app.base, eager: true, label: `${card.id} 전신 캐릭터`, kind: 'album-body', hd: true });
+  // 현재 모습(전신 — 큰 칸): 고해상도(R9 원본 그림)로 · 고른 표정(exp)이 열려 있으면 그 표정
+  const stage = given || art(ctx.catalog, character, card.worn, card.level, { seasonId, base: ctx.app.base, eager: true, label: `${card.id} 전신 캐릭터`, kind: 'album-body', hd: true, exp: Number.isInteger(card.exp) ? card.exp : null });
   const look = h('div', { class: 'album-look' },
     h('div', { class: 'album-look-top' }, h('span', { class: 'album-sticker' }, icon('hanger', { size: 14 }), '현재 모습'), level),
     h('div', { class: 'album-fullbody' }, stage,

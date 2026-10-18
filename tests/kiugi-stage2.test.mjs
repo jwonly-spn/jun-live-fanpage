@@ -308,6 +308,27 @@ test('칭호(titles): 먼치킨이 올린 단 칭호가 캐릭터·1~3등·찾�
   noSecrets(person); noSecrets(page); noSecrets(home);
 });
 
+test('표정(exp — 먼치킨 !표정): 고른 표정이 캐릭터·1~3등·찾기·메인 인기·새로 꾸민·전체 찾기에 그대로, 고르지 않은(예전 판) 사람은 칸이 없다', async () => {
+  const w = world();
+  const k = w.approve();
+  const slug = (await w.upload(k, PAYLOAD([
+    PERSON('밤톨', 900, { worn: { top: 'top_11' }, exp: 3 }),
+    PERSON('사탕요정', 500, { worn: { top: 'top_12' }, exp: 12 }),
+  ]))).json.slug;
+  await w.heart(slug, '밤톨', TOKEN(1));
+  const person = (await body(await w.get(`person?slug=${slug}&id=${enc('밤톨')}`))).json;
+  assert.equal(person.exp, 3);
+  assert.ok(!('exp' in (await body(await w.get(`person?slug=${slug}&id=${enc('사탕요정')}`))).json), '1~10 이 아니면 칸이 없다(자동)');
+  const page = (await body(await w.get('page?slug=' + slug))).json;
+  assert.deepEqual(page.top.map((p) => p.exp ?? null), [3, null]);
+  assert.equal((await body(await w.get(`find?slug=${slug}&q=${enc('밤톨')}`))).json.results[0].exp, 3);
+  const home = (await body(await w.get('home'))).json;
+  assert.deepEqual(home.popular.map((c) => [c.id, c.exp ?? null]), [['밤톨#먼치', 3]]);
+  assert.deepEqual(home.recent.map((c) => [c.id, c.exp ?? null]), [['밤톨#먼치', 3], ['사탕요정#먼치', null]]);
+  assert.deepEqual((await body(await w.get('search?q=' + enc('밤톨')))).json.results.map((c) => c.exp ?? null), [3]);
+  noSecrets(person); noSecrets(page); noSecrets(home);
+});
+
 test('펫(2026-10-15): 만난 펫 단계(pets)와 함께하는 펫(pet)이 캐릭터·1~3등·찾기에, 메인 카드에는 함께하는 펫만 · 이상한 값은 빠지고 펫이 없으면 칸이 없다', async () => {
   assert.deepEqual(v.petsField({ pets: { ghost: 2, pumpkin: 1, Bad: 3, bat: 6, mummy: 1.5 }, pet: { id: 'ghost', stage: 2 } }), { pets: { ghost: 2, pumpkin: 1 }, pet: { id: 'ghost', stage: 2 } });
   assert.deepEqual(v.petsField({ pets: { ghost: 2 }, pet: { id: 'ghost', stage: 3 } }), { pets: { ghost: 2 } }, '단계가 다른 함께하는 펫은 빼다');

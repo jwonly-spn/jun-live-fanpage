@@ -47,6 +47,8 @@ const DJS = [
 ];
 // 모션 id(시즌 목록 motions 와 같은 것)
 const MOTIONS = ['dance', 'cry', 'trash', 'heart', 'kkang', 'squat'];
+// 고른 표정 "<slug>|<차례>" → 표정 번호(시즌 목록 expressions 의 level)
+const EXPS = { 'nyangdj7|1': 9, 'nyangdj7|2': 2, 'nyangdj7|5': 10, 'cuky2345|0': 1, 'cuky2345|1': 3 };
 // 처음 하트(체험용): "<slug>|<찾기 열쇠>" → 수
 const SEED_HEARTS = { 'nyangdj7|밤톨#먼치': 12, 'nyangdj7|사탕요정#먼치': 5, 'nyangdj7|달무리#먼치': 2, 'nyangdj7|먼치팬#먼치': 1, 'cuky2345|귤껍질#쿠키': 9, 'cuky2345|여름밤#쿠키': 4, 'jery2468|달무리#젤리': 7, 'jery2468|사탕요정#젤리': 3 };
 
@@ -66,7 +68,9 @@ function pagesNow() {
       const petsOut = pk ? { pets: pk[0], pet: { id: pk[1], stage: pk[0][pk[1]] } } : {};
       // 모션(2026-10-15 — 먼치킨이 올리는 모양: 지금 하는 모션 id 하나): 앞 여섯 명은 모션마다 한 명씩, 여덟째는 사이트가 모르는 모션(새 판 먼치킨 흉내 — 숨쉬기만)
       const motion = i < 6 ? MOTIONS[(i + d) % MOTIONS.length] : i === 7 ? 'moonwalk' : null;
-      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ...petsOut, ...(motion ? { motion } : {}), ch: t - (i * 3 + d) * 1700e3 };
+      // 고른 표정(2026-10-19 — 먼치킨 !표정, 1~10): 몇 사람만. 사이트는 레벨보다 높은 번호면 레벨 표정으로 그린다(여섯째 줄 — 일부러 높은 번호)
+      const exp = EXPS[`${dj.slug}|${i}`] || null;
+      return { id, k: searchKey(id), level, love, worn: OUTFITS[(i + d * 3) % OUTFITS.length], ...(titles.length ? { titles } : {}), ...petsOut, ...(motion ? { motion } : {}), ...(exp ? { exp } : {}), ch: t - (i * 3 + d) * 1700e3 };
     });
     return { slug: dj.slug, name: dj.character.name, character: dj.character, season: SEASON, people, count: people.length, updatedAt: new Date(t - (d + 1) * 300e3).toISOString() };
   });
@@ -75,8 +79,8 @@ const hearts = new Map(Object.entries(SEED_HEARTS));
 const votes = new Set();
 const heartsOf = (slug, k) => hearts.get(`${slug}|${k}`) || 0;
 // 서버(lib.ts publicPerson · card)와 같은 모양: 1~3등·찾기 결과는 pets·pet 둘 다, 메인 카드는 함께하는 펫(pet)만
-const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(slug, p.k) });
-const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k) });
+const pub = (p, rank, slug) => ({ rank, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), ...(p.exp ? { exp: p.exp } : {}), hearts: heartsOf(slug, p.k) });
+const card = (p, page) => ({ slug: page.slug, djName: page.name, id: p.id, level: p.level, worn: p.worn, ...(p.titles ? { titles: p.titles } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), ...(p.exp ? { exp: p.exp } : {}), hearts: heartsOf(page.slug, p.k) });
 const target = (k, key) => (key.includes('#') ? k : baseOf(k));
 const pageOf = (slug) => pagesNow().find((p) => p.slug === slug) || null;
 function queryKey(value) {
@@ -113,7 +117,7 @@ export async function handle(method, path, q = {}, body = {}) {
       if (!key) return fail(400, BAD_QUERY);
       const p = page.people.find((x) => target(x.k, key) === key);
       if (!p) return fail(404, NO_PERSON);
-      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
+      return ok({ id: p.id, level: p.level, worn: p.worn, titles: p.titles || [], ...(p.pets ? { pets: p.pets } : {}), ...(p.pet ? { pet: p.pet } : {}), ...(p.motion ? { motion: p.motion } : {}), ...(p.exp ? { exp: p.exp } : {}), hearts: heartsOf(page.slug, p.k), season: page.season, dj: { slug: page.slug, name: page.name, character: page.character } });
     }
     case 'GET kiugi/home': {
       const pages = pagesNow();

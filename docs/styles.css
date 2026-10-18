@@ -211,7 +211,16 @@ a { color: inherit; }
    다 그려지면 호환 그림(svg)을 숨긴다 — 그 전에는 호환 그림이 보인다(깜박이지 않게). 캔버스 픽셀 = 칸 화면 크기 × 화면 배율이라 늘이지 않는다. */
 .kg-body > canvas.kg-hd { position: absolute; display: block; pointer-events: none; }
 .kg-actor.is-hd > .kg-body > svg { visibility: hidden; }
-/* 우는 눈(표정): 지금은 쓰지 않음(views/cards.js addEyeStates 는 MOTIONS_READY 일 때만) */
+/* 큰 무대 눈 깜빡임 고침(2026-10-19 — views/cards.js paintHdStage): 새 캐릭터는 숨긴 채(is-pending) 고해상도를 그리고 다 되면 보인다.
+   그동안 무대는 은은한 자리 표시(is-holding). 처음 한 번만 살며시 나타나고(is-revealing — 무대를 화면에 다시 붙여도 다시 나타나지 않게 기본 kg-fade 는 끈다),
+   호환 그림이 먼저 보인 뒤 늦게 온 고해상도는 살며시 겹친다(is-late). */
+.kg-stage.is-hd-stage > svg, .kg-stage.is-hd-stage > .kg-actor { animation: none; }
+.kg-stage > .is-pending { opacity: 0; pointer-events: none; }
+.kg-stage > .is-revealing { animation: kg-fade .4s ease both; }
+.kg-body > canvas.kg-hd.is-late { animation: kg-fade .35s ease both; }
+/* 기다리는 동안은 함께하는 펫도 숨겨 두었다가 캐릭터와 함께 보인다(캐릭터 없이 펫만 먼저 보이지 않게) */
+:has(> .kg-stage.is-holding) > .kg-pet-buddy { opacity: 0; }
+.kg-stage.is-holding::before { content: ""; position: absolute; inset: 0; z-index: 0; background: linear-gradient(100deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, .28) 50%, rgba(255, 255, 255, 0) 70%); background-size: 220% 100%; animation: kg-shine 1.6s ease-in-out infinite; pointer-events: none; }/* 우는 눈(표정): 지금은 쓰지 않음(views/cards.js addEyeStates 는 MOTIONS_READY 일 때만) */
 .kg-eye-closed, .kg-eye-cry { opacity: 0; }
 .kg-actor.m-cry .kg-eye-open, .kg-actor.m-cry .kg-eye-closed { opacity: 0; }
 .kg-actor.m-cry .kg-eye-cry { opacity: 1; }
@@ -458,6 +467,24 @@ a { color: inherit; }
 .kg-copy-btn { flex: 0 1 auto; min-height: 54px; }
 /* 저장하기(lib/kiugi-save.js): 캐릭터 그림 바로 아래 따로 있는 단추 하나 — 휴대폰은 그림 너비 그대로, PC 는 보통 너비로 가운데. 만드는 동안 그림이 깜박인다. */
 .kg-save-row { display: flex; justify-content: center; margin-top: 14px; }
+/* 무대 보기(2026-10-19 사용자 "얼굴 잘 보이게" — views/character.js HERO_VIEWS): 전신 · 상반신 · 얼굴. 무대 칸(2:3)은 그대로, 캐릭터 칸(1024 캔버스)만 키운다.
+   칸 = 1024 좌표 [x, y, w, h] → 너비 1024/w · 높이 1024/h · 왼쪽 −x/w · 위 −y/h(%). 기준점(anchors.json): 머리 꼭대기 y 80 · 얼굴 가운데 x 512(남녀 같음),
+   여자는 무대에서 발바닥(974) 기준 0.91배 + 14 올림이라 머리 꼭대기가 y 146.46 — 같은 칸 크기에서 여자는 그만큼 아래를 본다(머리 크기가 남녀 비슷하게 보인다).
+   상반신 [345.3, 머리−64, 333.3, 500](남 16 · 여 82.46) · 얼굴 [432, 머리−50, 160, 240](남 30 · 여 96.46). 고해상도는 kiugi-hd.js 가 보이는 부분만 다시 그린다. */
+.kg-stage.char.hero > .kg-actor { transition: width .38s var(--ease), height .38s var(--ease), left .38s var(--ease), top .38s var(--ease); }
+.kg-stage.char.hero.kg-view-now > .kg-actor { transition: none; }
+.kg-stage.char.hero.view-upper > .kg-actor { width: 307.2%; height: 204.8%; left: -103.6%; top: -3.2%; }
+.kg-stage.char.hero.view-upper > .kg-actor.is-f { top: -16.492%; }
+.kg-stage.char.hero.view-face > .kg-actor { width: 640%; height: 426.6667%; left: -270%; top: -12.5%; }
+.kg-stage.char.hero.view-face > .kg-actor.is-f { top: -40.1917%; }
+.kg-hero-stage > .kg-pet-buddy { transition: opacity .25s ease, visibility .25s; }
+.kg-hero-stage.is-zoom > .kg-pet-buddy { opacity: 0; visibility: hidden; }
+.kg-hero-stage.is-zoom .kg-stage::after { opacity: 0; }.kg-view-row { display: flex; justify-content: center; gap: 6px; margin-top: 16px; }
+.kg-view-btn { flex: 0 1 auto; min-width: 72px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--paper); color: var(--text-2); font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; transition: background-color .2s ease, color .2s ease, border-color .2s ease; }
+.kg-view-btn:hover { color: var(--text); border-color: var(--text-3); }
+.kg-view-btn[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--on-ink); }
+.kg-view-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.kg-view-row + .kg-save-row { margin-top: 10px; }
 /* 펫(2026-10-15): 함께하는 펫은 캐릭터 무대 오른쪽 발치에 서고(캐릭터는 한가운데 그대로 — 펫이 하체에 겹쳐도 된다), 펫 칸은 시즌 펫 차례대로(못 만난 펫은 1단계 그림 모양만 — 옅은 실루엣).
    그림(512×512, 바닥선 y=470 — 아래 8% 는 빈 칸)은 단계마다 펫 크기가 달라(512 칸 높이의 ★1 45% … ★5 85%) 칸 너비(--pw)를 단계마다 정한다. */
 .kg-hero-stage { position: relative; overflow: hidden; }
@@ -536,11 +563,12 @@ a { color: inherit; }
 .kg-try-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
 .kg-try-top { position: sticky; top: var(--head-h); z-index: 20; display: grid; grid-template-columns: 112px minmax(0, 1fr); grid-template-areas: "look cmd" "tabs tabs"; gap: 10px 12px; margin: 0 calc(-1 * var(--gutter)); padding: 12px var(--gutter) 10px; border-bottom: 1px solid var(--line); background: var(--bg); box-shadow: 0 14px 24px -20px rgba(33, 27, 40, .45); }
 .kg-try-look { grid-area: look; position: relative; min-width: 0; }
-/* 미리 보기 위 칭호 배지(고른 칭호, 없으면 단 칭호): 무대 맨 위에 이름표처럼 얹고, 캐릭터는 조금 작게 내려 배지가 얼굴을 가리지 않게 */
-.kg-try-title { position: absolute; z-index: 2; top: 4%; left: 7%; right: 7%; display: grid; place-items: center; pointer-events: none; }
-.kg-try-title-img { display: block; width: 100%; height: auto; filter: drop-shadow(0 4px 10px rgba(33, 27, 40, .35)); }
+/* 미리 보기 위 칭호(고른 칭호, 없으면 단 칭호): 2026-10-19 사용자 — 그림 위에 겹쳐 캐릭터·배경을 가리지 않게 무대 바깥 위쪽 띠에(무대·캐릭터 크기는 그대로) */
+.kg-try-title { display: grid; place-items: center; padding: 6px 7%; border: 1px solid var(--line); border-bottom: 0; border-radius: var(--r-md) var(--r-md) 0 0; background: radial-gradient(70% 90% at 50% 50%, rgba(212, 118, 42, .16), transparent 72%), var(--panel-2); pointer-events: none; }
+.kg-try-title-img { display: block; width: 100%; max-width: 230px; height: auto; filter: drop-shadow(0 3px 6px rgba(33, 27, 40, .3)); }
 .kg-try-title .kg-title-word { font-size: 15px; text-align: center; }
-.kg-try-look.has-title .kg-try-stage > svg, .kg-try-look.has-title .kg-try-stage > .kg-actor { width: 128.5%; height: 85.7%; left: -14.25%; top: 14%; }
+.kg-try-stage-wrap { position: relative; }
+.kg-try-look.has-title .kg-try-stage { border-radius: 0 0 var(--r-md) var(--r-md); }
 /* (입혀 보기도 펫이 있어도 캐릭터는 가운데 — 비켜 서지 않는다) */
 .kg-try-stage { border: 1px solid var(--line); border-radius: var(--r-md); }
 /* 입혀 보기 미리 보기의 함께하는 펫(2026-10-15): 캐릭터 무대처럼 오른쪽 발치에(작은 미리 보기에서는 이름표 없이) */
@@ -606,6 +634,18 @@ a { color: inherit; }
 .kg-motion-guide { margin: -2px 0 0; max-width: 460px; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
 .kg-motion-guide b { margin-right: 4px; color: var(--text); }
 .kg-try-motions { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+/* 표정 탭(2026-10-19): 얼굴 사진 칸(지금 입은 옷 그대로 그 표정) · Lv.n · 이름 · 한 줄 설명. 잠긴 표정은 어둡게 + 자물쇠 "Lv.n". 고르면 위 채팅 칸 아래에 표정 채팅 한 줄 */
+.kg-try-exps { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.kg-try-grid.is-exps { grid-template-columns: repeat(auto-fill, minmax(min(100%, 104px), 1fr)); }
+.kg-try-exp-media { aspect-ratio: 1 / 1; background: var(--stage); }
+.kg-try-exp-media > .kg-photo { position: absolute; inset: 0; }
+.kg-try-tile.is-locked .kg-try-exp-media > .kg-photo { filter: grayscale(.85) brightness(.82); opacity: .55; }
+.kg-try-tile.is-locked .kg-try-pick, .kg-try-tile.is-locked .kg-try-desc { color: var(--text-3); }
+.kg-try-lock { position: absolute; z-index: 3; right: 6px; bottom: 6px; display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 999px; background: rgba(33, 27, 40, .78); color: #fff8ed; font-size: 11px; font-weight: 800; line-height: 1.5; }
+/* 표정 채팅 한 줄(옷 채팅 아래 — 고른 표정이 지금과 다를 때만): 글 한 칸 + 복사 단추(그림만 — 좁은 휴대폰에서도 한 줄) */
+.kg-try-exprow { display: grid; grid-template-columns: minmax(0, 1fr) 44px; align-items: stretch; gap: 6px; margin-top: 2px; padding-top: 8px; border-top: 1px dashed var(--line-2); }
+.kg-try-exprow > .kg-try-line { min-width: 0; padding-block: 6px; display: flex; align-items: center; overflow-wrap: anywhere; }
+.kg-try-ecopy { min-height: 44px; padding: 0; justify-content: center; }
 .kg-try-mcmd { display: flex; flex-direction: column; gap: 6px; padding: 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper); }
 .kg-try-motion-media { display: grid; place-items: center; aspect-ratio: 4 / 3; container-type: inline-size; background: radial-gradient(60% 60% at 50% 45%, rgba(176, 140, 214, .2), transparent 72%), var(--stage); }
 .kg-try-motion-emoji { font-size: 34px; font-size: clamp(28px, 30cqw, 64px); line-height: 1; }
@@ -687,6 +727,8 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 /* 캔버스로 못 그릴 때(예전 브라우저)의 SVG 그림도 같은 칸 자르기: 1024 캔버스 x 309~715 · y 4~613 */
 .kg-stage.char.photo-cut { position: absolute; inset: 0; aspect-ratio: auto; height: 100%; }
 .kg-stage.char.photo-cut > svg, .kg-stage.char.photo-cut > .kg-actor { width: 252.2167%; height: 168.1445%; left: -76.1084%; top: -.6568%; }
+/* 남자 캐릭터 카드 칸(lib/raster.js CROPS.photoMale [322, 2, 380, 570] — 얼굴이 여자 카드와 비슷한 크기로 보이게 조금 좁게) */
+.kg-stage.char.photo-cut:has(> .kg-actor:not(.is-f)) > svg, .kg-stage.char.photo-cut:has(> .kg-actor:not(.is-f)) > .kg-actor { width: 269.4737%; height: 179.6491%; left: -84.7368%; top: -.3509%; }
 .kg-stage.char.photo-cut::after { display: none; }
 
 /* ---------- 큰 사진 카드(views/feed.js postCard) ---------- */
@@ -721,6 +763,11 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 .kg-post-who:focus-visible { outline: 2px solid var(--ink); outline-offset: 4px; border-radius: 10px; }
 .kg-post-id { font-size: 21px; font-weight: 800; line-height: 1.2; letter-spacing: -.045em; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kg-post-id .kg-id-tag { font-size: .66em; }
+/* 카드의 단 칭호(2026-10-19 사용자 "카드에도 칭호"): 사진이 아니라 아이디 아래 글 칸에 작게 — 배지 그림(가로로 긴 그림, 높이만 정한다), 그림이 없으면 글자 */
+.kg-post-title { display: flex; align-items: center; min-width: 0; max-width: 100%; height: 26px; margin: -1px 0 0; }
+.kg-post-title-img { display: block; height: 100%; width: auto; max-width: 100%; object-fit: contain; object-position: left center; filter: drop-shadow(0 1px 2px rgba(33, 27, 40, .25)); }
+.kg-post-title.is-word { align-self: flex-start; height: auto; padding: 1px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-size: 11px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 639px) { .kg-post-title { height: 20px; } .album-podium .kg-post-title { height: 16px; } }
 .kg-post-sub { display: flex; align-items: center; gap: 7px; min-width: 0; font-size: 13px; font-weight: 600; color: var(--text-2); white-space: nowrap; overflow: hidden; }
 .kg-post-sub .kg-lv { padding: 2px 8px; font-size: 12px; }
 .kg-post-expr { flex: none; }
@@ -1070,6 +1117,10 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
   .kg-try-look { justify-self: center; width: min(100%, max(150px, calc((100vh - 430px) * .667))); }
   /* 칭호 탭이 있으면 탭이 한 줄 더 늘어 그만큼 미리 보기를 줄인다(왼쪽 칸이 화면 안에 들어오게) */
   .kg-try-body.has-titles .kg-try-look { width: min(100%, max(150px, calc((100vh - 480px) * .667))); }
+  /* 칭호 띠(무대 바깥 위 — 2026-10-19)가 보이면 그 높이(너비의 약 27%)만큼, 표정 채팅 줄이 보이면 그만큼 더 줄인다 */
+  .kg-try-body.has-titles .kg-try-look.has-title { width: min(100%, max(150px, calc((100vh - 490px) * .565))); }
+  .kg-try-top.has-exp .kg-try-look { width: min(100%, max(150px, calc((100vh - 490px) * .667))); }
+  .kg-try-body.has-titles .kg-try-top.has-exp .kg-try-look.has-title { width: min(100%, max(150px, calc((100vh - 550px) * .565))); }
   .kg-try-look .kg-pet-name { display: flex; font-size: 11px; padding: 2px 9px; }
   .kg-try-tabs { flex-wrap: wrap; overflow: visible; margin: 0; padding: 0; }
   .kg-try-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 24px 14px; }
@@ -1401,8 +1452,8 @@ html.album-preview {
 .album-look { position: relative; min-width: 0; display: flex; flex-direction: column; padding: 20px 24px 16px; background: repeating-linear-gradient(90deg, transparent 0 57px, #ffffff14 57px 59px), #dce5ca; border-right: 1px solid #252c3940; }
 .album-look::before { content: ""; position: absolute; top: 63px; left: 20px; right: 20px; height: 2px; background: #4a55494a; box-shadow: 0 3px 0 #ffffff60; pointer-events: none; }
 .album-look-top { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; gap: 10px; }
-.album-sticker { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 5px; background: #fffdf7; border: 1px solid #252c3940; box-shadow: 1px 2px 0 #252c3910; font-size: 11px; font-weight: 700; transform: rotate(-3deg); }
-.album-level { display: inline-flex; align-items: center; justify-content: center; width: 43px; height: 43px; border-radius: 50%; border: 1px solid #252c3960; background: #e8edb7; font-size: 11px; font-weight: 800; transform: rotate(8deg); }
+.album-sticker { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 5px; background: #fffdf7; border: 1px solid #252c3940; box-shadow: 1px 2px 0 #252c3910; color: #2b2030; font-size: 11px; font-weight: 700; transform: rotate(-3deg); }
+.album-level { display: inline-flex; align-items: center; justify-content: center; width: 43px; height: 43px; border-radius: 50%; border: 1px solid #252c3960; background: #e8edb7; color: #2b2030; font-size: 11px; font-weight: 800; transform: rotate(8deg); }
 .album-fullbody { display: block; position: relative; width: min(100%, 270px); margin: 6px auto 0; }
 .album-fullbody .kg-stage { background: transparent; overflow: hidden; }
 .album-fullbody .kg-stage::after { background: #5b6b491a; }
@@ -1802,6 +1853,11 @@ html.album-preview.halloween-season {
 .halloween-season .album-detail-wardrobe .album-lookboard { --text: #30243b; --text-2: #65536f; color: #30243b; border-color: #a47bb36b; }
 .halloween-season .album-detail-wardrobe .album-look { background: repeating-linear-gradient(90deg, transparent 0 57px, #ffffff05 57px 59px), #51405f; color: #fff0dc; }
 .halloween-season .album-detail-wardrobe .album-person-name > span { color: #d8c3e5; }
+/* 밝은 바탕 위 글자는 진하게(2026-10-19 — 할로윈 색에서 "현재 모습" 스티커·Lv 동그라미·입혀 보기 표시가 흰 글자라 안 보이던 것) */
+.halloween-season .album-sticker, .halloween-season .album-level { color: #2b2030; }
+.halloween-season .album-sticker svg { color: #2b2030; }
+.halloween-season .kg-try-badge { color: #2b2030; }
+.halloween-season .kg-try-tile.is-tried .kg-try-badge { color: #2e1b28; }
 .halloween-season .album-detail-catalog { color: #ffe0b5; }
 .halloween-season .album-detail-wardrobe .album-clothes { background: #dfd3e2; }
 .halloween-season .album-detail-wardrobe .album-try { color: #2e1b28; background: #f0a866; }

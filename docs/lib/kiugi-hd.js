@@ -8,7 +8,9 @@
 //     renderer 에는 정수 배율(1~4)로 그리게 하고 그 캔버스를 화면 크기로 한 번 고품질 축소한다(renderScaleFor — 소수 배율에서 생기는 가로줄을 피한다).
 //   · 호환 그림·마스크(03_png_assets·04_masks)는 사이트에 이미 있는 사본(docs/kiugi/<판>/ — 패키지와 바이트가 같다, 시험이 본다)을 그 등록 길에 이어 준다(renderer 의 bundle 표).
 //     호환 SVG 가 이미 받아 둔 그림이라 같은 주소 = 브라우저 캐시 그대로.
-//  깜박이지 않게: 호환 그림(SVG)을 먼저 그려 두고, 고해상도가 다 그려지면 같은 자리에 캔버스를 겹치고 SVG 를 숨긴다. 못 받거나 실패하면 호환 그림 그대로.
+//  깜박이지 않게: 호환 그림(SVG)을 그려 두고, 고해상도가 다 그려지면 같은 자리에 캔버스를 겹치고 SVG 를 숨긴다. 못 받거나 실패하면 호환 그림 그대로.
+//   2026-10-19: R9 웃는 눈이 호환 그림(감은 눈)과 고해상도(뜬 눈)에서 달라 바뀌는 순간 눈을 깜빡이는 것처럼 보였다 → 큰 무대는 새 캐릭터를 숨긴 채 이 함수로
+//   고해상도를 그린 뒤 보인다(views/cards.js paintHdStage — onState 로 알린다, 늦으면 호환 그림을 보이고 고해상도는 살며시 겹친다).
 //  레벨 표정: renderer 의 표정은 normal·smile·cry 하나(입은 smile 일 때만 웃는 입). 레벨 9 "감동"(눈물 눈 + 웃는 입)은 입 번호를 '03_smile' 처럼
 //   웃는 입 그림 id 로 넘긴다(renderer 가 번호를 그대로 id 에 붙인다 — 앱 kiugi-hd.js 와 같은 방법). 웃는 눈 + 기본 입처럼 그림이 없는 조합이면 호환 그림 그대로.
 //  레벨 표정 겹치기(볼 발그레 · 둥실 하트)는 패키지 그림이 아니라 사이트가 그린다(kiugi-save.js 와 같은 자리·모양) — 볼 발그레는 renderer 의 onLayer('hem')
@@ -140,11 +142,43 @@ export function renderScaleFor(viewport, scale, { maxScale = HD_MAX_SCALE, maxPi
   const want = Math.min(maxScale, scale), up = Math.min(maxScale, Math.ceil(want - 1e-9));
   return viewport[2] * viewport[3] * up * up <= maxPixels ? up : want;
 }
+// 미리 받기(2026-10-19 — 눈 깜빡임 고침): renderer 는 그림을 하나씩 차례로(await) 받아 휴대폰에서는 처음 그리기가 몇 초 걸린다(그동안 호환 그림이 보인다).
+//  이 모습에 쓸 수 있는 그림 길(등록부의 path · 호환 그림·마스크)을 미리 모아 renderer.image() 로 한꺼번에 받기 시작한다 — renderer 가 같은 길을 같은 약속(캐시)으로 쓴다.
+//  renderer 코드는 고치지 않는다(바이트 그대로). 'source'(제작 기록 원본)는 그리는 데 쓰지 않아 받지 않는다. 쓰지 않을 수도 있는 그림(옷의 다른 짝 마스크 등)도 조금 섞인다.
+const MASK_FIELDS = ['bodyCutoutMask', 'shoeOcclusionMask', 'hairCutoutMask', 'defaultFootwearMask'];
+export function hdWarmPaths(hd = {}, byId = new Map(), state = {}) {
+  const out = new Set(), pad = (n) => String(n).padStart(2, '0'), g = state.body === 'male' ? 'male' : 'female';
+  const take = (o) => {
+    (function walk(x) {
+      if (Array.isArray(x)) { x.forEach(walk); return; }
+      if (!x || typeof x !== 'object') return;
+      for (const [k, v] of Object.entries(x)) {
+        if ((k === 'path' || k === 'compatibilityPath') && typeof v === 'string' && /^03_/.test(v)) out.add(v);
+        else if (v && typeof v === 'object') walk(v);
+      }
+    })(o);
+  };
+  const compat = (id) => { const a = byId.get?.(id); if (!a) return; if (typeof a.path === 'string') out.add(a.path); for (const m of MASK_FIELDS) if (typeof a[m] === 'string') out.add(a[m]); };
+  for (const layer of ['front', 'back']) { const id = `${g}_hair_${pad(state.hair)}_${layer}`; take(hd.hair?.[id]); compat(id); }
+  take(hd.face?.[g]); take(hd.defaultBody?.[g]); take(hd.lowerBody?.[g]); take(hd.lowerLeg?.[g]); compat(`${g}_body`);
+  const ex = state.expression || 'normal';
+  const ids = [`${g}_eyes_${pad(state.eyes)}${ex === 'normal' ? '' : '_' + ex}`, `${g}_nose_${pad(state.nose)}`,
+    typeof state.mouth === 'string' ? `${g}_mouth_${state.mouth}` : `${g}_mouth_${pad(state.mouth)}${ex === 'smile' ? '_smile' : ''}`];
+  for (const id of ids) { take(hd.features?.[id]); compat(id); }
+  const worn = [['outfit', state.outfit], ['top', state.top], ['bottom', state.bottom], ['shoe', state.shoe], ['hat', state.hat], ...(state.accessory || []).map((n) => ['accessory', n])];
+  for (const [kind, n] of worn) if (n !== null && n !== undefined) { const id = `${kind}_${pad(n)}_${g}`; take(hd.wardrobe?.[id]); compat(id); }
+  return [...out];
+}
+function warmHd(renderer, state) {
+  try { for (const p of hdWarmPaths(renderer.hd || {}, renderer.byId || new Map(), state)) renderer.image(p).catch(() => {}); } catch { /* 미리 받기는 덤 */ }
+}
+
 // 고해상도 캐릭터 한 장 → {canvas(viewport 크기 × scale — 실제 픽셀), result(renderer 가 알려 준 것), renderScale} · 그릴 수 없는 모습이면 null
 export async function renderHdCharacter({ dj, look, expression = null, viewport, scale, base = '/' }) {
   const state = hdState(dj, look, expression);
   if (!state) return null;
   const renderer = await loadHd(base);
+  warmHd(renderer, state);
   return queued(async () => {
     const rs = renderScaleFor(viewport, scale), work = document.createElement('canvas'), over = overlayOps(dj, look, expression);
     // 볼 발그레: renderer 가 몸·얼굴·옷을 다 그린 칸(onLayer 'hem' — 앞머리·악세사리·모자를 얹기 전)에 · 둥실 하트: 다 그린 뒤 맨 위
@@ -165,27 +199,33 @@ export async function renderHdCharacter({ dj, look, expression = null, viewport,
 const saveData = () => { try { return navigator.connection?.saveData === true; } catch { return false; } };
 const pct = (n) => `${((n / SIZE) * 100).toFixed(4)}%`;
 // 호환 그림(SVG)이 다 그려진 무대(.kg-stage > .kg-actor > .kg-body > svg)에 고해상도 캔버스를 겹친다.
-//  opts = {character(DJ 캐릭터), worn(입은 옷), level, catalog, seasonId, base, force(데이터 절약 모드여도)}
-//  같은 무대에 다시 부르면(입혀 보기 — 옷을 바꿀 때마다) 앞 것은 버린다. 칸 크기가 바뀌면(돌리기·창 크기) 다시 그린다.
+//  opts = {character(DJ 캐릭터), worn(입은 옷), level, exp(고른 표정), expression(주면 그대로), catalog, seasonId, base, force(데이터 절약 모드여도),
+//          actor(그릴 캐릭터 칸 — 없으면 무대의 마지막 캐릭터 칸: 다시 그릴 때 새 칸을 옛 칸 위에 얹어 두기 때문),
+//          onState(state) — 첫 결과를 한 번 알린다: 'on'(고해상도) · 'compat'(그림이 없는 조합) · 'save-data' · 'fail' · 'hidden'(칸이 보이지 않음)}
+//  같은 무대에 다시 부르면(입혀 보기 — 옷을 바꿀 때마다) 앞 것은 버린다. 칸 크기가 바뀌면(돌리기·창 크기·보기 바꾸기) 다시 그린다(stage.kgHdRun() 으로 바로도).
 export function upgradeStage(stage, opts = {}) {
   if (!stage || !opts.character || typeof document === 'undefined') return;
   const seq = (stage.kgHdSeq || 0) + 1;
   stage.kgHdSeq = seq;
-  if (saveData() && !opts.force) { stage.dataset.kgHd = 'save-data'; return; }
+  let told = false;
+  const tell = (state) => { if (told) return; told = true; try { opts.onState?.(state); } catch (e) { console.error(e); } };
+  if (saveData() && !opts.force) { stage.dataset.kgHd = 'save-data'; tell('save-data'); return; }
   const look = { worn: opts.worn && typeof opts.worn === 'object' ? opts.worn : {} };
-  const expression = opts.expression || expressionFor(opts.catalog, opts.seasonId, Number(opts.level) || 1);
-  if (!hdState(opts.character, look, expression)) { stage.dataset.kgHd = 'compat'; return; }
-  let fitted = null;
+  const expression = opts.expression || expressionFor(opts.catalog, opts.seasonId, Number(opts.level) || 1, opts.exp ?? null);
+  if (!hdState(opts.character, look, expression)) { stage.dataset.kgHd = 'compat'; tell('compat'); return; }
+  const actorOf = () => (opts.actor?.isConnected ? opts.actor : [...stage.querySelectorAll(':scope > .kg-actor')].at(-1) || null);
+  let fitted = null, tries = 0;
   const run = async () => {
-    const svg = stage.querySelector(':scope > .kg-actor > .kg-body > svg');
+    const svg = actorOf()?.querySelector(':scope > .kg-body > svg');
     if (!svg || stage.kgHdSeq !== seq) return;
     const art = svg.getBoundingClientRect(), fit = hdFit(stage.getBoundingClientRect(), art, window.devicePixelRatio || 1);
-    if (!fit) return;
+    // 아직 화면에 붙기 전이면(칸 크기 0) 몇 번 더 기다려 본다 — 그래도 안 보이는 칸(좁은 화면에서 숨긴 칸 등)이면 호환 그림으로 알린다
+    if (!fit) { if (!fitted && tries++ < 3 && typeof requestAnimationFrame === 'function') requestAnimationFrame(() => requestAnimationFrame(run)); else tell('hidden'); return; }
     fitted = { width: art.width, dpr: window.devicePixelRatio || 1 };
     stage.dataset.kgHd = 'loading';
     let out = null;
     try { out = await renderHdCharacter({ dj: opts.character, look, expression, ...fit, base: opts.base || '/' }); }
-    catch (e) { if (stage.kgHdSeq === seq) { stage.dataset.kgHd = 'fail'; console.warn('고해상도 그림을 그리지 못해 호환 그림으로 보여요:', e?.message || e); } return; }
+    catch (e) { if (stage.kgHdSeq === seq) { stage.dataset.kgHd = 'fail'; tell('fail'); console.warn('고해상도 그림을 그리지 못해 호환 그림으로 보여요:', e?.message || e); } return; }
     if (!out || stage.kgHdSeq !== seq || !svg.isConnected) { freeCanvas(out?.canvas); return; }
     const c = out.canvas, [x, y, w, h] = fit.viewport;
     c.className = 'kg-hd';
@@ -193,13 +233,18 @@ export function upgradeStage(stage, opts = {}) {
     // 자리(1024 캔버스 칸 안의 퍼센트 — 보안 규칙상 style 속성 대신 CSSOM)
     c.style.left = pct(x); c.style.top = pct(y); c.style.width = pct(w); c.style.height = pct(h);
     const old = svg.parentNode.querySelectorAll(':scope > canvas.kg-hd');
+    const actor = svg.closest('.kg-actor');
+    // 이미 보이는 캐릭터에 고해상도를 처음 얹을 때(호환 그림이 먼저 보인 뒤 — 늦게 받은 때)는 살며시 겹친다(갑자기 바뀌어 눈을 깜빡이는 것처럼 보이지 않게)
+    if (!old.length && actor && !actor.classList.contains('is-pending')) c.classList.add('is-late');
     svg.after(c);
     for (const o of old) { o.remove(); freeCanvas(o); }
-    svg.closest('.kg-actor')?.classList.add('is-hd');
+    actor?.classList.add('is-hd');
     stage.dataset.kgHd = 'on';
     stage.dataset.kgHdScale = String(fit.scale);
     stage.dataset.kgHdRender = String(out.renderScale);
+    tell('on');
   };
+  stage.kgHdRun = () => { if (stage.kgHdSeq === seq) run(); };
   run();
   // 칸 크기가 바뀌면 다시(조금 기다렸다가 한 번)
   stage.kgHdObserver?.disconnect();
@@ -209,15 +254,17 @@ export function upgradeStage(stage, opts = {}) {
       if (stage.kgHdSeq !== seq || !stage.isConnected) { ro.disconnect(); return; }
       clearTimeout(timer);
       timer = setTimeout(() => {
-        const svg = stage.querySelector(':scope > .kg-actor > .kg-body > svg');
-        if (!svg || !fitted) return;
+        const svg = actorOf()?.querySelector(':scope > .kg-body > svg');
+        if (!svg) return;
+        // 처음에 칸이 보이지 않았던 무대(좁은 화면에서 숨긴 칸 등)가 보이게 되면 그때 그린다
+        if (!fitted) { if (svg.getBoundingClientRect().width > 0) run(); return; }
         const wNow = svg.getBoundingClientRect().width, dpr = window.devicePixelRatio || 1;
         if (Math.abs(wNow - fitted.width) / Math.max(1, fitted.width) > HD_RESIZE || dpr !== fitted.dpr) run();
       }, 300);
     });
     ro.observe(stage);
-    // 무대는 그대로인데 캐릭터 칸만 바뀌는 때(입혀 보기에서 칭호를 달면 캐릭터 칸이 작아진다)도
-    const svg0 = stage.querySelector(':scope > .kg-actor > .kg-body > svg');
+    // 무대는 그대로인데 캐릭터 칸만 바뀌는 때(얼굴·상반신 보기 등)도
+    const svg0 = actorOf()?.querySelector(':scope > .kg-body > svg');
     if (svg0) ro.observe(svg0);
     stage.kgHdObserver = ro;
   }

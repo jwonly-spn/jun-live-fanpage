@@ -9,7 +9,7 @@ import { getMe, listMine, addMine, removeMine, clearMine, isMine, listFavs, addF
   VISIT_GAP, HEART_GOAL, MINE_MAX, FAV_MAX, SNAP_SPARE } from '../docs/lib/me.js';
 import { sendHeart, sentToday, sentCount, heartKey, markSent } from '../docs/lib/hearts.js';
 import { swr, peekCached, sameData, primePreview, peekPreview, _resetSwr } from '../docs/lib/swr.js';
-import { CROPS, cropOf, scaleFor, rasterKey, liteUrl, petFit, hashText, FEMALE } from '../docs/lib/raster.js';
+import { CROPS, cropOf, scaleFor, rasterKey, liteUrl, petFit, hashText, FEMALE, faceExtras } from '../docs/lib/raster.js';
 import { ART } from '../docs/lib/kiugi-draw.js';
 
 const require = createRequire(import.meta.url);
@@ -266,9 +266,21 @@ test('캐릭터 사진(lib/raster.js): 칸(머리 조금 위~허벅지 가운데
   assert.deepEqual(FEMALE, { s: 0.91, ox: 512, oy: 974, dy: -14 }, '무대(styles.css .kg-actor.is-f)와 같은 여자 줄이기');
   // 1024 원본보다 크게 그리지 않고, 비슷한 크기는 같은 단계(캐시를 같이 쓴다)
   assert.equal(scaleFor(361, 3, 406), 1); assert.equal(scaleFor(384, 1, 406), 1); assert.equal(scaleFor(82, 2, 240), 0.7); assert.equal(scaleFor(82, 1, 240), 0.35); assert.equal(scaleFor(0, 1, 406), 1, '칸 크기를 모르면 큰 카드 크기');
+  // 남자 카드 칸(2026-10-19 사용자 "얼굴 잘 보이게"): 같은 2:3 을 조금 좁게(늘이지 않고 자르기만) · 가로 가운데 512 그대로 · 위는 모자·하트가 잘리지 않게 y 2부터
+  assert.deepEqual([...CROPS.photoMale], [322, 2, 380, 570]); assert.equal(CROPS.photoMale[3] / CROPS.photoMale[2], 1.5, '2:3');
+  assert.equal(CROPS.photoMale[0] + CROPS.photoMale[2] / 2, 512); assert.equal(CROPS.photo[0] + CROPS.photo[2] / 2, 512);
+  assert.deepEqual(cropOf('photo', { gender: 'm' }), [...CROPS.photoMale]); assert.deepEqual(cropOf('photo', { gender: 'f' }), [...CROPS.photo]);
+  assert.deepEqual(cropOf('photo'), [...CROPS.photo], '모르면 예전 칸'); assert.deepEqual(cropOf('bust', { gender: 'm' }), [...CROPS.bust], '얼굴 동그라미는 남녀 같은 칸');
+  // 남자 머리(꼭대기 80 ~ 턱 208, anchors.json)가 카드 칸에서 차지하는 몫 ≥ 여자(0.91배 — 146.5 ~ 266.6)
+  const headShare = (crop, top, chin) => (chin - top) / crop[3];
+  assert.ok(headShare(CROPS.photoMale, 80, 208) > headShare(CROPS.photo, 146.5, 266.6), '남자 얼굴이 여자보다 작아 보이지 않는다');
   const urls = ['/kiugi/r7/female_body.png?v=5be43a8c2163', '/kiugi/r7/female_hair_02_front.png?v=16864895ecdf'];
   const k = rasterKey(urls, { kind: 'photo', s: 1, female: true });
-  assert.match(k, /^r1:photo:1:f:[0-9a-f]{16}$/);
+  assert.match(k, /^r2:photo:1:f:[0-9a-f]{16}$/, 'r2(2026-10-19 — 남자 칸·표정 겹치기): 예전 사진은 쓰지 않는다');
+  // 표정 겹치기(볼 발그레·둥실 하트 — 그림 파일이 아니라 주소가 같다)가 다르면 열쇠도 다르다
+  assert.notEqual(rasterKey(urls, { kind: 'photo', s: 1, female: true, face: faceExtras({ parts: ['exp-blush'] }) }), k);
+  assert.equal(faceExtras({ parts: ['eyes:smile', 'exp-floating-hearts', 'mouth:smile', 'exp-blush'] }), 'exp-blush,exp-floating-hearts');
+  assert.equal(faceExtras({ parts: [] }), ''); assert.equal(faceExtras(null), '');
   assert.notEqual(rasterKey([urls[0], urls[1].replace('16864895ecdf', '000000000000')], { kind: 'photo', s: 1, female: true }), k, '그림 해시가 바뀌면 새 열쇠');
   assert.notEqual(rasterKey(urls, { kind: 'bust', s: 1, female: true }), k); assert.notEqual(rasterKey(urls, { kind: 'photo', s: 0.7, female: true }), k);
   assert.equal(hashText('abc'), hashText('abc')); assert.notEqual(hashText('abc'), hashText('abd'));
