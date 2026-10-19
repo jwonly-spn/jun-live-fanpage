@@ -4,7 +4,10 @@
 //  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v2)
 import * as v from './lib.ts';
 
-export const SITE = 'https://xn--ok0bp87bn6g.com/';
+// 사이트 주소(올리기 답의 url). 2026-10-20 임시로 http: GitHub Pages 가 키우기.com 인증서를 아직 내주지 않아(10/8 부터 "new")
+//  https 로 열면 *.github.io 인증서가 와서 브라우저가 경고 페이지를 띄운다. 인증서가 나와 https 강제(https_enforced)가 켜지면 https 로 되돌린다
+//  (그때 tests/kiugi-server.test.mjs 의 "임시 http" 시험·API.md 도 함께). http 로 열어도 https 가 되면 GitHub 가 저절로 https 로 넘긴다.
+export const SITE = 'http://xn--ok0bp87bn6g.com/';
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, apikey, content-type', 'Access-Control-Allow-Methods': 'GET, POST, OPTIONS', 'Access-Control-Max-Age': '86400' };
 const json = (body: unknown, status = 200, cache = 'no-store') => new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': cache, 'X-Content-Type-Options': 'nosniff' } });
 // Cloudflare 가 넣는 cf-connecting-ip(사용자가 바꿀 수 없음) → 없으면 x-forwarded-for 첫 칸

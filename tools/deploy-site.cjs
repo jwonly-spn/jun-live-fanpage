@@ -7,6 +7,8 @@ const OWNER = 'jwonly-spn', NAME = 'jun-live-fanpage', ROOT = path.join(__dirnam
 // 2026-10-08부터 키우기.com(영문 표기 xn--ok0bp87bn6g.com). docs/CNAME 과 GitHub Pages 의 사용자 도메인을 같게 둔다.
 const DOMAIN = 'xn--ok0bp87bn6g.com';
 const SITE = `https://${DOMAIN}/`;
+// 인증서가 아직 없을 때(2026-10-08~ GitHub Pages 인증서 "new") 마지막 확인은 http 로 한다
+const SITE_HTTP = `http://${DOMAIN}/`;
 const GIT = 'C:/Users/User/.cache/codex-runtimes/codex-primary-runtime/dependencies/native/git';
 const env = {...process.env, GIT_EXEC_PATH: GIT + '/mingw64/bin', GIT_TERMINAL_PROMPT: '0', GCM_INTERACTIVE: 'never'};
 const git = (...args) => {
@@ -66,8 +68,14 @@ async function gh(route, init = {}) {
     const r = await gh(`/repos/${OWNER}/${NAME}/pages`, {method: 'PUT', allow: [400, 404, 422], body: JSON.stringify({cname: DOMAIN, https_enforced: true, source: {branch: 'main', path: '/docs'}})});
     console.log('https 강제:', r && r.message ? '아직(인증서 준비 중) — ' + r.message : '켬');
   }
-  const check = await fetch(SITE, {cache: 'no-store'});
-  const deep = await fetch(SITE + 'p/test-page-check', {cache: 'no-store'});
+  // 마지막 확인: https 가 인증서 문제로 안 되면 http 로(예전에는 여기서 "fetch failed" 로 끝나 올리기가 실패한 것처럼 보였다 — 올리기 자체는 위에서 끝난 것)
+  let base = SITE, check;
+  try { check = await fetch(SITE, {cache: 'no-store'}); }
+  catch (e) {
+    console.log('https 로 열지 못했어요(인증서 준비 중일 수 있음):', e.cause?.code || e.message, '→ http 로 확인해요');
+    base = SITE_HTTP; check = await fetch(SITE_HTTP, {cache: 'no-store'});
+  }
+  const deep = await fetch(base + 'p/test-page-check', {cache: 'no-store'});
   console.log('사이트 확인:', check.status, '/ 없는 주소(앱이 처리):', deep.status, (await deep.text()).includes('<script') ? '앱 로드됨' : '앱 없음');
-  console.log('주소:', SITE);
+  console.log('주소:', base);
 })().catch(e => { console.error('실패:', e.message); process.exit(1); });

@@ -2,7 +2,7 @@
 
 먼치킨(스푼 DJ용 봇 프로그램)의 DJ 키우기 공개 사이트와 스푼 연결 페이지예요. 스푼이 만든 서비스가 아니에요.
 
-- 사이트: https://키우기.com/ (영문 표기 xn--ok0bp87bn6g.com, 2026-10-08부터. 예전 https://jwonly-spn.github.io/jun-live-fanpage/ 는 자동으로 넘어감. `docs/`, GitHub Pages, 빌드 없음, `docs/CNAME`)
+- 사이트: https://키우기.com/ (영문 표기 xn--ok0bp87bn6g.com, 2026-10-08부터. 인증서가 나오기 전까지는 http 로 열어야 경고가 없다 — 서버가 주는 주소도 임시로 http(API.md "사이트"). 예전 https://jwonly-spn.github.io/jun-live-fanpage/ 는 자동으로 넘어감. `docs/`, GitHub Pages, 빌드 없음, `docs/CNAME`)
   - 메인 `/`(2026-10-18 SNS 구조: DJ 동그라미 줄·오늘의 주인공·아이디로 찾기·내 캐릭터(이 브라우저에만)·오늘의 하트 미션·탭(인기·새로 꾸민·DJ별) 큰 사진 카드·많이 입은 옷), 옷 도감 `items`, DJ 키우기 페이지 `k/<주소>`, 캐릭터 페이지 `k/<주소>/<아이디 앞 부분>`(전신·하트·이게 나예요·링크 복사·공유), 스푼 연결 `spoon.html`
 - DJ 키우기 서버: Supabase Edge Function `kiugi` (`supabase/functions/kiugi/`), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`(하트·이름 하나만·메인 노출), 그림·시즌 목록 `docs/kiugi/`(먼치킨 저장소 `tools/sync-kiugi-site.mjs`로 복사 — 직접 고치지 않기)
 - 고해상도 그림(2026-10-18 새 그림체 R9 — Codex 패키지 `DJ_STYLE_20261018_REDO_R9`): `docs/kiugi-hd/`(패키지 상대 경로 그대로 — `renderer.js`·`hair-color.js`·`renderer-hd.js` 바이트 그대로, `03_hd_assets/` 전부, 등록부가 가리키는 `03_제작기록/…`). `node tools/sync-kiugi-hd.mjs [R9 사본 폴더]`로 해시를 확인해 넣는다(`docs/kiugi/` 와 따로 — 먼치킨 sync 가 지우지 않게). 큰 무대(캐릭터 페이지 전신 · 캐릭터 옷장 현재 모습 · 입혀 보기)와 저장하기만 `docs/lib/kiugi-hd.js` 가 쓴다 — 카드·목록은 호환 그림(`docs/kiugi/r9/`)
