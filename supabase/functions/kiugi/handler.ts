@@ -18,7 +18,7 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 
 // store(모두 Promise):
 //  ipSalt() → 주소 해시·하트 열쇠에 섞는 비밀 값 · hit(key, seconds, max) → 아직 한도 안이면 true · nonce(id, expires) → 처음 보는 요청 번호면 true
-//  device(id) → {state, review, tag} | null(tag = 승인 서버에 등록할 때 적힌 스푼 고유닉 — 이름 넘겨받기의 "같은 DJ") · devicesOf(ids) → {id: {state, review}}
+//  device(id) → {state, review} | null · devicesOf(ids) → {id: {state, review}}
 //  pageByDevice(device) → {slug, updated} | null · createPage({slug, device_id, created}) → 'ok' | 'slug'(주소 겹침) | 'device'(이미 있음)
 //  nameOwner(nameKey) → 그 캐릭터 이름을 가진 페이지 {slug, device_id, updated, seen} | null
 //  releaseName(slug, nameKey, updated) → 그 페이지의 이름 열쇠가 아직 nameKey 이고 updated 가 그대로일 때만 내용·이름 열쇠를 비우고 하트 줄을 지운다 → true | false(그사이 바뀜)
@@ -86,18 +86,15 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     later((async () => putSnap('home.json', await buildHome()))());
   }
   const approved = (dev: any) => dev?.state === 'approved' && !dev.review;
-  // 캐릭터 이름을 가진 페이지를 다른 기기가 넘겨받아도 되는지(2026-10-20 — PC 를 바꾼 DJ 가 60일 동안 409 만 받던 것). 셋 중 하나면 넘겨받는다:
-  //  · 같은 DJ: 새 기기와 이름 주인 기기가 승인 서버 표(junlive_devices.tag — 등록할 때 적힌 스푼 고유닉)에 같은 고유닉(둘 다 비어 있지 않을 때만) — PC 를 바꾼 DJ 가 바로 이어 간다
-  //  · 이름 주인 기기가 승인 상태가 아님(관리 화면에서 차단·대기, 심사용, 기록 없음)
+  // 캐릭터 이름을 가진 페이지를 다른 기기가 넘겨받아도 되는지(2026-10-20 — PC 를 바꾼 DJ 가 60일 동안 409 만 받던 것). 둘 중 하나면 넘겨받는다:
+  //  · 이름 주인 기기가 승인 상태가 아님(관리 화면에서 차단·대기, 심사용, 기록 없음) — PC 를 바꾼 DJ 는 운영자가 옛 PC 를 차단하면 바로 이어 간다
   //  · 60일 동안 아무것도 올리지 않음(가끔 도는 정리를 기다리지 않는다)
   //  끄기(내용 없음)·시즌 준비 중만으로는 넘겨주지 않는다 — "끄기는 이름을 지킨다"(잠깐 꺼 둔 DJ 가 이름을 뺏기지 않게).
-  const tagOf = (dev: any) => (typeof dev?.tag === 'string' ? dev.tag.trim().toLowerCase() : '');
-  async function releasable(owner: Record<string, any>, at: number, mine: any) {
+  //  "같은 DJ 면 바로"는 넣지 않았다: 자기 신고 값(junlive_devices.tag)은 남이 적어 낼 수 있고, 스푼이 확인한 DJ 계정 값은 지금 어디에도 저장되지 않는다
+  //  (스푼 연결 표 sp_links 는 기기 번호·잠긴 토큰·권한·때만 — 스푼 토큰 답에도 DJ 식별값이 없다). 넣으려면 spoon-link 가 그런 값을 남겨야 한다.
+  async function releasable(owner: Record<string, any>, at: number) {
     if (Number.isSafeInteger(owner.seen) && owner.seen < at - v.KEEP_MS) return true;
-    const ownerDev = await store.device(owner.device_id);
-    if (!approved(ownerDev)) return true;
-    const a = tagOf(mine), b = tagOf(ownerDev);
-    return Boolean(a && b && a === b);
+    return !approved(await store.device(owner.device_id));
   }
   // 승인된 기기가 올린 페이지만 보여 준다(관리 화면에서 차단하면 그 DJ 페이지도 닫힌다).
   async function shown(row: Record<string, any> | null) {
@@ -289,11 +286,11 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       return json({ ok: true, enabled: false, slug: found?.slug || null, url: found ? urlOf(found.slug) : null });
     }
     // 캐릭터 이름은 사이트 전체에서 하나만(먼저 쓴 방송이 가진다).
-    // 넘겨받기(2026-10-20): 이름을 가진 페이지가 넘겨줄 수 있는 페이지(releasable — 같은 DJ · 기기 승인 아님 · 60일)면 그 페이지를 닫고
+    // 넘겨받기(2026-10-20): 이름을 가진 페이지가 넘겨줄 수 있는 페이지(releasable — 주인 기기 승인 아님 · 60일)면 그 페이지를 닫고
     //  (내용·이름 열쇠·하트를 비우고 미리 만든 답은 {closed:true}) 이 기기가 이름을 쓴다. 그사이 그 페이지가 다시 올렸으면(updated 가 바뀜) 넘겨받지 않는다(409).
     const owner = await store.nameOwner(snap.nameKey);
     if (owner && owner.slug !== found?.slug) {
-      if (!await releasable(owner, at, dev)) throw v.fail(409, NAME_TAKEN);
+      if (!await releasable(owner, at)) throw v.fail(409, NAME_TAKEN);
       if (!await store.releaseName(owner.slug, snap.nameKey, owner.updated ?? null)) throw v.fail(409, NAME_TAKEN);
       putSnap(snapPath(owner.slug), { closed: true }, true);
     }

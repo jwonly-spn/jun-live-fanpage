@@ -34,8 +34,7 @@ const store = {
     if (error.code === '23505') return false;
     console.error(error); throw v.fail(503, BROKEN);
   },
-  // tag = 승인 서버에 등록할 때 적힌 스푼 고유닉(이름 넘겨받기의 "같은 DJ" 비교에만 쓴다 — 밖으로 내보내지 않는다)
-  device: (id: string) => q(db.from('junlive_devices').select('state,review,tag').eq('id', id).maybeSingle()),
+  device: (id: string) => q(db.from('junlive_devices').select('state,review').eq('id', id).maybeSingle()),
   devicesOf: async (ids: string[]) => {
     const out: Record<string, any> = {};
     for (const part of chunks(ids, 100)) for (const d of await q(db.from('junlive_devices').select('id,state,review').in('id', part))) out[d.id] = d;
