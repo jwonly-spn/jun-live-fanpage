@@ -101,7 +101,8 @@
 1. SQL: `supabase/kiugi-stage2.sql`(마이그레이션 이름 `kiugi_stage2`, `kiugi.sql` 다음, 여러 번 실행해도 됨). 함께 쓰는 `junlive_devices`·`junlive_access_nonces`·`junlive_secrets`·`fp_hit`이 이미 있어야 한다(승인 서버·팬페이지 schema).
 2. Edge Function `kiugi` 배포: 파일 `index.ts`·`handler.ts`·`lib.ts` 세 개, JWT 확인 끔(`verify_jwt: false`). 소스에 유니코드 표기(백슬래시-u)를 넣지 않는다(올리기 도구가 글자로 풀어 버림). SQL 이 먼저여야 한다(새 함수가 `name_key`·`main`·`summary`·`seen`·`kg_hearts`를 쓴다).
 3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":2,"hearts":true}`, `GET …/kiugi/home` → 200, `GET …/kiugi/page?slug=abcdefgh` → 404, `GET …/kiugi/search?q=abc` → 400.
-4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림·시즌 목록이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`.
+4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림·시즌 목록이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`(새로 올라갈 파일이 docs/ 밖이거나 5MB 넘으면 멈춘다 — 괜찮으면 `--force`).
+5. 2026-10-20(함수 판 12): SQL `supabase/migrations/20261020_kiugi_heart_ip.sql` → `20261020_revoke_legacy_definer.sql` → 함수 → 사이트. 자세히 저장소 맨 위 `CHANGES-20261020-w6.md`.
 
 ## 마친 서비스 — Edge Function `fanpage` (2026-10-08)
 
