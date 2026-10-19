@@ -269,6 +269,17 @@ test('예전 판(v1)으로 저장된 줄이 남아 있어도 공개 페이지·�
   assert.deepEqual((await body(await find(w, slug, '옛이름'))).json.results, []);
 });
 
+test('사이트 주소는 인증서가 나올 때까지 임시로 http(2026-10-20) — 올리기 답의 url 이 경고 페이지로 가지 않게 · 사이트 안 자기 주소는 연 주소(location.origin) 그대로', async () => {
+  const { SITE: DEFAULT_SITE } = await import('../supabase/functions/kiugi/handler.ts');
+  assert.equal(DEFAULT_SITE, 'http://xn--ok0bp87bn6g.com/', '키우기.com 인증서가 나오면 https 로 되돌리고 이 시험도 고친다');
+  const { readFile, readdir } = await import('node:fs/promises');
+  const docs = new URL('../docs/', import.meta.url);
+  const files = ['app.js', 'api.js', 'spoon.js', ...(await readdir(new URL('lib/', docs))).map((f) => 'lib/' + f), ...(await readdir(new URL('views/', docs))).map((f) => 'views/' + f)].filter((f) => f.endsWith('.js'));
+  for (const f of files) assert.doesNotMatch(await readFile(new URL(f, docs), 'utf8'), /https?:\/\/(xn--ok0bp87bn6g\.com|키우기\.com)/, f + ': 사이트 주소를 글자로 박아 두지 않는다');
+  assert.match(await readFile(new URL('views/kiugi.js', docs), 'utf8'), /location\.origin \+ app\.link\(\{ name: 'kiugi'/);
+  assert.match(await readFile(new URL('views/character.js', docs), 'utf8'), /location\.origin \+ app\.link\(\{ name: 'character'/);
+});
+
 test('60일 동안 올리지 않은 페이지는 가끔 한 번씩 내용을 지운다', async () => {
   let roll = 0.5;
   const w = world({ chance: () => roll }), a = deviceKey(), b = deviceKey();

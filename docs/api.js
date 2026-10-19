@@ -41,6 +41,8 @@ function qs(query) {
 }
 
 // 체험 모드에서는 mock.js 가 'kiugi/<길>' 로 받는다.
+// 읽기(GET)는 머리글 없이 공개 키를 주소 쿼리(?apikey=)로 보낸다(2026-10-20): 머리글이 붙으면 브라우저가 주소마다 미리 묻기(OPTIONS)를 한 번 더 보내
+//  함수 호출의 1/3 이 OPTIONS 였다. 머리글 없는 GET 은 "단순 요청"이라 미리 묻지 않는다(실서버 health ?apikey= 200 확인). 하트(POST)는 Content-Type 때문에 어차피 미리 묻기라 그대로.
 async function request(method, path, { query, body, timeout = 20000 } = {}) {
   let status, json;
   if (demoNow()) {
@@ -50,9 +52,9 @@ async function request(method, path, { query, body, timeout = 20000 } = {}) {
     const timer = setTimeout(() => ctl.abort(), timeout);
     let res;
     try {
-      const headers = { apikey: API_KEY };
-      if (body !== undefined) headers['Content-Type'] = 'application/json';
-      res = await fetch(KIUGI_BASE + path + qs(query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
+      const simple = method === 'GET' && body === undefined;
+      const headers = simple ? {} : { apikey: API_KEY, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
+      res = await fetch(KIUGI_BASE + path + qs(simple ? { ...query, apikey: API_KEY } : query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
     } catch (e) {
       throw new ApiError(e?.name === 'AbortError' ? '응답이 늦어요. 잠시 뒤에 다시 해 주세요.' : '인터넷 연결을 확인해 주세요.', 0);
     } finally { clearTimeout(timer); }
@@ -90,11 +92,13 @@ export const kiugiApi = {
 
 // 미리 만든 답(2026-10-18 "사이트 반응을 빠르게"): 서버(kiugi 함수)가 메인·DJ 페이지 답을 공개 저장소(kg-snap)에 올려 두면 그 파일을 먼저 읽는다.
 //  함수는 한동안 아무도 안 부르면 쉬다가 깨어나는 데 1~2초가 걸리지만, 저장소 파일은 0.2초 안팎(미리 묻기도 없음 — 머리글을 붙이지 않는 GET).
-//  · 10분 안에 만든 파일이면 그 답으로 바로 그린다. 1분 넘은 것이면 그 뒤에 함수에도 물어 이 브라우저 기억만 새로(다음 화면부터).
+//  · 10분 안에 만든 파일이면 그 답으로 바로 그린다. 3분 넘은 것이면 그 뒤에 함수에도 물어 이 브라우저 기억만 새로(다음 화면부터 — 함수가 파일도 새로 쓴다).
 //  · 파일이 없거나 · 모양이 틀리거나 · 닫힌 페이지({closed:true}) · 늦으면(2.5초) 예전처럼 함수에 묻는다. 체험 모드는 쓰지 않는다.
 //  (먼치킨이 새 옷을 올리면 서버가 그 DJ 페이지 파일을 바로, 메인 파일은 15초에 한 번 새로 쓴다 — supabase/functions/kiugi/handler.ts)
+//  2026-10-20: 서버가 파일을 저장소 CDN·브라우저에 60초 캐시하게 올린다(index.ts cacheControl — 내용이 최대 1분 늦는 대신 저장소 읽기가 준다).
+//   그래서 "오래된 파일" 기준(SNAP_STALE_MS)은 캐시 1분 + 다시 쓰는 간격 15초보다 넉넉히 길게 3분(예전 1분) — 캐시가 내준 파일 때문에 보는 사람마다 함수를 부르지 않게.
 export const SNAP_BASE = 'https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/kg-snap/';
-export const SNAP_USE_MS = 10 * 60e3, SNAP_STALE_MS = 60e3;
+export const SNAP_USE_MS = 10 * 60e3, SNAP_STALE_MS = 3 * 60e3;
 export async function readSnap(path, valid, { fetchImpl = (u, o) => fetch(u, o), now = Date.now, timeout = 2500 } = {}) {
   const ctl = typeof AbortController === 'function' ? new AbortController() : null;
   const timer = ctl ? setTimeout(() => ctl.abort(), timeout) : null;

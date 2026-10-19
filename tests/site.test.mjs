@@ -100,6 +100,36 @@ test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이
   assert.match(HERO_TEXT, /하트/);
 });
 
+test('공유·검색용 머리 정보(2026-10-20): 파비콘(작은 ICO) · 테마 색 · 공통 미리보기(og 그림 1200x630 — 서버가 주는 사이트 주소와 같은 주소) · robots.txt(아직 막지 않음)', async () => {
+  const index = await text('index.html');
+  assert.equal(await text('404.html'), index);
+  const meta = (attr, name) => new RegExp(`<meta ${attr}="${name.replace(/[.:]/g, '\\$&')}" content="([^"]*)">`).exec(index)?.[1];
+  assert.match(index, /<link rel="icon" href="\/favicon\.ico">/);
+  assert.equal(meta('name', 'theme-color'), '#f4efe8');
+  assert.equal(meta('property', 'og:title'), '스푼 DJ 키우기');
+  assert.equal(meta('property', 'og:site_name'), '스푼 DJ 키우기');
+  assert.match(meta('property', 'og:description'), /비공식 팬 사이트.*스푼 공식 서비스가 아니에요/, '미리보기 글에도 비공식');
+  assert.equal(meta('property', 'og:type'), 'website');
+  assert.equal(meta('property', 'og:locale'), 'ko_KR');
+  assert.equal(meta('name', 'twitter:card'), 'summary_large_image');
+  assert.deepEqual([meta('property', 'og:image:width'), meta('property', 'og:image:height')], ['1200', '630']);
+  // 미리보기 그림 주소 = 서버가 주는 사이트 주소(handler.ts SITE) + og.png — 인증서가 나와 SITE 를 https 로 바꾸면 이것도 같이(지금은 임시 http)
+  const { SITE } = await import('../supabase/functions/kiugi/handler.ts');
+  assert.equal(meta('property', 'og:image'), SITE + 'og.png');
+  const png = await readFile(docs + 'og.png');
+  assert.equal(png.toString('ascii', 1, 4), 'PNG');
+  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630]);
+  assert.ok(png.length < 1024 * 1024, 'og.png 는 1MB 보다 작다');
+  // 파비콘: 먼치킨 아이콘의 작은 크기만 담은 ICO(원본 munchkin.ico 230KB 는 첫 방문마다 받기엔 크다)
+  const ico = await readFile(docs + 'favicon.ico');
+  assert.deepEqual([...ico.subarray(0, 4)], [0, 0, 1, 0], 'ICO 머리');
+  assert.ok(ico.readUInt16LE(4) >= 1 && ico.length < 32 * 1024, 'favicon.ico 는 32KB 보다 작다');
+  const robots = await text('robots.txt');
+  assert.match(robots, /^User-agent: \*$/m);
+  assert.doesNotMatch(robots, /^Disallow: *\/\s*$/m, '검색 노출은 아직 정하지 않았다 — 막지 않는다');
+  assert.doesNotMatch(robots + index, /닉네임/);
+});
+
 test('모양: 보안 규칙상 style 속성을 쓰지 않고, 화면 클래스는 styles.css 에 있다', async () => {
   const css = await text('styles.css');
   // 2026-10-18 새 구조(SNS): 큰 사진 카드(kg-post · kg-photo · kg-heart-pill · kg-pet-tile · kg-burst) · DJ 동그라미(kg-rings · kg-ring) · 오늘의 주인공(kg-spot) ·
@@ -143,7 +173,15 @@ test('스푼 연결 페이지(spoon.html)는 그대로 있다', async () => {
   const html = await text('spoon.html');
   // 2026-10-08 키우기.com 으로 옮긴 뒤로는 사이트가 도메인 맨 앞(/)에 있다
   assert.match(html, /src="\/spoon\.js"/); assert.match(html, /href="\/spoon\.css"/);
-  assert.match(await text('spoon.js'), /functions\/v1\/spoon-link\/callback/);
+  const js = await text('spoon.js');
+  assert.match(js, /functions\/v1\/spoon-link\/callback/);
+  // 프로그램 이름은 먼치킨(2026-10-20 — 예전 이름 JUN LIVE 가 남아 있었다)
+  for (const [f, src] of [['spoon.html', html], ['spoon.js', js]]) {
+    assert.doesNotMatch(src, /JUN LIVE/, f + ': 예전 프로그램 이름');
+    assert.match(src, /먼치킨/, f);
+  }
+  assert.match(html, /<title>먼치킨 스푼 연결<\/title>/);
+  assert.match(html, /스푼이 만든 공식 서비스가 아니에요/, '비공식 표시');
 });
 
 test('앨범·할로윈 디자인이 실제 사이트 기본 화면(2026-10-18 사용자 "이대로 반영"): 미리 보기 포트·design=album 조건 없음 · 처음부터 클래스', async () => {

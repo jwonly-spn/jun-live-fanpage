@@ -17,15 +17,15 @@ async function finish() {
   const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 20000);
   try {
     const res = await fetch(LINK_API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code, state }), signal: ctl.signal, cache: 'no-store' });
-    if (res.status === 404) return show('wait', '아직 준비 중이에요', '스푼 연결 기능을 준비하고 있어요. JUN LIVE 업데이트 소식을 기다려 주세요.');
+    if (res.status === 404) return show('wait', '아직 준비 중이에요', '스푼 연결 기능을 준비하고 있어요. 먼치킨 업데이트 소식을 기다려 주세요.');
     const data = await res.json().catch(() => ({}));
-    if (res.ok && data.ok) return show('ok', '연결됐어요', 'JUN LIVE 프로그램으로 돌아가세요. 이 창은 닫아도 돼요.');
-    show('fail', '연결하지 못했어요', typeof data.message === 'string' && data.message.length < 200 ? data.message : 'JUN LIVE에서 "스푼 연결"을 다시 눌러 주세요.');
+    if (res.ok && data.ok) return show('ok', '연결됐어요', '먼치킨으로 돌아가세요. 이 창은 닫아도 돼요.');
+    show('fail', '연결하지 못했어요', typeof data.message === 'string' && data.message.length < 200 ? data.message : '먼치킨에서 "스푼 연결"을 다시 눌러 주세요.');
   } catch {
-    show('fail', '연결하지 못했어요', '인터넷 연결을 확인하고 JUN LIVE에서 "스푼 연결"을 다시 눌러 주세요.');
+    show('fail', '연결하지 못했어요', '인터넷 연결을 확인하고 먼치킨에서 "스푼 연결"을 다시 눌러 주세요.');
   } finally { clearTimeout(timer); }
 }
 
-if (error === 'access_denied') show('fail', '허용하지 않았어요', '연결하려면 JUN LIVE에서 "스푼 연결"을 다시 누르고 스푼 화면에서 허용해 주세요.');
-else if (error) show('fail', '연결하지 못했어요', 'JUN LIVE에서 "스푼 연결"을 다시 눌러 주세요.');
+if (error === 'access_denied') show('fail', '허용하지 않았어요', '연결하려면 먼치킨에서 "스푼 연결"을 다시 누르고 스푼 화면에서 허용해 주세요.');
+else if (error) show('fail', '연결하지 못했어요', '먼치킨에서 "스푼 연결"을 다시 눌러 주세요.');
 else if (code && state && code.length <= 512 && state.length <= 512) finish();

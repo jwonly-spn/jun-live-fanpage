@@ -33,7 +33,7 @@ const EMPTY = () => ({ updated: null, name: '', season: null, character: null, t
 const pick = (p, cols) => (p ? structuredClone(Object.fromEntries(cols.map((c) => [c, p[c]]))) : null);
 
 export function memoryStore(clock) {
-  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, snaps: new Map() };
+  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, nextRelease: null, snaps: new Map() };
   const byNameKey = (key) => [...s.pages.values()].find((p) => p.name_key === key) || null;
   return Object.assign(s, {
     ipSalt: async () => 'salt',
@@ -42,7 +42,16 @@ export function memoryStore(clock) {
     device: async (id) => s.devices.get(id) || null,
     devicesOf: async (ids) => Object.fromEntries(ids.filter((id) => s.devices.has(id)).map((id) => [id, s.devices.get(id)])),
     pageByDevice: async (device) => { for (const p of s.pages.values()) if (p.device_id === device) return { slug: p.slug, updated: p.updated }; return null; },
-    nameOwner: async (key) => byNameKey(key)?.slug || null,
+    nameOwner: async (key) => { const p = byNameKey(key); return p ? { slug: p.slug, device_id: p.device_id, updated: p.updated, seen: p.seen } : null; },
+    // 캐릭터 이름 넘겨받기: 이름 열쇠·updated 가 본 그대로일 때만(index.ts 와 같은 약속). 시험에서 "그사이 다시 올림" 을 흉내 낼 때는 nextRelease 에 false 를 넣어 둔다
+    releaseName: async (slug, key, updated) => {
+      if (s.nextRelease !== null) { const r = s.nextRelease; s.nextRelease = null; return r; }
+      const p = s.pages.get(slug);
+      if (!p || p.name_key !== key || p.updated !== updated) return false;
+      Object.assign(p, EMPTY(), { name_key: null });
+      for (const [k, h] of s.hearts) if (h.slug === slug) s.hearts.delete(k);
+      s.calls.push('release'); return true;
+    },
     createPage: async (row) => {
       if ([...s.pages.values()].some((p) => p.device_id === row.device_id)) return 'device';
       if (s.pages.has(row.slug)) return 'slug';
@@ -63,9 +72,16 @@ export function memoryStore(clock) {
     mainPages: async (withPeople) => [...s.pages.values()].filter((p) => p.main && p.updated !== null).map((p) => pick(p, withPeople ? [...MAIN_COLUMNS, 'people'] : MAIN_COLUMNS)),
     heartRows: async (slugs) => [...s.hearts.values()].filter((h) => slugs.includes(h.slug) && h.hearts > 0).map((h) => ({ ...h })),
     topHearts: async (limit) => [...s.hearts.values()].filter((h) => h.hearts > 0).sort((a, b) => b.hearts - a.hearts || b.updated - a.updated).slice(0, limit).map((h) => ({ ...h })),
-    heart: async (vote, expires, slug, season, pid, now) => {
+    // 7칸 kg_heart 와 같은 약속(supabase/migrations/20261020_kiugi_heart_ip.sql): 투표 열쇠가 처음이고, 주소 칸 열쇠(slots) 중 빈 것을 하나 차지해야 +1
+    heart: async (vote, expires, slug, season, pid, now, slots = []) => {
       const key = `${slug}|${season}|${pid}`;
-      if (s.votes.has(vote)) return { hearts: s.hearts.get(key)?.hearts || 0, already: true };
+      const already = () => ({ hearts: s.hearts.get(key)?.hearts || 0, already: true });
+      if (s.votes.has(vote)) return already();
+      if (slots.length) {
+        const free = slots.find((k) => !s.votes.has(k));
+        if (!free) return already();
+        s.votes.set(free, expires);
+      }
       s.votes.set(vote, expires);
       const h = s.hearts.get(key) || { slug, season, pid, hearts: 0, updated: 0 };
       h.hearts++; h.updated = now; s.hearts.set(key, h);

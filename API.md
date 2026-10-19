@@ -2,6 +2,16 @@
 
 ## 바뀐 것
 
+### 1.0.0 준비 (2026-10-20, 함수 판 12 — 배포 순서는 저장소 맨 위 `CHANGES-20261020-w6.md`)
+- **캐릭터 이름 넘겨받기**: 같은 이름으로 올린 다른 기기가 이름을 넘겨받는 경우는 둘 — ①이름 주인 기기가 승인 상태가 아님(관리 화면에서 차단·대기, 심사용, 기록 없음) ②이름 주인 페이지가 60일 동안 아무것도 올리지 않음. "같은 DJ 면 바로"는 없다: 승인 서버의 고유닉(`junlive_devices.tag`)은 기기가 스스로 신고한 값이라 쓰지 않고, 스푼이 확인한 DJ 계정 값은 저장된 곳이 없다(스푼 연결 표 `sp_links`는 기기 번호·잠긴 토큰·권한·때뿐). 끄기(내용 없음)·시즌 준비 중만으로는 넘겨주지 않는다("끄기는 이름을 지킨다"). 옛 페이지는 내용·이름 열쇠·하트를 비우고(주소 묶음 줄은 남음) 미리 만든 답을 `{closed:true}`로 덮는다. 그사이 옛 페이지가 다시 올렸으면(`updated`가 바뀜) 넘겨받지 않고 409.
+  PC 를 바꾼 DJ(새 기기 번호): 운영자가 DJ 본인인지 확인하고 관리 화면에서 옛 PC 를 차단하면 새 PC 의 다음 올리기에서 같은 이름을 쓴다(주소는 새로). 운영 절차 `supabase/ops.md`.
+- **하트 접속 주소 상한**: 같은 접속 주소(IP)는 한 캐릭터에 한국 날짜 하루 3번(`lib.ts HEART_IP_DAY`)까지만 새 하트로 센다. 넘으면 수는 그대로 `{hearts, already:true}`(조용히 — 그 브라우저 열쇠는 쓰지 않은 것으로 남아 다른 주소에서는 센다). 함수가 "주소 칸" 열쇠 3개(sha256(`ip:`소금:주소 해시:날짜:시즌:주소:pid:칸 번호))를 새 7칸 `kg_heart(…, p_slots)`에 넘기고, 데이터베이스가 빈 칸 하나를 차지할 때만 +1 한다(칸 열쇠도 `kg_heart_votes`에 같은 만료로). 새 SQL `supabase/migrations/20261020_kiugi_heart_ip.sql`(예전 6칸 `kg_heart`는 판 11 이 쓰므로 남겨 둠).
+- **사이트 읽기 미리 묻기(OPTIONS) 없앰**: 사이트(`docs/api.js`)가 함수 GET 에 `apikey` 머리글 대신 쿼리 `?apikey=`를 붙인다 — 머리글 없는 GET 은 단순 요청이라 미리 묻지 않는다(24시간 함수 호출 483번 중 164번이 OPTIONS 였다). 실서버 `GET …/kiugi/health?apikey=…` 200 확인(2026-10-20). 함수는 그대로(쿼리의 `apikey`는 읽지 않고 버린다).
+- **미리 만든 답 캐시 60초**: 함수가 `kg-snap` 파일을 `cacheControl: '60'`(예전 5)으로 올린다 — 저장소 CDN·브라우저가 1분 동안 같은 파일을 내줘 저장소 읽기가 준다(대신 내용이 최대 1분 늦다). 사이트의 "오래된 파일" 기준 `SNAP_STALE_MS`는 1분 → 3분(캐시 1분 + 다시 쓰는 간격 15초보다 길게 — 캐시가 내준 파일 때문에 보는 사람마다 함수를 부르지 않게). 10분 넘은 파일은 그대로 쓰지 않는다.
+- **메인 인기 빠르게**: 올릴 때 그 페이지의 이번 시즌 하트 줄도 함께 읽어 `summary.hot`(하트 받은 사람 카드, 하트 많은 순 20명)을 만들어 둔다. `home`의 인기는 먼저 `hot`에서 찾고, 없을 때(올린 뒤 처음 하트를 받은 사람 · 예전 요약)만 그 페이지 사람 목록을 받는다(예전에는 후보 페이지 40곳의 사람 목록 전체를 매번 받았다). 요약의 옷 수는 원형 없는 객체로 센다(옷 id `constructor` 가 오면 숫자가 아닌 글이 저장되던 것).
+- **공유·검색용 머리 정보**(사이트만): `index.html`·`404.html` 에 파비콘(`docs/favicon.ico` — 먼치킨 아이콘 16·32·48 만, 10KB) · 공통 미리보기(`og:*`·`twitter:card`, 그림 `docs/og.png` 1200x630 — 예시 캐릭터 다섯 명·지어낸 아이디 밤톨#먼치·비공식 표시, 원본 `tools/og-image/`) · `docs/robots.txt`(검색 노출은 아직 정하지 않아 막지 않음). `og:image` 주소도 `SITE`와 같이 임시 http — 인증서가 나오면 함께 https 로(시험이 둘을 같게 잡는다). 캐릭터마다 다른 미리보기는 GitHub Pages(정적)로는 못 한다.
+- **임시 http 주소**: 올리기 답의 `url`이 `http://xn--ok0bp87bn6g.com/k/<주소>`(키우기.com 인증서가 나올 때까지 — 위 "사이트"). 먼치킨이 화면에 보여 주는 주소는 먼치킨 설정(`kiugi-config.json siteUrl`)에서 오므로 그쪽도 같이 바꿔야 한다(먼치킨 저장소).
+
 ### 표정 고르기 · 칭호 · 얼굴 보기 (2026-10-19)
 - **표정(`exp`)**: 먼치킨 `!표정 방긋`(이름 또는 번호 · `!표정 자동`)으로 고른 표정 번호. 올리는 사람 줄 `people[]` 에 `exp: <정수 1~10>`(시즌 목록 `expressions` 의 `level`)을 더한다 — 고르지 않았으면 넣지 않는다(예전 판 먼치킨도 그대로).
   서버는 1~10 정수가 아니면 버리고, 저장해 두었다가 사람 정보가 나가는 곳(`person` · `page` top · `find` · `home` popular·recent · `search`)에 그대로 `exp` 로 내보낸다. 표정만 바꿔도 "새로 꾸민 때"(`ch`)가 바뀐다. `GET health` 에 `exp: true`(함수 판을 올렸는지 확인용).
@@ -27,6 +37,7 @@
 ## 사이트
 
 - 주소: `https://키우기.com/`(xn--ok0bp87bn6g.com, BASE `/`, 2026-10-08부터 — 예전 `https://jwonly-spn.github.io/jun-live-fanpage/` 는 GitHub 가 새 주소로 넘김. `docs/`, GitHub Pages, 빌드 없음).
+  인증서가 나오기 전(2026-10-08~ GitHub Pages 인증서 "new")에는 https 로 열면 브라우저 경고가 뜨므로 서버가 주는 주소(올리기 답의 `url`)는 임시로 `http://xn--ok0bp87bn6g.com/`(2026-10-20, `handler.ts SITE`). 사이트 안에서 만드는 자기 주소(링크 복사·공유)는 연 주소(`location.origin`) 그대로라 고칠 것이 없다. 인증서가 나와 https 강제가 켜지면 `SITE`를 https 로 되돌린다.
   GitHub Pages는 모르는 경로에 `404.html`을 주므로 `404.html`은 `index.html`과 같은 내용(SPA). 경로에서 BASE 경로(`/jun-live-fanpage/`)를 떼고 라우팅.
 - 화면: `/`(메인, `views/intro.js` — 칸 목록 `LANDING_SECTIONS`) · `items`(옷 도감) · `k/<주소>`(DJ 키우기 페이지) · `k/<주소>/<아이디 앞 부분>`(캐릭터 페이지, 앞 부분 = 한글 1~6자) · `p/…`·`studio`·`app`(마친 서비스 안내) · 그 밖(없는 주소 안내). `spoon.html`은 따로 있는 페이지.
 - 2026-10-18 새 구조(SNS): 메인 = DJ 동그라미 줄(맨 앞 내 캐릭터) · 오늘의 주인공(한국 날짜마다 인기 6위 안에서) · 내 캐릭터(지난 방문 뒤 달라진 것) · 오늘의 하트 미션·연속 방문 · 탭(인기 · 새로 꾸민 · DJ별) + 큰 사진 카드(`views/feed.js` — 휴대폰 한 장 · 태블릿 두 장 · PC 세 장, 머리 조금 위~허벅지 가운데, 펫은 왼쪽 아래 작은 칸). 캐릭터 페이지는 전신.
@@ -46,13 +57,13 @@
 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
 올리는 쪽은 먼치킨(봇 프로그램) 본체 `app/desktop/kiugi-fanpage.cjs`(먼치킨 저장소). 그림은 먼치킨과 같은 `kiugi-art.js`(사이트 `docs/kiugi/`, 먼치킨 저장소 `node tools/sync-kiugi-site.mjs`로 복사).
 
-- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`. 요청에 머리글 `apikey: sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(공개 키, 비밀 아님).
+- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`. 요청에 공개 키 `sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(비밀 아님)를 싣는다 — 사이트의 읽기(GET)는 주소 쿼리 `?apikey=`로(머리글이 없어야 브라우저가 미리 묻기 OPTIONS 를 하지 않는다, 2026-10-20), 하트(POST)·먼치킨 올리기는 머리글 `apikey:`로.
 - 아이디: `<앞>#<캐릭터 이름>`. 앞 = 한글 완성 글자(가~힣)만 1~6자(청취자가 만든 부분), 캐릭터 이름 = 한글·영문·숫자 1~8자이고 올린 내용의 `character.name`과 글자 그대로 같아야 한다. NFC로 맞추고 앞뒤 공백만 뗀 뒤 검사한다. 모양이 틀리거나 뒤 이름이 다른 줄은 그 줄만 버린다. 같은 아이디가 두 번 오면 애정도 높은 줄만 남긴다.
-- 캐릭터 이름 열쇠 `name_key` = 캐릭터 이름을 NFC + 영문 소문자로. 사이트 전체에서 하나만(유일 인덱스). 먼저 쓴 방송이 가진다 — 다른 방송이 같은 열쇠로 올리면 409 "이 캐릭터 이름은 다른 방송이 이미 쓰고 있어요. 먼치킨에서 캐릭터 이름을 바꿔 주세요."(동시에 올려 데이터베이스가 막아도 같은 409). 이름을 바꾸면 예전 열쇠는 풀린다. 끄기(`{enabled:false}`)는 열쇠를 지킨다. 60일 동안 아무것도 올리지 않으면(끈 채로도) 열쇠를 지운다.
-- 저장하는 것(`kg_pages`): DJ 캐릭터(이름·모양 열쇠), `name_key`, `main`, 시즌(id·이름·끝나는 날), 청취자 줄 `{id, level(1~100), love, worn({칸: 옷 id}), k(찾기 열쇠), ch(새로 꾸민 때)}`, 1~3등, 인원 수, `summary`(메인용 요약: 새로 꾸민 8명 `{k,id,level,worn,ch}`·옷마다 입은 수), `updated`(마지막으로 내용을 올린 때), `seen`(마지막으로 무엇이든 올린 때 — 끄기 포함). 스푼 닉네임·고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다(보낸 줄의 다른 칸은 버림). 3,000명·본문 1.5MB까지.
+- 캐릭터 이름 열쇠 `name_key` = 캐릭터 이름을 NFC + 영문 소문자로. 사이트 전체에서 하나만(유일 인덱스). 먼저 쓴 방송이 가진다 — 다른 방송이 같은 열쇠로 올리면 409 "이 캐릭터 이름은 다른 방송이 이미 쓰고 있어요. 먼치킨에서 캐릭터 이름을 바꿔 주세요."(동시에 올려 데이터베이스가 막아도 같은 409). 이름을 바꾸면 예전 열쇠는 풀린다. 끄기(`{enabled:false}`)는 열쇠를 지킨다. 60일 동안 아무것도 올리지 않으면(끈 채로도) 열쇠를 지운다. 넘겨받기(2026-10-20): 이름 주인 기기 승인 아님·60일 동안 안 올림이면 같은 이름으로 올린 다른 기기가 가져가고 옛 페이지는 닫힌다(위 "바뀐 것").
+- 저장하는 것(`kg_pages`): DJ 캐릭터(이름·모양 열쇠), `name_key`, `main`, 시즌(id·이름·끝나는 날), 청취자 줄 `{id, level(1~100), love, worn({칸: 옷 id}), k(찾기 열쇠), ch(새로 꾸민 때)}`, 1~3등, 인원 수, `summary`(메인용 요약: 새로 꾸민 8명 `{k,id,level,worn,ch}`·옷마다 입은 수·하트 받은 사람 카드 `hot`(2026-10-20 — 올릴 때의 이번 시즌 하트 많은 순 20명 `{k,id,level,worn,…}`, 메인 인기가 사람 목록 전체를 다시 받지 않게)), `updated`(마지막으로 내용을 올린 때), `seen`(마지막으로 무엇이든 올린 때 — 끄기 포함). 스푼 닉네임·고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다(보낸 줄의 다른 칸은 버림). 3,000명·본문 1.5MB까지.
 - `ch`(새로 꾸민 때): 올릴 때 지난번 사람 목록과 찾기 열쇠로 비교해 처음 보는 사람이나 입은 옷이 바뀐 사람은 지금 시각, 그대로면 지난 값. 순서에만 쓰고 밖으로 내보내지 않는다. "새로 꾸민 캐릭터"에는 옷을 하나라도 입은 사람만.
-- 주소는 처음 올린 기기에 묶인다(같은 PC가 다시 올리면 같은 주소에 통째로 바꿔 넣음). `{enabled:false}`를 올리면 내용만 지우고 주소·`name_key`·`main`은 남긴다. `seen`이 60일 지나면 내용·`name_key`·하트를 지운다(올릴 때 가끔 정리). 승인 서버에서 차단·대기로 바꾼 기기의 페이지는 닫힌다. 심사용 기기는 올리지 못한다.
-- 하트(`kg_hearts (slug, season, pid, hearts)`, pid = 찾기 열쇠): 시즌 id가 열쇠에 들어 있어 시즌마다 0부터. 지운 아이디·지난 시즌의 하트 줄은 답에서 빼고, 올릴 때(시즌이 바뀌었거나 가끔) 지운다. 하루 한 번 막기는 `kg_heart_votes`(열쇠 = sha256(비밀값:브라우저 열쇠:한국 날짜:시즌:주소:pid), 다음 한국 자정 + 하루 뒤 만료, 가끔 지움). 투표 열쇠와 +1 은 함수 `kg_heart`가 한 번에 한다.
+- 주소는 처음 올린 기기에 묶인다(같은 PC가 다시 올리면 같은 주소에 통째로 바꿔 넣음). `{enabled:false}`를 올리면 내용만 지우고 주소·`name_key`·`main`은 남긴다. `seen`이 60일 지나면 내용·`name_key`·하트를 지운다(올릴 때 가끔 정리). 승인 서버에서 차단·대기로 바꾼 기기의 페이지는 닫힌다(그 페이지의 캐릭터 이름은 다른 기기가 넘겨받을 수 있다). 심사용 기기는 올리지 못한다.
+- 하트(`kg_hearts (slug, season, pid, hearts)`, pid = 찾기 열쇠): 시즌 id가 열쇠에 들어 있어 시즌마다 0부터. 지운 아이디·지난 시즌의 하트 줄은 답에서 빼고, 올릴 때(시즌이 바뀌었거나 가끔) 지운다. 하루 한 번 막기는 `kg_heart_votes`(열쇠 = sha256(비밀값:브라우저 열쇠:한국 날짜:시즌:주소:pid), 다음 한국 자정 + 하루 뒤 만료, 가끔 지움). 투표 열쇠와 +1 은 함수 `kg_heart`가 한 번에 한다. 같은 접속 주소는 한 캐릭터에 하루 3번까지(2026-10-20 — 주소 칸 열쇠도 같은 표에, 위 "바뀐 것").
 
 공개(로그인 없음, 주소 해시마다 횟수 제한). 사람 한 명 = `{rank, id, level, worn, hearts}`, 카드 한 장 = `{slug, djName, id, level, worn, hearts}`. `love`는 `SHOW_LOVE`가 true일 때만 붙는다(지금은 false).
 - `GET page?slug=` (1분 60번, 캐시 30초) → `{slug,name,season:{id,name,endsAt}|null,paused,character,top:[사람…3명],count,updatedAt}` · 없으면 404, 닫혀 있으면 404 `{error,closed:true}`. 아이디 모양이 아닌 예전 줄은 top 에서 뺀다. `main=false`여도 열린다.
@@ -66,7 +77,7 @@
   - `djs`: `[{slug, name, character, count}]` 메인에 보이는 모든 페이지, 청취자 많은 순.
   - `totals`: `{djs, people}`.
 - `GET search?q=` (1분 30번, 캐시 30초) → `{results:[카드…10장까지],exact,more}`. 메인에 보이는 페이지만. 전체 아이디(`밤톨#먼치`)는 `name_key`로 그 페이지를 바로 찾고, 앞 부분만이면 모든 방송에서 앞 부분이 같은 사람 먼저·들어 있는 사람 다음(각각 레벨 높은 순).
-- `POST heart` 본문 `{slug, id, token}` → `{hearts, already}`. id = 앞 부분이나 전체 아이디, token = 브라우저가 만든 무작위 32자(base64url). 주소 해시마다 1시간 60번, 열쇠마다 하루 50번(넘으면 429). 사람이 보이는 페이지의 지금 사람 목록에 있어야 한다(없으면 404, 닫힌 페이지 404, 시즌 준비 중이면 409). 같은 날 두 번째부터 `already:true`(수는 그대로).
+- `POST heart` 본문 `{slug, id, token}` → `{hearts, already}`. id = 앞 부분이나 전체 아이디, token = 브라우저가 만든 무작위 32자(base64url). 주소 해시마다 1시간 60번, 열쇠마다 하루 50번(넘으면 429). 사람이 보이는 페이지의 지금 사람 목록에 있어야 한다(없으면 404, 닫힌 페이지 404, 시즌 준비 중이면 409). 같은 날 두 번째부터 `already:true`(수는 그대로). 같은 접속 주소에서 그 캐릭터에 오늘 이미 3번 셌으면 새 열쇠도 `already:true`(2026-10-20).
 - `GET health` → `{service:"jun-live-kiugi",v:2,hearts:true,pets:true,motions:true,exp:true,snaps:true}`
 - 표정(2026-10-19): 사람 줄에 `exp`(고른 표정 번호 1~10 — 먼치킨 `!표정`, 없으면 칸도 없다 = 자동). 한 사람(`person`)·1~3등·카드·새로 꾸민 줄·찾기에 그대로 실린다. 레벨보다 높은지는 사이트가 본다.
 - 모션(2026-10-15, 함수 v8): 사람 줄에 `motion`(지금 모션 id 하나, 영문 소문자 1~20자 — 시즌 목록 `motions`). 한 사람(`person`)·1~3등·카드·새로 꾸민 줄에 그대로 실린다. 산 모션 목록·값은 받지 않는다. 사이트는 그 모션으로 캐릭터를 움직이고, 모든 캐릭터는 숨쉬기 대기 모션을 한다.
@@ -90,7 +101,8 @@
 1. SQL: `supabase/kiugi-stage2.sql`(마이그레이션 이름 `kiugi_stage2`, `kiugi.sql` 다음, 여러 번 실행해도 됨). 함께 쓰는 `junlive_devices`·`junlive_access_nonces`·`junlive_secrets`·`fp_hit`이 이미 있어야 한다(승인 서버·팬페이지 schema).
 2. Edge Function `kiugi` 배포: 파일 `index.ts`·`handler.ts`·`lib.ts` 세 개, JWT 확인 끔(`verify_jwt: false`). 소스에 유니코드 표기(백슬래시-u)를 넣지 않는다(올리기 도구가 글자로 풀어 버림). SQL 이 먼저여야 한다(새 함수가 `name_key`·`main`·`summary`·`seen`·`kg_hearts`를 쓴다).
 3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":2,"hearts":true}`, `GET …/kiugi/home` → 200, `GET …/kiugi/page?slug=abcdefgh` → 404, `GET …/kiugi/search?q=abc` → 400.
-4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림·시즌 목록이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`.
+4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림·시즌 목록이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`(새로 올라갈 파일이 docs/ 밖이거나 5MB 넘으면 멈춘다 — 괜찮으면 `--force`).
+5. 2026-10-20(함수 판 12): SQL `supabase/migrations/20261020_kiugi_heart_ip.sql` → `20261020_revoke_legacy_definer.sql` → 함수 → 사이트. 자세히 저장소 맨 위 `CHANGES-20261020-w6.md`.
 
 ## 마친 서비스 — Edge Function `fanpage` (2026-10-08)
 

@@ -3,7 +3,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as v from '../supabase/functions/kiugi/lib.ts';
-import { T0, SEASON, PERSON, PAYLOAD, world, body, TOKEN, syl } from './kiugi-world.mjs';
+import { T0, SEASON, PERSON, PAYLOAD, world, body, TOKEN, syl, settle } from './kiugi-world.mjs';
 
 const enc = encodeURIComponent;
 const DAY = 86400000;
@@ -51,7 +51,7 @@ test('애정도 숫자 숨김: 1~3등·찾기·캐릭터·메인·전체 찾기 
   assert.ok(w.store.pages.get(A).people.every((p) => Number.isSafeInteger(p.love) && Number.isSafeInteger(p.ch)), '서버 안에는 애정도·새로 꾸민 때가 그대로 있다');
 });
 
-test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이 가진다(대소문자·NFC 같으면 같은 이름), 끄기는 이름을 지키고 60일 지나면 놓아준다', async () => {
+test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이 가진다(대소문자·NFC 같으면 같은 이름), 끄면 이름 열쇠는 남고(다시 켜면 그대로) 60일 지나면 놓아준다', async () => {
   let roll = 0.5;
   const w = world({ chance: () => roll });
   const a = w.approve(), b = w.approve();
@@ -63,10 +63,12 @@ test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이
   }
   assert.equal(w.store.pages.size, 1, '이름이 겹치면 새 주소를 만들지 않는다');
   assert.equal((await w.upload(a, PAYLOAD([PERSON('밤톨', 20, {}, 'Munchi')], { name: 'Munchi' }))).status, 200, '같은 방송은 계속 쓴다');
-  // 끄기: 이름은 그대로 지킨다
+  // 끄기는 이름을 지킨다: 꺼 둔 동안에도 다른 방송은 못 쓰고, 다시 켜면 같은 이름 그대로
   assert.equal((await w.upload(a, { enabled: false })).status, 200);
   assert.equal(w.store.pages.get(A).name_key, 'munchi');
-  assert.equal((await w.upload(b, PAYLOAD([PERSON('달무리', 10, {}, 'munchi')], { name: 'munchi' }))).status, 409);
+  assert.equal((await w.upload(b, PAYLOAD([PERSON('달무리', 10, {}, 'munchi')], { name: 'munchi' }))).status, 409, '꺼 둔 동안에도 다른 방송은 못 쓴다');
+  assert.equal((await w.upload(a, PAYLOAD([PERSON('밤톨', 20, {}, 'Munchi')], { name: 'Munchi' }))).status, 200, '다시 켜면 같은 이름 그대로');
+  assert.equal((await w.upload(b, PAYLOAD([PERSON('달무리', 10, {}, 'munchi')], { name: 'munchi' }))).status, 409, '다시 켠 뒤에는 다른 방송이 못 쓴다');
   // 한글 이름: 풀어 쓴 모양도 같은 이름
   const c = w.approve();
   assert.equal((await w.upload(c, PAYLOAD(undefined, { name: '먼치' }))).status, 200);
@@ -78,13 +80,99 @@ test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이
   // 이름을 바꾸면 예전 이름은 풀린다
   assert.equal((await w.upload(c, PAYLOAD([PERSON('별사탕', 1, {}, '젤리')], { name: '젤리' }))).status, 200);
   assert.equal((await w.upload(b, PAYLOAD([PERSON('귤껍질', 1)], { name: '먼치' }))).status, 200, '바뀐 뒤에는 다른 방송이 쓸 수 있다');
-  // 끈 채로 60일이 지나면 이름 열쇠를 지운다(누가 올릴 때 가끔 정리 — 여기서는 정리가 돌게 chance 0)
+  // 60일 동안 아무것도 올리지 않으면 이름 열쇠를 지운다(누가 올릴 때 가끔 정리 — 여기서는 정리가 돌게 chance 0)
   w.clock.now += v.KEEP_MS + 1000;
   assert.equal(w.store.pages.get(A).name_key, 'munchi');
   const d = w.approve();
   roll = 0;
   assert.equal((await w.upload(d, PAYLOAD([PERSON('여름밤', 1, {}, 'MUNCHI')], { name: 'MUNCHI' }))).status, 200, '60일 지난 이름은 새 방송이 쓸 수 있다');
   assert.equal(w.store.pages.get(A).name_key, null);
+});
+
+// 2026-10-20(1.0.0 점검 "PC 를 바꾼 DJ 는 자기 캐릭터 이름을 60일 동안 못 쓴다"): 주인 기기 승인 아님(운영자가 옛 PC 차단) · 60일 지남이면 새 기기가 넘겨받는다
+test('캐릭터 이름 넘겨받기: 옛 PC 가 승인·내용 그대로면 409, 관리 화면에서 옛 PC 를 막으면 새 PC 가 넘겨받고 옛 페이지는 닫힌다(내용·이름 열쇠·하트 · 미리 만든 답 closed)', async () => {
+  const w = world();
+  const oldPc = w.approve(), newPc = w.approve();
+  const A = (await w.upload(oldPc, PAYLOAD([PERSON('밤톨', 900, { worn: { head: 'witch-hat' } }), PERSON('달무리', 100)]))).json.slug;
+  await w.heart(A, '밤톨', TOKEN(1)); await settle();
+  let r = await w.upload(newPc, PAYLOAD([PERSON('밤톨', 900, { worn: { head: 'witch-hat' } })]));
+  assert.equal(r.status, 409, '옛 PC 가 아직 승인 상태이고 내용이 있으면 그대로 409');
+  assert.equal(w.store.pages.size, 1);
+  assert.equal(w.store.pages.get(A).name_key, '먼치');
+  // 운영자가 사용 승인 관리 화면에서 옛 PC 를 막으면(차단) → 새 PC 가 이름을 넘겨받는다
+  w.store.devices.set(oldPc.id, { state: 'revoked', review: false });
+  r = await w.upload(newPc, PAYLOAD([PERSON('밤톨', 900, { worn: { head: 'witch-hat' } })]));
+  assert.equal(r.status, 200, JSON.stringify(r.json));
+  const B = r.json.slug;
+  assert.notEqual(B, A, '새 PC 는 새 주소(주소는 기기에 묶인다)');
+  assert.equal(w.store.pages.get(B).name_key, '먼치');
+  const old = w.store.pages.get(A);
+  assert.deepEqual([old.name_key, old.updated, old.people, old.count, old.device_id], [null, null, [], 0, oldPc.id], '옛 페이지는 내용·이름 열쇠를 비운다(주소 묶음 줄은 남는다)');
+  assert.equal([...w.store.hearts.values()].filter((h) => h.slug === A).length, 0, '옛 페이지 하트 줄도 지운다');
+  await settle();
+  assert.equal(w.store.snaps.get(`page/${A}.json`)?.closed, true, '옛 페이지 미리 만든 답은 {closed:true}');
+  assert.equal(w.store.snaps.get(`page/${B}.json`)?.slug, B);
+  const page = await body(await w.get('page?slug=' + A));
+  assert.equal(page.status, 404); assert.equal(page.json.closed, true);
+  // 옛 PC 를 다시 승인해 올려도 이름은 이제 새 PC 것
+  w.store.devices.set(oldPc.id, { state: 'approved', review: false });
+  assert.equal((await w.upload(oldPc, PAYLOAD([PERSON('밤톨', 1)]))).status, 409);
+  assert.equal((await w.upload(newPc, PAYLOAD([PERSON('밤톨', 901)]))).status, 200, '새 PC 는 같은 이름으로 계속 올린다');
+});
+
+test('캐릭터 이름 넘겨받기: 기기가 대기·심사용·기록 없음이거나 60일 동안 안 올렸으면 넘겨받는다 · 끄기만으로는 안 됨 · 자기 신고 고유닉이 같아도 안 됨 · 그사이 다시 올렸으면 409', async () => {
+  // 승인 서버에 적힌 고유닉(tag)은 기기가 스스로 신고한 값이라 "같은 DJ" 로 쓰지 않는다(남이 같은 값을 적어 낼 수 있다) — 같아도 409
+  {
+    const w = world();
+    const oldPc = w.approve(), copy = w.approve();
+    w.store.devices.set(oldPc.id, { state: 'approved', review: false, tag: 'bamtol_dj' });
+    w.store.devices.set(copy.id, { state: 'approved', review: false, tag: 'bamtol_dj' });
+    const A = (await w.upload(oldPc, PAYLOAD())).json.slug;
+    assert.equal((await w.upload(copy, PAYLOAD())).status, 409, '같은 고유닉을 적어 낸 기기도 409');
+    assert.equal(w.store.pages.get(A).name_key, '먼치');
+  }
+  for (const [label, dev] of [['대기', { state: 'pending', review: false }], ['심사용', { state: 'approved', review: true }], ['기기 기록 없음', null]]) {
+    const w = world();
+    const a = w.approve(), b = w.approve();
+    const A = (await w.upload(a, PAYLOAD())).json.slug;
+    if (dev) w.store.devices.set(a.id, dev); else w.store.devices.delete(a.id);
+    assert.equal((await w.upload(b, PAYLOAD())).status, 200, label);
+    assert.equal(w.store.pages.get(A).name_key, null, label);
+  }
+  // 끈 페이지(내용 없음 — 승인된 기기)는 넘겨주지 않는다("끄기는 이름을 지킨다"). 운영자가 그 기기를 차단하면 넘겨받는다(꺼 둔 페이지도 같은 길).
+  {
+    const w = world();
+    const a = w.approve(), b = w.approve();
+    const A = (await w.upload(a, PAYLOAD())).json.slug;
+    await w.upload(a, { enabled: false });
+    assert.equal((await w.upload(b, PAYLOAD())).status, 409, '다른 기기는 꺼 둔 이름을 못 가져간다');
+    assert.equal(w.store.pages.get(A).name_key, '먼치');
+    w.store.devices.set(a.id, { state: 'revoked', review: false });
+    assert.equal((await w.upload(b, PAYLOAD())).status, 200, '옛 기기를 차단하면 꺼 둔 이름도 넘겨받는다');
+    assert.equal(w.store.pages.get(A).name_key, null);
+  }
+  // 60일 동안 아무것도 올리지 않은 페이지: 가끔 도는 정리(2%)를 기다리지 않고 넘겨받는다
+  {
+    const w = world(); // chance 0.5 — 정리는 돌지 않는다
+    const a = w.approve(), b = w.approve();
+    const A = (await w.upload(a, PAYLOAD())).json.slug;
+    w.clock.now += v.KEEP_MS - 120000;
+    assert.equal((await w.upload(b, PAYLOAD())).status, 409, '60일이 안 지났으면 409');
+    w.clock.now += 120000;
+    assert.equal((await w.upload(b, PAYLOAD())).status, 200, '60일 지남');
+    assert.equal(w.store.pages.get(A).name_key, null);
+  }
+  // 넘겨받으려는 사이 옛 페이지가 다시 올렸으면(이름 열쇠·updated 가 바뀜) 넘겨받지 않는다
+  {
+    const w = world();
+    const a = w.approve(), b = w.approve();
+    const A = (await w.upload(a, PAYLOAD())).json.slug;
+    w.store.devices.set(a.id, { state: 'revoked', review: false });
+    w.store.nextRelease = false;
+    assert.equal((await w.upload(b, PAYLOAD())).status, 409);
+    assert.equal(w.store.pages.get(A).name_key, '먼치');
+    assert.equal((await w.upload(b, PAYLOAD())).status, 200, '다음 올리기에 다시 확인해 넘겨받는다');
+  }
 });
 
 test('60일 정리는 끈 페이지도 마지막으로 올린 때(seen)로 센다, 올릴 때 가끔 돈다', async () => {
@@ -186,7 +274,25 @@ test('하트 횟수 제한: 주소마다 1시간 60번, 열쇠마다 하루 50�
   r = await body(await w.heart(A, '사탕요정', TOKEN(999), '9.9.9.9'));
   assert.equal(r.status, 429); assert.match(r.json.error, /잠시 뒤/);
   assert.equal((await w.heart(A, '사탕요정', TOKEN(998), '9.9.9.8')).status, 200, '다른 주소는 따로 센다');
-  assert.equal((await body(await w.get(`person?slug=${A}&id=${enc('사탕요정')}`))).json.hearts, 61);
+  // 같은 주소는 한 캐릭터에 하루 3번까지만 새 하트로 센다(2026-10-20 — 예전에는 9.9.9.9 에서 60번 모두 셌다): 9.9.9.9 의 3번 + 9.9.9.8 의 1번
+  assert.equal((await body(await w.get(`person?slug=${A}&id=${enc('사탕요정')}`))).json.hearts, 4);
+});
+
+test('하트 주소 상한(2026-10-20): 같은 접속 주소는 한 캐릭터에 하루 3번까지만 새 하트(넘으면 수는 그대로 already:true) · 다른 캐릭터·다른 방송·다른 주소·다음 날은 따로', async () => {
+  const { w, A, B } = await threeDjs();
+  assert.equal(v.HEART_IP_DAY, 3);
+  for (let i = 1; i <= 3; i++) assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(i), '5.5.5.5'))).json, { hearts: i, already: false }, String(i));
+  let r = await body(await w.heart(A, '밤톨', TOKEN(4), '5.5.5.5'));
+  assert.equal(r.status, 200); assert.deepEqual(r.json, { hearts: 3, already: true }, '4번째 새 열쇠는 조용히 그대로');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(1), '5.5.5.5'))).json, { hearts: 3, already: true }, '보냈던 열쇠는 예전처럼 already');
+  assert.deepEqual((await body(await w.heart(A, '사탕요정', TOKEN(4), '5.5.5.5'))).json, { hearts: 1, already: false }, '다른 캐릭터는 따로 센다');
+  assert.deepEqual((await body(await w.heart(B, '밤톨', TOKEN(4), '5.5.5.5'))).json, { hearts: 1, already: false }, '다른 방송의 같은 앞 부분도 따로');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(4), '6.6.6.6'))).json, { hearts: 4, already: false }, '막혔던 열쇠는 쓰지 않은 것으로 남아 다른 주소에서는 센다');
+  w.clock.now += DAY;
+  for (let i = 5; i <= 7; i++) assert.equal((await body(await w.heart(A, '밤톨', TOKEN(i), '5.5.5.5'))).json.already, false, '다음 날은 다시 3번');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(8), '5.5.5.5'))).json, { hearts: 7, already: true });
+  assert.ok([...w.store.votes.keys()].every((k) => /^[0-9a-f]{64}$/.test(k)), '주소 칸 열쇠도 해시만 남긴다(접속 주소 글자는 저장하지 않는다)');
+  assert.doesNotMatch(JSON.stringify([...w.store.votes.keys()]), /5\.5\.5\.5|6\.6\.6\.6/);
 });
 
 test('하트는 시즌마다 새로, 지운 아이디의 하트는 보이지 않고 가끔 지운다', async () => {
@@ -218,10 +324,10 @@ test('투표 열쇠는 하루 지나면 가끔 지운다', async () => {
   let roll = 0.5;
   const { w, A } = await threeDjs({ chance: () => roll });
   await w.heart(A, '밤톨', TOKEN(1));
-  assert.equal(w.store.votes.size, 1);
+  assert.equal(w.store.votes.size, 2, '브라우저 열쇠 투표 하나 + 접속 주소 칸 하나(2026-10-20)');
   w.clock.now += 3 * DAY; roll = 0;
   await w.heart(A, '사탕요정', TOKEN(1)); await new Promise((r) => setImmediate(r));
-  assert.equal(w.store.votes.size, 1, '지난 열쇠는 지우고 방금 것만 남음');
+  assert.equal(w.store.votes.size, 2, '지난 열쇠(투표·주소 칸)는 지우고 방금 것만 남음');
 });
 
 test('메인 페이지(home): 지금 시즌·인기 12·새로 꾸민 8·옷 수·DJ 목록·합계, 지난 시즌·차단·숨긴 페이지는 빠짐', async () => {
@@ -379,6 +485,46 @@ test('전체 찾기(search): 전체 아이디는 캐릭터 이름 열쇠로 바�
   assert.deepEqual(r.json.results.slice(0, 2).map((x) => x.id), ['밤톨#먼치', '밤톨#쿠키'], '정확히 같은 사람 먼저');
   for (let i = 0; i < 30; i++) assert.equal((await w.get('search?q=' + enc('밤톨'), '4.4.4.4')).status, 200);
   assert.equal((await w.get('search?q=' + enc('밤톨'), '4.4.4.4')).status, 429);
+});
+
+test('메인 인기 카드는 페이지 요약의 hot 에서(2026-10-20): 올릴 때 이번 시즌 하트 받은 사람 카드를 하트 많은 순으로 담고 메인은 사람 목록을 다시 받지 않는다 · hot 에 없는 사람(올린 뒤 첫 하트)·예전 요약은 예전처럼', async () => {
+  const w = world();
+  const a = w.approve();
+  const list = () => [PERSON('밤톨', 900, { worn: { top: 'top_11' }, exp: 3, pets: { ghost: 2 }, pet: { id: 'ghost', stage: 2 } }), PERSON('사탕요정', 500, { worn: { top: 'top_12' } }), PERSON('달무리', 100)];
+  const A = (await w.upload(a, PAYLOAD(list()))).json.slug;
+  assert.deepEqual(w.store.pages.get(A).summary.hot, [], '하트가 없으면 비어 있다');
+  await w.heart(A, '사탕요정', TOKEN(1), '1.0.0.1'); await w.heart(A, '사탕요정', TOKEN(2), '1.0.0.2'); await w.heart(A, '밤톨', TOKEN(3), '1.0.0.3');
+  await w.upload(a, PAYLOAD(list()));
+  const hot = w.store.pages.get(A).summary.hot;
+  assert.deepEqual(hot.map((p) => p.id), ['사탕요정#먼치', '밤톨#먼치'], '하트 많은 순, 하트 받은 사람만');
+  assert.deepEqual(hot[1], { k: '밤톨#먼치', id: '밤톨#먼치', level: 10, worn: { top: 'top_11' }, pets: { ghost: 2 }, pet: { id: 'ghost', stage: 2 }, exp: 3 }, '카드에 필요한 칸만(애정도·새로 꾸민 때 없음)');
+  assert.equal(v.HOME_HOT, 20);
+  const read = w.store.people, reads = [];
+  w.store.people = async (slug) => { reads.push(slug); return read(slug); };
+  try {
+    const home = (await body(await w.get('home'))).json;
+    assert.deepEqual(home.popular.map((c) => [c.id, c.hearts]), [['사탕요정#먼치', 2], ['밤톨#먼치', 1]]);
+    assert.deepEqual(home.popular[1], { slug: A, djName: '먼치', id: '밤톨#먼치', level: 10, worn: { top: 'top_11' }, pet: { id: 'ghost', stage: 2 }, exp: 3, hearts: 1 });
+    assert.deepEqual(reads, [], 'hot 에 있으면 사람 목록을 받지 않는다');
+    noSecrets(home);
+    // 올린 뒤에 처음 하트를 받은 사람(hot 에 없음): 그 페이지만 사람 목록에서 찾는다
+    await w.heart(A, '달무리', TOKEN(4), '1.0.0.4');
+    reads.length = 0;
+    assert.deepEqual((await body(await w.get('home'))).json.popular.map((c) => c.id), ['사탕요정#먼치', '달무리#먼치', '밤톨#먼치'], '하트 수가 같으면 최근에 받은 쪽 먼저(예전 그대로)');
+    assert.deepEqual(reads, [A]);
+    // 예전 요약(hot 없음 — 함수 판 11 이 저장한 것)도 예전처럼 사람 목록에서
+    delete w.store.pages.get(A).summary.hot;
+    reads.length = 0;
+    assert.equal((await body(await w.get('home'))).json.popular.length, 3);
+    assert.deepEqual(reads, [A]);
+  } finally { w.store.people = read; }
+});
+
+test('요약의 옷 수는 옷 id 가 constructor 같은 이름이어도 숫자로만 센다(보통 객체로 담는다)', () => {
+  const s = v.summarize([{ k: '밤톨#먼치', id: '밤톨#먼치', level: 1, love: 2, worn: { top: 'constructor', hat: 'hat_01' } }, { k: '귤#먼치', id: '귤#먼치', level: 1, love: 1, worn: { top: 'constructor' } }]);
+  assert.deepEqual(s.items, { constructor: 2, hat_01: 1 });
+  assert.equal(Object.getPrototypeOf(s.items), Object.prototype);
+  assert.deepEqual(s.hot, []);
 });
 
 test('사람 목록에 사람이 많아도 대표 정보만 저장된다(요약 8명·옷 수)', async () => {

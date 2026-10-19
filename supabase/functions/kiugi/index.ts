@@ -41,7 +41,15 @@ const store = {
     return out;
   },
   pageByDevice: (device: string) => q(db.from('kg_pages').select('slug,updated').eq('device_id', device).maybeSingle()),
-  nameOwner: async (nameKey: string) => (await q(db.from('kg_pages').select('slug').eq('name_key', nameKey).maybeSingle()))?.slug || null,
+  nameOwner: (nameKey: string) => q(db.from('kg_pages').select('slug,device_id,updated,seen').eq('name_key', nameKey).maybeSingle()),
+  // 캐릭터 이름 넘겨받기(2026-10-20): 이름 열쇠가 아직 그 이름이고 updated 가 본 그대로일 때만(그사이 다시 올렸으면 그대로 둔다) 내용·이름 열쇠를 비우고 하트 줄을 지운다
+  releaseName: async (slug: string, nameKey: string, updated: number | null) => {
+    const base = db.from('kg_pages').update({ ...EMPTY, name_key: null }).eq('slug', slug).eq('name_key', nameKey);
+    const rows = await q((updated === null ? base.is('updated', null) : base.eq('updated', updated)).select('slug'));
+    if (!rows?.length) return false;
+    await q(db.from('kg_hearts').delete().eq('slug', slug));
+    return true;
+  },
   createPage: async (row: { slug: string; device_id: string; created: number }) => {
     const { error } = await db.from('kg_pages').insert(row);
     if (!error) return 'ok';
@@ -67,8 +75,9 @@ const store = {
     return out;
   },
   topHearts: (limit: number) => q(db.from('kg_hearts').select('slug,season,pid,hearts').gt('hearts', 0).order('hearts', { ascending: false }).order('updated', { ascending: false }).limit(limit)),
-  heart: (vote: string, expires: number, slug: string, season: string, pid: string, now: number) =>
-    q(db.rpc('kg_heart', { p_vote: vote, p_expires: expires, p_slug: slug, p_season: season, p_pid: pid, p_now: now })),
+  // 7칸 kg_heart(supabase/migrations/20261020_kiugi_heart_ip.sql — 주소 칸 열쇠 p_slots). 예전 6칸 kg_heart 는 함수 판 11 이 쓰던 것.
+  heart: (vote: string, expires: number, slug: string, season: string, pid: string, now: number, slots: string[]) =>
+    q(db.rpc('kg_heart', { p_vote: vote, p_expires: expires, p_slug: slug, p_season: season, p_pid: pid, p_now: now, p_slots: slots })),
   cleanVotes: (now: number) => q(db.from('kg_heart_votes').delete().lt('expires', now)),
   // 이 페이지의 지난 시즌 하트 줄과, 지금 사람 목록에 없는 아이디의 하트 줄을 지운다
   pruneHearts: async (slug: string, season: string, keep: Set<string>) => {
@@ -85,8 +94,10 @@ const store = {
   },
   cleanNonces: (now: number) => q(db.from('junlive_access_nonces').delete().lt('expires', now)),
   // 미리 만든 답(2026-10-18 — 사이트가 먼저 읽는 공개 파일, 버킷 kg-snap · supabase/kiugi-snap.sql). 실패해도 답에는 영향 없음(기록만).
+  //  cacheControl 60초(2026-10-20, 예전 5초): 저장소 CDN·브라우저가 1분 동안 같은 파일을 내준다 — 저장소 읽기를 줄이는 대신 내용이 최대 1분 늦다.
+  //  사이트(docs/api.js SNAP_STALE_MS 3분)는 이 1분 + 다시 쓰는 간격(15초)보다 오래된 파일일 때만 뒤에서 함수에 묻는다(캐시 때문에 모두가 함수를 부르지 않게).
   putSnap: async (path: string, text: string) => {
-    const { error } = await db.storage.from('kg-snap').upload(path, new Blob([text], { type: 'application/json' }), { upsert: true, contentType: 'application/json', cacheControl: '5' });
+    const { error } = await db.storage.from('kg-snap').upload(path, new Blob([text], { type: 'application/json' }), { upsert: true, contentType: 'application/json', cacheControl: '60' });
     if (error) console.error('kg-snap', path, error.message);
   }
 };
