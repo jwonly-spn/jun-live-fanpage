@@ -94,8 +94,10 @@ const store = {
   },
   cleanNonces: (now: number) => q(db.from('junlive_access_nonces').delete().lt('expires', now)),
   // 미리 만든 답(2026-10-18 — 사이트가 먼저 읽는 공개 파일, 버킷 kg-snap · supabase/kiugi-snap.sql). 실패해도 답에는 영향 없음(기록만).
+  //  cacheControl 60초(2026-10-20, 예전 5초): 저장소 CDN·브라우저가 1분 동안 같은 파일을 내준다 — 저장소 읽기를 줄이는 대신 내용이 최대 1분 늦다.
+  //  사이트(docs/api.js SNAP_STALE_MS 3분)는 이 1분 + 다시 쓰는 간격(15초)보다 오래된 파일일 때만 뒤에서 함수에 묻는다(캐시 때문에 모두가 함수를 부르지 않게).
   putSnap: async (path: string, text: string) => {
-    const { error } = await db.storage.from('kg-snap').upload(path, new Blob([text], { type: 'application/json' }), { upsert: true, contentType: 'application/json', cacheControl: '5' });
+    const { error } = await db.storage.from('kg-snap').upload(path, new Blob([text], { type: 'application/json' }), { upsert: true, contentType: 'application/json', cacheControl: '60' });
     if (error) console.error('kg-snap', path, error.message);
   }
 };

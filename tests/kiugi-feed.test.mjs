@@ -422,7 +422,7 @@ test('api.js: 함수 읽기(GET)는 머리글 없이 공개 키를 주소 쿼리
   assert.deepEqual(JSON.parse(calls[3].init.body), { slug: 'abcdefgh', id: '밤톨', token: 'A'.repeat(32) });
 });
 
-test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 1분 넘은 파일이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 사이트가 서버에 미리 연결(preconnect)', async () => {
+test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 오래된 파일(3분 — 2026-10-20 예전 1분)이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 사이트가 서버에 미리 연결(preconnect)', async () => {
   const src = await readFile(docs + 'api.js', 'utf8');
   assert.match(src, /viaSnap\(key, 'home\.json', validHome, \(\) => kiugiApi\.home\(\)\)/);
   assert.match(src, /viaSnap\(key, SLUG_RE\.test\(String\(slug\)\) \? `page\/\$\{slug\}\.json` : '', validPage\(slug\), \(\) => kiugiApi\.page\(slug\)\)/);

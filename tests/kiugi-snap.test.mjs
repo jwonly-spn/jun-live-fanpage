@@ -66,7 +66,19 @@ test('빠르게: 페이지·캐릭터·찾기는 한도·페이지·하트를 �
   assert.equal((await body(await w.get('health'))).json.snaps, true);
   const index = await readFile(new URL('../supabase/functions/kiugi/index.ts', import.meta.url), 'utf8');
   assert.match(index, /storage\.from\('kg-snap'\)\.upload\(path, new Blob/);
-  assert.match(index, /cacheControl: '5'/);
+  assert.match(index, /cacheControl: '60'/, '2026-10-20: 저장소 CDN·브라우저 캐시 60초(예전 5초)');
+});
+
+test('미리 만든 답 캐시와 사이트의 "오래된 파일" 기준이 맞는다: CDN 캐시 + 다시 쓰는 간격(15초)보다 길어야 캐시가 내준 파일 때문에 보는 사람마다 함수를 부르지 않는다', async () => {
+  const index = await readFile(new URL('../supabase/functions/kiugi/index.ts', import.meta.url), 'utf8');
+  const cdnSeconds = Number(/cacheControl: '(\d+)'/.exec(index)?.[1]);
+  const handler = await readFile(new URL('../supabase/functions/kiugi/handler.ts', import.meta.url), 'utf8');
+  const gapMs = Number(/snapGapMs \?\? (\d+)/.exec(handler)?.[1]);
+  const { SNAP_STALE_MS, SNAP_USE_MS } = await import('../docs/api.js');
+  assert.equal(cdnSeconds, 60); assert.equal(gapMs, 15000);
+  assert.ok(SNAP_STALE_MS > cdnSeconds * 1000 + gapMs, `오래된 파일 기준 ${SNAP_STALE_MS}ms > 캐시 ${cdnSeconds}s + 간격 ${gapMs}ms`);
+  assert.equal(SNAP_STALE_MS, 3 * 60e3);
+  assert.ok(SNAP_STALE_MS < SNAP_USE_MS, '10분 넘은 파일은 쓰지 않는다(그대로)');
 });
 
 test('한도는 그대로: 1분에 60번 넘게 페이지를 열면 429', async () => {
