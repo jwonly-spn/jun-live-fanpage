@@ -33,7 +33,7 @@ const EMPTY = () => ({ updated: null, name: '', season: null, character: null, t
 const pick = (p, cols) => (p ? structuredClone(Object.fromEntries(cols.map((c) => [c, p[c]]))) : null);
 
 export function memoryStore(clock) {
-  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, snaps: new Map() };
+  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, nextRelease: null, snaps: new Map() };
   const byNameKey = (key) => [...s.pages.values()].find((p) => p.name_key === key) || null;
   return Object.assign(s, {
     ipSalt: async () => 'salt',
@@ -42,7 +42,16 @@ export function memoryStore(clock) {
     device: async (id) => s.devices.get(id) || null,
     devicesOf: async (ids) => Object.fromEntries(ids.filter((id) => s.devices.has(id)).map((id) => [id, s.devices.get(id)])),
     pageByDevice: async (device) => { for (const p of s.pages.values()) if (p.device_id === device) return { slug: p.slug, updated: p.updated }; return null; },
-    nameOwner: async (key) => byNameKey(key)?.slug || null,
+    nameOwner: async (key) => { const p = byNameKey(key); return p ? { slug: p.slug, device_id: p.device_id, updated: p.updated, seen: p.seen } : null; },
+    // 캐릭터 이름 넘겨받기: 이름 열쇠·updated 가 본 그대로일 때만(index.ts 와 같은 약속). 시험에서 "그사이 다시 올림" 을 흉내 낼 때는 nextRelease 에 false 를 넣어 둔다
+    releaseName: async (slug, key, updated) => {
+      if (s.nextRelease !== null) { const r = s.nextRelease; s.nextRelease = null; return r; }
+      const p = s.pages.get(slug);
+      if (!p || p.name_key !== key || p.updated !== updated) return false;
+      Object.assign(p, EMPTY(), { name_key: null });
+      for (const [k, h] of s.hearts) if (h.slug === slug) s.hearts.delete(k);
+      s.calls.push('release'); return true;
+    },
     createPage: async (row) => {
       if ([...s.pages.values()].some((p) => p.device_id === row.device_id)) return 'device';
       if (s.pages.has(row.slug)) return 'slug';

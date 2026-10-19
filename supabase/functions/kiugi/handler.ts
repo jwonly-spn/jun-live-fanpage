@@ -17,7 +17,8 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 //  ipSalt() → 주소 해시·하트 열쇠에 섞는 비밀 값 · hit(key, seconds, max) → 아직 한도 안이면 true · nonce(id, expires) → 처음 보는 요청 번호면 true
 //  device(id) → {state, review} | null · devicesOf(ids) → {id: {state, review}}
 //  pageByDevice(device) → {slug, updated} | null · createPage({slug, device_id, created}) → 'ok' | 'slug'(주소 겹침) | 'device'(이미 있음)
-//  nameOwner(nameKey) → 그 캐릭터 이름을 가진 페이지 slug | null
+//  nameOwner(nameKey) → 그 캐릭터 이름을 가진 페이지 {slug, device_id, updated, seen} | null
+//  releaseName(slug, nameKey, updated) → 그 페이지의 이름 열쇠가 아직 nameKey 이고 updated 가 그대로일 때만 내용·이름 열쇠를 비우고 하트 줄을 지운다 → true | false(그사이 바뀜)
 //  saveSnapshot(slug, snap, now) → 'ok' | 'name'(캐릭터 이름 겹침 — 동시에 올린 경우)(updated·seen = now)
 //  clearSnapshot(slug, now)(내용만 비움, 이름 열쇠·main 은 남김, seen = now)
 //  publicPage(slug) → {slug, device_id, updated, name, season, character, top, count, main} | null
@@ -82,6 +83,14 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     later((async () => putSnap('home.json', await buildHome()))());
   }
   const approved = (dev: any) => dev?.state === 'approved' && !dev.review;
+  // 캐릭터 이름을 가진 페이지를 다른 기기가 넘겨받아도 되는지(2026-10-20 — PC 를 바꾼 DJ 가 60일 동안 409 만 받던 것):
+  //  사이트에 보이지 않는 페이지(내용이 비었음 — 끄기·60일 정리 / 기기가 승인 상태가 아님 — 관리 화면에서 차단·대기, 심사용)이거나
+  //  60일 동안 아무것도 올리지 않은 페이지(가끔 도는 정리를 기다리지 않는다). 내용이 있고 승인된 기기의 페이지는 넘겨주지 않는다(409 그대로).
+  async function releasable(owner: Record<string, any>, at: number) {
+    if (owner.updated === null || owner.updated === undefined) return true;
+    if (Number.isSafeInteger(owner.seen) && owner.seen < at - v.KEEP_MS) return true;
+    return !approved(await store.device(owner.device_id));
+  }
   // 승인된 기기가 올린 페이지만 보여 준다(관리 화면에서 차단하면 그 DJ 페이지도 닫힌다).
   async function shown(row: Record<string, any> | null) {
     if (!row) throw v.fail(404, '키우기 페이지를 찾을 수 없어요. 주소를 확인해 주세요.');
@@ -262,9 +271,15 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       if (found) { await store.clearSnapshot(found.slug, at); putSnap(snapPath(found.slug), { closed: true }, true); refreshHomeSnap(); }
       return json({ ok: true, enabled: false, slug: found?.slug || null, url: found ? urlOf(found.slug) : null });
     }
-    // 캐릭터 이름은 사이트 전체에서 하나만(먼저 쓴 방송이 가진다)
+    // 캐릭터 이름은 사이트 전체에서 하나만(먼저 쓴 방송이 가진다).
+    // 넘겨받기(2026-10-20): 이름을 가진 페이지가 넘겨줄 수 있는 페이지(releasable)면 그 페이지를 닫고(내용·이름 열쇠·하트를 비우고 미리 만든 답은 {closed:true})
+    //  이 기기가 이름을 쓴다. 그사이 그 페이지가 다시 올렸으면(updated 가 바뀜) 넘겨받지 않는다(409).
     const owner = await store.nameOwner(snap.nameKey);
-    if (owner && owner !== found?.slug) throw v.fail(409, NAME_TAKEN);
+    if (owner && owner.slug !== found?.slug) {
+      if (!await releasable(owner, at)) throw v.fail(409, NAME_TAKEN);
+      if (!await store.releaseName(owner.slug, snap.nameKey, owner.updated ?? null)) throw v.fail(409, NAME_TAKEN);
+      putSnap(snapPath(owner.slug), { closed: true }, true);
+    }
     for (let i = 0; !found && i < 6; i++) {
       const slug = v.makeSlug(random);
       const r = await store.createPage({ slug, device_id: device, created: at });

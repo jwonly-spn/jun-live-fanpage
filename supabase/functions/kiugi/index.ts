@@ -41,7 +41,15 @@ const store = {
     return out;
   },
   pageByDevice: (device: string) => q(db.from('kg_pages').select('slug,updated').eq('device_id', device).maybeSingle()),
-  nameOwner: async (nameKey: string) => (await q(db.from('kg_pages').select('slug').eq('name_key', nameKey).maybeSingle()))?.slug || null,
+  nameOwner: (nameKey: string) => q(db.from('kg_pages').select('slug,device_id,updated,seen').eq('name_key', nameKey).maybeSingle()),
+  // 캐릭터 이름 넘겨받기(2026-10-20): 이름 열쇠가 아직 그 이름이고 updated 가 본 그대로일 때만(그사이 다시 올렸으면 그대로 둔다) 내용·이름 열쇠를 비우고 하트 줄을 지운다
+  releaseName: async (slug: string, nameKey: string, updated: number | null) => {
+    const base = db.from('kg_pages').update({ ...EMPTY, name_key: null }).eq('slug', slug).eq('name_key', nameKey);
+    const rows = await q((updated === null ? base.is('updated', null) : base.eq('updated', updated)).select('slug'));
+    if (!rows?.length) return false;
+    await q(db.from('kg_hearts').delete().eq('slug', slug));
+    return true;
+  },
   createPage: async (row: { slug: string; device_id: string; created: number }) => {
     const { error } = await db.from('kg_pages').insert(row);
     if (!error) return 'ok';
