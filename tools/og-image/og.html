@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<!-- 공유 미리보기 그림(docs/og.png, 1200x630)의 원본. tools/og-image/render.cjs 가 숨은 창에서 그대로 찍는다.
+     캐릭터 다섯 명 = chars/1~5.webp(먼치킨 다운로드 페이지 예시 캐릭터 — 지어낸 조합, 새 그림체 R9 고해상도로 합성해 둔 것). 아이디 예시 밤톨#먼치도 지어낸 것. -->
+<style>
+html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+body { position: relative; background: #f4efe8; color: #1f1b24; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
+.glow { position: absolute; right: -120px; top: -90px; width: 820px; height: 820px; border-radius: 50%; background: radial-gradient(closest-side, rgba(195, 61, 96, .17), rgba(195, 61, 96, 0)); }
+.floor { position: absolute; right: 30px; bottom: 34px; width: 600px; height: 44px; border-radius: 50%; background: radial-gradient(closest-side, rgba(70, 35, 50, .2), rgba(70, 35, 50, 0)); }
+.stage { position: absolute; right: 44px; bottom: 52px; height: 404px; display: flex; align-items: flex-end; }
+.stage img { height: 404px; margin-left: -30px; filter: drop-shadow(0 14px 14px rgba(70, 35, 50, .16)); }
+.stage img:first-child { margin-left: 0; }
+.text { position: absolute; left: 76px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 20px; box-sizing: border-box; }
+.pill { align-self: flex-start; font-size: 20px; font-weight: 700; color: #c33d60; border: 2px solid rgba(195, 61, 96, .42); border-radius: 999px; padding: 5px 16px 6px; margin-bottom: 24px; background: rgba(255, 255, 255, .55); letter-spacing: -.01em; }
+h1 { font-size: 80px; line-height: 1.06; font-weight: 900; letter-spacing: -.05em; margin: 0 0 22px; }
+.sub { font-size: 27px; line-height: 1.5; font-weight: 500; color: #4b4451; margin: 0 0 28px; letter-spacing: -.025em; }
+.chip { align-self: flex-start; display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 16px; padding: 11px 18px 12px; box-shadow: 0 12px 30px -16px rgba(70, 35, 50, .45); font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
+.chip .heart { color: #c33d60; font-size: 22px; }
+.chip .lv { color: #8b8390; font-weight: 600; font-size: 20px; }
+.site { position: absolute; left: 76px; bottom: 38px; font-size: 26px; font-weight: 800; color: #c33d60; letter-spacing: -.01em; }
+.note { position: absolute; right: 44px; bottom: 14px; font-size: 16px; color: #8b8390; letter-spacing: -.01em; }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="floor"></div>
+<div class="stage"><img src="chars/1.webp" alt=""><img src="chars/2.webp" alt=""><img src="chars/3.webp" alt=""><img src="chars/4.webp" alt=""><img src="chars/5.webp" alt=""></div>
+<div class="text">
+  <span class="pill">비공식 팬 사이트</span>
+  <h1>스푼 DJ<br>키우기</h1>
+  <p class="sub">방송에서 함께 키운 캐릭터를 구경하고<br>마음에 들면 하트를 보내요</p>
+  <div class="chip"><span class="heart">♥</span>밤톨#먼치<span class="lv">Lv.7</span></div>
+</div>
+<div class="site">키우기.com</div>
+<div class="note">스푼 공식 서비스가 아니에요</div>
+</body>
+</html>

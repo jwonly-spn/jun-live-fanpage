@@ -11,6 +11,7 @@
 - 설계서: `API.md`(맨 위 "바뀐 것", 올리는 순서)
 - 검사: `node --test tests/*.test.mjs` (서버 SQL 검사 `server-schema.test.mjs`는 `PGLITE_ENTRY` 환경 변수로 PGlite 위치 지정). 서버 시험 도우미는 `tests/kiugi-world.mjs`
 - 미리 보기: `node tools/serve.mjs` → http://127.0.0.1:5173/jun-live-fanpage/ (localhost 에서는 체험 모드 — 지어낸 DJ 먼치·쿠키·젤리, 주소에 `?demo=0` 을 붙이면 그 탭은 진짜 서버)
+- 공유 미리보기 그림(`docs/og.png`): `<electron.exe> tools/og-image/render.cjs`(원본 `tools/og-image/og.html` — 시즌이 바뀌어 그림을 바꿀 때)
 - 올리기 전 찍기: `node tools/stamp.cjs`(파일 내용 해시 주소 · import map — `tools/deploy-site.cjs` 가 저절로 부른다) · 공통 배경 가벼운 사본: `<electron.exe> tools/make-lite-art.cjs`(그림이 바뀌면 — `docs/kiugi-lite/`)
 
 청취자는 DJ 방송에서 `!아이디`로 만든 아이디(예: `밤톨#먼치`)로 자기 캐릭터를 찾고, 마음에 드는 캐릭터에 하루 한 번 하트를 보내요. 스푼 닉네임은 다루지 않아요.
