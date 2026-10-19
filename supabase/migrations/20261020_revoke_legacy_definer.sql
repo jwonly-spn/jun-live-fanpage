@@ -10,7 +10,7 @@
 do $$
 declare
   r record;
-  done integer := 0;
+  n_done integer := 0;
   names text[] := array[
     -- anon 이 부를 수 있던 것
     'start_junlive_pairing', 'complete_junlive_pairing', 'has_junlive_access', 'owns_fanpage', 'owns_photo', 'photo_referenced', 'public_menu', 'public_photo',
@@ -21,12 +21,12 @@ begin
   for r in
     select n.nspname as schema_name, p.proname as fn, pg_get_function_identity_arguments(p.oid) as args
     from pg_proc p join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public' and p.proname = any (names) and p.prokind = 'f'
+    where n.nspname = 'public' and p.proname::text = any (names) and p.prokind = 'f'
   loop
     execute format('revoke execute on function %I.%I(%s) from public, anon, authenticated', r.schema_name, r.fn, r.args);
-    done := done + 1;
+    n_done := n_done + 1;
   end loop;
-  raise notice '실행 권한을 거둔 옛 함수: %개(이름 목록 %개)', done, cardinality(names);
+  raise notice '실행 권한을 거둔 옛 함수: %개(이름 목록 %개)', n_done, cardinality(names);
 end $$;
 
 notify pgrst, 'reload schema';
