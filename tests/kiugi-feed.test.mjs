@@ -395,6 +395,33 @@ test('미리 만든 답(api.js readSnap): 10분 안에 만든 파일만 · 닫�
   assert.equal(r.data.slug, 'abcdefgh'); assert.equal('snapAt' in r.data, false);
 });
 
+test('api.js: 함수 읽기(GET)는 머리글 없이 공개 키를 주소 쿼리로(미리 묻기 OPTIONS 없는 단순 요청 — 2026-10-20) · 하트(POST)는 머리글 그대로', async () => {
+  const { kiugiApi, API_KEY, KIUGI_BASE } = await import('../docs/api.js');
+  const had = Object.hasOwn(globalThis, 'location'), saved = { fetch: globalThis.fetch, location: globalThis.location };
+  const calls = [];
+  globalThis.location = { hostname: 'xn--ok0bp87bn6g.com', search: '' }; // 실제 사이트(체험 모드 아님)
+  globalThis.fetch = async (url, init) => { calls.push({ url: String(url), init }); return { status: 200, json: async () => ({}) }; };
+  try {
+    await kiugiApi.person('abcdefgh', '밤톨');
+    await kiugiApi.home();
+    await kiugiApi.find('abcdefgh', '밤톨');
+    await kiugiApi.heart('abcdefgh', '밤톨', 'A'.repeat(32));
+  } finally {
+    globalThis.fetch = saved.fetch;
+    if (had) globalThis.location = saved.location; else delete globalThis.location;
+  }
+  const enc = encodeURIComponent;
+  assert.deepEqual(calls.map((c) => [c.init.method, c.url]), [
+    ['GET', `${KIUGI_BASE}person?slug=abcdefgh&id=${enc('밤톨')}&apikey=${API_KEY}`],
+    ['GET', `${KIUGI_BASE}home?apikey=${API_KEY}`],
+    ['GET', `${KIUGI_BASE}find?slug=abcdefgh&q=${enc('밤톨')}&apikey=${API_KEY}`],
+    ['POST', `${KIUGI_BASE}heart`],
+  ]);
+  for (const c of calls.slice(0, 3)) assert.deepEqual(c.init.headers, {}, c.url + ': 머리글이 없어야 미리 묻지 않는다');
+  assert.deepEqual(calls[3].init.headers, { apikey: API_KEY, 'Content-Type': 'application/json' });
+  assert.deepEqual(JSON.parse(calls[3].init.body), { slug: 'abcdefgh', id: '밤톨', token: 'A'.repeat(32) });
+});
+
 test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 1분 넘은 파일이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 사이트가 서버에 미리 연결(preconnect)', async () => {
   const src = await readFile(docs + 'api.js', 'utf8');
   assert.match(src, /viaSnap\(key, 'home\.json', validHome, \(\) => kiugiApi\.home\(\)\)/);

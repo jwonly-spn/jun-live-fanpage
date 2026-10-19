@@ -41,6 +41,8 @@ function qs(query) {
 }
 
 // 체험 모드에서는 mock.js 가 'kiugi/<길>' 로 받는다.
+// 읽기(GET)는 머리글 없이 공개 키를 주소 쿼리(?apikey=)로 보낸다(2026-10-20): 머리글이 붙으면 브라우저가 주소마다 미리 묻기(OPTIONS)를 한 번 더 보내
+//  함수 호출의 1/3 이 OPTIONS 였다. 머리글 없는 GET 은 "단순 요청"이라 미리 묻지 않는다(실서버 health ?apikey= 200 확인). 하트(POST)는 Content-Type 때문에 어차피 미리 묻기라 그대로.
 async function request(method, path, { query, body, timeout = 20000 } = {}) {
   let status, json;
   if (demoNow()) {
@@ -50,9 +52,9 @@ async function request(method, path, { query, body, timeout = 20000 } = {}) {
     const timer = setTimeout(() => ctl.abort(), timeout);
     let res;
     try {
-      const headers = { apikey: API_KEY };
-      if (body !== undefined) headers['Content-Type'] = 'application/json';
-      res = await fetch(KIUGI_BASE + path + qs(query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
+      const simple = method === 'GET' && body === undefined;
+      const headers = simple ? {} : { apikey: API_KEY, ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}) };
+      res = await fetch(KIUGI_BASE + path + qs(simple ? { ...query, apikey: API_KEY } : query), { method, headers, body: body === undefined ? undefined : JSON.stringify(body), signal: ctl.signal, cache: 'no-store' });
     } catch (e) {
       throw new ApiError(e?.name === 'AbortError' ? '응답이 늦어요. 잠시 뒤에 다시 해 주세요.' : '인터넷 연결을 확인해 주세요.', 0);
     } finally { clearTimeout(timer); }

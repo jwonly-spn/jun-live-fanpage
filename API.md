@@ -6,6 +6,7 @@
 - **캐릭터 이름 넘겨받기**: 이름을 가진 페이지가 사이트에 보이지 않으면(내용이 비었음 — 끔·60일 정리 / 기기가 승인 상태가 아님 — 관리 화면에서 차단·대기, 심사용) 또는 60일 동안 아무것도 올리지 않았으면, 같은 이름으로 올린 다른 기기가 이름을 넘겨받는다. 옛 페이지는 내용·이름 열쇠·하트를 비우고(주소 묶음 줄은 남음) 미리 만든 답을 `{closed:true}`로 덮는다. 그사이 옛 페이지가 다시 올렸으면(`updated`가 바뀜) 넘겨받지 않고 409.
   PC 를 바꾼 DJ(새 기기 번호): 운영자가 관리 화면에서 옛 PC 를 차단하거나, DJ 가 옛 PC 에서 "키우기 사이트에 올리기"를 끄면 새 PC 가 같은 이름을 쓴다(주소는 새로). 끄기만 하고 다시 켜면 이름은 그대로(꺼 둔 동안 다른 방송이 가져가지 않았다면). 운영 절차 `supabase/ops.md`.
 - **하트 접속 주소 상한**: 같은 접속 주소(IP)는 한 캐릭터에 한국 날짜 하루 3번(`lib.ts HEART_IP_DAY`)까지만 새 하트로 센다. 넘으면 수는 그대로 `{hearts, already:true}`(조용히 — 그 브라우저 열쇠는 쓰지 않은 것으로 남아 다른 주소에서는 센다). 함수가 "주소 칸" 열쇠 3개(sha256(`ip:`소금:주소 해시:날짜:시즌:주소:pid:칸 번호))를 새 7칸 `kg_heart(…, p_slots)`에 넘기고, 데이터베이스가 빈 칸 하나를 차지할 때만 +1 한다(칸 열쇠도 `kg_heart_votes`에 같은 만료로). 새 SQL `supabase/migrations/20261020_kiugi_heart_ip.sql`(예전 6칸 `kg_heart`는 판 11 이 쓰므로 남겨 둠).
+- **사이트 읽기 미리 묻기(OPTIONS) 없앰**: 사이트(`docs/api.js`)가 함수 GET 에 `apikey` 머리글 대신 쿼리 `?apikey=`를 붙인다 — 머리글 없는 GET 은 단순 요청이라 미리 묻지 않는다(24시간 함수 호출 483번 중 164번이 OPTIONS 였다). 실서버 `GET …/kiugi/health?apikey=…` 200 확인(2026-10-20). 함수는 그대로(쿼리의 `apikey`는 읽지 않고 버린다).
 
 ### 표정 고르기 · 칭호 · 얼굴 보기 (2026-10-19)
 - **표정(`exp`)**: 먼치킨 `!표정 방긋`(이름 또는 번호 · `!표정 자동`)으로 고른 표정 번호. 올리는 사람 줄 `people[]` 에 `exp: <정수 1~10>`(시즌 목록 `expressions` 의 `level`)을 더한다 — 고르지 않았으면 넣지 않는다(예전 판 먼치킨도 그대로).
@@ -51,7 +52,7 @@
 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
 올리는 쪽은 먼치킨(봇 프로그램) 본체 `app/desktop/kiugi-fanpage.cjs`(먼치킨 저장소). 그림은 먼치킨과 같은 `kiugi-art.js`(사이트 `docs/kiugi/`, 먼치킨 저장소 `node tools/sync-kiugi-site.mjs`로 복사).
 
-- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`. 요청에 머리글 `apikey: sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(공개 키, 비밀 아님).
+- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`. 요청에 공개 키 `sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(비밀 아님)를 싣는다 — 사이트의 읽기(GET)는 주소 쿼리 `?apikey=`로(머리글이 없어야 브라우저가 미리 묻기 OPTIONS 를 하지 않는다, 2026-10-20), 하트(POST)·먼치킨 올리기는 머리글 `apikey:`로.
 - 아이디: `<앞>#<캐릭터 이름>`. 앞 = 한글 완성 글자(가~힣)만 1~6자(청취자가 만든 부분), 캐릭터 이름 = 한글·영문·숫자 1~8자이고 올린 내용의 `character.name`과 글자 그대로 같아야 한다. NFC로 맞추고 앞뒤 공백만 뗀 뒤 검사한다. 모양이 틀리거나 뒤 이름이 다른 줄은 그 줄만 버린다. 같은 아이디가 두 번 오면 애정도 높은 줄만 남긴다.
 - 캐릭터 이름 열쇠 `name_key` = 캐릭터 이름을 NFC + 영문 소문자로. 사이트 전체에서 하나만(유일 인덱스). 먼저 쓴 방송이 가진다 — 다른 방송이 같은 열쇠로 올리면 409 "이 캐릭터 이름은 다른 방송이 이미 쓰고 있어요. 먼치킨에서 캐릭터 이름을 바꿔 주세요."(동시에 올려 데이터베이스가 막아도 같은 409). 이름을 바꾸면 예전 열쇠는 풀린다. 끄기(`{enabled:false}`)는 열쇠를 남긴다(다시 켜면 그대로 — 꺼 둔 동안에는 다른 방송이 넘겨받을 수 있다). 60일 동안 아무것도 올리지 않으면(끈 채로도) 열쇠를 지운다. 넘겨받기(2026-10-20): 이름을 가진 페이지가 사이트에 보이지 않거나(내용 없음 · 기기가 승인 상태가 아님) 60일 동안 올리지 않았으면, 같은 이름으로 올린 다른 기기가 가져가고 옛 페이지는 닫힌다(위 "바뀐 것").
 - 저장하는 것(`kg_pages`): DJ 캐릭터(이름·모양 열쇠), `name_key`, `main`, 시즌(id·이름·끝나는 날), 청취자 줄 `{id, level(1~100), love, worn({칸: 옷 id}), k(찾기 열쇠), ch(새로 꾸민 때)}`, 1~3등, 인원 수, `summary`(메인용 요약: 새로 꾸민 8명 `{k,id,level,worn,ch}`·옷마다 입은 수), `updated`(마지막으로 내용을 올린 때), `seen`(마지막으로 무엇이든 올린 때 — 끄기 포함). 스푼 닉네임·고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다(보낸 줄의 다른 칸은 버림). 3,000명·본문 1.5MB까지.
