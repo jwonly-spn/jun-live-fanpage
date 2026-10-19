@@ -143,7 +143,15 @@ test('스푼 연결 페이지(spoon.html)는 그대로 있다', async () => {
   const html = await text('spoon.html');
   // 2026-10-08 키우기.com 으로 옮긴 뒤로는 사이트가 도메인 맨 앞(/)에 있다
   assert.match(html, /src="\/spoon\.js"/); assert.match(html, /href="\/spoon\.css"/);
-  assert.match(await text('spoon.js'), /functions\/v1\/spoon-link\/callback/);
+  const js = await text('spoon.js');
+  assert.match(js, /functions\/v1\/spoon-link\/callback/);
+  // 프로그램 이름은 먼치킨(2026-10-20 — 예전 이름 JUN LIVE 가 남아 있었다)
+  for (const [f, src] of [['spoon.html', html], ['spoon.js', js]]) {
+    assert.doesNotMatch(src, /JUN LIVE/, f + ': 예전 프로그램 이름');
+    assert.match(src, /먼치킨/, f);
+  }
+  assert.match(html, /<title>먼치킨 스푼 연결<\/title>/);
+  assert.match(html, /스푼이 만든 공식 서비스가 아니에요/, '비공식 표시');
 });
 
 test('앨범·할로윈 디자인이 실제 사이트 기본 화면(2026-10-18 사용자 "이대로 반영"): 미리 보기 포트·design=album 조건 없음 · 처음부터 클래스', async () => {
