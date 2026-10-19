@@ -284,9 +284,15 @@ export function tryOnPanel({ catalog, seasonId, dj, worn, titles: wearing = [], 
     try { const sel = getSelection(), r = document.createRange(); r.selectNodeContents(eLineEl); sel.removeAllRanges(); sel.addRange(r); } catch { /* 고르기도 안 되는 브라우저 */ }
     toast('복사하지 못했어요. 위 표정 채팅 글을 길게 눌러 복사해 주세요.', 'error');
   };
+  // 옷 묶음 칸은 탭을 바꿀 때마다 새로 그리고 앞 탭의 그림은 버린다(2026-10-20 — 아이폰 사파리 "문제가 반복적으로 발생": 칸마다 캐릭터 SVG(머리카락 색 필터·마스크)를
+  //  통째로 그리는데, 본 탭을 모두 붙들어 두면 메모리가 넘쳐 페이지가 죽었다. 모자 탭은 머리 지우기 마스크까지 겹쳐 가장 무겁다). 칭호·표정·모션 칸은 가벼워 그대로 둔다.
   const listOf = (g) => {
-    if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : g.motion ? motionGrid(g) : g.exp ? expGrid(g) : h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit'))));
-    return lists.get(g.slot);
+    if (g.title || g.motion || g.exp) {
+      if (!lists.has(g.slot)) lists.set(g.slot, g.title ? titleGrid(g) : g.motion ? motionGrid(g) : expGrid(g));
+      return lists.get(g.slot);
+    }
+    tiles.clear();
+    return h('ul', { class: 'kg-try-grid', 'aria-label': `${g.name} 옷` }, ...g.items.map((it) => tile(it, g.slot === 'outfit')));
   };
   const showTab = (slot, { scroll = false } = {}) => {
     tab = slot;

@@ -178,9 +178,10 @@ export function lazyStage(make, label, { eager = false, kind = '', actor = false
   };
   stage.kgRepaint = (nextMake, nextHd) => { make = nextMake; hd = nextHd; return draw(); };
   if (eager || typeof IntersectionObserver !== 'function') { draw(); return stage; }
+  // 휴대폰(좁은 화면)은 보이는 곳 가까이(120px)만 미리 그린다 — 칸마다 SVG 필터·마스크라 한꺼번에 많이 그리면 아이폰 사파리가 메모리로 페이지를 죽인다(2026-10-20)
   observer ||= new IntersectionObserver((entries) => {
     for (const e of entries) if (e.isIntersecting) { observer.unobserve(e.target); e.target.kgDraw?.(); }
-  }, { rootMargin: '400px 400px' });
+  }, { rootMargin: (typeof innerWidth === 'number' && innerWidth <= 720) ? '120px 0px' : '400px 400px' });
   stage.kgDraw = draw;
   observer.observe(stage);
   return stage;
