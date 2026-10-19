@@ -475,6 +475,46 @@ test('전체 찾기(search): 전체 아이디는 캐릭터 이름 열쇠로 바�
   assert.equal((await w.get('search?q=' + enc('밤톨'), '4.4.4.4')).status, 429);
 });
 
+test('메인 인기 카드는 페이지 요약의 hot 에서(2026-10-20): 올릴 때 이번 시즌 하트 받은 사람 카드를 하트 많은 순으로 담고 메인은 사람 목록을 다시 받지 않는다 · hot 에 없는 사람(올린 뒤 첫 하트)·예전 요약은 예전처럼', async () => {
+  const w = world();
+  const a = w.approve();
+  const list = () => [PERSON('밤톨', 900, { worn: { top: 'top_11' }, exp: 3, pets: { ghost: 2 }, pet: { id: 'ghost', stage: 2 } }), PERSON('사탕요정', 500, { worn: { top: 'top_12' } }), PERSON('달무리', 100)];
+  const A = (await w.upload(a, PAYLOAD(list()))).json.slug;
+  assert.deepEqual(w.store.pages.get(A).summary.hot, [], '하트가 없으면 비어 있다');
+  await w.heart(A, '사탕요정', TOKEN(1), '1.0.0.1'); await w.heart(A, '사탕요정', TOKEN(2), '1.0.0.2'); await w.heart(A, '밤톨', TOKEN(3), '1.0.0.3');
+  await w.upload(a, PAYLOAD(list()));
+  const hot = w.store.pages.get(A).summary.hot;
+  assert.deepEqual(hot.map((p) => p.id), ['사탕요정#먼치', '밤톨#먼치'], '하트 많은 순, 하트 받은 사람만');
+  assert.deepEqual(hot[1], { k: '밤톨#먼치', id: '밤톨#먼치', level: 10, worn: { top: 'top_11' }, pets: { ghost: 2 }, pet: { id: 'ghost', stage: 2 }, exp: 3 }, '카드에 필요한 칸만(애정도·새로 꾸민 때 없음)');
+  assert.equal(v.HOME_HOT, 20);
+  const read = w.store.people, reads = [];
+  w.store.people = async (slug) => { reads.push(slug); return read(slug); };
+  try {
+    const home = (await body(await w.get('home'))).json;
+    assert.deepEqual(home.popular.map((c) => [c.id, c.hearts]), [['사탕요정#먼치', 2], ['밤톨#먼치', 1]]);
+    assert.deepEqual(home.popular[1], { slug: A, djName: '먼치', id: '밤톨#먼치', level: 10, worn: { top: 'top_11' }, pet: { id: 'ghost', stage: 2 }, exp: 3, hearts: 1 });
+    assert.deepEqual(reads, [], 'hot 에 있으면 사람 목록을 받지 않는다');
+    noSecrets(home);
+    // 올린 뒤에 처음 하트를 받은 사람(hot 에 없음): 그 페이지만 사람 목록에서 찾는다
+    await w.heart(A, '달무리', TOKEN(4), '1.0.0.4');
+    reads.length = 0;
+    assert.deepEqual((await body(await w.get('home'))).json.popular.map((c) => c.id), ['사탕요정#먼치', '달무리#먼치', '밤톨#먼치'], '하트 수가 같으면 최근에 받은 쪽 먼저(예전 그대로)');
+    assert.deepEqual(reads, [A]);
+    // 예전 요약(hot 없음 — 함수 판 11 이 저장한 것)도 예전처럼 사람 목록에서
+    delete w.store.pages.get(A).summary.hot;
+    reads.length = 0;
+    assert.equal((await body(await w.get('home'))).json.popular.length, 3);
+    assert.deepEqual(reads, [A]);
+  } finally { w.store.people = read; }
+});
+
+test('요약의 옷 수는 옷 id 가 constructor 같은 이름이어도 숫자로만 센다(보통 객체로 담는다)', () => {
+  const s = v.summarize([{ k: '밤톨#먼치', id: '밤톨#먼치', level: 1, love: 2, worn: { top: 'constructor', hat: 'hat_01' } }, { k: '귤#먼치', id: '귤#먼치', level: 1, love: 1, worn: { top: 'constructor' } }]);
+  assert.deepEqual(s.items, { constructor: 2, hat_01: 1 });
+  assert.equal(Object.getPrototypeOf(s.items), Object.prototype);
+  assert.deepEqual(s.hot, []);
+});
+
 test('사람 목록에 사람이 많아도 대표 정보만 저장된다(요약 8명·옷 수)', async () => {
   const w = world();
   const a = w.approve();

@@ -164,8 +164,13 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       .filter((x: any) => typeof x.id === 'string' && v.FULL_ID.test(x.id) && Number.isSafeInteger(x.ch))
       .sort((a: any, b: any) => b.ch - a.ch)
       .slice(0, v.HOME_RECENT);
-    // 인기에 나올 수 있는 페이지(하트 많은 순으로 처음 나온 40곳)의 사람 목록 · 새로 꾸민 사람들의 하트를 한꺼번에
-    const needSlugs = [...new Set(candidates.map((r) => r.slug as string))].slice(0, 40);
+    // 인기 카드는 먼저 페이지 요약의 hot(올릴 때 만든 하트 받은 사람 카드)에서 찾는다(2026-10-20 — 예전에는 후보 페이지 40곳의 사람 목록 전체를 매번 받았다).
+    //  hot 에 없는 후보(올린 뒤에 처음 하트를 받은 사람)나 hot 이 없는 예전 요약은 그 페이지만 사람 목록을 받아 찾는다(하트 많은 순으로 처음 나온 40곳까지).
+    const hotOf = (slug: string, pid: string) => {
+      const hot = bySlug.get(slug)?.summary?.hot;
+      return Array.isArray(hot) ? hot.find((x: any) => x && x.k === pid && typeof x.id === 'string' && v.FULL_ID.test(x.id)) : undefined;
+    };
+    const needSlugs = [...new Set(candidates.filter((r) => !hotOf(r.slug, r.pid)).map((r) => r.slug as string))].slice(0, 40);
     const [peopleLists, recentHearts] = await Promise.all([
       Promise.all(needSlugs.map(async (slug) => [slug, ((await store.people(slug))?.people || []) as Person[]] as const)),
       heartsFor(recentRaw.map((x: any) => bySlug.get(x.slug)!))
@@ -174,7 +179,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const popular: Record<string, unknown>[] = [];
     for (const r of candidates) {
       if (popular.length >= v.HOME_POPULAR) break;
-      const hit = peopleOf.get(r.slug)?.find((x: any) => x && x.k === r.pid && v.FULL_ID.test(x.id));
+      const hit = hotOf(r.slug, r.pid) || peopleOf.get(r.slug)?.find((x: any) => x && x.k === r.pid && v.FULL_ID.test(x.id));
       if (hit) popular.push(v.card(hit, r.slug, bySlug.get(r.slug)!.name, r.hearts));
     }
     const recent = recentRaw.map((x: any) => v.card(x, x.slug, x.djName, recentHearts.get(x.slug)?.get(x.k) || 0));
@@ -294,10 +299,14 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       else if (r === 'device') found = await store.pageByDevice(device);
     }
     if (!found) throw v.fail(503, '잠시 문제가 생겼어요. 조금 뒤에 다시 올려요.');
-    // 지난번 사람 목록과 비교해 "새로 꾸민 때"를 붙이고, 메인 페이지 요약을 만든다
-    const before = found.updated !== null && found.updated !== undefined ? await store.people(found.slug) : null;
+    // 지난번 사람 목록과 비교해 "새로 꾸민 때"를 붙이고, 메인 페이지 요약을 만든다(이번 시즌 하트 받은 사람 카드 hot 도 — 지난 목록과 하트 줄을 함께 묻는다)
+    const pageSlug = found.slug;
+    const [before, heartRows] = await Promise.all([
+      found.updated !== null && found.updated !== undefined ? store.people(pageSlug) : null,
+      snap.season ? store.heartRows([pageSlug]) : []
+    ]);
     const people = v.withChanges(snap.people, before?.people, at);
-    const saved = await store.saveSnapshot(found.slug, { ...snap, people, summary: v.summarize(people) }, at);
+    const saved = await store.saveSnapshot(pageSlug, { ...snap, people, summary: v.summarize(people, v.heartMap(heartRows || [], pageSlug, snap.season?.id)) }, at);
     if (saved === 'name') throw v.fail(409, NAME_TAKEN);
     // 지난 시즌·없어진 아이디의 하트 줄 정리(시즌이 바뀌었거나 가끔)
     if (snap.season && (before?.season?.id !== snap.season.id || chance() < 0.1)) later(store.pruneHearts(found.slug, snap.season.id, new Set(people.map((p) => p.k))));

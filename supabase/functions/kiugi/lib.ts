@@ -196,17 +196,29 @@ export function withChanges(people: Person[], previous: unknown, now: number): P
     return { ...p, ch: same ? old.ch : now };
   });
 }
-// 메인 페이지용 요약(올릴 때 한 번 만든다): 새로 꾸민 사람 8명(옷을 하나라도 입은 사람만, ch 최근 순)과 옷마다 입은 사람 수.
-export function summarize(people: Person[]) {
-  const items: Record<string, number> = {};
-  for (const p of people) for (const id of Object.values(p.worn || {})) items[id] = (items[id] || 0) + 1;
+// 메인 페이지용 요약(올릴 때 한 번 만든다): 새로 꾸민 사람 8명(옷을 하나라도 입은 사람만, ch 최근 순)과 옷마다 입은 사람 수,
+//  하트 받은 사람 카드 hot(2026-10-20 — 하트 많은 순 HOME_HOT 명, 이번 시즌 하트 hearts {찾기 열쇠: 수}로): 메인 "인기"를 만들 때 페이지마다 사람 목록 전체를
+//  다시 받지 않게(home 이 느리던 것). 올린 뒤에 처음 하트를 받은 사람은 hot 에 없으니 메인이 그 페이지만 예전처럼 사람 목록에서 찾는다.
+//  items 는 옷 id → 수(옷 id 가 'constructor' 같은 이름이어도 섞이지 않게 원형 없는 객체로 센 뒤 보통 객체로 담는다).
+export const HOME_HOT = 20;
+export function summarize(people: Person[], hearts: Map<string, number> = new Map()) {
+  const count: Record<string, number> = Object.create(null);
+  for (const p of people) for (const id of Object.values(p.worn || {})) count[id] = (count[id] || 0) + 1;
+  const items: Record<string, number> = { ...count };
   const recent = people
     .map((p, i) => ({ p, i }))
     .filter(({ p }) => Object.keys(p.worn || {}).length > 0 && Number.isSafeInteger(p.ch))
     .sort((a, b) => (b.p.ch as number) - (a.p.ch as number) || a.i - b.i)
     .slice(0, HOME_RECENT)
     .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p), ch: p.ch }));
-  return { recent, items };
+  const heartsOf = (p: Person) => hearts.get(p.k) || 0;
+  const hot = people
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => heartsOf(p) > 0)
+    .sort((a, b) => heartsOf(b.p) - heartsOf(a.p) || a.i - b.i)
+    .slice(0, HOME_HOT)
+    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p) }));
+  return { recent, items, hot };
 }
 
 // 찾기 글: 띄어쓰기를 뺀 뒤 앞 부분만(한글 1~6자, "밤톨") 또는 전체 아이디("밤톨#먼치").
