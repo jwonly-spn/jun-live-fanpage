@@ -262,7 +262,25 @@ test('하트 횟수 제한: 주소마다 1시간 60번, 열쇠마다 하루 50�
   r = await body(await w.heart(A, '사탕요정', TOKEN(999), '9.9.9.9'));
   assert.equal(r.status, 429); assert.match(r.json.error, /잠시 뒤/);
   assert.equal((await w.heart(A, '사탕요정', TOKEN(998), '9.9.9.8')).status, 200, '다른 주소는 따로 센다');
-  assert.equal((await body(await w.get(`person?slug=${A}&id=${enc('사탕요정')}`))).json.hearts, 61);
+  // 같은 주소는 한 캐릭터에 하루 3번까지만 새 하트로 센다(2026-10-20 — 예전에는 9.9.9.9 에서 60번 모두 셌다): 9.9.9.9 의 3번 + 9.9.9.8 의 1번
+  assert.equal((await body(await w.get(`person?slug=${A}&id=${enc('사탕요정')}`))).json.hearts, 4);
+});
+
+test('하트 주소 상한(2026-10-20): 같은 접속 주소는 한 캐릭터에 하루 3번까지만 새 하트(넘으면 수는 그대로 already:true) · 다른 캐릭터·다른 방송·다른 주소·다음 날은 따로', async () => {
+  const { w, A, B } = await threeDjs();
+  assert.equal(v.HEART_IP_DAY, 3);
+  for (let i = 1; i <= 3; i++) assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(i), '5.5.5.5'))).json, { hearts: i, already: false }, String(i));
+  let r = await body(await w.heart(A, '밤톨', TOKEN(4), '5.5.5.5'));
+  assert.equal(r.status, 200); assert.deepEqual(r.json, { hearts: 3, already: true }, '4번째 새 열쇠는 조용히 그대로');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(1), '5.5.5.5'))).json, { hearts: 3, already: true }, '보냈던 열쇠는 예전처럼 already');
+  assert.deepEqual((await body(await w.heart(A, '사탕요정', TOKEN(4), '5.5.5.5'))).json, { hearts: 1, already: false }, '다른 캐릭터는 따로 센다');
+  assert.deepEqual((await body(await w.heart(B, '밤톨', TOKEN(4), '5.5.5.5'))).json, { hearts: 1, already: false }, '다른 방송의 같은 앞 부분도 따로');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(4), '6.6.6.6'))).json, { hearts: 4, already: false }, '막혔던 열쇠는 쓰지 않은 것으로 남아 다른 주소에서는 센다');
+  w.clock.now += DAY;
+  for (let i = 5; i <= 7; i++) assert.equal((await body(await w.heart(A, '밤톨', TOKEN(i), '5.5.5.5'))).json.already, false, '다음 날은 다시 3번');
+  assert.deepEqual((await body(await w.heart(A, '밤톨', TOKEN(8), '5.5.5.5'))).json, { hearts: 7, already: true });
+  assert.ok([...w.store.votes.keys()].every((k) => /^[0-9a-f]{64}$/.test(k)), '주소 칸 열쇠도 해시만 남긴다(접속 주소 글자는 저장하지 않는다)');
+  assert.doesNotMatch(JSON.stringify([...w.store.votes.keys()]), /5\.5\.5\.5|6\.6\.6\.6/);
 });
 
 test('하트는 시즌마다 새로, 지운 아이디의 하트는 보이지 않고 가끔 지운다', async () => {
@@ -294,10 +312,10 @@ test('투표 열쇠는 하루 지나면 가끔 지운다', async () => {
   let roll = 0.5;
   const { w, A } = await threeDjs({ chance: () => roll });
   await w.heart(A, '밤톨', TOKEN(1));
-  assert.equal(w.store.votes.size, 1);
+  assert.equal(w.store.votes.size, 2, '브라우저 열쇠 투표 하나 + 접속 주소 칸 하나(2026-10-20)');
   w.clock.now += 3 * DAY; roll = 0;
   await w.heart(A, '사탕요정', TOKEN(1)); await new Promise((r) => setImmediate(r));
-  assert.equal(w.store.votes.size, 1, '지난 열쇠는 지우고 방금 것만 남음');
+  assert.equal(w.store.votes.size, 2, '지난 열쇠(투표·주소 칸)는 지우고 방금 것만 남음');
 });
 
 test('메인 페이지(home): 지금 시즌·인기 12·새로 꾸민 8·옷 수·DJ 목록·합계, 지난 시즌·차단·숨긴 페이지는 빠짐', async () => {

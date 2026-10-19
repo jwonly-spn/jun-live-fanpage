@@ -282,6 +282,9 @@ export function pickSeason(pages: Record<string, any>[]) {
 
 // 하트: 브라우저가 만든 무작위 열쇠(32자) · 한국 날짜
 export const HEART_TOKEN = /^[A-Za-z0-9_-]{32}$/;
+// 같은 접속 주소(IP)는 한 캐릭터에 한국 날짜 하루 이만큼까지만 새 하트로 센다(2026-10-20 — 브라우저 열쇠는 누구나 새로 만들 수 있어서).
+//  공유 와이파이·한 집이면 세 명까지는 되는 셈. 넘으면 수는 그대로 already:true(조용히).
+export const HEART_IP_DAY = 3;
 const KST = 9 * 3600000, DAY = 86400000;
 export const kstDay = (t: number) => new Date(t + KST).toISOString().slice(0, 10);
 // 다음 한국 자정(이 날의 투표 열쇠는 그다음 하루까지 두었다가 지운다)

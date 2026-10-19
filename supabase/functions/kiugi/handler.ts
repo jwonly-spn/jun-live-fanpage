@@ -25,7 +25,7 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 //  people(slug) / pageByNameKey(nameKey) → {slug, device_id, updated, name, season, character, main, people} | null
 //  mainPages(withPeople) → main=true 이고 내용이 있는 페이지들 {slug, device_id, updated, name, season, character, count, summary(, people)}
 //  heartRows(slugs) → [{slug, season, pid, hearts}] · topHearts(limit) → hearts>0 인 줄을 많은 순으로
-//  heart(vote, expires, slug, season, pid, now) → {hearts, already} (투표 열쇠가 처음이면 +1, 한 번에 처리)
+//  heart(vote, expires, slug, season, pid, now, slots) → {hearts, already} (투표 열쇠가 처음이고 주소 칸 열쇠(slots) 중 빈 것을 하나 차지하면 +1, 한 번에 처리)
 //  cleanVotes(now) · pruneHearts(slug, season, keep:Set) → 이 페이지의 지난 시즌·없어진 아이디 하트 줄 지우기
 //  expire(before)(seen 이 before 보다 오래된 페이지: 내용·이름 열쇠·하트 지우기) · cleanNonces(now)
 //  putSnap(path, text)(있으면) — 공개 저장소 kg-snap 에 미리 만든 답(home.json · page/<slug>.json)을 덮어쓴다
@@ -221,6 +221,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   }
 
   // 하트: 한 열쇠(브라우저)는 한 캐릭터에 한국 날짜 하루 한 번(시즌마다 새로). 되돌리기 없음.
+  //  같은 접속 주소(IP)는 한 캐릭터에 하루 HEART_IP_DAY 번까지만 새 열쇠를 센다(2026-10-20): 주소 칸 열쇠 n개(sha256(ip:소금:주소 해시:날짜:시즌:주소:캐릭터:칸 번호))를
+  //  함께 보내 비어 있는 칸 하나를 차지해야 +1 — 칸이 모두 차 있으면 수는 그대로 already:true(조용히). 막힌 열쇠는 쓰지 않은 것으로 둔다(다른 주소에서는 센다).
   async function heart(req: Request) {
     if (!req.headers.get('content-type')?.startsWith('application/json')) throw v.fail(415, 'JSON 요청이 필요해요.');
     const text = await req.text();
@@ -231,15 +233,17 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const key = v.query(b?.id);
     if (typeof b?.token !== 'string' || !v.HEART_TOKEN.test(b.token)) throw v.fail(400, '하트를 보낼 수 없어요. 페이지를 새로 열어 주세요.');
     const at = now();
-    await limit(`kg:hi:${await ipHash(req)}`, 3600, 60, '하트를 너무 많이 보냈어요. 잠시 뒤에 다시 해 주세요.');
+    const ip = await ipHash(req);
+    await limit(`kg:hi:${ip}`, 3600, 60, '하트를 너무 많이 보냈어요. 잠시 뒤에 다시 해 주세요.');
     await limit(`kg:ht:${(await v.sha256hex('t:' + b.token)).slice(0, 32)}`, 86400, 50, '오늘은 하트를 많이 보냈어요. 내일 다시 보내 주세요.');
     const row = await shown(await store.people(slug));
     if (!row.season) throw v.fail(409, '지금은 다음 시즌을 준비하고 있어서 하트를 보낼 수 없어요.');
     const hit = v.findOne(row.people, key);
     if (!hit) throw v.fail(404, NO_PERSON);
-    const season = row.season.id, pid = hit.p.k;
-    const vote = await v.sha256hex(`${await store.ipSalt()}:${b.token}:${v.kstDay(at)}:${season}:${slug}:${pid}`);
-    const r = await store.heart(vote, v.nextKstMidnight(at) + 86400000, slug, season, pid, at);
+    const season = row.season.id, pid = hit.p.k, day = v.kstDay(at), salt = await store.ipSalt();
+    const vote = await v.sha256hex(`${salt}:${b.token}:${day}:${season}:${slug}:${pid}`);
+    const slots = await Promise.all(Array.from({ length: v.HEART_IP_DAY }, (_, i) => v.sha256hex(`ip:${salt}:${ip}:${day}:${season}:${slug}:${pid}:${i + 1}`)));
+    const r = await store.heart(vote, v.nextKstMidnight(at) + 86400000, slug, season, pid, at, slots);
     if (chance() < 0.02) later(store.cleanVotes(at));
     if (r?.already !== true) refreshPageSnap(slug); // 미리 만든 DJ 페이지 답의 하트 수도(15초에 한 번)
     return json({ hearts: Number(r?.hearts) || 0, already: r?.already === true });

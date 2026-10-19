@@ -46,6 +46,7 @@ grant select, insert, update, delete on public.kg_heart_votes to service_role;
 
 -- 하트 한 번: 투표 열쇠(하루·시즌·캐릭터·브라우저마다 하나)가 처음이면 그 캐릭터 하트 +1, 이미 있으면 그대로.
 -- 둘을 한 번에 해서 동시에 눌러도 두 번 세지 않는다. 돌려주는 것 {hearts, already}.
+-- (2026-10-20: 같은 접속 주소 하루 상한이 들어간 7칸 kg_heart 는 supabase/migrations/20261020_kiugi_heart_ip.sql — 함수 판 12 부터 그것을 부른다. 아래 6칸은 판 11 까지.)
 create or replace function public.kg_heart(p_vote text, p_expires bigint, p_slug text, p_season text, p_pid text, p_now bigint)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare n integer;

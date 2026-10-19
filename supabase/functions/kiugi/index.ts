@@ -75,8 +75,9 @@ const store = {
     return out;
   },
   topHearts: (limit: number) => q(db.from('kg_hearts').select('slug,season,pid,hearts').gt('hearts', 0).order('hearts', { ascending: false }).order('updated', { ascending: false }).limit(limit)),
-  heart: (vote: string, expires: number, slug: string, season: string, pid: string, now: number) =>
-    q(db.rpc('kg_heart', { p_vote: vote, p_expires: expires, p_slug: slug, p_season: season, p_pid: pid, p_now: now })),
+  // 7칸 kg_heart(supabase/migrations/20261020_kiugi_heart_ip.sql — 주소 칸 열쇠 p_slots). 예전 6칸 kg_heart 는 함수 판 11 이 쓰던 것.
+  heart: (vote: string, expires: number, slug: string, season: string, pid: string, now: number, slots: string[]) =>
+    q(db.rpc('kg_heart', { p_vote: vote, p_expires: expires, p_slug: slug, p_season: season, p_pid: pid, p_now: now, p_slots: slots })),
   cleanVotes: (now: number) => q(db.from('kg_heart_votes').delete().lt('expires', now)),
   // 이 페이지의 지난 시즌 하트 줄과, 지금 사람 목록에 없는 아이디의 하트 줄을 지운다
   pruneHearts: async (slug: string, season: string, keep: Set<string>) => {
