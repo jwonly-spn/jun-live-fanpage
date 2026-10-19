@@ -11,14 +11,14 @@
 select slug, device_id, name_key, updated, seen, count from public.kg_pages where name_key = '<캐릭터 이름 — 영문은 소문자>';
 ```
 ```sql
-select id, state, review from public.junlive_devices where id = '<위에서 나온 device_id>';
+select id, state, review, tag from public.junlive_devices where id in ('<위에서 나온 device_id>', '<새 PC 의 device_id — 관리 화면에서 확인>');
 ```
-- `updated` 가 비어 있으면(null) 그 페이지는 이미 꺼져 있어요 → 함수 판 12 부터는 새 PC 의 다음 올리기에서 저절로 넘어가요.
-- `state` 가 `approved` 이고 `updated` 가 있으면 예전 PC 가 아직 살아 있는 것으로 봐요(409 그대로).
+- 함수 판 12 부터는 두 기기의 `tag`(등록할 때 적힌 스푼 고유닉)가 같으면 새 PC 의 다음 올리기에서 저절로 넘어가요(같은 DJ).
+- `tag` 가 다르거나 비어 있고, 예전 PC 가 `approved` 이면 409 그대로예요(꺼 둔 것만으로는 넘어가지 않아요 — "끄기는 이름을 지킨다").
 
 ### 풀어 주기 — 함수 판 12 부터 (SQL 없이)
 1. 그 DJ 에게 예전 PC 가 맞는지 확인해요(스푼 계정·디스코드로 — 남의 이름을 뺏지 않게).
-2. 사용 승인 관리 화면에서 **예전 PC(위 device_id) 를 차단**해요. 또는 DJ 가 예전 PC 의 먼치킨에서 "키우기 사이트에 올리기"를 끄면 돼요.
+2. 사용 승인 관리 화면에서 **예전 PC(위 device_id) 를 차단**해요.
 3. 새 PC 의 먼치킨이 다음에 올릴 때(실패 뒤 1분 → 2분 → … 최대 30분 간격, 키우기 화면의 "지금 올리기"를 누르면 바로) 이름을 넘겨받아요.
    - 예전 페이지는 내용·이름·하트를 비우고 닫혀요(예전 주소 `k/<예전 주소>` 는 "닫아 두었어요"). 새 PC 는 **새 주소**를 받아요 — 청취자에게 새 주소를 다시 알려 주세요.
 

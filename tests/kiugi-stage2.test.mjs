@@ -63,9 +63,10 @@ test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이
   }
   assert.equal(w.store.pages.size, 1, '이름이 겹치면 새 주소를 만들지 않는다');
   assert.equal((await w.upload(a, PAYLOAD([PERSON('밤톨', 20, {}, 'Munchi')], { name: 'Munchi' }))).status, 200, '같은 방송은 계속 쓴다');
-  // 끄기: 이름 열쇠는 남아 다시 켜면 같은 이름 그대로(꺼 둔 동안 다른 방송이 같은 이름으로 올리면 넘겨받는다 — 2026-10-20, 아래 넘겨받기 시험)
+  // 끄기는 이름을 지킨다: 꺼 둔 동안에도 다른 방송은 못 쓰고, 다시 켜면 같은 이름 그대로
   assert.equal((await w.upload(a, { enabled: false })).status, 200);
   assert.equal(w.store.pages.get(A).name_key, 'munchi');
+  assert.equal((await w.upload(b, PAYLOAD([PERSON('달무리', 10, {}, 'munchi')], { name: 'munchi' }))).status, 409, '꺼 둔 동안에도 다른 방송은 못 쓴다');
   assert.equal((await w.upload(a, PAYLOAD([PERSON('밤톨', 20, {}, 'Munchi')], { name: 'Munchi' }))).status, 200, '다시 켜면 같은 이름 그대로');
   assert.equal((await w.upload(b, PAYLOAD([PERSON('달무리', 10, {}, 'munchi')], { name: 'munchi' }))).status, 409, '다시 켠 뒤에는 다른 방송이 못 쓴다');
   // 한글 이름: 풀어 쓴 모양도 같은 이름
@@ -88,7 +89,7 @@ test('캐릭터 이름은 사이트 전체에서 하나만: 먼저 쓴 방송이
   assert.equal(w.store.pages.get(A).name_key, null);
 });
 
-// 2026-10-20(1.0.0 점검 "PC 를 바꾼 DJ 는 자기 캐릭터 이름을 60일 동안 못 쓴다"): 이름을 가진 페이지가 사이트에 보이지 않으면 새 기기가 넘겨받는다
+// 2026-10-20(1.0.0 점검 "PC 를 바꾼 DJ 는 자기 캐릭터 이름을 60일 동안 못 쓴다"): 같은 DJ · 주인 기기 승인 아님 · 60일 지남이면 새 기기가 넘겨받는다
 test('캐릭터 이름 넘겨받기: 옛 PC 가 승인·내용 그대로면 409, 관리 화면에서 옛 PC 를 막으면 새 PC 가 넘겨받고 옛 페이지는 닫힌다(내용·이름 열쇠·하트 · 미리 만든 답 closed)', async () => {
   const w = world();
   const oldPc = w.approve(), newPc = w.approve();
@@ -119,7 +120,28 @@ test('캐릭터 이름 넘겨받기: 옛 PC 가 승인·내용 그대로면 409,
   assert.equal((await w.upload(newPc, PAYLOAD([PERSON('밤톨', 901)]))).status, 200, '새 PC 는 같은 이름으로 계속 올린다');
 });
 
-test('캐릭터 이름 넘겨받기: 기기가 대기·심사용·기록 없음이거나, 내용이 비었거나(끄기), 60일 동안 안 올렸으면 넘겨받는다 · 그사이 다시 올렸으면 409', async () => {
+test('캐릭터 이름 넘겨받기: 같은 DJ(승인 서버의 같은 고유닉)면 바로 · 기기가 대기·심사용·기록 없음이거나 60일 동안 안 올렸으면 넘겨받는다 · 끄기만으로는 안 됨 · 그사이 다시 올렸으면 409', async () => {
+  // 같은 DJ: 새 PC 와 옛 PC 가 승인 서버 표에 같은 고유닉(tag)이면 옛 PC 가 승인·내용 그대로여도 바로 넘겨받는다(대소문자·앞뒤 공백 무시)
+  {
+    const w = world();
+    const oldPc = w.approve(), newPc = w.approve(), other = w.approve();
+    w.store.devices.set(oldPc.id, { state: 'approved', review: false, tag: 'bamtol_dj' });
+    w.store.devices.set(newPc.id, { state: 'approved', review: false, tag: ' Bamtol_DJ ' });
+    w.store.devices.set(other.id, { state: 'approved', review: false, tag: 'someone_else' });
+    const A = (await w.upload(oldPc, PAYLOAD())).json.slug;
+    assert.equal((await w.upload(other, PAYLOAD())).status, 409, '다른 고유닉은 409');
+    const r = await w.upload(newPc, PAYLOAD());
+    assert.equal(r.status, 200, '같은 고유닉 — PC 를 바꾼 DJ 가 바로 이어 간다');
+    assert.notEqual(r.json.slug, A);
+    assert.equal(w.store.pages.get(A).name_key, null);
+    // 고유닉이 비어 있으면 같은 DJ 로 보지 않는다
+    const w2 = world();
+    const p1 = w2.approve(), p2 = w2.approve();
+    w2.store.devices.set(p1.id, { state: 'approved', review: false, tag: '' });
+    w2.store.devices.set(p2.id, { state: 'approved', review: false, tag: '' });
+    await w2.upload(p1, PAYLOAD());
+    assert.equal((await w2.upload(p2, PAYLOAD())).status, 409, '빈 고유닉끼리는 같은 DJ 가 아니다');
+  }
   for (const [label, dev] of [['대기', { state: 'pending', review: false }], ['심사용', { state: 'approved', review: true }], ['기기 기록 없음', null]]) {
     const w = world();
     const a = w.approve(), b = w.approve();
@@ -128,16 +150,18 @@ test('캐릭터 이름 넘겨받기: 기기가 대기·심사용·기록 없음�
     assert.equal((await w.upload(b, PAYLOAD())).status, 200, label);
     assert.equal(w.store.pages.get(A).name_key, null, label);
   }
-  // 끈 페이지(내용 없음 — 승인된 기기여도): 꺼 둔 동안 다른 방송이 같은 이름으로 올리면 넘겨받는다
+  // 끈 페이지(내용 없음 — 승인된 기기)는 다른 DJ 에게 넘겨주지 않는다("끄기는 이름을 지킨다"). 같은 DJ 의 새 PC 는 넘겨받는다.
   {
     const w = world();
-    const a = w.approve(), b = w.approve();
+    const a = w.approve(), b = w.approve(), mine = w.approve();
+    w.store.devices.set(a.id, { state: 'approved', review: false, tag: 'night_dj' });
+    w.store.devices.set(mine.id, { state: 'approved', review: false, tag: 'night_dj' });
     const A = (await w.upload(a, PAYLOAD())).json.slug;
     await w.upload(a, { enabled: false });
-    assert.equal(w.store.pages.get(A).name_key, '먼치', '끄기만으로는 이름 열쇠가 남는다');
-    assert.equal((await w.upload(b, PAYLOAD())).status, 200);
+    assert.equal((await w.upload(b, PAYLOAD())).status, 409, '다른 DJ 는 꺼 둔 이름을 못 가져간다');
+    assert.equal(w.store.pages.get(A).name_key, '먼치');
+    assert.equal((await w.upload(mine, PAYLOAD())).status, 200, '같은 DJ 의 새 PC 는 꺼 둔 이름도 넘겨받는다');
     assert.equal(w.store.pages.get(A).name_key, null);
-    assert.equal((await w.upload(a, PAYLOAD())).status, 409, '다시 켠 옛 방송은 이제 다른 이름을 골라야 한다');
   }
   // 60일 동안 아무것도 올리지 않은 페이지: 가끔 도는 정리(2%)를 기다리지 않고 넘겨받는다
   {
