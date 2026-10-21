@@ -27,6 +27,13 @@ export const HD_DIR = 'kiugi-hd/';
 export const HD_MAX_SCALE = 4;
 // 한 번에 그리는 캔버스의 최대 픽셀(휴대폰 메모리 — renderer 가 같은 크기 칸을 여러 장 만든다): 2048 × 2048
 export const HD_MAX_PIXELS = 2048 * 2048;
+// 휴대폰(손가락 화면)은 더 작게(2026-10-21 — 아이폰 사파리에서 입혀 보기 옷을 몇 번 누르면 "문제가 반복적으로 발생"으로 페이지가 죽었다:
+//  한 번 그릴 때마다 renderer 가 무대 크기 캔버스를 9장쯤 새로 만들고, 다 쓴 캔버스와 받아 둔 그림을 사파리가 바로 놓지 않아 쌓였다).
+//  이 한도를 넘는 정수 배율이면 소수 배율 대신 한 단계 낮은 정수 배율로 그린다(renderScaleFor floor — 가로줄 없이 메모리를 아낀다).
+export const HD_MOBILE_PIXELS = 1800 * 1800;
+// 받아 둔 그림 기억 한도(장 수 — 지금 모습에 쓰는 그림은 빼고 센다) · 머리색 입힌 그림·신발 목 자르기 칸(1024² 캔버스) 기억 한도
+export const HD_IMAGE_KEEP = { mobile: 12, desktop: 80 }, HD_CANVAS_KEEP = { mobile: 3, desktop: 8 };
+export const isCoarse = () => { try { return typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches; } catch { return false; } };
 // 칸 크기가 이만큼(비율) 바뀌면 다시 그린다(돌리기·창 크기)
 export const HD_RESIZE = 0.12;
 // 패키지 assets.json 의 마스크 칸 → 사이트 그림 목록(ART)의 마스크 이름
@@ -138,9 +145,38 @@ const queued = (fn) => { const job = chain.then(fn, fn); chain = job.catch(() =>
 // renderer 에 넘길 배율: 정수(1~4)로 그린 뒤 화면 크기로 줄인다(Codex 예제처럼 — 원본 → 정수 배율 합성 → 표시 크기로 고품질 축소).
 //  소수 배율로 바로 그리면 renderer 안의 자르기 칸(예: 상의 복원 y 240)이 픽셀 사이에 걸려 옷 위에 옅은 가로줄이 생겼다(2026-10-18 휴대폰 화면에서 확인).
 //  정수 배율이 픽셀 한도(HD_MAX_PIXELS)를 넘으면 원하는 배율 그대로(늘리지는 않는다).
-export function renderScaleFor(viewport, scale, { maxScale = HD_MAX_SCALE, maxPixels = HD_MAX_PIXELS } = {}) {
+//  floor: 넘으면 한 단계 낮은 정수 배율(1 아래로는 내리지 않는다 — 휴대폰: 메모리를 아끼고 가로줄도 없게)
+export function renderScaleFor(viewport, scale, { maxScale = HD_MAX_SCALE, maxPixels = HD_MAX_PIXELS, floor = false } = {}) {
   const want = Math.min(maxScale, scale), up = Math.min(maxScale, Math.ceil(want - 1e-9));
-  return viewport[2] * viewport[3] * up * up <= maxPixels ? up : want;
+  if (viewport[2] * viewport[3] * up * up <= maxPixels) return up;
+  return floor ? Math.max(1, Math.floor(want + 1e-9)) : want;
+}
+// 다 그린 뒤 정리(휴대폰 메모리): ① 그리는 동안 renderer 가 만든 무대 크기 캔버스(겹 칸)를 바로 비운다(사파리는 버린 캔버스를 늦게 놓는다)
+//  ② 받아 둔 그림이 한도를 넘으면 지금 모습에 쓰지 않는 오래된 것부터 놓는다 ③ 머리색 입힌 그림·신발 목 자르기 칸도 한도를 넘으면 오래된 것부터 비운다.
+//  renderer 코드는 고치지 않는다(바이트 그대로) — 기억 표(Map)에서 빼기만 하고, 다음에 필요하면 renderer 가 다시 받는다(브라우저 캐시).
+const cachedCanvases = (renderer) => new Set([renderer.nativeTint, renderer.tintCache, renderer.shaftClipCache].flatMap((m) => (m instanceof Map ? [...m.values()] : [])));
+export function freeScratch(made, keep = [], renderer = {}) {
+  const held = cachedCanvases(renderer), skip = new Set(keep);
+  let n = 0;
+  for (const c of made) if (c && !skip.has(c) && !held.has(c) && !c.isConnected && c.width * c.height > 0) { freeCanvas(c); n++; }
+  return n;
+}
+export function trimCaches(renderer, keepPaths = [], { images = HD_IMAGE_KEEP.desktop, canvases = HD_CANVAS_KEEP.desktop } = {}) {
+  const keep = new Set(keepPaths);
+  const cache = renderer?.cache;
+  if (cache instanceof Map) {
+    let extra = [...cache.keys()].filter((k) => !keep.has(k)).length;
+    for (const [k, p] of [...cache]) {
+      if (extra <= images) break;
+      if (keep.has(k)) continue;
+      cache.delete(k); extra--;
+      Promise.resolve(p).then((im) => { try { if (im && typeof im === 'object' && 'src' in im) im.src = ''; } catch { /* 무시 */ } }, () => {});
+    }
+  }
+  for (const m of [renderer?.nativeTint, renderer?.tintCache, renderer?.shaftClipCache]) {
+    if (!(m instanceof Map)) continue;
+    for (const [k, c] of [...m]) { if (m.size <= canvases) break; m.delete(k); freeCanvas(c); }
+  }
 }
 // 미리 받기(2026-10-19 — 눈 깜빡임 고침): renderer 는 그림을 하나씩 차례로(await) 받아 휴대폰에서는 처음 그리기가 몇 초 걸린다(그동안 호환 그림이 보인다).
 //  이 모습에 쓸 수 있는 그림 길(등록부의 path · 호환 그림·마스크)을 미리 모아 renderer.image() 로 한꺼번에 받기 시작한다 — renderer 가 같은 길을 같은 약속(캐시)으로 쓴다.
@@ -181,10 +217,21 @@ export async function renderHdCharacter({ dj, look, expression = null, viewport,
   const renderer = await loadHd(base);
   warmHd(renderer, state);
   return queued(async () => {
-    const rs = renderScaleFor(viewport, scale), work = document.createElement('canvas'), over = overlayOps(dj, look, expression);
+    const mobile = isCoarse();
+    const rs = renderScaleFor(viewport, scale, mobile ? { maxPixels: HD_MOBILE_PIXELS, floor: true } : {}), work = document.createElement('canvas'), over = overlayOps(dj, look, expression);
     // 볼 발그레: renderer 가 몸·얼굴·옷을 다 그린 칸(onLayer 'hem' — 앞머리·악세사리·모자를 얹기 전)에 · 둥실 하트: 다 그린 뒤 맨 위
     const onLayer = (label, body) => { if (label === 'hem' && over.blush.length) paintOverlay(body.getContext('2d'), over.blush, viewport, rs); };
-    const result = await renderer.render(work, state, { viewport, scale: rs, onLayer });
+    // 그리는 동안 renderer 가 만드는 캔버스를 모아 두었다가(겹 칸 크기 — 다른 화면 코드의 캔버스는 크기가 달라 건드리지 않는다) 다 그리면 바로 비운다
+    const made = [], orig = document.createElement, own = Object.prototype.hasOwnProperty.call(document, 'createElement');
+    const lw = Math.round(viewport[2] * rs), lh = Math.round(viewport[3] * rs);
+    document.createElement = function (tag, ...rest) { const el = orig.call(this, tag, ...rest); if (String(tag).toLowerCase() === 'canvas') made.push(el); return el; };
+    let result;
+    try { result = await renderer.render(work, state, { viewport, scale: rs, onLayer }); }
+    finally {
+      if (own) document.createElement = orig; else delete document.createElement;
+      freeScratch(made.filter((c) => c.width === lw && c.height === lh), [work], renderer);
+      try { trimCaches(renderer, hdWarmPaths(renderer.hd || {}, renderer.byId || new Map(), state), mobile ? { images: HD_IMAGE_KEEP.mobile, canvases: HD_CANVAS_KEEP.mobile } : {}); } catch { /* 정리는 덤 */ }
+    }
     if (hearts !== false) paintOverlay(work.getContext('2d'), over.hearts, viewport, rs);
     const w = Math.max(1, Math.round(viewport[2] * Math.min(HD_MAX_SCALE, scale))), h = Math.max(1, Math.round(viewport[3] * Math.min(HD_MAX_SCALE, scale)));
     if (work.width === w && work.height === h) return { canvas: work, result, state, renderScale: rs };
@@ -219,7 +266,7 @@ export function upgradeStage(stage, opts = {}) {
   const run = async () => {
     const svg = actorOf()?.querySelector(':scope > .kg-body > svg');
     if (!svg || stage.kgHdSeq !== seq) return;
-    const art = svg.getBoundingClientRect(), fit = hdFit(stage.getBoundingClientRect(), art, window.devicePixelRatio || 1);
+    const art = svg.getBoundingClientRect(), fit = hdFit(stage.getBoundingClientRect(), art, window.devicePixelRatio || 1, isCoarse() ? { maxPixels: HD_MOBILE_PIXELS } : {});
     // 아직 화면에 붙기 전이면(칸 크기 0) 몇 번 더 기다려 본다 — 그래도 안 보이는 칸(좁은 화면에서 숨긴 칸 등)이면 호환 그림으로 알린다
     if (!fit) { if (!fitted && tries++ < 3 && typeof requestAnimationFrame === 'function') requestAnimationFrame(() => requestAnimationFrame(run)); else tell('hidden'); return; }
     fitted = { width: art.width, dpr: window.devicePixelRatio || 1 };

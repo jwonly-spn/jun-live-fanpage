@@ -8,7 +8,8 @@ import { readFile, readdir, stat } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { ART, buildCatalog, expressionFor } from '../docs/lib/kiugi-draw.js';
-import { hdState, hdExpression, hdFit, renderScaleFor, compatBundle, hdBundle, overlayOps, MASK_KEYS, HD_MAX_SCALE, HD_MAX_PIXELS, HD_DIR } from '../docs/lib/kiugi-hd.js';
+import { hdState, hdExpression, hdFit, renderScaleFor, compatBundle, hdBundle, overlayOps, MASK_KEYS, HD_MAX_SCALE, HD_MAX_PIXELS, HD_DIR,
+  HD_MOBILE_PIXELS, freeScratch, trimCaches } from '../docs/lib/kiugi-hd.js';
 import { characterPlan, renderSaveImage, placeCharacter, hdViewportOf, SAVE_LAYOUT, SAVE_W, SAVE_H } from '../docs/lib/kiugi-save.js';
 import { SIZE } from '../docs/kiugi/kiugi-art.js';
 
@@ -214,4 +215,24 @@ test('저장하기 고해상도(hd 함수를 넘길 때): 자리·크기는 호�
     const o = await renderSaveImage(card, { base: '/', doc: make(), load: async (u) => ({ url: u }), hd });
     assert.equal(o.draws.filter((d) => d.w === SIZE).length, 1);
   }
+});
+
+test('휴대폰 메모리(2026-10-21 아이폰 사파리 입혀 보기 튕김): 한도를 넘으면 한 단계 낮은 정수 배율 · 다 쓴 겹 칸 비우기 · 받아 둔 그림·캔버스 기억 한도', () => {
+  assert.equal(renderScaleFor([179, 6, 666, 997], 1.6, { maxPixels: 666 * 997 * 2, floor: true }), 1, '2배가 넘치면 1배(소수 배율 아님)');
+  assert.equal(renderScaleFor([0, 0, 500, 500], 2.6, { maxPixels: 500 * 500 * 5, floor: true }), 2);
+  assert.equal(renderScaleFor([0, 0, 2000, 2000], 0.4, { maxPixels: 1, floor: true }), 1, '1 아래로는 내리지 않는다');
+  assert.ok(HD_MOBILE_PIXELS < HD_MAX_PIXELS);
+  const cv = (w, h, extra = {}) => ({ width: w, height: h, isConnected: false, ...extra });
+  const work = cv(10, 10), dom = cv(10, 10, { isConnected: true }), cached = cv(10, 10), a = cv(10, 10), b = cv(10, 10);
+  const renderer = { nativeTint: new Map([['h', cached]]), tintCache: new Map(), shaftClipCache: new Map() };
+  assert.equal(freeScratch([work, dom, cached, a, b], [work], renderer), 2);
+  assert.deepEqual([work.width, dom.width, cached.width, a.width, b.width], [10, 10, 10, 0, 0], '돌려줄 칸·화면 칸·기억한 칸은 그대로');
+  const im = (n) => ({ src: 'x' + n });
+  const ims = Array.from({ length: 6 }, (_, i) => im(i));
+  const r2 = { cache: new Map(ims.map((x, i) => ['p' + i, Promise.resolve(x)])), nativeTint: new Map([['a', cv(5, 5)], ['b', cv(5, 5)], ['c', cv(5, 5)]]), tintCache: new Map(), shaftClipCache: new Map() };
+  const firstTint = r2.nativeTint.get('a');
+  trimCaches(r2, ['p0', 'p1'], { images: 2, canvases: 2 });
+  assert.deepEqual([...r2.cache.keys()], ['p0', 'p1', 'p4', 'p5'], '지금 모습 그림은 남기고 오래된 것부터 뺀다');
+  assert.deepEqual([...r2.nativeTint.keys()], ['b', 'c']); assert.equal(firstTint.width, 0);
+  return Promise.resolve().then(() => Promise.resolve()).then(() => { assert.equal(ims[2].src, ''); assert.equal(ims[0].src, 'x0'); });
 });
