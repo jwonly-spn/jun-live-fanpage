@@ -5,16 +5,16 @@
   ],
   "files": {
     "bg": [
-      "background_01.png",
-      "background_02.png",
-      "background_03.png",
-      "background_04.png",
-      "background_05.png",
-      "background_06.png",
-      "background_07.png",
-      "background_08.png",
-      "background_09.png",
-      "background_10.png"
+      "background_01.jpg",
+      "background_02.jpg",
+      "background_03.jpg",
+      "background_04.jpg",
+      "background_05.jpg",
+      "background_06.jpg",
+      "background_07.jpg",
+      "background_08.jpg",
+      "background_09.jpg",
+      "background_10.jpg"
     ],
     "motion": [
       "female_eyes_01_closed.png",

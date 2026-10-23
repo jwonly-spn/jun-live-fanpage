@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "logicalCanvas": [
     1024,
     1024
@@ -682,17 +682,17 @@
       "rect": [
         472.4465709728868,
         146.548644338118,
-        80.38277511961722,
-        31.897926634768737
+        80.3981623277185,
+        32.006125574272694
       ],
       "pixelSize": [
-        315,
-        125
+        525,
+        209
       ],
-      "density": 3.91875,
-      "sha256": "53a223d5003f87f9c413df48224cc149c9e29dce032bd47fdc52ceee2d056eaa",
-      "source": "03_제작기록/r9/native_features/female_eyes_01_smile_v1.png",
-      "sourceSha256": "6b606ec1bddc565a0feb255d0fdaf813b11031aa563acb6f445426403f0efedc",
+      "density": 6.529999999999978,
+      "sha256": "da2ec65e3aa29c6d9789de8562689442f18fbc96f745d6864c93379acc745a50",
+      "source": "03_제작기록/r9_fix1/female_eyes_01_closed_smile_v1.png",
+      "sourceSha256": "2f58c2ca259dcc55518eb0fa436bc84aa22297cefb81a293f5b2e5a2eac9dfee",
       "wholePortraitTransform": {
         "uniformScale": 0.2551834130781499,
         "offset": [
@@ -703,24 +703,34 @@
       "category": "eyes",
       "number": 1,
       "expression": "smile",
-      "sourceRgbPainted": false
+      "sourceRgbPainted": false,
+      "fix1ClosedCrescent": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.1531393568147019,
+        "offset": [
+          420.90811638591094,
+          67.4869831546704
+        ],
+        "noseTemplateScore": 0.9455573558807373
+      },
+      "programScope": "Only crop, registration and skin-patch edge alpha. Eyelids were painted by ImageGen in the complete face; no program-drawn features."
     },
     "male_eyes_01_smile": {
       "path": "03_hd_assets/features/male_eyes_01_smile.png",
       "rect": [
         472.4465709728868,
         146.548644338118,
-        80.38277511961722,
-        31.897926634768737
+        80.48090523338077,
+        31.966053748232078
       ],
       "pixelSize": [
-        315,
-        125
+        569,
+        226
       ],
-      "density": 3.91875,
-      "sha256": "f095c5c366d29c3052e283a927019ac892bcebdfdfef03c927ce061d1459e266",
-      "source": "03_제작기록/r9/native_features/male_eyes_01_smile_v1.png",
-      "sourceSha256": "969ce830fdeb9bc9d929821b0a88402bb3c9f388b286d54fa4e91b5d35e2ef5e",
+      "density": 7.069999999999975,
+      "sha256": "5f6282572bce38fb4efe6cd49bc5391874d0dc2ed1c5ccfcf144b6ae479bb469",
+      "source": "03_제작기록/r9_fix1/male_eyes_01_closed_smile_v1.png",
+      "sourceSha256": "1873b96641a0c4279773f785c86dc23f62f72c64ebc59d876dad70e9b7d442e3",
       "wholePortraitTransform": {
         "uniformScale": 0.2551834130781499,
         "offset": [
@@ -731,7 +741,17 @@
       "category": "eyes",
       "number": 1,
       "expression": "smile",
-      "sourceRgbPainted": false
+      "sourceRgbPainted": false,
+      "fix1ClosedCrescent": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.14144271570014194,
+        "offset": [
+          425.7524752475245,
+          79.50636492220617
+        ],
+        "noseTemplateScore": 0.9691261649131775
+      },
+      "programScope": "Only crop, registration and skin-patch edge alpha. Eyelids were painted by ImageGen in the complete face; no program-drawn features."
     },
     "female_mouth_05_smile": {
       "path": "03_hd_assets/features/female_mouth_05_smile.png",
@@ -1046,17 +1066,17 @@
       "rect": [
         472.4465709728868,
         146.548644338118,
-        80.38277511961722,
-        31.897926634768737
+        80.47244094488214,
+        31.968503937007974
       ],
       "pixelSize": [
-        315,
-        125
+        511,
+        203
       ],
-      "density": 3.91875,
-      "sha256": "6ff9e6216ba7d533f6dd6271a65f8e1773950ba39b111832f872959a128104b9",
-      "source": "03_제작기록/r9/native_features/female_eyes_02_smile_v1.png",
-      "sourceSha256": "43c1034750b0a5a3f8253d7c9e854781ab8dc514695e1cab8f90ffa4ea7e3a76",
+      "density": 6.34999999999998,
+      "sha256": "6eb494582293360ccfde38aa06ae21aa832b7dabaf960c83c3aa6f232902b77e",
+      "source": "03_제작기록/r9_fix1/female_eyes_02_closed_smile_v1.png",
+      "sourceSha256": "232b35612a5b1f362e4e0f1e142023cfe357128bc03180ffa3daaf55ec11a7bf",
       "wholePortraitTransform": {
         "uniformScale": 0.2551834130781499,
         "offset": [
@@ -1067,7 +1087,17 @@
       "category": "eyes",
       "number": 2,
       "expression": "smile",
-      "sourceRgbPainted": false
+      "sourceRgbPainted": false,
+      "fix1ClosedCrescent": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.15748031496063042,
+        "offset": [
+          420.5275590551179,
+          66.22834645669258
+        ],
+        "noseTemplateScore": 0.944198489189148
+      },
+      "programScope": "Only crop, registration and skin-patch edge alpha. Eyelids were painted by ImageGen in the complete face; no program-drawn features."
     },
     "female_mouth_02": {
       "path": "03_hd_assets/features/female_mouth_02.png",
@@ -1242,17 +1272,17 @@
       "rect": [
         472.4465709728868,
         146.548644338118,
-        80.38277511961722,
-        31.897926634768737
+        80.47244094488214,
+        31.968503937007974
       ],
       "pixelSize": [
-        315,
-        125
+        511,
+        203
       ],
-      "density": 3.91875,
-      "sha256": "c2898077a47b73032e025b53e3249d89cdbe6c06a57e367b083c418eac58e41b",
-      "source": "03_제작기록/r9/native_features/male_eyes_02_smile_v1.png",
-      "sourceSha256": "6bdc9d1bb889d9f159ddb346ed1e70b73235c84062b521bf370f9f3dfe1f5ef2",
+      "density": 6.34999999999998,
+      "sha256": "92e262bed537329c5f46c978252ac818d5770754a03fa5224892c986d993a3c9",
+      "source": "03_제작기록/r9_fix1/male_eyes_02_closed_smile_v1.png",
+      "sourceSha256": "fb652997e69cf4a4097a2877ff66aff771588d4ca663f81663d87dc936731d90",
       "wholePortraitTransform": {
         "uniformScale": 0.2551834130781499,
         "offset": [
@@ -1263,7 +1293,17 @@
       "category": "eyes",
       "number": 2,
       "expression": "smile",
-      "sourceRgbPainted": false
+      "sourceRgbPainted": false,
+      "fix1ClosedCrescent": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.15748031496063042,
+        "offset": [
+          416.7480314960627,
+          66.8582677165351
+        ],
+        "noseTemplateScore": 0.9672434329986572
+      },
+      "programScope": "Only crop, registration and skin-patch edge alpha. Eyelids were painted by ImageGen in the complete face; no program-drawn features."
     },
     "male_mouth_02": {
       "path": "03_hd_assets/features/male_mouth_02.png",
@@ -1355,5 +1395,9 @@
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }

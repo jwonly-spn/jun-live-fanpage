@@ -1,8 +1,8 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "assets": {
     "female": {
-      "path": "03_hd_assets/body/female_native_default_clothes.png",
+      "path": "03_제작기록/r9_fix1/body_edge_mattes/female_native_default_clothes.png",
       "rect": [
         368.45791245791247,
         225.4837261503928,
@@ -13,7 +13,7 @@
         448,
         1142
       ],
-      "sha256": "bc07a05980296d2846e0d7d6c993494d74e00ca192a250f0f6bdeed9d1fc12a7",
+      "sha256": "1dad348bdd04caa718963fada0ae0f00b61c006ba2905fb1c8274196a4f30421",
       "source": "03_제작기록/r9/wardrobe_hd/default_body/female_complete_native_v1.png",
       "sourceSha256": "dfa64feb7abc265fd0d33120168bb797064212ab6df4d38874c52f31e091795c",
       "density": 1.5256849315068493,
@@ -147,10 +147,11 @@
           "mask": true
         },
         "skinJoinEndY": 885
-      }
+      },
+      "fix1BoundaryWhiteMatteRemoved": true
     },
     "male": {
-      "path": "03_hd_assets/body/male_native_default_clothes.png",
+      "path": "03_제작기록/r9_fix1/body_edge_mattes/male_native_default_clothes.png",
       "rect": [
         374.5030450669915,
         225.5968331303289,
@@ -161,7 +162,7 @@
         427,
         1127
       ],
-      "sha256": "c00954f3be7ee7c05d9b81e4956e555832ab65a99b4fd0a90ba60198e2c53959",
+      "sha256": "30390c5afddb9d861efd7531e8c5dd8756d49e1f766d4f3f215a94b095e08938",
       "source": "03_제작기록/r9/wardrobe_hd/default_body/male_complete_native_v1.png",
       "sourceSha256": "3a8a8c5eadfa76ed9882a5a9d2d4f1761137418e62eb38f5343d25a9adc79df1",
       "density": 1.5345794392523364,
@@ -295,7 +296,8 @@
           "mask": true
         },
         "skinJoinEndY": 885
-      }
+      },
+      "fix1BoundaryWhiteMatteRemoved": true
     }
   },
   "scope": "Working native default gray clothes/body. Only used where a default gray upper/lower garment or default trainer is visible; complete native wardrobe variants retain their existing tested body path.",
@@ -303,5 +305,9 @@
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }

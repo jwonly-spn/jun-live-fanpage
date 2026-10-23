@@ -3,7 +3,7 @@
 import { h, icon, toast } from '../lib/dom.js';
 import { characterMarkup, itemMarkup, expressionFor, paintMarkup, splitScene, svgNode, motionOf, petStage, preloadImage, MOTIONS_READY } from '../lib/kiugi-draw.js';
 import { svgUrls } from '../kiugi/kiugi-art.js';
-import { loadLite, liteUrl } from '../lib/raster.js';
+import { loadLite, liteUrl, photoBox, itemPlanOf } from '../lib/raster.js';
 import { upgradeStage } from '../lib/kiugi-hd.js';
 
 export const baseOf = (id) => String(id ?? '').split('#')[0];
@@ -229,8 +229,18 @@ export function petBuddy(pet, base, { label = true, eager = true } = {}) {
     label ? h('figcaption', { class: 'kg-pet-name' }, pet.name, h('i', null, stars(pet.stage))) : null);
 }
 
-// 옷 한 벌 그림(옷 도감·입은 옷). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
+// 옷 한 벌 그림(옷 도감·입은 옷·입혀 보기 칸·옷 TOP 5). dj: DJ 캐릭터(성별이 같으면 그 얼굴·머리로 입혀 보인다). tall: 세로 칸(전신 의상 — 양옆 빈 곳만 잘라 크게)
+//  2026-10-23: 그림이 있는 옷은 캔버스로 칸 크기만큼만 그린 작은 사진(lib/raster.js photoBox · item)으로 — 예전 SVG(캐릭터 전체 + 필터·마스크를 당겨 보이기)는
+//  아이폰 사파리가 신발·모자 칸에서 메모리를 넘겨 페이지를 죽였다(raster.js 맨 위 설명). 사진을 못 만들면 이름 자리 표시.
+//  그림이 없는 옷(예전 그림의 옷 id — 이름 자리 표시 SVG, 그림 파일 없음)만 예전처럼 SVG.
 export function itemArt(catalog, id, { base = '/', label = '', gender = 'f', dj = null, tall = false } = {}) {
+  const it = itemPlanOf(id, { gender, dj, tall });
+  if (it) {
+    const stage = h('div', { class: 'kg-stage item' + (tall ? ' tall' : '') });
+    stage.append(photoBox({ item: { id, gender, dj, tall }, character: it.face, base, kind: 'item' },
+      { onFail: (box) => box.replaceWith(h('span', { class: 'kg-noart' }, label)) }));
+    return stage;
+  }
   // 배경 옷은 가벼운 사본(WebP)으로 — 옷 도감·TOP 5 에 배경 열 장이 다 나와도 1.5MB 씩 받지 않게
   return lazyStage(() => itemMarkup(catalog, id, { base, label, gender, dj }), label, { kind: tall ? 'item tall' : 'item', lite: base });
 }

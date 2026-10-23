@@ -276,7 +276,7 @@ test('캐릭터 사진(lib/raster.js): 칸(머리 조금 위~허벅지 가운데
   assert.ok(headShare(CROPS.photoMale, 80, 208) > headShare(CROPS.photo, 146.5, 266.6), '남자 얼굴이 여자보다 작아 보이지 않는다');
   const urls = ['/kiugi/r7/female_body.png?v=5be43a8c2163', '/kiugi/r7/female_hair_02_front.png?v=16864895ecdf'];
   const k = rasterKey(urls, { kind: 'photo', s: 1, female: true });
-  assert.match(k, /^r2:photo:1:f:[0-9a-f]{16}$/, 'r2(2026-10-19 — 남자 칸·표정 겹치기): 예전 사진은 쓰지 않는다');
+  assert.match(k, /^r3:photo:1:f:[0-9a-f]{16}$/, 'r3(2026-10-23 — 머리색·옷 한 벌 사진): 예전 사진은 쓰지 않는다');
   // 표정 겹치기(볼 발그레·둥실 하트 — 그림 파일이 아니라 주소가 같다)가 다르면 열쇠도 다르다
   assert.notEqual(rasterKey(urls, { kind: 'photo', s: 1, female: true, face: faceExtras({ parts: ['exp-blush'] }) }), k);
   assert.equal(faceExtras({ parts: ['eyes:smile', 'exp-floating-hearts', 'mouth:smile', 'exp-blush'] }), 'exp-blush,exp-floating-hearts');

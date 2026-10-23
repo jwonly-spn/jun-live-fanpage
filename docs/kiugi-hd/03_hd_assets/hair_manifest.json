@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "logicalCanvas": [
     1024,
     1024
@@ -7,7 +7,7 @@
   "density": 4,
   "assets": {
     "female_hair_01_front": {
-      "path": "03_제작기록/r9/hair_isolation_candidate/female_hair_01/female_hair_01_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_01_front_matted.png",
       "rect": [
         448.52468555050535,
         80.5,
@@ -18,7 +18,7 @@
         606,
         468
       ],
-      "sha256": "fd56fbabd66b12b21ae5942cb939d931cdc61ac783b21c181e226351d7b31e41",
+      "sha256": "a6e1c45d2c12923732e6796f1390f78ef74f628e1f8d181b3118a73ea4ac694e",
       "source": "03_제작기록/r9/hair_isolation_candidate/female_hair_01_isolated_v1.png",
       "sourceSha256": "8b1ea4b5850bcd8bb834dbd4d14cc6338461940b97139d22a6aff17148cd384b",
       "density": 4.798418972332016,
@@ -31,10 +31,20 @@
           75.08154859967051
         ]
       },
-      "depth": "Entire long hair stays behind clothes/neck; same crown/front head restored over face. Shared hair edges composed once."
+      "depth": "Entire long hair stays behind clothes/neck; same crown/front head restored over face. Shared hair edges composed once.",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "female_hair_01_back": {
-      "path": "03_제작기록/r9/hair_isolation_candidate/female_hair_01/female_hair_01_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_01_back.png",
       "rect": [
         417.47279098707867,
         80.5,
@@ -45,7 +55,7 @@
         905,
         1220
       ],
-      "sha256": "ecd09c554e2389b0a15d7fe91a3df64b6e3ebc5e9569c1157cfebec63548b74c",
+      "sha256": "60650c03c23a96e35e7d0ca6d733ed03730c8856ea5da8ea95f2ce59deda66c3",
       "source": "03_제작기록/r9/hair_isolation_candidate/female_hair_01_isolated_v1.png",
       "sourceSha256": "8b1ea4b5850bcd8bb834dbd4d14cc6338461940b97139d22a6aff17148cd384b",
       "density": 4.798418972332016,
@@ -58,46 +68,82 @@
           75.08154859967051
         ]
       },
-      "depth": "Entire long hair stays behind clothes/neck; same crown/front head restored over face. Shared hair edges composed once."
+      "depth": "Entire long hair stays behind clothes/neck; same crown/front head restored over face. Shared hair edges composed once.",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_02_front": {
-      "path": "03_hd_assets/hair/female_hair_02_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_02_front_repaired_cap.png",
       "rect": [
-        449.75,
+        450.125,
         80.5,
         122.75,
-        80.5
+        107.15562613430127
       ],
       "pixelSize": [
-        491,
-        322
+        1102,
+        962
       ],
-      "sha256": "8fb2b07bf0a48da1f5a0753061beef76e6c2bd634e726cdf8e37fd5c26102018",
-      "density": 4,
+      "sha256": "227ed1e83ce793e2974bd959e2d00a437c66a379bc8f342872644e93a314ab0c",
+      "density": 8.977596741344195,
       "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_02_v1.png",
-      "sourceSha256": "b3d2bb300b08bcc4a1d90c2e07aef62fe41640617ef54892315cc05f2bbc5d9f"
+      "source": "03_제작기록/r9_fix1/female_hair_02_front_isolated_r2_v1.png",
+      "sourceSha256": "217fd3fd044bfb837be3edb417cabb60efab5ed815d372d102188deef7fa3e2a",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false,
+      "fix1RepairedCap": true,
+      "cutout": {
+        "partialStrandAlphaPreserved": true,
+        "opaqueSourceRgbChanged": 0,
+        "haloSupportCoreThreshold": 128,
+        "nativeSupportBand": 2
+      },
+      "wholeCapRegistration": {
+        "uniformScale": 0.11138838475499092,
+        "left": 450.125,
+        "top": 80.5,
+        "sourceRatioPreserved": true
+      },
+      "actualFourColorReviewPending": true
     },
     "female_hair_02_back": {
-      "path": "03_hd_assets/hair/female_hair_02_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_02_back.png",
       "rect": [
-        422.75,
-        85.0,
-        228.75,
-        293.0
+        366.38172414746805,
+        80.38386296798224,
+        293.82968719749965,
+        397.0830913331672
       ],
       "pixelSize": [
-        915,
-        1172
+        996,
+        1346
       ],
-      "sha256": "4d1322d6df065c26743ed4c70f81084d8c1bea05fa43f70763f368d0ab916078",
-      "density": 4,
+      "sha256": "485ab9d469317dfeba79fdcd7af11c2753ad6fc9efe8835951ffb80d4b6ba744",
+      "density": 3.3897187500000014,
       "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_02_v1.png",
-      "sourceSha256": "b3d2bb300b08bcc4a1d90c2e07aef62fe41640617ef54892315cc05f2bbc5d9f"
+      "source": "03_제작기록/r9_fix1/female_hair_02_outpaint_v1.png",
+      "sourceSha256": "cfe88a642542c4fa21ffdc5f0b297bdd07591211c60793fa0308f826f3e24126",
+      "wholePortraitRegistration": {
+        "uniformScale": 0.2950097261019073,
+        "offset": [
+          352.8112767467803,
+          58.84815296254301
+        ],
+        "sameApprovedFaceTemplateScore": 0.9809759855270386
+      },
+      "fix1NaturalBackTips": true,
+      "sourceRgbCoreChanged": 0
     },
     "female_hair_03_front": {
-      "path": "03_hd_assets/hair/female_hair_03_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_03_front.png",
       "rect": [
         445.0,
         70.5,
@@ -108,14 +154,16 @@
         548,
         462
       ],
-      "sha256": "b37864b3f9da43a5bc4c84a0dc645903b04ac82048e6b4e211ce0398021b1c3f",
+      "sha256": "207e23c3f3a51176071c8dc937296393acea9bf04280e86898759abf10a3f355",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/female_hair_03_head.png",
-      "sourceSha256": "1280f06b72aa668862a6cc3555d17adefc1cc9614964dd6e4904f63da0a51edb"
+      "sourceSha256": "1280f06b72aa668862a6cc3555d17adefc1cc9614964dd6e4904f63da0a51edb",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_03_back": {
-      "path": "03_hd_assets/hair/female_hair_03_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_03_back.png",
       "rect": [
         445.5,
         89.0,
@@ -126,14 +174,16 @@
         543,
         481
       ],
-      "sha256": "b9b0a6f9cc60fcbb4a3c0c08a8d8d0776e504aa14c6d436dbb6cee7275285f8d",
+      "sha256": "3ddcae05eec69f00a1d07e076d2d2699a3b6721b717f3dcc6ce882073a0a8cf0",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/female_hair_03_head.png",
-      "sourceSha256": "1280f06b72aa668862a6cc3555d17adefc1cc9614964dd6e4904f63da0a51edb"
+      "sourceSha256": "1280f06b72aa668862a6cc3555d17adefc1cc9614964dd6e4904f63da0a51edb",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_04_front": {
-      "path": "03_제작기록/r9/hair_isolation_candidate/female_hair_04/female_hair_04_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_04_front_matted.png",
       "rect": [
         447.25,
         79.5,
@@ -144,7 +194,7 @@
         530,
         395
       ],
-      "sha256": "11066257a729bdb5ab84b1604814fa87b5d662a2c86b238706d11e2cd5db64a8",
+      "sha256": "9a7abacc31ca447d527bbc9113e71f0dadda738ad6d2df3a8194aa2f9357dacb",
       "source": "03_제작기록/r9/hair_isolation_candidate/female_hair_04_isolated_v1.png",
       "sourceSha256": "c7447d4ffe013f39b39535c8ce473b669156e0a0cf89a749235a17e96f25d30b",
       "density": 4,
@@ -157,10 +207,20 @@
           73.5
         ]
       },
-      "depth": "Continuous complete side/back waves behind actual face, neck, clothing. Only face-protected crown/fringe in front. No opaque hair RGB repainted by program."
+      "depth": "Continuous complete side/back waves behind actual face, neck, clothing. Only face-protected crown/fringe in front. No opaque hair RGB repainted by program.",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "female_hair_04_back": {
-      "path": "03_제작기록/r9/hair_isolation_candidate/female_hair_04/female_hair_04_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_04_back.png",
       "rect": [
         379.0,
         79.5,
@@ -171,7 +231,7 @@
         1084,
         1212
       ],
-      "sha256": "56a416cdf77fb90b8aefad9d1e29ff55fafee6caea6dad2816e6970c5ee570b6",
+      "sha256": "28138c53154f2708c982e906e7d1b2ab0b50b8fdfadd0e9665bef6444a14ee51",
       "source": "03_제작기록/r9/hair_isolation_candidate/female_hair_04_isolated_v1.png",
       "sourceSha256": "c7447d4ffe013f39b39535c8ce473b669156e0a0cf89a749235a17e96f25d30b",
       "density": 4,
@@ -184,46 +244,96 @@
           73.5
         ]
       },
-      "depth": "Continuous complete side/back waves behind actual face, neck, clothing. Only face-protected crown/fringe in front. No opaque hair RGB repainted by program."
+      "depth": "Continuous complete side/back waves behind actual face, neck, clothing. Only face-protected crown/fringe in front. No opaque hair RGB repainted by program.",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_05_front": {
-      "path": "03_hd_assets/hair/female_hair_05_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_05_front_clean_cap.png",
       "rect": [
-        454.0,
-        80.25,
-        116.75,
-        80.75
+        454.5,
+        80.5,
+        114,
+        83.38448707256047
       ],
       "pixelSize": [
-        467,
-        323
+        1199,
+        877
       ],
-      "sha256": "ea3d07d636f984b78c7fc943dd85c05fbe9a9d127bd52bed7b05f31703a6dfce",
-      "density": 4,
+      "sha256": "d656a9d2bd48f8e09b20733f9502483f396cca7812311ba3ae7a6c5bf4328416",
+      "density": 10.517543859649123,
       "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_05_v1.png",
-      "sourceSha256": "c46c5c605ff8ce9997de4e4e1fde1484d631ae066bde686344b7a0a4f544a7d4"
+      "source": "03_제작기록/r9_fix1/female_hair_05_front_isolated_r2_v1.png",
+      "sourceSha256": "40eb457f08b52904406af1ae82003e4b0a3fd6e74b4448a5ae141043d1b5914e",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false,
+      "maxAlphaComposite": true,
+      "fix1SameCompleteSourceMatte": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "noIndependentHairAxisDeformation": true,
+      "opaqueSourceHairRgbChanged": 0,
+      "cutout": {
+        "partialStrandAlphaPreserved": true,
+        "opaqueSourceRgbChanged": 0,
+        "haloSupportCoreThreshold": 128,
+        "nativeSupportBand": 3
+      },
+      "fix1RepairedCap": true,
+      "wholeCapRegistration": {
+        "uniformScale": 0.0950792326939116,
+        "centerX": 511.5,
+        "top": 80.5,
+        "sourceRatioPreserved": true
+      },
+      "actualArtReviewPassed": false
     },
     "female_hair_05_back": {
-      "path": "03_hd_assets/hair/female_hair_05_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_05_back_exact_source_matte.png",
       "rect": [
-        449.0,
-        82.0,
-        128.75,
-        170.5
+        448.71451355661884,
+        80.20095693779905,
+        128.8676236044657,
+        171.48325358851673
       ],
       "pixelSize": [
-        515,
-        682
+        505,
+        672
       ],
-      "sha256": "47471468c573d2320172efec0ad3917cfdd2f236755dc315157026dfacd12ad5",
-      "density": 4,
+      "sha256": "f2f18db5038ae925b4477ad635a4678f6bc61367006cfa37057b3eb75a901f3a",
+      "density": 3.91875,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/female_hair_05_v1.png",
-      "sourceSha256": "c46c5c605ff8ce9997de4e4e1fde1484d631ae066bde686344b7a0a4f544a7d4"
+      "sourceSha256": "c46c5c605ff8ce9997de4e4e1fde1484d631ae066bde686344b7a0a4f544a7d4",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "maxAlphaComposite": true,
+      "fix1SameCompleteSourceMatte": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.2551834130781499,
+        "offset": [
+          352,
+          58
+        ]
+      },
+      "noIndependentHairAxisDeformation": true,
+      "opaqueSourceHairRgbChanged": 0
     },
     "female_hair_06_front": {
-      "path": "03_제작기록/r9/ear_temple_correction_v2/female_hair_06_front_v3.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_06_front.png",
       "rect": [
         463.25,
         68.0,
@@ -234,7 +344,7 @@
         1022,
         1109
       ],
-      "sha256": "c1d5c21751e74a0f0bd0ecf58e2069ff13b4850d59fdc5d7ac2b63356e0b99b2",
+      "sha256": "b977fc9987c34342456dec6e065a0ae78fa7a32ed29edb48114b5fca88b85842",
       "source": "03_제작기록/r9/ear_temple_correction_v2/female_hair_06_isolated_v3.png",
       "sourceSha256": "e6795f8faa63680f6303200d925da7ecdc4e82893390628e37fd55727afbcafe",
       "density": 10.482051282051282,
@@ -247,10 +357,12 @@
         ]
       },
       "maxAlphaComposite": true,
-      "sourceRgbCoreChanged": 0
+      "sourceRgbCoreChanged": 0,
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_06_back": {
-      "path": "03_제작기록/r9/ear_temple_correction_v2/female_hair_06_back_v3.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_06_back.png",
       "rect": [
         464.39481409001957,
         69.33561643835617,
@@ -261,7 +373,7 @@
         1000,
         1048
       ],
-      "sha256": "2144ec6144e0e5c38986e795ff0ee93206160ee157591742c0bd37f989645b78",
+      "sha256": "667faaf87f5dda16afab8e27e35d55f9758ce06c5cebd15b0e4d4ea48a009e3d",
       "source": "03_제작기록/r9/ear_temple_correction_v2/female_hair_06_isolated_v3.png",
       "sourceSha256": "e6795f8faa63680f6303200d925da7ecdc4e82893390628e37fd55727afbcafe",
       "density": 10.482051282051282,
@@ -274,46 +386,77 @@
         ]
       },
       "maxAlphaComposite": true,
-      "sourceRgbCoreChanged": 0
+      "sourceRgbCoreChanged": 0,
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_07_front": {
-      "path": "03_hd_assets/hair/female_hair_07_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_07_front_repaired_cap.png",
+      "rect": [
+        455.0,
+        83.0,
+        113.0,
+        92.32640332640334
+      ],
+      "pixelSize": [
+        962,
+        786
+      ],
+      "sha256": "ca27c76497242e054297df49910b3e93f29e774c445ce0db0c619d46b560d08f",
+      "density": 8.513274336283185,
+      "nativeDetail": "entire_hair",
+      "source": "03_제작기록/r9_fix1/female_hair_07_front_isolated_r2_v1.png",
+      "sourceSha256": "7c294a316eecc66c2d0d7f53d7303c1f48ed90193fe7759529b5d612b81c46fe",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false,
+      "fix1RepairedCap": true,
+      "cutout": {
+        "partialStrandAlphaPreserved": true,
+        "opaqueSourceRgbChanged": 0,
+        "haloSupportCoreThreshold": 128,
+        "nativeSupportBand": 2
+      },
+      "wholeCapRegistration": {
+        "uniformScale": 0.11746361746361747,
+        "left": 455.0,
+        "top": 83.0,
+        "sourceRatioPreserved": true
+      },
+      "actualFourColorReviewPending": true
+    },
+    "female_hair_07_back": {
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_07_back_complete_crown.png",
       "rect": [
         461.25,
         64.0,
-        128.75,
-        97.0
+        166.25,
+        254.25
       ],
       "pixelSize": [
-        515,
-        388
+        665,
+        1017
       ],
-      "sha256": "f569769c76298eb09660baf0b25fc6175c13332a9db124e537165e7062ecbe7a",
+      "sha256": "f1228fbc96fc6621644e1b053764b86508bf467b42ea941284997a58d48c390e",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/female_hair_07_v2.png",
-      "sourceSha256": "dce8c1ed1d9c9dc7520e4793a880962e871aff73f7422e9ce4b82832042a98e7"
-    },
-    "female_hair_07_back": {
-      "path": "03_hd_assets/hair/female_hair_07_back.png",
-      "rect": [
-        462.0,
-        65.0,
-        165.5,
-        253.25
-      ],
-      "pixelSize": [
-        662,
-        1013
-      ],
-      "sha256": "21bb0f9d3d6de1d0fdc890f4dd953f8a565218e331e76c918cf10579cd54a4ca",
-      "density": 4,
-      "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_07_v2.png",
-      "sourceSha256": "dce8c1ed1d9c9dc7520e4793a880962e871aff73f7422e9ce4b82832042a98e7"
+      "sourceSha256": "dce8c1ed1d9c9dc7520e4793a880962e871aff73f7422e9ce4b82832042a98e7",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1WholeOldCrownMovedBehindFace": true,
+      "noHorizontalStrandClipping": true,
+      "noNewPainting": true
     },
     "female_hair_08_front": {
-      "path": "03_hd_assets/hair/female_hair_08_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_08_front_matted.png",
       "rect": [
         457.5,
         80.0,
@@ -324,14 +467,24 @@
         436,
         324
       ],
-      "sha256": "7abf8a8e7f771ef8ae1959641ce19bcc2a4c8909ae707b72e0e677def0d9ac7e",
+      "sha256": "4024d85a5cd34daf06d753522ddf4f9f7c48cf9710089dd4427cb9b48e905964",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/female_hair_08_v1.png",
-      "sourceSha256": "3ebeeab41827af2d6630ac02a9c663f89ec92fca5f6c3bf591e67a316f83543f"
+      "sourceSha256": "3ebeeab41827af2d6630ac02a9c663f89ec92fca5f6c3bf591e67a316f83543f",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "female_hair_08_back": {
-      "path": "03_hd_assets/hair/female_hair_08_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_08_back.png",
       "rect": [
         461.0,
         80.0,
@@ -342,14 +495,16 @@
         412,
         325
       ],
-      "sha256": "ceb6068e246b0c856af5830f3735b03b8eeb3987bf8c87239d90a50aad2d7e01",
+      "sha256": "1698b4ea6b9e9044dcbdb85ad9821db7f1226cf6ffe80f8db5589f9f2294c38c",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/female_hair_08_v1.png",
-      "sourceSha256": "3ebeeab41827af2d6630ac02a9c663f89ec92fca5f6c3bf591e67a316f83543f"
+      "sourceSha256": "3ebeeab41827af2d6630ac02a9c663f89ec92fca5f6c3bf591e67a316f83543f",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_09_front": {
-      "path": "03_hd_assets/hair/female_hair_09_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_09_front.png",
       "rect": [
         450.75,
         75.75,
@@ -364,10 +519,12 @@
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/female_hair_09_head.png",
-      "sourceSha256": "365aff8ccdaedd13ec6c79d7ba42d5d7c56055eb1592815013299327e87e3139"
+      "sourceSha256": "365aff8ccdaedd13ec6c79d7ba42d5d7c56055eb1592815013299327e87e3139",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_09_back": {
-      "path": "03_hd_assets/hair/female_hair_09_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_09_back.png",
       "rect": [
         466.0,
         89.0,
@@ -378,50 +535,100 @@
         380,
         252
       ],
-      "sha256": "b51a37ec337db37225baee78ca9246734d0401c4f6aeef4469e8ea548b28faec",
+      "sha256": "7cc9ba885f4c8cdb660d3b9bd0fc9ce314318385f80d4bf35785da67183822e2",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/female_hair_09_head.png",
-      "sourceSha256": "365aff8ccdaedd13ec6c79d7ba42d5d7c56055eb1592815013299327e87e3139"
+      "sourceSha256": "365aff8ccdaedd13ec6c79d7ba42d5d7c56055eb1592815013299327e87e3139",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "female_hair_10_front": {
-      "path": "03_hd_assets/hair/female_hair_10_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_10_front_clean_cap.png",
       "rect": [
-        441.0,
-        78.0,
-        142.25,
-        83.0
+        446.5,
+        79.5,
+        130,
+        94.69684030742954
       ],
       "pixelSize": [
-        569,
-        332
+        1171,
+        853
       ],
-      "sha256": "73d8968d6fe04c1c01b23e29e55ae417eec89a505d4fd1d2e3a03908c35277df",
-      "density": 4,
+      "sha256": "09133258b98188a6cf185f02cd444e9b14b23d3a1ad0d2571d49a8967d78ea66",
+      "density": 9.007692307692308,
       "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_10_v1.png",
-      "sourceSha256": "169bdd4d5565d7f71f2e05481a2c4d307fdac22f852c925cdaf5876f330ee74c"
+      "source": "03_제작기록/r9_fix1/female_hair_10_front_isolated_v1.png",
+      "sourceSha256": "e56a57864186f1154b9967b9868098561ca50c63dbc599653a7ec964900ecdea",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false,
+      "maxAlphaComposite": true,
+      "fix1SameCompleteSourceMatte": true,
+      "wholePortraitRegistration": {
+        "uniformScale": 0.2950097261019073,
+        "offset": [
+          352.5162670206784,
+          58.84815296254301
+        ]
+      },
+      "noIndependentHairAxisDeformation": true,
+      "opaqueSourceHairRgbChanged": 0,
+      "cutout": {
+        "removedHaloOrIsolatedPixels": 0,
+        "retainedOpaqueRgbUnchanged": true,
+        "coreComponentsKept": 1,
+        "nativeCutoutBandPixels": 2
+      },
+      "fix1RepairedCap": true,
+      "wholeCapRegistration": {
+        "uniformScale": 0.11101622544833475,
+        "centerX": 511.5,
+        "top": 79.5,
+        "sourceRatioPreserved": true
+      },
+      "actualArtReviewPassed": false
     },
     "female_hair_10_back": {
-      "path": "03_hd_assets/hair/female_hair_10_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/female_hair_10_back_exact_source_matte.png",
       "rect": [
-        422.75,
-        79.0,
-        228.75,
-        299.0
+        367.5617630518757,
+        78.6138046113708,
+        297.9598233629264,
+        397.96812051147293
       ],
       "pixelSize": [
-        915,
-        1196
+        1010,
+        1349
       ],
-      "sha256": "fb2fda34cd46a9e750479e0e08bd18dc76c2e1407500c240952c0b210b600abd",
-      "density": 4,
+      "sha256": "64006b74a8272bf245e9f90b1f88cb892bfa0252ac98a381e450e015c83fc74a",
+      "density": 3.3897187500000014,
       "nativeDetail": "entire_hair",
-      "source": "03_제작기록/r9/generated/female_hair_10_v1.png",
-      "sourceSha256": "169bdd4d5565d7f71f2e05481a2c4d307fdac22f852c925cdaf5876f330ee74c"
+      "source": "03_제작기록/r9_fix1/female_hair_10_outpaint_v1.png",
+      "sourceSha256": "a61fe6947f8552821b78edbf5519a32ce8a941e428cc64f1529e7e26f4d11908",
+      "wholePortraitRegistration": {
+        "uniformScale": 0.2950097261019073,
+        "offset": [
+          352.5162670206784,
+          58.84815296254301
+        ]
+      },
+      "fix1NaturalBackTips": true,
+      "sourceRgbCoreChanged": 0,
+      "maxAlphaComposite": true,
+      "fix1SameCompleteSourceMatte": true,
+      "noIndependentHairAxisDeformation": true,
+      "opaqueSourceHairRgbChanged": 0
     },
     "male_hair_01_front": {
-      "path": "03_hd_assets/hair/male_hair_01_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_01_front.png",
       "rect": [
         457.5,
         87.25,
@@ -436,10 +643,12 @@
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_01_head.png",
-      "sourceSha256": "0397de30f33906f9b1f2aa6993bc0346b97bd9619ddddda88a42c0df80521542"
+      "sourceSha256": "0397de30f33906f9b1f2aa6993bc0346b97bd9619ddddda88a42c0df80521542",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_01_back": {
-      "path": "03_hd_assets/hair/male_hair_01_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_01_back.png",
       "rect": [
         472.0,
         96.0,
@@ -450,14 +659,16 @@
         320,
         224
       ],
-      "sha256": "be384aa9f1c79c60577bae14f456ac980f0539ef13a2ab97bfbd4495fb873d5b",
+      "sha256": "9b6fafc9bb243d72ccf6415ba73b5bed2d19c46c37b39f887455872ecc5cf549",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_01_head.png",
-      "sourceSha256": "0397de30f33906f9b1f2aa6993bc0346b97bd9619ddddda88a42c0df80521542"
+      "sourceSha256": "0397de30f33906f9b1f2aa6993bc0346b97bd9619ddddda88a42c0df80521542",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_02_front": {
-      "path": "03_hd_assets/hair/male_hair_02_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_02_front.png",
       "rect": [
         460.0,
         86.5,
@@ -472,10 +683,12 @@
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_02_head.png",
-      "sourceSha256": "250142ab4f99c4c921507d861a71dfbff49f80c09924a71b82f719f53df0362d"
+      "sourceSha256": "250142ab4f99c4c921507d861a71dfbff49f80c09924a71b82f719f53df0362d",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_02_back": {
-      "path": "03_hd_assets/hair/male_hair_02_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_02_back.png",
       "rect": [
         472.0,
         96.0,
@@ -486,14 +699,16 @@
         320,
         224
       ],
-      "sha256": "f1c7b0559ba3521f6e4e068bd1d4ed4168e14ab7e19c4e21ab76bd9ac1fbd55c",
+      "sha256": "0616a497d928650fd88f87053764f1660ab341c2b3dd4f420d5580ff136787b5",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_02_head.png",
-      "sourceSha256": "250142ab4f99c4c921507d861a71dfbff49f80c09924a71b82f719f53df0362d"
+      "sourceSha256": "250142ab4f99c4c921507d861a71dfbff49f80c09924a71b82f719f53df0362d",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_03_front": {
-      "path": "03_hd_assets/hair/male_hair_03_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_03_front_matted.png",
       "rect": [
         458.75,
         82.0,
@@ -504,14 +719,24 @@
         423,
         333
       ],
-      "sha256": "3a783991a080e3acdd66280c9fecc879e4afd6cbdaf16af5d2af035253c7cb14",
+      "sha256": "29656a69b9558b3d9384823dd636218dcb93103bfa7613a71178513edbaa2249",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_03_v3.png",
-      "sourceSha256": "0d5a39003a4128b987d3fa09e8280e43043b864917a5d4f7647793ac170384c7"
+      "sourceSha256": "0d5a39003a4128b987d3fa09e8280e43043b864917a5d4f7647793ac170384c7",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "male_hair_03_back": {
-      "path": "03_hd_assets/hair/male_hair_03_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_03_back.png",
       "rect": [
         460.0,
         82.0,
@@ -522,14 +747,16 @@
         412,
         236
       ],
-      "sha256": "698fac7478f6c3ee9a420229daf270f8541b6ccc2ce9905956bb6b37050be2f8",
+      "sha256": "5ac3c1814bc71f490907d3651af51a98d0b32f478a21e9d7fdf1274a018c98f5",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_03_v3.png",
-      "sourceSha256": "0d5a39003a4128b987d3fa09e8280e43043b864917a5d4f7647793ac170384c7"
+      "sourceSha256": "0d5a39003a4128b987d3fa09e8280e43043b864917a5d4f7647793ac170384c7",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_04_front": {
-      "path": "03_hd_assets/hair/male_hair_04_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_04_front.png",
       "rect": [
         462.5,
         82.0,
@@ -540,14 +767,16 @@
         399,
         349
       ],
-      "sha256": "0da75fb0da135c76aa1a09a6a76d0b2b8f5ea3a42a329b8d895e4aa2c980ab27",
+      "sha256": "8b4b37fe19e69a9a924bab9ea2068baa17facb83db8b3038ab540893334880cd",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_04_v2.png",
-      "sourceSha256": "e273ec245faf188902a58b39bdd48b4a20db141e895adccd28bfb04b400db6a3"
+      "sourceSha256": "e273ec245faf188902a58b39bdd48b4a20db141e895adccd28bfb04b400db6a3",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_04_back": {
-      "path": "03_hd_assets/hair/male_hair_04_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_04_back.png",
       "rect": [
         464.0,
         84.0,
@@ -558,14 +787,16 @@
         388,
         228
       ],
-      "sha256": "a62cc2ab0532e0c681bee2b538d5a006b763274bfdeb3001ec24c7edcfaed7fa",
+      "sha256": "11459ae95ece641b1c330b5ad860324ae5f7fadfd65794818041b943dc4804ee",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_04_v2.png",
-      "sourceSha256": "e273ec245faf188902a58b39bdd48b4a20db141e895adccd28bfb04b400db6a3"
+      "sourceSha256": "e273ec245faf188902a58b39bdd48b4a20db141e895adccd28bfb04b400db6a3",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_05_front": {
-      "path": "03_hd_assets/hair/male_hair_05_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_05_front.png",
       "rect": [
         458.75,
         84.5,
@@ -580,10 +811,12 @@
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_05_head.png",
-      "sourceSha256": "0d86f3b6f36587cbe271e74f8ca9738197d39e9657b185a2313f2e26728e245a"
+      "sourceSha256": "0d86f3b6f36587cbe271e74f8ca9738197d39e9657b185a2313f2e26728e245a",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_05_back": {
-      "path": "03_hd_assets/hair/male_hair_05_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_05_back.png",
       "rect": [
         472.0,
         96.0,
@@ -594,14 +827,16 @@
         320,
         224
       ],
-      "sha256": "2ffb7a84c1a116e6d3110d009d7c14b458d45bfd594b90fbc517b3dd85c4ca7c",
+      "sha256": "5894ef58dd559ee81e46120b703378c6ef5194a789c05095f6528ed537b75202",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_05_head.png",
-      "sourceSha256": "0d86f3b6f36587cbe271e74f8ca9738197d39e9657b185a2313f2e26728e245a"
+      "sourceSha256": "0d86f3b6f36587cbe271e74f8ca9738197d39e9657b185a2313f2e26728e245a",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_06_front": {
-      "path": "03_hd_assets/hair/male_hair_06_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_06_front_matted.png",
       "rect": [
         465.5,
         85.25,
@@ -612,14 +847,24 @@
         374,
         284
       ],
-      "sha256": "0f99b3a26999419d5e0f3f5fe0d148223f4e5201a37544d46315bb1e98d48d4c",
+      "sha256": "862e4ab2851f33d8732d927c4497c92b76f9d8bc2d4c0cc2d1bb74055e29dc6d",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_06_v5.png",
-      "sourceSha256": "f294e7330b0fa1631ce13b89cfc0e1f24dd200d8b0ad71864ba699d39d10e1e2"
+      "sourceSha256": "f294e7330b0fa1631ce13b89cfc0e1f24dd200d8b0ad71864ba699d39d10e1e2",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "male_hair_06_back": {
-      "path": "03_hd_assets/hair/male_hair_06_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_06_back.png",
       "rect": [
         466.0,
         87.0,
@@ -630,14 +875,16 @@
         368,
         216
       ],
-      "sha256": "a22665f1f85cc86b68b9459ef68d1975fcc78bac9eb731bc445887f49d179495",
+      "sha256": "caa77b8c3410ccac1059d50943cf62f5059c8e5a006d6a4e1b34f733953602a7",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_06_v5.png",
-      "sourceSha256": "f294e7330b0fa1631ce13b89cfc0e1f24dd200d8b0ad71864ba699d39d10e1e2"
+      "sourceSha256": "f294e7330b0fa1631ce13b89cfc0e1f24dd200d8b0ad71864ba699d39d10e1e2",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_07_front": {
-      "path": "03_hd_assets/hair/male_hair_07_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_07_front.png",
       "rect": [
         464.5,
         82.75,
@@ -648,14 +895,16 @@
         380,
         321
       ],
-      "sha256": "cc0491b9b7bed3d3d5ed4773a2acbaa1d7cda013b27541e51fb5fc621644353c",
+      "sha256": "6ea861f30d3a1bb20a8eb53ee6c8e85744c80ac2e25c23d8c3d2dce7bb4b2148",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_07.png",
-      "sourceSha256": "f4819c0f6c81ef60f0c7e31ee10d7a4e7dad0b3653aaf9f0b6e3adc789cef156"
+      "sourceSha256": "f4819c0f6c81ef60f0c7e31ee10d7a4e7dad0b3653aaf9f0b6e3adc789cef156",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_07_back": {
-      "path": "03_hd_assets/hair/male_hair_07_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_07_back.png",
       "rect": [
         467.0,
         84.0,
@@ -666,14 +915,16 @@
         360,
         228
       ],
-      "sha256": "4ac4d72b558d7073694a7dcbfde4541bb81ed6239478dc9c43412e7cb7d65576",
+      "sha256": "0a134c883057d2ab96b9dfabdf7ad31d7ca36be993bc318c8163b8ca208d6427",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_07.png",
-      "sourceSha256": "f4819c0f6c81ef60f0c7e31ee10d7a4e7dad0b3653aaf9f0b6e3adc789cef156"
+      "sourceSha256": "f4819c0f6c81ef60f0c7e31ee10d7a4e7dad0b3653aaf9f0b6e3adc789cef156",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_08_front": {
-      "path": "03_hd_assets/hair/male_hair_08_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_08_front.png",
       "rect": [
         457.75,
         81.25,
@@ -684,14 +935,16 @@
         429,
         373
       ],
-      "sha256": "d27597497eedeb0fde0ebf25c5390ffdd7275a7b8e8ed1c5de7a13c6981dda75",
+      "sha256": "d5439666e7625f5cc5f6388d13fa00f8a27a2243e0fcd51344e6283e6d5dbaa5",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_08_head.png",
-      "sourceSha256": "f6b0bd6d14515944cf3f754e13aba63b53a2fabd4181a57cfe02df4432225393"
+      "sourceSha256": "f6b0bd6d14515944cf3f754e13aba63b53a2fabd4181a57cfe02df4432225393",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_08_back": {
-      "path": "03_hd_assets/hair/male_hair_08_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_08_back.png",
       "rect": [
         472.0,
         96.0,
@@ -702,14 +955,16 @@
         320,
         224
       ],
-      "sha256": "949e1fedfe9c2ddb9b1fb0b838a74a33c6689682683b8f0fbd5e55d929c9dc84",
+      "sha256": "c5782ee65defbdea1c912c63054a4f987676b78151582da9f2f65f9378a0b970",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/hd/source_cache/male_hair_08_head.png",
-      "sourceSha256": "f6b0bd6d14515944cf3f754e13aba63b53a2fabd4181a57cfe02df4432225393"
+      "sourceSha256": "f6b0bd6d14515944cf3f754e13aba63b53a2fabd4181a57cfe02df4432225393",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_09_front": {
-      "path": "03_제작기록/r9/ear_temple_correction_v2/male_hair_09_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_09_front.png",
       "rect": [
         454.49681528662427,
         83.45222929936308,
@@ -734,10 +989,12 @@
         "completeFaceTemplateScore": 0.9789511561393738
       },
       "sourceRgbCoreChanged": 0,
-      "nativeDetail": "ImageGen complete portrait hair with connected upper-ear side locks"
+      "nativeDetail": "ImageGen complete portrait hair with connected upper-ear side locks",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_09_back": {
-      "path": "03_제작기록/r9/ear_temple_correction_v2/male_hair_09_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_09_back.png",
       "rect": [
         460.547770700637,
         84.24840764331213,
@@ -748,7 +1005,7 @@
         642,
         510
       ],
-      "sha256": "1b98fab220eee0395f392ba3f2d6c1375707e3fa33d3c4a75d520c6b861c2880",
+      "sha256": "02564655f9a6e8ebabefc89aa25914f9bfecc8c973d81e5b053b341cb1d12367",
       "source": "03_제작기록/r9/ear_temple_correction_v2/male_hair_09_complete_paint.png",
       "sourceSha256": "6c3dada3d80e0c1c90e5044df6ff26ad806382dbf8515742a491db7a7fd1c02e",
       "density": 6.280000000000003,
@@ -762,10 +1019,12 @@
         "completeFaceTemplateScore": 0.9789511561393738
       },
       "sourceRgbCoreChanged": 0,
-      "nativeDetail": "ImageGen complete portrait hair with connected upper-ear side locks"
+      "nativeDetail": "ImageGen complete portrait hair with connected upper-ear side locks",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     },
     "male_hair_10_front": {
-      "path": "03_hd_assets/hair/male_hair_10_front.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_10_front_matted.png",
       "rect": [
         462.5,
         80.25,
@@ -776,14 +1035,24 @@
         398,
         338
       ],
-      "sha256": "b2c5fa8df747bc781b57a652e6d906b2d985d32d274abd9ab5cba3fb7b81a242",
+      "sha256": "d26e60ff7ef485a84abb0b65aa557df36173f0da84cef331e3ac426f7f21b090",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_10_v5.png",
-      "sourceSha256": "a0ebfc2a740eb2977bc3e3cf818e52fabde5d4d011ba03bbbdb917032279d670"
+      "sourceSha256": "a0ebfc2a740eb2977bc3e3cf818e52fabde5d4d011ba03bbbdb917032279d670",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true,
+      "fix1SourceSkinMatteRecovered": true,
+      "matteScopeLogical": [
+        474,
+        108,
+        552,
+        164
+      ],
+      "opaquePaintingByProgram": false
     },
     "male_hair_10_back": {
-      "path": "03_hd_assets/hair/male_hair_10_back.png",
+      "path": "03_제작기록/r9_fix1/hair_native/male_hair_10_back.png",
       "rect": [
         463.0,
         81.0,
@@ -794,16 +1063,22 @@
         396,
         240
       ],
-      "sha256": "ad74af7444ac440a538d8531c8824f8609ddf7d96063c98ed36f452d67978da6",
+      "sha256": "c32f06ac3fd6f0a02bc8da4ebccec700c651b4ab8247efbb52a193a46ddf1b0a",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/male_hair_10_v5.png",
-      "sourceSha256": "a0ebfc2a740eb2977bc3e3cf818e52fabde5d4d011ba03bbbdb917032279d670"
+      "sourceSha256": "a0ebfc2a740eb2977bc3e3cf818e52fabde5d4d011ba03bbbdb917032279d670",
+      "fix1FractionalCutoutBand": true,
+      "retainedSourceRgbUnchanged": true
     }
   },
   "registryKind": "native_source_registration",
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }

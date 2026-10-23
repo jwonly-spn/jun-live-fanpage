@@ -2,55 +2,55 @@
  "v": 1,
  "quality": 0.86,
  "files": {
-  "/kiugi/bg/background_01.png": {
-   "v": "5b1c8aa94f9e",
+  "/kiugi/bg/background_01.jpg": {
+   "v": "960c02637038",
    "file": "bg/background_01.webp",
-   "t": "c6ee80e1c97e"
+   "t": "3b205abc8116"
   },
-  "/kiugi/bg/background_02.png": {
-   "v": "a67981a869e3",
+  "/kiugi/bg/background_02.jpg": {
+   "v": "9f51008b59b7",
    "file": "bg/background_02.webp",
-   "t": "59f561429404"
+   "t": "ae67dedd2f9b"
   },
-  "/kiugi/bg/background_03.png": {
-   "v": "6c1554603d48",
+  "/kiugi/bg/background_03.jpg": {
+   "v": "efeb891eac8d",
    "file": "bg/background_03.webp",
-   "t": "5c4c86f4e89c"
+   "t": "1f237769513b"
   },
-  "/kiugi/bg/background_04.png": {
-   "v": "cb83e03893f2",
+  "/kiugi/bg/background_04.jpg": {
+   "v": "3c60eeca7ab6",
    "file": "bg/background_04.webp",
-   "t": "f975210c14e3"
+   "t": "cae2c150ab76"
   },
-  "/kiugi/bg/background_05.png": {
-   "v": "b5b44daef99c",
+  "/kiugi/bg/background_05.jpg": {
+   "v": "1b9f22f1b621",
    "file": "bg/background_05.webp",
-   "t": "c55d598f1402"
+   "t": "9ae99d586786"
   },
-  "/kiugi/bg/background_06.png": {
-   "v": "519c43c9e9eb",
+  "/kiugi/bg/background_06.jpg": {
+   "v": "ce770540012c",
    "file": "bg/background_06.webp",
-   "t": "3fdc7d06b501"
+   "t": "041c0f4e1439"
   },
-  "/kiugi/bg/background_07.png": {
-   "v": "a5fc0fd962bf",
+  "/kiugi/bg/background_07.jpg": {
+   "v": "9b3fc892afe3",
    "file": "bg/background_07.webp",
-   "t": "a8f2c5e122f9"
+   "t": "e4382a33ec47"
   },
-  "/kiugi/bg/background_08.png": {
-   "v": "48da93164fe8",
+  "/kiugi/bg/background_08.jpg": {
+   "v": "ff8d790e4246",
    "file": "bg/background_08.webp",
-   "t": "62d762a2c47d"
+   "t": "5cd5c02450fb"
   },
-  "/kiugi/bg/background_09.png": {
-   "v": "c6f3f9af12f4",
+  "/kiugi/bg/background_09.jpg": {
+   "v": "f31a4abd38e9",
    "file": "bg/background_09.webp",
-   "t": "6607dc93c7e3"
+   "t": "f969c191458c"
   },
-  "/kiugi/bg/background_10.png": {
-   "v": "58f24de7e345",
+  "/kiugi/bg/background_10.jpg": {
+   "v": "73c3e061b1aa",
    "file": "bg/background_10.webp",
-   "t": "0b0d858294d2"
+   "t": "023c87537761"
   }
  }
 }

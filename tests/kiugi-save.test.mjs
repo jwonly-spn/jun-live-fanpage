@@ -151,7 +151,7 @@ test('그림 주소: 사이트 BASE 아래(공통 배경은 kiugi/bg/), 화면 S
     const urls = planUrls(characterPlan(dj, { worn }, ex), B);
     const page = svgUrls(characterMarkup(c, dj, worn, 10, { seasonId: 's1', base: B, stage: null }));
     assert.deepEqual([...urls].sort(), [...page].sort(), JSON.stringify(worn));
-    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/(r9|bg)\/[a-z0-9_]+\.png\?v=[0-9a-f]{12}$/);
+    for (const u of urls) assert.match(u, /^\/jun-live-fanpage\/kiugi\/(r9|bg)\/[a-z0-9_]+\.(?:png|jpg)\?v=[0-9a-f]{12}$/);
   }
   assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/'), `${ART.dir}female_body.png?v=0123456789ab`);
   assert.equal(artUrl({ file: 'female_body.png', v: '0123456789ab' }, '/x'), `/x${ART.dir}female_body.png?v=0123456789ab`);
@@ -159,7 +159,7 @@ test('그림 주소: 사이트 BASE 아래(공통 배경은 kiugi/bg/), 화면 S
   // 배경은 맨 앞(잘라 채우기로 따로 그린다)
   const withBg = characterPlan(DJS[0], { worn: WORN[1] }, null);
   assert.equal(withBg.background.id, 'background_01');
-  assert.match(planUrls(withBg, B)[0], /\/kiugi\/bg\/background_01\.png/);
+  assert.match(planUrls(withBg, B)[0], /\/kiugi\/bg\/background_01\.jpg/);
   assert.equal(characterPlan(DJS[0], { worn: WORN[2] }, null).background, null);
 });
 
@@ -247,7 +247,7 @@ test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고
   assert.deepEqual(out.slice(8, 12), [0, 0, 0, 0], '투명은 그대로'); assert.equal(out[15], 128);
   assert.equal(tintedHair(doc, 'IMG', asset, 'blond', cache), c, '같은 머리·같은 색은 다시 만들지 않는다');
   assert.equal(tintKey(asset, 'blond'), `${ART.packageId}:tone-map-v1:female_hair_09_back:0123456789ab:blond`); assert.equal(hairColor.VERSION, 'tone-map-v1');
-  assert.match(ART.packageId, /^DJ_STYLE_20261018_REDO_R9$/); // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
+  assert.match(ART.packageId, /^DJ_STYLE_20261019_R9_FIX1$/); // 2026-10-23 R9 FIX1(같은 파일·id 규칙 — 그림만 고침) // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
   for (const k of ['black', 'pink', 'sky', 'silver']) tintedHair(doc, 'IMG', asset, k, cache);
   assert.equal(cache.size, TINT_CACHE_MAX); assert.equal(c.width, 0, '오래된 것부터 비운다(캔버스 메모리 돌려주기)');
   assert.deepEqual(Object.keys(PALETTE), ['black', 'brown', 'light', 'blond', 'pink', 'purple', 'sky', 'silver']);

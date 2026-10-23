@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "expectedGamePngCount": 336,
   "assets": [
     {
@@ -8,14 +8,14 @@
       "gender": "female",
       "body": "female",
       "path": "03_png_assets/body/female_body.png",
-      "sha256": "665e5df16853545aa28b08c0730b8e18638c2261f1f23d148962e9536750685d",
+      "sha256": "9c4135fa8c89620a9abc78ebcf6651e9c3316448bf6f621b2569e007ec027d27",
       "file": "03_png_assets/body/female_body.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
+        368,
         91,
-        660,
+        663,
         974
       ],
       "tintable": false,
@@ -46,7 +46,7 @@
       "id": "female_eyes_01",
       "category": "eyes",
       "path": "03_png_assets/eyes/female_eyes_01.png",
-      "sha256": "85ff8013bd5c875498fe090afc9a90207765dca5c51ff467780d61e10e8fcd01",
+      "sha256": "f40486f62baff882ac09e597e63adbcf20aae76361b247e005d7a60cd79b851a",
       "gender": "female",
       "body": "female",
       "number": 1,
@@ -56,9 +56,9 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
+        472,
+        146,
+        553,
         179
       ],
       "slot": "eyes",
@@ -74,7 +74,7 @@
       "id": "female_nose_01",
       "category": "nose",
       "path": "03_png_assets/nose/female_nose_01.png",
-      "sha256": "bc1400072ce6f3f2addbf6bac9cea3a720b4cf273c69d819b72922970ed0db7f",
+      "sha256": "dc6472ce133889ef7b26d38bdda3732783a0444d6d105ce72b6798e3b75794cc",
       "gender": "female",
       "body": "female",
       "number": 1,
@@ -84,10 +84,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        498,
-        173,
-        524,
-        189
+        504,
+        165,
+        522,
+        187
       ],
       "slot": "nose",
       "name": "소프트 노즈",
@@ -102,7 +102,7 @@
       "id": "female_mouth_01",
       "category": "mouth",
       "path": "03_png_assets/mouth/female_mouth_01.png",
-      "sha256": "338663b9e2dc42e853f076f728a5812d4f279088728f28c6b305f52cd4c3726e",
+      "sha256": "0da8f936da2bd4c3766a67efcf26cbbfdc4a1861ddd93b8718640a74ed17756c",
       "gender": "female",
       "body": "female",
       "number": 1,
@@ -112,10 +112,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        493,
-        189,
-        531,
-        208
+        492,
+        186,
+        533,
+        202
       ],
       "slot": "mouth",
       "name": "은은한 입매",
@@ -130,7 +130,7 @@
       "id": "female_hair_01_front",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_01_front.png",
-      "sha256": "309c54ef3bbf5e0d107482838c37e70e27506ccc24eb6d19447190d958c75874",
+      "sha256": "aca8651574458c3fdd29f80add9e48976d2736b8ab8ffc2911c9e43ba3a9da60",
       "gender": "female",
       "body": "female",
       "number": 1,
@@ -140,10 +140,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        453,
-        80,
-        571,
-        160
+        449,
+        81,
+        575,
+        179
       ],
       "slot": "hair",
       "name": "클린 스트레이트 롱",
@@ -171,7 +171,7 @@
       "id": "female_hair_01_back",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_01_back.png",
-      "sha256": "90561bc4177b93656cb641fd395c508407ee9d83f7cd1d5b8d4ad4fdccde6e1b",
+      "sha256": "8da6b25d62a69e42d73e6703003422dff2a18fbb2523c5d32882d2a1593d2430",
       "gender": "female",
       "body": "female",
       "number": 1,
@@ -181,10 +181,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        426,
-        83,
-        593,
-        347
+        418,
+        81,
+        606,
+        335
       ],
       "slot": "hair",
       "name": "클린 스트레이트 롱",
@@ -212,7 +212,7 @@
       "id": "female_hair_02_front",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_02_front.png",
-      "sha256": "b66e7583cb030659aae85a74f1e8a968a6d750d7ae1a1622f5199f5731ca0aa3",
+      "sha256": "5db77556bf2d89186dcd0f4083ebc0760d9baede87c7fd0fd493d0185660f01d",
       "gender": "female",
       "body": "female",
       "number": 2,
@@ -222,10 +222,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        450,
-        80,
-        572,
-        160
+        451,
+        81,
+        574,
+        188
       ],
       "slot": "head",
       "name": "소프트 S 웨이브 롱",
@@ -251,7 +251,7 @@
       "id": "female_hair_02_back",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_02_back.png",
-      "sha256": "bffabf152138e8f3a6fc95f8b54ea64e8d75f86a5c9249c44870fb8ad56edf3b",
+      "sha256": "1045cbcce41262c6f02dd391ee606108aecad480408bdad9632c7896be699fd7",
       "gender": "female",
       "body": "female",
       "number": 2,
@@ -261,10 +261,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        423,
-        86,
-        651,
-        378
+        366,
+        80,
+        660,
+        479
       ],
       "slot": "head",
       "name": "소프트 S 웨이브 롱",
@@ -290,7 +290,7 @@
       "id": "female_hair_03_front",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_03_front.png",
-      "sha256": "d66ace712d2796d1934f03b77ab56cb033ed0bb0805a2395f24e2e96fee8b833",
+      "sha256": "710d8eaebe6e25e9d8ef52e3eba31138d25c249d4928bfbce73d786e354389d8",
       "gender": "female",
       "body": "female",
       "number": 3,
@@ -300,10 +300,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        444,
-        69,
-        583,
-        185
+        445,
+        71,
+        582,
+        186
       ],
       "slot": "hair",
       "name": "클린 C컬 보브",
@@ -321,7 +321,7 @@
       "id": "female_hair_03_back",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_03_back.png",
-      "sha256": "765eeac20805e0e05e74616b3dd4088df8a9140cf5b3376d09fa38f8ea2e49a3",
+      "sha256": "09976c28ff8e2020b1d072e29b6d52beee8c7aaafb5d3ffd015be6069ee9ff61",
       "gender": "female",
       "body": "female",
       "number": 3,
@@ -331,7 +331,7 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        444,
+        446,
         89,
         582,
         210
@@ -354,15 +354,15 @@
       "gender": "male",
       "body": "male",
       "path": "03_png_assets/body/male_body.png",
-      "sha256": "1e88edf596cd3c93583cef948b720858a4770881c4e8ff3c0958db941ff3c3d0",
+      "sha256": "962e0d533e7c476353691f63507558e063c00e8b16851a47ba699fedd816f0b8",
       "file": "03_png_assets/body/male_body.png",
       "width": 1024,
       "height": 1024,
       "box": [
         374,
-        96,
-        655,
-        961
+        100,
+        653,
+        960
       ],
       "tintable": false,
       "slot": "body",
@@ -391,7 +391,7 @@
       "id": "male_eyes_01",
       "category": "eyes",
       "path": "03_png_assets/eyes/male_eyes_01.png",
-      "sha256": "0d387ad0ec03868d8d5d58fb854550d31f35bcab78d6512a8c6ef4f7de658330",
+      "sha256": "690ddbdd8585aef0d831e0d0bd95bb5bedb053eea704d209d927d5bcaac886b6",
       "gender": "male",
       "body": "male",
       "number": 1,
@@ -401,10 +401,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        178
+        472,
+        146,
+        553,
+        179
       ],
       "slot": "eyes",
       "name": "맑은 아몬드 눈",
@@ -419,7 +419,7 @@
       "id": "male_nose_01",
       "category": "nose",
       "path": "03_png_assets/nose/male_nose_01.png",
-      "sha256": "d462e8711ebb1817b9334ca9337d607493bbe255f61afd52d597773f46dc460f",
+      "sha256": "63c90c89b804336fd02574e0aa433a3307a4ecff4339a22f6b08b6888901eec6",
       "gender": "male",
       "body": "male",
       "number": 1,
@@ -429,9 +429,9 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        500,
-        171,
-        523,
+        504,
+        165,
+        522,
         186
       ],
       "slot": "nose",
@@ -447,7 +447,7 @@
       "id": "male_mouth_01",
       "category": "mouth",
       "path": "03_png_assets/mouth/male_mouth_01.png",
-      "sha256": "c24321450cb2695cc0d3b5f9f59b72f64a88ced9591dfe757da4ecaeaedbb4c6",
+      "sha256": "9203eef6096cffc6e78ba2d3ee7fd674d6b6933e3159eb563d9904101017f815",
       "gender": "male",
       "body": "male",
       "number": 1,
@@ -458,9 +458,9 @@
       "height": 1024,
       "box": [
         492,
-        186,
-        531,
-        207
+        185,
+        533,
+        200
       ],
       "slot": "mouth",
       "name": "은은한 입매",
@@ -475,7 +475,7 @@
       "id": "male_hair_01_front",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_01_front.png",
-      "sha256": "592e1d42d047e943bfd97c435bfe2568109e47658b1a18722bf1139d8720c91b",
+      "sha256": "a5a70df94fb4344e80f38a98af0d743221e2919a93aa53f026f1f76b694b5935",
       "gender": "male",
       "body": "male",
       "number": 1,
@@ -485,10 +485,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        456,
-        85,
-        568,
-        176
+        458,
+        88,
+        566,
+        175
       ],
       "slot": "hair",
       "name": "시스루 텍스처 댄디",
@@ -514,7 +514,7 @@
       "id": "male_hair_01_back",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_01_back.png",
-      "sha256": "e08dc9ab3d32071149b2fd557832f246dae58ed44f24a03f2a3c955040c68edf",
+      "sha256": "5588aaf911257588a207a6e58da992b399573e75b95929acd64486b86873f2df",
       "gender": "male",
       "body": "male",
       "number": 1,
@@ -553,7 +553,7 @@
       "id": "male_hair_02_front",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_02_front.png",
-      "sha256": "18df887ee483e3837000a6e327479c74bbdb8609db77917065842874e55c520d",
+      "sha256": "17f75c73a57633ba54655f981d25f18d8536b3940910f00ca02cb9ae3ea671e1",
       "gender": "male",
       "body": "male",
       "number": 2,
@@ -563,9 +563,9 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        459,
-        85,
-        567,
+        460,
+        87,
+        566,
         174
       ],
       "slot": "hair",
@@ -592,7 +592,7 @@
       "id": "male_hair_02_back",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_02_back.png",
-      "sha256": "2a299b89cf9e974f6ef5183881185c87d78326fa63c8a9d294a1077c84e10d38",
+      "sha256": "ce1f83b05c44ec51156d7bf83335c43442547103273fbd3dfec5a505af4560a7",
       "gender": "male",
       "body": "male",
       "number": 2,
@@ -631,7 +631,7 @@
       "id": "male_hair_03_front",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_03_front.png",
-      "sha256": "5d0e895ee1d01c0781aa96e3e86570ebb7d0fbb06ce40192aef50faa3da1ab10",
+      "sha256": "53d458f77c1c7df8a837b5767eb2dd9f5f1755ede760893cb289c30e3a8362c3",
       "gender": "male",
       "body": "male",
       "number": 3,
@@ -671,7 +671,7 @@
       "id": "male_hair_03_back",
       "category": "hair",
       "path": "03_png_assets/hair/male_hair_03_back.png",
-      "sha256": "0e3a8e62733bb1afad7fa961558097967452e7fb287d2c450356161a0d116e77",
+      "sha256": "6b4c1f4e6436e9491afece9d6889dac36396b8d439741380ac7b62a6a6584c5b",
       "gender": "male",
       "body": "male",
       "number": 3,
@@ -681,10 +681,10 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        461,
+        460,
         83,
-        562,
-        140
+        563,
+        141
       ],
       "slot": "hair",
       "name": "소프트 루즈 웨이브",
@@ -718,15 +718,15 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_01_smile.png",
-      "sha256": "81e019bfa4d36b7f9bf9521b2f903b651a7f24572b9b87e5850a7251a002a6eb",
+      "sha256": "2a44993bae86fb235172d5e1d67042a5230b6d89dbef49555c6cb2c8e1d6dea9",
       "expression": "smile",
       "file": "03_png_assets/eyes/female_eyes_01_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
+        473,
+        147,
+        553,
         179
       ],
       "fitBody": "female",
@@ -747,16 +747,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/female_mouth_01_smile.png",
-      "sha256": "5dd545950ae6737f36c882445fd9899d490fbea569a83d632066e3f45b1c37d9",
+      "sha256": "d75b3ff0a1dd4191ce51e3ddd83f9d43f9a31f2bd91ef9015990b8f3325a2575",
       "expression": "smile",
       "file": "03_png_assets/mouth/female_mouth_01_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
         493,
-        189,
-        531,
-        208
+        187,
+        534,
+        203
       ],
       "fitBody": "female",
       "pair": "male_mouth_01_smile",
@@ -776,16 +776,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_01_cry.png",
-      "sha256": "8e762caa2215ebb9b5672c8658d2c0ee6826990f6bec86c72b7dcce2e45e8ba9",
+      "sha256": "54ee971fa13dcab4a3a804956d6b1ee87d3129e008aa14889fd7a5695b591b2e",
       "expression": "cry",
       "file": "03_png_assets/eyes/female_eyes_01_cry.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
-        185
+        472,
+        146,
+        554,
+        179
       ],
       "fitBody": "female",
       "pair": "male_eyes_01_cry",
@@ -805,15 +805,15 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_02.png",
-      "sha256": "87d48f452a4ac3848951cc39e591f8212ce9d09a9920e0b083e7173e7d8667a1",
+      "sha256": "76925cbde7d044979a7b4c1ea96da82ddc7824c83edc18ba9b06b8b9cae15544",
       "expression": "normal",
       "file": "03_png_assets/eyes/female_eyes_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
+        472,
+        146,
+        554,
         179
       ],
       "fitBody": "female",
@@ -834,16 +834,16 @@
       "tintable": false,
       "slot": "nose",
       "path": "03_png_assets/nose/female_nose_02.png",
-      "sha256": "cb5a0d21303dd305cb868459fb5734e7620a89dbcaede7743410b0e423ad5c41",
+      "sha256": "70aa7a2d366b2ebff7cdc0b2b2b3d414fcd6fec3c13e9bb3114af4ea356882ab",
       "expression": "normal",
       "file": "03_png_assets/nose/female_nose_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        498,
-        173,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
       "fitBody": "female",
       "pair": "male_nose_02",
@@ -863,16 +863,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/female_mouth_02.png",
-      "sha256": "3d1cad34a690e6016a95929d7fb246b3035a920e605b8e7eb21da879955c057d",
+      "sha256": "709b9c0538c12c643a361b6578cf58189eaac0597035779323a8d8ec855ab4ae",
       "expression": "normal",
       "file": "03_png_assets/mouth/female_mouth_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
         493,
-        189,
-        531,
-        208
+        187,
+        534,
+        203
       ],
       "fitBody": "female",
       "pair": "male_mouth_02",
@@ -892,16 +892,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_01_smile.png",
-      "sha256": "ac858a9f0c2c4699f1ca591ebfbd7ca3e91109eacbc7049e1370160156eca0f6",
+      "sha256": "151e62165194788e5be849624119387892b890137578e811f34b69a9308078fb",
       "expression": "smile",
       "file": "03_png_assets/eyes/male_eyes_01_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        178
+        473,
+        147,
+        554,
+        179
       ],
       "fitBody": "male",
       "pair": "female_eyes_01_smile",
@@ -921,16 +921,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/male_mouth_01_smile.png",
-      "sha256": "4e435f6dc4c226a5127afcb558f24becefecdb7360941b05518860c052ecd74a",
+      "sha256": "9648e4ad5716298a2d2069e7a06f3869b1ace2281d763bdb2ee1cd8425a93728",
       "expression": "smile",
       "file": "03_png_assets/mouth/male_mouth_01_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        492,
-        186,
-        531,
-        207
+        493,
+        185,
+        534,
+        201
       ],
       "fitBody": "male",
       "pair": "female_mouth_01_smile",
@@ -950,16 +950,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_01_cry.png",
-      "sha256": "83cafd578fd38e147b1f186db653ab461f8c836b452383a3e46f479be790bb9d",
+      "sha256": "49648cd3c33feab9ef631d9f54d117b53b6b548dac557fb107a5cbadc5c0cdda",
       "expression": "cry",
       "file": "03_png_assets/eyes/male_eyes_01_cry.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        185
+        472,
+        146,
+        554,
+        179
       ],
       "fitBody": "male",
       "pair": "female_eyes_01_cry",
@@ -979,16 +979,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_02.png",
-      "sha256": "8c6c34faa26554ec7e0d5dd00abff4e6e05c45e996e7f33413e042e2b8a2185a",
+      "sha256": "d49d7689f963997d2c20470db7091cd542d473f80b1e94606e46462e9e9bc119",
       "expression": "normal",
       "file": "03_png_assets/eyes/male_eyes_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        178
+        472,
+        146,
+        554,
+        179
       ],
       "fitBody": "male",
       "pair": "female_eyes_02",
@@ -1008,14 +1008,14 @@
       "tintable": false,
       "slot": "nose",
       "path": "03_png_assets/nose/male_nose_02.png",
-      "sha256": "b76f293fb69a366da7ceefacba2a80aac1badcb153ddbee3b356aca2096bce57",
+      "sha256": "967aba62e9834578a1f8a41c29399ba1b9ce2b9476cee31b505600ebe7db9768",
       "expression": "normal",
       "file": "03_png_assets/nose/male_nose_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        500,
-        171,
+        505,
+        165,
         523,
         186
       ],
@@ -1037,16 +1037,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/male_mouth_02.png",
-      "sha256": "ca9ececa6560d2eec3b8ab3fe5ad709754e8d3da665288a1c14e02040eb1e048",
+      "sha256": "2646a54d1b5a39207845c7b0284d388de6376bb6a1bdd8ceaf86151464815812",
       "expression": "normal",
       "file": "03_png_assets/mouth/male_mouth_02.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        492,
-        186,
-        531,
-        207
+        493,
+        185,
+        534,
+        201
       ],
       "fitBody": "male",
       "pair": "female_mouth_02",
@@ -1067,16 +1067,16 @@
       "slot": "top",
       "pair": "top_01_female",
       "path": "03_png_assets/top/top_01_male.png",
-      "sha256": "4a91d9895a40c0ee42d0982ff9d1bf39c83d9be96a24fec0f48a7524f39eb599",
+      "sha256": "24da1249ad7d0c5857575438819c35576a28ef6a3e987688fe17f3a28be531d1",
       "bodyCutoutMask": "04_masks/top/top_01_male_bodycut.png",
       "file": "03_png_assets/top/top_01_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        363,
-        210,
-        664,
-        520
+        360,
+        203,
+        668,
+        586
       ],
       "styleGroup": "masculine",
       "halloween": false,
@@ -1101,16 +1101,16 @@
       "slot": "top",
       "pair": "top_01_male",
       "path": "03_png_assets/top/top_01_female.png",
-      "sha256": "027e956cc3044527dec95fc5fef9ad79b56f9a3885093a872679c7fd4b4fe589",
+      "sha256": "282324cfef7859803bd81b60149b97ca5836fd73ee894f7dc35ce8c91e9883d8",
       "bodyCutoutMask": "04_masks/top/top_01_female_bodycut.png",
       "file": "03_png_assets/top/top_01_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        378,
-        209,
-        651,
-        520
+        372,
+        218,
+        659,
+        575
       ],
       "styleGroup": "masculine",
       "halloween": false,
@@ -1137,16 +1137,16 @@
       "slot": "bottom",
       "pair": "bottom_01_female",
       "path": "03_png_assets/bottom/bottom_01_male.png",
-      "sha256": "c03df9253f3fcc66611fe5f9960cf62e4a0d5f14c2081203e8ffaf901a0e4326",
+      "sha256": "6a4103c1afa36d934a05974eca1aaf9a4314ab1d1c0a37148329e1e549420f49",
       "bodyCutoutMask": "04_masks/bottom/bottom_01_male_bodycut.png",
       "shoeOcclusionMask": "04_masks/bottom/bottom_01_male_shoeocclusion.png",
       "file": "03_png_assets/bottom/bottom_01_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        429,
-        412,
-        630,
+        424,
+        411,
+        636,
         911
       ],
       "styleGroup": "masculine",
@@ -1170,16 +1170,16 @@
       "slot": "bottom",
       "pair": "bottom_01_male",
       "path": "03_png_assets/bottom/bottom_01_female.png",
-      "sha256": "8a3699ea318f92d2f550077a3153fd7d6e67488bbe193b5998a63b551e116a12",
+      "sha256": "3b9289a1e5875c06562c284340abb8f4193023611e4fd4de7271a0c0cfc37824",
       "bodyCutoutMask": "04_masks/bottom/bottom_01_female_bodycut.png",
       "shoeOcclusionMask": "04_masks/bottom/bottom_01_female_shoeocclusion.png",
       "file": "03_png_assets/bottom/bottom_01_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        429,
-        382,
-        612,
+        426,
+        400,
+        615,
         914
       ],
       "styleGroup": "masculine",
@@ -1206,16 +1206,16 @@
       "slot": "top",
       "pair": "top_11_female",
       "path": "03_png_assets/top/top_11_male.png",
-      "sha256": "0458decd911d9e75676fbcb800c8ff72314a4a3ced694eae658e226fb49c9cdc",
+      "sha256": "92b964e34466712d3aa332bfdf9957b7de4afaa400be66becf07d5b4c775b1a4",
       "bodyCutoutMask": "04_masks/top/top_11_male_bodycut.png",
       "file": "03_png_assets/top/top_11_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        219,
-        655,
-        510
+        371,
+        203,
+        656,
+        584
       ],
       "styleGroup": "feminine",
       "halloween": false,
@@ -1240,16 +1240,16 @@
       "slot": "top",
       "pair": "top_11_male",
       "path": "03_png_assets/top/top_11_female.png",
-      "sha256": "0db0c11a33e704a3d3d2257777fd5400f8a4345ee87628ddbfd90db7d9874d06",
+      "sha256": "bf32eeb659f089ff02b629f771cde39f783494d5ae3941709533ff8aaa98851a",
       "bodyCutoutMask": "04_masks/top/top_11_female_bodycut.png",
       "file": "03_png_assets/top/top_11_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        384,
-        209,
-        658,
-        562
+        372,
+        218,
+        659,
+        574
       ],
       "styleGroup": "feminine",
       "halloween": false,
@@ -1276,16 +1276,16 @@
       "slot": "bottom",
       "pair": "bottom_11_female",
       "path": "03_png_assets/bottom/bottom_11_male.png",
-      "sha256": "cfd6a6d7ed7455ed2c983069e57acbc4eb7f7fa7cd55cf51fcb0d979d38205fc",
+      "sha256": "1ea9297cfcad7c15352155be27ec39ae34d43db55523a081ed0f52127d4792ba",
       "bodyCutoutMask": "04_masks/bottom/bottom_11_male_bodycut.png",
       "file": "03_png_assets/bottom/bottom_11_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        412,
-        412,
-        613,
-        560
+        406,
+        400,
+        621,
+        850
       ],
       "styleGroup": "feminine",
       "halloween": false,
@@ -1308,16 +1308,16 @@
       "slot": "bottom",
       "pair": "bottom_11_male",
       "path": "03_png_assets/bottom/bottom_11_female.png",
-      "sha256": "3b85cfff40a73d7877b6d84da2015f5b1c02bc8428cbd624f9f718b985a77ec4",
+      "sha256": "40329a517c2a27a9cd67de2c0f619792df0256b59db7a26a4dd77635efdfbc6d",
       "bodyCutoutMask": "04_masks/bottom/bottom_11_female_bodycut.png",
       "file": "03_png_assets/bottom/bottom_11_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        410,
-        384,
-        624,
-        791
+        405,
+        400,
+        632,
+        850
       ],
       "styleGroup": "feminine",
       "halloween": false,
@@ -1344,15 +1344,15 @@
       "slot": "shoe",
       "pair": "shoe_01_male",
       "path": "03_png_assets/shoe/shoe_01_female.png",
-      "sha256": "0609cbecfa6bb9da10028226ff997f674f8d364b6577ad2300427af3e6f3bbd0",
+      "sha256": "a5b66524c30daa303d1b47b86489dde0a80fc9539339fc562e367173e398a4b7",
       "bodyCutoutMask": "04_masks/shoe/shoe_01_female_bodycut.png",
       "file": "03_png_assets/shoe/shoe_01_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
         462,
-        865,
-        615,
+        845,
+        604,
         974
       ],
       "styleGroup": "masculine",
@@ -1377,15 +1377,15 @@
       "slot": "shoe",
       "pair": "shoe_01_female",
       "path": "03_png_assets/shoe/shoe_01_male.png",
-      "sha256": "43842641a999d5136a0dd851c0300328a9c281dea977fb237fe62c193865807b",
+      "sha256": "b75f02e8e18f4a008b1582b847683b79167cca8a3bbd191594a6ca4033efa418",
       "bodyCutoutMask": "04_masks/shoe/shoe_01_male_bodycut.png",
       "file": "03_png_assets/shoe/shoe_01_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        417,
-        864,
-        655,
+        413,
+        846,
+        662,
         960
       ],
       "styleGroup": "masculine",
@@ -1409,16 +1409,16 @@
       "slot": "shoe",
       "pair": "shoe_02_male",
       "path": "03_png_assets/shoe/shoe_02_female.png",
-      "sha256": "3b80995d37ba207935d47e724a1396f108d931955f9e4efe1389edbe034f8ccc",
+      "sha256": "f3b072526620f26d5920ac4c8e9d1b33ec661102a4c3a8bd8dd2a2e95acfaab1",
       "bodyCutoutMask": "04_masks/shoe/shoe_02_female_bodycut.png",
       "file": "03_png_assets/shoe/shoe_02_female.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        463,
-        864,
-        609,
-        976
+        467,
+        845,
+        601,
+        974
       ],
       "styleGroup": "masculine",
       "halloween": false,
@@ -1442,16 +1442,16 @@
       "slot": "shoe",
       "pair": "shoe_02_female",
       "path": "03_png_assets/shoe/shoe_02_male.png",
-      "sha256": "b117cf1e92841a17766d0880080bfe9a8fc29d82e86eb196ad1682965a16db5b",
+      "sha256": "06e7b991621467a49f42fed6a6f0a1c7c439edab5ab72fca74af1154e5629d78",
       "bodyCutoutMask": "04_masks/shoe/shoe_02_male_bodycut.png",
       "file": "03_png_assets/shoe/shoe_02_male.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        418,
-        864,
-        656,
-        959
+        411,
+        846,
+        666,
+        960
       ],
       "styleGroup": "masculine",
       "halloween": false,
@@ -1473,15 +1473,15 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_02_smile.png",
-      "sha256": "441e30f6eea259391c471eb2c8d81889529f69f89dab482e1eaef316e5563cbd",
+      "sha256": "cd62bf6182d7b86c53f26ecd76f3fc558472f4f6b07aef747e6f87ee886674d6",
       "expression": "smile",
       "file": "03_png_assets/eyes/female_eyes_02_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
+        473,
+        147,
+        554,
         179
       ],
       "fitBody": "female",
@@ -1502,16 +1502,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/female_mouth_02_smile.png",
-      "sha256": "c91a39ee9a5ee83a6bc1a216ff7e46cd25928fe9521aacd7c2ee7d7b87233fd4",
+      "sha256": "346e506cad37adb67cd2e48f1f7e565ed40b8574ec25c0ef8d69a026c990f8e8",
       "expression": "smile",
       "file": "03_png_assets/mouth/female_mouth_02_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
         493,
-        189,
-        531,
-        208
+        187,
+        534,
+        203
       ],
       "fitBody": "female",
       "pair": "male_mouth_02_smile",
@@ -1531,16 +1531,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_02_cry.png",
-      "sha256": "8cac0ec797f7326c32dbb7838cd7d779b982a8fc554c7380109597080c395f12",
+      "sha256": "2ba0c293774006a414b36aa22b2622fe781dd2247b1a1039b8d2ba8fadc13519",
       "expression": "cry",
       "file": "03_png_assets/eyes/female_eyes_02_cry.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        467,
-        139,
-        558,
-        185
+        472,
+        146,
+        554,
+        179
       ],
       "fitBody": "female",
       "pair": "male_eyes_02_cry",
@@ -1560,16 +1560,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_02_smile.png",
-      "sha256": "a3f6d99fbc794e50a38b03803e88f7caf8445fee772e060d5e5b93ff74f131cb",
+      "sha256": "5776373419290f00137900d5c6f57919cd37e8fd42b33c16e1f2a8d3600ad6b6",
       "expression": "smile",
       "file": "03_png_assets/eyes/male_eyes_02_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        178
+        473,
+        147,
+        554,
+        179
       ],
       "fitBody": "male",
       "pair": "female_eyes_02_smile",
@@ -1589,16 +1589,16 @@
       "tintable": false,
       "slot": "mouth",
       "path": "03_png_assets/mouth/male_mouth_02_smile.png",
-      "sha256": "a482ed61ad50befff578f3404cb95764e6b4be3efad315d05fb3e1d8f67fa6b2",
+      "sha256": "bd5099619cb4f7d1d1bc00a6cd72d17a974f030f517b048e594cb65024736819",
       "expression": "smile",
       "file": "03_png_assets/mouth/male_mouth_02_smile.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        492,
-        186,
-        531,
-        207
+        493,
+        185,
+        534,
+        201
       ],
       "fitBody": "male",
       "pair": "female_mouth_02_smile",
@@ -1618,16 +1618,16 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_02_cry.png",
-      "sha256": "ff407de55b30e409affac22f9a4b742573d7ddfa03dec0a009caacf7070192b3",
+      "sha256": "48ecc69d9dcae0fa8645826746898eb5cfeab552de7b7b40a31ab26f3e20d1e4",
       "expression": "cry",
       "file": "03_png_assets/eyes/male_eyes_02_cry.png",
       "width": 1024,
       "height": 1024,
       "box": [
-        477,
-        140,
-        550,
-        185
+        472,
+        146,
+        554,
+        179
       ],
       "fitBody": "male",
       "pair": "female_eyes_02_cry",
@@ -1655,11 +1655,11 @@
       "height": 1024,
       "box": [
         476,
-        226,
+        228,
         551,
-        292
+        291
       ],
-      "sha256": "06181656cc0b258a99fd17cc4ef6334591df72b5cc5f0d5898cc42f2eb7b6bf6",
+      "sha256": "60908a3adbb642fdebecc67b51c7b75a1412e70b879d11b943b34ad0b0c9d09b",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -1687,11 +1687,11 @@
       "height": 1024,
       "box": [
         489,
-        230,
+        233,
         542,
-        260
+        258
       ],
-      "sha256": "d8e115fa0d7aae7ee6af1ea0fd39847e50b898401af40455da04159b00fe77e9",
+      "sha256": "e6bf151459486e62cb2e0cc4c647379a2a14467a5b8792af5209c27754f2ec1b",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -1718,12 +1718,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
-        206,
+        462,
+        199,
         564,
-        270
+        266
       ],
-      "sha256": "d53c33532ae083b140f73f9791514f8a0b953c8c8b9191648b8bc2f2c7e68d61",
+      "sha256": "58fd2f29cdb9fc209b3151654faeb2146b997fccc090d220fd9a4d466aec1a86",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -1754,11 +1754,11 @@
       "height": 1024,
       "box": [
         460,
-        75,
+        74,
         566,
-        146
+        148
       ],
-      "sha256": "9ee277152d219174091db2dc0aecd5f80d68166dbc8c750f8c88914c148977a1",
+      "sha256": "9c06a0696165bd1aa85b600a0f5145d08de4c69c8525ed1ef2a6744a108fae34",
       "hairCutoutMask": "04_masks/hat/hat_01_male_haircut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -1785,12 +1785,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        451,
-        68,
+        452,
+        66,
         575,
-        144
+        147
       ],
-      "sha256": "c39ea1eada470c4989b8d76d2d1f3d171dd3feef8e3c74015ca0c86f44d9ba64",
+      "sha256": "72c00a61a4656ee64ccbad6bbd3f4e48eff08eb7973218107c48655b2407da8d",
       "hairCutoutMask": "04_masks/hat/hat_11_female_haircut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -1817,12 +1817,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        371,
-        211,
-        655,
-        493
+        369,
+        203,
+        658,
+        587
       ],
-      "sha256": "c7775cb6c645545799bfb32af3ef8a5128004dec4a736dc0f454e1c92ef7cdf5",
+      "sha256": "730a176b8143c82a0d6c6942cef5dc512c5c0733379c6fcca4142703f408c1b9",
       "bodyCutoutMask": "04_masks/top/top_02_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -1851,12 +1851,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        410,
-        209,
-        622,
-        442
+        372,
+        218,
+        660,
+        575
       ],
-      "sha256": "cee2dd2906158a385b715f98a76f7b7c6b0b3386e39813eb96e46a95aeb4adb6",
+      "sha256": "401e6bad4522c0b26f777ca20565603629011414a8a302ecbbb4801e8c96d97f",
       "bodyCutoutMask": "04_masks/top/top_02_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -1888,11 +1888,11 @@
       "height": 1024,
       "box": [
         373,
-        219,
-        651,
-        474
+        202,
+        652,
+        573
       ],
-      "sha256": "7ffc98afe180fb0eecd4927e47480f338a5400e159a7a06c8f37aa642a4acbcc",
+      "sha256": "a036fa5c90f22c155df14a22cdc017a2cd8b4cd82484b93a3d096473de623c53",
       "bodyCutoutMask": "04_masks/top/top_03_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -1921,12 +1921,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        369,
-        212,
-        656,
-        504
+        368,
+        203,
+        660,
+        586
       ],
-      "sha256": "95825395a93152ef4a46da6a41f06b15402bb456bdf8bf9d946d813a66fbf180",
+      "sha256": "4722852ce09d17512b406bb2d6148f91b39374c8b47dfe5987cc1471cdce457c",
       "bodyCutoutMask": "04_masks/top/top_04_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -1955,12 +1955,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        367,
-        210,
-        659,
-        476
+        365,
+        203,
+        662,
+        599
       ],
-      "sha256": "fe6c40611e8d6fa96149d1de4d845a98d5ef536f38c1c02934c55096a55af641",
+      "sha256": "683ced420401bdf5ec6b6a7f9c85272b46d6e41fb45a1bb650de6aa8af9b9f66",
       "bodyCutoutMask": "04_masks/top/top_05_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -1989,12 +1989,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        362,
-        210,
-        660,
-        511
+        363,
+        202,
+        659,
+        602
       ],
-      "sha256": "aca7c7602fde7596ed41c6df7670b585e6b0fe08c4139dfa4bb46d4867e946c8",
+      "sha256": "1590d0572e8da897fc61133ddef0c336e8962ae039c2a8688996b18a124c991d",
       "bodyCutoutMask": "04_masks/top/top_06_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2023,12 +2023,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        371,
-        219,
-        656,
-        470
+        364,
+        202,
+        659,
+        587
       ],
-      "sha256": "93805b90f138da2391129c1d94c1a59a949f7cef7e141fc1fe84af2000f52b8e",
+      "sha256": "bea3a92b4f65ad6c1cc0ef3fb3394184f3bf5544f4d30c592f9650abdccf4a8e",
       "bodyCutoutMask": "04_masks/top/top_07_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2057,12 +2057,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        369,
-        210,
-        659,
-        519
+        367,
+        203,
+        661,
+        584
       ],
-      "sha256": "7fca7a401209c47dee642066f2fae12f4d39fc194030bf247ab078f3d1adf99d",
+      "sha256": "974067aafc0924e63166c3a6d3f04c3d5dcdc5214933d9509573f51db17a8b52",
       "bodyCutoutMask": "04_masks/top/top_08_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2091,12 +2091,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        368,
-        210,
-        656,
-        519
+        365,
+        203,
+        658,
+        586
       ],
-      "sha256": "177aa6dacfd86c80b171dd176ee55c9c5a308c0ed72b0c8b067eb97f6db335de",
+      "sha256": "5a0ad0d51a9b8878d59560db65cf5b571cbd1fe9eb24bbf0b771b2db3ba3ea5f",
       "bodyCutoutMask": "04_masks/top/top_09_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2125,12 +2125,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        213,
-        645,
-        471
+        372,
+        203,
+        653,
+        584
       ],
-      "sha256": "2d8b19b06475aa47e6b526ba9f435b436935ea98a56ff3496cad60043483624f",
+      "sha256": "d9f8379169452ebe2b226d2c0b2d9dd4b4ef4f3b1b3f74ae2084948bd3b61f87",
       "bodyCutoutMask": "04_masks/top/top_10_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2159,12 +2159,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        219,
-        652,
-        464
+        371,
+        203,
+        655,
+        585
       ],
-      "sha256": "460c4ed798af7b041f3310f7a9b3463de31145652dd64b9dbf8da94aab15b237",
+      "sha256": "127e43d90adb1e678c812fad9c97498c114dc9407b5524ccb9d18c2f23b85403",
       "bodyCutoutMask": "04_masks/top/top_12_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2193,12 +2193,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        404,
-        209,
-        628,
-        424
+        372,
+        218,
+        659,
+        575
       ],
-      "sha256": "1ffd14f07a185996f5f8228b2bf8d7f9cf6098d270219173c18d09f95aeef1f3",
+      "sha256": "c4fd87b81badb620614ee90bed75566ac00d6084a0673355d08b491e08f0a919",
       "bodyCutoutMask": "04_masks/top/top_12_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2229,12 +2229,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        408,
-        209,
-        642,
-        482
+        372,
+        218,
+        660,
+        575
       ],
-      "sha256": "1c1985ea8a8728d7cea2e06d6d0a1b616cec9ca021c7b90d8d647d301d3e2c5d",
+      "sha256": "7c8371366a35ed027410c9adc1b718ac1dfec93d7e6a9f9976ddadc5c21971a5",
       "bodyCutoutMask": "04_masks/top/top_13_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2265,12 +2265,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        209,
-        658,
-        551
+        367,
+        218,
+        666,
+        580
       ],
-      "sha256": "d1cdda54a075ea717bb76206e050d3b5955c47fb94334cc539b71ffac0e2a97b",
+      "sha256": "36d6c7214e63d657e78cc9ec331fd07b88b7b934a0ace0ec264f45c5a8837db3",
       "bodyCutoutMask": "04_masks/top/top_14_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2301,12 +2301,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        407,
-        209,
-        658,
-        542
+        369,
+        218,
+        660,
+        575
       ],
-      "sha256": "95b534620eb75f51c8da78a65ae3893b6f5b693bddebd19e4a1f52573e040ca6",
+      "sha256": "9be76edbaa4604debb6c475a4e55482c5fe572dabc40e6bdef8a3cc33f40f705",
       "bodyCutoutMask": "04_masks/top/top_15_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2337,12 +2337,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        375,
-        209,
-        655,
-        554
+        374,
+        218,
+        659,
+        575
       ],
-      "sha256": "afc79a9c4a7014705c2a7093b874b4a8f2fe2e142e346b52652c4425378f6957",
+      "sha256": "558f5ff5bdedb54605f4ea15c97aec89bbb7e1e62e7b833ce4f1edad16080da1",
       "bodyCutoutMask": "04_masks/top/top_16_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2373,12 +2373,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        375,
-        209,
-        654,
-        563
+        373,
+        218,
+        659,
+        575
       ],
-      "sha256": "6323e5b93788c8e3d47ea9b481878e4be3090dba2818f965909606da05ef7dcf",
+      "sha256": "b67e61672758fd8314f3a970a1513ece443363b94f4d56fe392eeacb65ab0516",
       "bodyCutoutMask": "04_masks/top/top_17_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2409,12 +2409,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        394,
-        209,
-        634,
-        421
+        371,
+        195,
+        660,
+        576
       ],
-      "sha256": "598f2443a7eb7f240eb4d1aed0a2ab9b0e74b1eb33720eb4d8823a8810d895a5",
+      "sha256": "4470ecf1679edba9c6ef4dbebb3b595cfa73f24b466406bf51df58059dc144ad",
       "bodyCutoutMask": "04_masks/top/top_18_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2445,12 +2445,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        400,
-        209,
-        655,
-        528
+        372,
+        218,
+        661,
+        575
       ],
-      "sha256": "9d6c67ef90b1c2358beb819bc26491eaca82203eb6c8115161f00dc50b4acd48",
+      "sha256": "7864a89556351be91bf3175dba484beb1bad7db6912a512d4e25c6cd6da8f68c",
       "bodyCutoutMask": "04_masks/top/top_19_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2481,12 +2481,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        209,
-        658,
-        554
+        372,
+        218,
+        661,
+        576
       ],
-      "sha256": "c37a662c6eaa8c144a165137587cd70c0304b93998321e0df2d46d3a3dcde765",
+      "sha256": "066894c0591ecd41997489eaf33438d7d93ee33e1fc556105c9b9a03f9003aa3",
       "bodyCutoutMask": "04_masks/top/top_20_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2517,12 +2517,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        430,
-        412,
-        621,
-        898
+        427,
+        413,
+        622,
+        902
       ],
-      "sha256": "71817840bbf2a7a39f4d9332860c7b5a63160d8ec609ce859bdfa77758b7ab61",
+      "sha256": "3d1202021027adc21cd363a1435ee5690dc20bffd34d872ed42b99726cec4a6d",
       "shoeOcclusionMask": "04_masks/bottom/bottom_02_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_02_male_bodycut.png",
       "fitBody": "male",
@@ -2550,12 +2550,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        428,
-        378,
+        429,
+        400,
         610,
-        897
+        900
       ],
-      "sha256": "979e2aaef78538f58ce5dbaf80a9cfd7c1dc791b131feaa75a69e118d823da8a",
+      "sha256": "9123b351141c7b5561763c93dbd5c22d57a66ef6c6a38c68fff8840485d3b6b0",
       "shoeOcclusionMask": "04_masks/bottom/bottom_02_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_02_female_bodycut.png",
       "fitBody": "female",
@@ -2586,12 +2586,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        421,
-        412,
+        413,
+        411,
         622,
         896
       ],
-      "sha256": "e66160d21e08d2a683079d9b82eac22a1446f1560e56ebecf5449029d8169917",
+      "sha256": "87f8c8cc8b79cb44f3ae02e2d770d72153404834fc722fc24da1b5335b839d0c",
       "shoeOcclusionMask": "04_masks/bottom/bottom_03_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_03_male_bodycut.png",
       "fitBody": "male",
@@ -2619,12 +2619,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        428,
-        412,
-        620,
-        899
+        417,
+        416,
+        629,
+        902
       ],
-      "sha256": "1844dc9b0695e5ffdec6f06648632c12365c06de8ae065b4448d136d6c4e164f",
+      "sha256": "d5404b7e28e5e74e346e4b39c687b05b3259041a7dd3ab3a9f5d647ceb3c2e65",
       "shoeOcclusionMask": "04_masks/bottom/bottom_04_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_04_male_bodycut.png",
       "fitBody": "male",
@@ -2652,12 +2652,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        430,
-        412,
-        612,
-        901
+        427,
+        409,
+        620,
+        902
       ],
-      "sha256": "7f7014a3fd894dcf127668414f450736fc7d9dcc55ec16b1eb8ebaee7a95664b",
+      "sha256": "1c20b22fe0e71d00b333e2729e2e38d926ff501cd62c18a6cf7fb8cca5fb6f08",
       "bodyCutoutMask": "04_masks/bottom/bottom_05_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2685,12 +2685,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        425,
-        412,
-        630,
-        875
+        416,
+        416,
+        644,
+        902
       ],
-      "sha256": "2e4d5f391a976c60ed759e70aa8dda55e1d25e703adf058a02462a616063e674",
+      "sha256": "f520c4ca3b48260c61204961f993d9118b6dc898ad0678caf8de2ae96dc321fe",
       "shoeOcclusionMask": "04_masks/bottom/bottom_06_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_06_male_bodycut.png",
       "fitBody": "male",
@@ -2718,12 +2718,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        425,
+        419,
         412,
-        618,
-        878
+        627,
+        902
       ],
-      "sha256": "f028cc506b3093c6a332709d51873ebe019a0713f128292cb49959a3a8e4ecb4",
+      "sha256": "e5febaa81fbebbfe73954004c0e3678bc313f91cf857edb5766cca503402953f",
       "shoeOcclusionMask": "04_masks/bottom/bottom_07_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_07_male_bodycut.png",
       "fitBody": "male",
@@ -2751,12 +2751,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        420,
-        412,
-        612,
-        652
+        418,
+        400,
+        613,
+        850
       ],
-      "sha256": "0bb6da95521270b755960039a0f0945eb3683af5c0a75392c5b97f7882417efd",
+      "sha256": "d619ac54c471243d18cfb221e394ad0dabff68dc8936bda6d5614e0567208570",
       "bodyCutoutMask": "04_masks/bottom/bottom_08_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2783,12 +2783,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        425,
-        412,
-        602,
-        567
+        420,
+        400,
+        613,
+        850
       ],
-      "sha256": "b609a71a73563b7b5a45fcde37f2f835703918dc446cfd944325c1b60f37783a",
+      "sha256": "e12dff9c6546e6bc05aca0d4a527857fbc8e5a4e522b7f91c52677c1a42a2e04",
       "bodyCutoutMask": "04_masks/bottom/bottom_09_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2815,12 +2815,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        430,
-        412,
-        625,
-        904
+        427,
+        413,
+        631,
+        906
       ],
-      "sha256": "ea5570b81bb31623b4823784f962f02f4e77c86ef4ada6294432ffbbdae2bbc4",
+      "sha256": "6dd7b759b965f75be9eb3a2baecdba1f7cf2c6622b20118ec3b85450c630f850",
       "shoeOcclusionMask": "04_masks/bottom/bottom_10_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_10_male_bodycut.png",
       "fitBody": "male",
@@ -2848,12 +2848,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        412,
-        612,
-        563
+        405,
+        400,
+        625,
+        850
       ],
-      "sha256": "2837d1f38d9c833a2fe72eaa61915fd3359e580ed23c5b43559900678c32a425",
+      "sha256": "97a25fc98c5d8f2f5b2cbd20bae78692e5a6315064a196b242c409aa09d068d1",
       "bodyCutoutMask": "04_masks/bottom/bottom_12_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -2881,11 +2881,11 @@
       "height": 1024,
       "box": [
         412,
-        378,
-        619,
-        794
+        400,
+        627,
+        850
       ],
-      "sha256": "07f6944f3908a9ec6e5336d048de2b0dbf64fc4dd87b9e80e7d3c076c5d44d91",
+      "sha256": "5de94399381821104931053b5c320982d15b76932846ea7fbfe20d58f45750ce",
       "bodyCutoutMask": "04_masks/bottom/bottom_12_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2916,12 +2916,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        423,
-        378,
-        607,
-        863
+        429,
+        400,
+        610,
+        850
       ],
-      "sha256": "8595bbadaee8281a820a4ca662b9c80774533ad1035e74eeb0f1a5d1f972e1c1",
+      "sha256": "8d52f5fef5e1195aa2bdbcc93376d2d6689b3d8bb7722ade7bee8d4b36c928db",
       "bodyCutoutMask": "04_masks/bottom/bottom_13_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2952,12 +2952,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        425,
-        384,
-        608,
-        790
+        429,
+        400,
+        610,
+        850
       ],
-      "sha256": "09d57aceaa09c6e098d1638273336b2231506673e84ee3f6822b116458542e79",
+      "sha256": "4669da3c7e64fbe6be1badd44de814ebcdcb4e9d23b0845ec013ee477608ac95",
       "bodyCutoutMask": "04_masks/bottom/bottom_14_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -2988,12 +2988,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        425,
-        387,
-        607,
-        794
+        431,
+        400,
+        610,
+        850
       ],
-      "sha256": "9612f4008cc2df89b7afdcaf3d9a04cf987ddc5288cc59850b2e861cdf823e25",
+      "sha256": "32b0879ebe626c44d8c1a00432994128f09eda3d745f0c007296fd81e81192d3",
       "bodyCutoutMask": "04_masks/bottom/bottom_15_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3024,12 +3024,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        390,
-        377,
-        658,
-        869
+        388,
+        400,
+        660,
+        850
       ],
-      "sha256": "9dff65e59824bbde6be3e0ff9974c0ba93c89c761c9a63136f4866fdff9b8985",
+      "sha256": "9775827dc0fcfa5050b9179ce751f85adbdac65e8d0e93eb85a6d93c90630b5f",
       "bodyCutoutMask": "04_masks/bottom/bottom_16_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3060,11 +3060,11 @@
       "height": 1024,
       "box": [
         429,
-        382,
-        635,
-        759
+        400,
+        631,
+        850
       ],
-      "sha256": "a339d3c98cec24d8025ea4dda0ceb6b66b359c97b108a0c4c19adfca2eea2ea9",
+      "sha256": "2e1450fdc485e1547142a37dd819f02324fd68143a0154574db2b7a64b25ba70",
       "bodyCutoutMask": "04_masks/bottom/bottom_17_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3094,12 +3094,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        364,
-        382,
-        698,
-        805
+        358,
+        400,
+        699,
+        850
       ],
-      "sha256": "8613a5f9391570acad11a7d0f5c4314db202c4640813d7b1fbb1a2dcb779f224",
+      "sha256": "9f56608fd28928e6d21dc892d9151e8bab635ac18c27773257a7811ff0c94a0a",
       "bodyCutoutMask": "04_masks/bottom/bottom_18_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3129,12 +3129,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        410,
-        381,
-        624,
-        789
+        412,
+        400,
+        626,
+        850
       ],
-      "sha256": "356c0583bd1cbdb65b7ba3f3c59a11b5a5a03149ecdb2fda38b1498fd14540dc",
+      "sha256": "b891c49b6947d1f4d01dc11837b74cea292e827a81733e786835102d4cf5bd07",
       "bodyCutoutMask": "04_masks/bottom/bottom_19_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3165,12 +3165,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        429,
-        381,
-        622,
-        917
+        430,
+        400,
+        609,
+        915
       ],
-      "sha256": "f34ec85b667239919550c11922aeff2cfd1999d001121cfacaaa3f302cd50350",
+      "sha256": "37c3ab9cde35724f950b8ae5e733943bf2920f2b4cdcd96ae04b23fa93faddfd",
       "shoeOcclusionMask": "04_masks/bottom/bottom_20_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_20_female_bodycut.png",
       "fitBody": "female",
@@ -3201,12 +3201,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        417,
-        860,
-        656,
+        412,
+        846,
+        665,
         960
       ],
-      "sha256": "24b7bab63da5934feaa4719780220401824467ff064d2a0d1463cf1e2d1b7a69",
+      "sha256": "59a52029318502b10ce883c77b577d64c68ad00e8377bd52c8789257659e3418",
       "bodyCutoutMask": "04_masks/shoe/shoe_03_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3234,11 +3234,11 @@
       "height": 1024,
       "box": [
         413,
-        864,
-        657,
+        846,
+        663,
         960
       ],
-      "sha256": "38a49fc81a3136f4ec4e04d2a7baf7f49d7c668cce20681e5a09d7ec8c93a393",
+      "sha256": "ecafcad62e3383bdab4015e9154efe536c29ababec6bf5277a6e8d4b5a15ed7b",
       "bodyCutoutMask": "04_masks/shoe/shoe_04_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3265,12 +3265,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        415,
-        864,
-        659,
+        414,
+        846,
+        662,
         960
       ],
-      "sha256": "7680d027beb087a8ecce5e65cb5f1f8eb0015e4e35724247e6d8736d55fa75a0",
+      "sha256": "cd89c2653ab12e2173aa6d2365c63130e2ba39f519a437f697888ebc21ec90c0",
       "bodyCutoutMask": "04_masks/shoe/shoe_05_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3297,12 +3297,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        411,
-        857,
-        658,
+        409,
+        846,
+        666,
         960
       ],
-      "sha256": "71c101338c7838efe0be2b05482508df45b4aaee0ed06a40c40ffcc67dc5e32f",
+      "sha256": "cb216c060993e79ee15e33e2386df06fe50e65d192f25939a8e91b02553cb487",
       "bodyCutoutMask": "04_masks/shoe/shoe_06_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3329,12 +3329,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        416,
-        793,
-        660,
-        959
+        414,
+        804,
+        665,
+        960
       ],
-      "sha256": "fe87b97f0932bb675ae28f4253dedff191c3af4c09e703a3454accd6316b9369",
+      "sha256": "42330494c6f8b6452bd67737546c745c813b8e545ae050fa60708fec8670324b",
       "bodyCutoutMask": "04_masks/shoe/shoe_07_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3361,12 +3361,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        861,
-        657,
+        415,
+        846,
+        659,
         960
       ],
-      "sha256": "4fffb3eef2ed0e0601134d897248dfbca81ab6c79818f5848974345b2fb0e3a0",
+      "sha256": "bd6b426111d8847a2b437307b0927759e317b5bc84e1f1f76f669037d2d257d4",
       "bodyCutoutMask": "04_masks/shoe/shoe_08_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3393,12 +3393,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        415,
-        822,
-        657,
+        418,
+        837,
+        660,
         960
       ],
-      "sha256": "78a38e7cbde711e9b9a9b2d55f5c163ebe01c095625ead42225ef0db8e41032b",
+      "sha256": "6604e1a140f6947f92f4521f1f2e6e94968f1bfa0c7bfd62600571006bcd7c6b",
       "bodyCutoutMask": "04_masks/shoe/shoe_09_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3425,12 +3425,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        417,
-        864,
-        657,
+        414,
+        846,
+        661,
         960
       ],
-      "sha256": "dfe4939d5092eee6963f0df777be097dd26d62b275392acf36790939144adbd2",
+      "sha256": "87c32b07049d37350fc4151688040ec38074d79da302b99c4254dab0cc46f539",
       "bodyCutoutMask": "04_masks/shoe/shoe_10_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3457,12 +3457,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        420,
-        841,
-        655,
+        417,
+        846,
+        657,
         960
       ],
-      "sha256": "1814d8f93a1f9f1215591fac136da0548d5fbb3fc5e08f692e49633315dec0f9",
+      "sha256": "0f5aacb1e5a97841d3f0cec9d6b43a615dda4f120b4c75db6a51e8a9882467ac",
       "bodyCutoutMask": "04_masks/shoe/shoe_11_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3489,12 +3489,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        849,
-        610,
-        973
+        467,
+        845,
+        599,
+        974
       ],
-      "sha256": "e446d1c064b35744ac0db622bcbdf98ae47ac447baad64a0d5e3a259dbb6996c",
+      "sha256": "d28fa60ade7f10b6a421a895314d843440932fc409b7a5fcc662972ca13d58a3",
       "bodyCutoutMask": "04_masks/shoe/shoe_11_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3522,12 +3522,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        420,
-        864,
-        653,
+        412,
+        846,
+        661,
         960
       ],
-      "sha256": "dd5e9276be97f0aaa384be8737b1145360b27a18229074e37a7b04ca94922fa5",
+      "sha256": "68be6bb7a928296b11ac8d90c797a2ad1621e2f1ecae7b4067ccd5829f112d33",
       "bodyCutoutMask": "04_masks/shoe/shoe_12_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -3555,11 +3555,11 @@
       "height": 1024,
       "box": [
         466,
-        864,
-        614,
-        972
+        845,
+        602,
+        974
       ],
-      "sha256": "95e4c441a2812518d4553c6df4990f5e4d7d05a41f638a0636481a124c282eb3",
+      "sha256": "f35b6beedf57834956cf65cd3161532b1550ab14673646b0a3512f93be6d05b1",
       "bodyCutoutMask": "04_masks/shoe/shoe_12_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3588,11 +3588,11 @@
       "height": 1024,
       "box": [
         466,
-        864,
-        608,
-        972
+        845,
+        600,
+        974
       ],
-      "sha256": "635ff03d2790e6c83d5ae0200f589423d1a93312b0cc3036b5c0cdf4d04b214b",
+      "sha256": "5e4b6b67f133037fffa54f9256632f71121c915ffe6139947101f6a1d21fdede",
       "bodyCutoutMask": "04_masks/shoe/shoe_13_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3620,12 +3620,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        864,
-        611,
-        973
+        465,
+        845,
+        601,
+        974
       ],
-      "sha256": "b5daef1c8bf79f2129bf5d8c1752776e10acec99e9a59f33c50a68865e61ab32",
+      "sha256": "dd711243967f45f5d6ae85f37ea49d75a4784b5a23aa23481936c6c9adb07be0",
       "bodyCutoutMask": "04_masks/shoe/shoe_14_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3653,12 +3653,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        468,
-        849,
-        617,
-        972
+        466,
+        845,
+        601,
+        974
       ],
-      "sha256": "b3bcf537f365ae1ba2f6449181455e65213439fcb3ab32c807699a28a952632d",
+      "sha256": "708881550b9627fbc8a52d37574dd88296f0486fe3c676894cf431773cf7b73a",
       "bodyCutoutMask": "04_masks/shoe/shoe_15_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3686,12 +3686,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        855,
-        612,
-        973
+        465,
+        845,
+        600,
+        974
       ],
-      "sha256": "36c21254ff3e31d22ae633d491d05b44545136e223359282f4faf417a822e420",
+      "sha256": "3d13fc29368a34bf21e3aefb08026833bfca08a8c3903d4566bc8a2ced0e8a36",
       "bodyCutoutMask": "04_masks/shoe/shoe_16_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3720,11 +3720,11 @@
       "height": 1024,
       "box": [
         454,
-        692,
-        602,
-        975
+        725,
+        605,
+        974
       ],
-      "sha256": "17c94365984f74a3b87d99809307339f5b687517c7f4347e6227743cab81a87f",
+      "sha256": "1ca0e6c1c1afac26daf5e1d0378b51a00bddf9fb96b4da7a73bd0f45eb96d2a3",
       "bodyCutoutMask": "04_masks/shoe/shoe_17_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3754,12 +3754,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        860,
-        613,
-        973
+        465,
+        845,
+        601,
+        974
       ],
-      "sha256": "262fd3fc0a01a840faded4935ccbc695dffd326d5ecc9c53ea5c978bd7c0cd0c",
+      "sha256": "230af60bc6691d12ab8b62f3b43f2ae00dbb7658c34dd340ce632dadb6677b18",
       "bodyCutoutMask": "04_masks/shoe/shoe_18_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3788,11 +3788,11 @@
       "height": 1024,
       "box": [
         465,
-        864,
-        612,
-        972
+        845,
+        602,
+        974
       ],
-      "sha256": "6add000d040d34440f05ba5c96bf9e7c0f38d24107a14b1e9514e4aa2f1c67aa",
+      "sha256": "54e4319ab2ff861ee14889b559c3fd589533d2646be1fb90fb397bce666f52ae",
       "bodyCutoutMask": "04_masks/shoe/shoe_19_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3820,12 +3820,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        463,
-        828,
-        609,
-        973
+        468,
+        845,
+        600,
+        974
       ],
-      "sha256": "0c73e952c5dc852ac5dd7e661a2a001d3ac4217a1b2adeaebfde0bcc32ed1f99",
+      "sha256": "ae8220d1f3a218e8af5ad04e5d53e1e21ded65838083dd41f6456bee3d477cd9",
       "bodyCutoutMask": "04_masks/shoe/shoe_20_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -3853,12 +3853,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        375,
-        216,
-        654,
-        902
+        372,
+        195,
+        657,
+        900
       ],
-      "sha256": "f6bf014bcac19e3625f28c695d23466c90eab4661a3439040c799db7cacd47c4",
+      "sha256": "756d48bca952033a6256fe9335bfe261898d3015783270f56626f850a9475477",
       "shoeOcclusionMask": "04_masks/outfit/outfit_01_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_01_male_bodycut.png",
       "fitBody": "male",
@@ -3888,12 +3888,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        209,
-        658,
+        374,
+        195,
+        662,
         904
       ],
-      "sha256": "c83521c09b87529e68787bfffc12afb3156b3bd0a6a08b34cff85fc967c04103",
+      "sha256": "1fcde0a8189785d2fbd0119e760c28d6fa6c598c3b4e552f870a190fca3226cb",
       "shoeOcclusionMask": "04_masks/outfit/outfit_01_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_01_female_bodycut.png",
       "fitBody": "female",
@@ -3925,12 +3925,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        377,
-        215,
-        648,
-        901
+        376,
+        195,
+        650,
+        895
       ],
-      "sha256": "1375c948afd9ba447f6f652ef36f0e0b660b9ea4f397eeb4f61421eb64e33145",
+      "sha256": "44bf8606e1e6d3c5091825b1376d01c9bb3fcf121a97d45bbb1ec78d2822ec71",
       "shoeOcclusionMask": "04_masks/outfit/outfit_02_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_02_male_bodycut.png",
       "fitBody": "male",
@@ -3960,12 +3960,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        380,
-        209,
-        658,
-        901
+        373,
+        195,
+        663,
+        897
       ],
-      "sha256": "204760406714c2732e04450c0093ce76b2619b0d0732eca09e6dbbb1ccd4360c",
+      "sha256": "c51f7fa915088870ba06aee5fb8c160b7629c56ba48e776720d2dd75613b2f87",
       "shoeOcclusionMask": "04_masks/outfit/outfit_02_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_02_female_bodycut.png",
       "fitBody": "female",
@@ -3997,12 +3997,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        370,
-        214,
-        653,
-        902
+        373,
+        195,
+        654,
+        901
       ],
-      "sha256": "774dc0383e494c95cf1dc02194ad41eec483812cbada52b44586dce91c2cf937",
+      "sha256": "3627e3fd376559850e6ca937357257a09378809d9f7558150e1838bab1912f23",
       "shoeOcclusionMask": "04_masks/outfit/outfit_03_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_03_male_bodycut.png",
       "fitBody": "male",
@@ -4032,12 +4032,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        372,
-        219,
-        654,
-        902
+        371,
+        195,
+        657,
+        901
       ],
-      "sha256": "fbe6edb910e194a6e0ea935e334aeaa4416bbc46297a44b0e789a30d725e7bfc",
+      "sha256": "d69494e6af433a792d3aa69f50a3a4069ccbf7c0b8a514e610f5b68314ec13b9",
       "shoeOcclusionMask": "04_masks/outfit/outfit_04_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_04_male_bodycut.png",
       "fitBody": "male",
@@ -4067,12 +4067,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        366,
-        205,
-        664,
-        902
+        365,
+        195,
+        667,
+        898
       ],
-      "sha256": "3db56e6ec06cd2f28cf43fe6156eab5d6bc1766a73cd62d2adb34ea33947b911",
+      "sha256": "2125163d1b450247524e5a76940b82e92bc5bc5f0137bcdb3e060a1b8de6945f",
       "shoeOcclusionMask": "04_masks/outfit/outfit_05_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_05_male_bodycut.png",
       "fitBody": "male",
@@ -4102,12 +4102,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        363,
-        205,
-        661,
-        902
+        358,
+        195,
+        668,
+        897
       ],
-      "sha256": "cac52c6ec999617b6753a2589dffc22c3489ac3c21e0ce683b82db25dfe9401f",
+      "sha256": "4be6f4f9e3623d2a429ef88bd1997be85ef6de84c044f7ce189e503ebb09e60d",
       "shoeOcclusionMask": "04_masks/outfit/outfit_06_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_06_male_bodycut.png",
       "fitBody": "male",
@@ -4137,12 +4137,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        366,
-        218,
+        364,
+        195,
         681,
-        620
+        889
       ],
-      "sha256": "684e02e501ee1d05f4e4d6bddfd53a5520407a95375fbd7d7ea71183b783e8dd",
+      "sha256": "aeff484dac7a7aa4fdb980611efeb5d56c630afa8dca4ab337717f86210178e4",
       "bodyCutoutMask": "04_masks/outfit/outfit_07_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4173,12 +4173,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        368,
-        205,
-        659,
-        898
+        366,
+        195,
+        661,
+        889
       ],
-      "sha256": "c5190371bd792a2331dde1f8a1ec331d459f79cd0c43053f94d7561098de96e9",
+      "sha256": "f71965a2d7b611e152fe4878297ed3710193bb31bd7b7b65f63fa78b5a27a64e",
       "shoeOcclusionMask": "04_masks/outfit/outfit_08_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_08_male_bodycut.png",
       "fitBody": "male",
@@ -4208,12 +4208,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        377,
-        218,
-        647,
-        676
+        375,
+        195,
+        652,
+        887
       ],
-      "sha256": "adf9fc29e4c6221933d6e5f2ef72a53eea94365d5a15418c4251ef0a16eb829d",
+      "sha256": "3bb561e6ad03573ba09992946e9bb6fabe577dd9313b591f28bd666097ec6118",
       "bodyCutoutMask": "04_masks/outfit/outfit_09_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4244,12 +4244,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        376,
-        218,
-        649,
-        689
+        372,
+        195,
+        655,
+        888
       ],
-      "sha256": "4c688e416d2263623212a0e6c39b42c797e926a88b87c984b2bf7db6d30dda43",
+      "sha256": "8e33da5880743969b333eb4ab015f757640bb4454f477fa15cd20914eae89d0a",
       "bodyCutoutMask": "04_masks/outfit/outfit_10_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4280,12 +4280,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        373,
-        219,
-        652,
-        554
+        370,
+        195,
+        657,
+        887
       ],
-      "sha256": "57535e354e07b58a2968355928a411f1489f3098f7db5614a02bbb43604eb26a",
+      "sha256": "6111a7f809fc63cc5657eee704a3de0a728415d23add71b309d8c4b336ed0e34",
       "bodyCutoutMask": "04_masks/outfit/outfit_11_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4314,12 +4314,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        382,
-        209,
-        654,
-        736
+        373,
+        195,
+        662,
+        897
       ],
-      "sha256": "215c1c93ade6c806921e81bb3ea6e139b55625c73b2c8c29f47e606b56cc26fb",
+      "sha256": "05b39dad8bec205005ac69e7f2cd964a298ea8a362f68299ce14fad8451d3da4",
       "bodyCutoutMask": "04_masks/outfit/outfit_11_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4350,12 +4350,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        367,
-        219,
-        659,
-        572
+        364,
+        195,
+        664,
+        888
       ],
-      "sha256": "7cbbb2d4afa0df54f47a1db7b0d5f556f89c5cfdd57dd548f6b064bb44ea23e7",
+      "sha256": "cc51d9e3fc6af43a602b326ab0198881cee7acdf385d02bd097573bd9e3a547c",
       "bodyCutoutMask": "04_masks/outfit/outfit_12_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4384,12 +4384,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        209,
-        658,
-        736
+        373,
+        195,
+        662,
+        897
       ],
-      "sha256": "a13601c30ff0ebed0f0df116a869755a1f0a81243cff958c03d10091c04cfe8c",
+      "sha256": "a28ac6e0798b11d4cfde8c1d64c72174ec8bd779c310836fa75b32e1696a8166",
       "bodyCutoutMask": "04_masks/outfit/outfit_12_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4420,12 +4420,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        209,
-        658,
-        736
+        375,
+        195,
+        660,
+        898
       ],
-      "sha256": "0e0912fd9c06803e6aee772c9759c403845be48b14f2caae988db41a442b1009",
+      "sha256": "dbdfb3443e4c778516512c3ba3732a58f9a66513ed04ad7f5140cac20ae3805c",
       "bodyCutoutMask": "04_masks/outfit/outfit_13_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4456,12 +4456,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        404,
-        209,
-        658,
-        792
+        372,
+        195,
+        664,
+        898
       ],
-      "sha256": "63aacf06a1e23f42ca22f600d41a1332f9de876904b99e40ef4ffff542f79702",
+      "sha256": "593b57e246167c26cc5ff9320a26aaa7702348beaa25495805ab05b0bca90d39",
       "bodyCutoutMask": "04_masks/outfit/outfit_14_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4492,12 +4492,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        209,
-        658,
-        903
+        372,
+        195,
+        662,
+        898
       ],
-      "sha256": "a26edf446ca10b74b4f64b63d25964ccc633778b2a91ab193b0192708910fdd0",
+      "sha256": "ab34386812b83552358a3e865b6a9f1d85e640beae52a263afdb446eaa60b1bf",
       "shoeOcclusionMask": "04_masks/outfit/outfit_15_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_15_female_bodycut.png",
       "fitBody": "female",
@@ -4529,12 +4529,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        392,
-        209,
-        658,
-        736
+        372,
+        195,
+        663,
+        898
       ],
-      "sha256": "11e2e8adc913f208470da370d9800036d9ad1df8ff3f502103f3f021b7301119",
+      "sha256": "66dbe9cafbcf5ece573c17729edffb5f33213ae754d0e5de9fce3200dce96c03",
       "bodyCutoutMask": "04_masks/outfit/outfit_16_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4565,12 +4565,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        365,
-        209,
-        668,
-        794
+        359,
+        195,
+        669,
+        897
       ],
-      "sha256": "854d5831af0348faf53ec4fd6cf9fa693c71d08c4de21ecba008db2be627e229",
+      "sha256": "5c4185308bf7045770df1276cdb9e51481b3fc7d7c91c5ecde89460a32390f9a",
       "bodyCutoutMask": "04_masks/outfit/outfit_17_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4601,12 +4601,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        394,
-        209,
-        654,
-        789
+        373,
+        195,
+        663,
+        896
       ],
-      "sha256": "344140b987a97afc91a91fcf90338b66efe157883bdd72082af36ed4cf8a4cb3",
+      "sha256": "d9ae2a1493db6a0838bba0ae30c2d95523b83b24148dda0b2707680ecf28a10b",
       "bodyCutoutMask": "04_masks/outfit/outfit_18_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4637,12 +4637,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        406,
-        209,
-        659,
-        790
+        368,
+        195,
+        664,
+        896
       ],
-      "sha256": "40ce94d7c636fff72844905130f1dac3868f9721a97256ffb65386ef0ae03d67",
+      "sha256": "d3eb88c42788f6579c5f125b07d848070cd0148d3751d667c97fdfca5f2c4dad",
       "bodyCutoutMask": "04_masks/outfit/outfit_19_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4673,12 +4673,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        392,
-        209,
-        658,
-        736
+        372,
+        195,
+        662,
+        898
       ],
-      "sha256": "bbfe3ca82bf22a5b9d834537170ea1ea943fa165d7c993219b60cbe7733872f4",
+      "sha256": "ac305bd11c1ede83a4edea8724c91acdacc9496c8746fbb27c1991fa41042889",
       "bodyCutoutMask": "04_masks/outfit/outfit_20_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4709,12 +4709,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        414,
-        209,
-        654,
-        528
+        372,
+        218,
+        660,
+        575
       ],
-      "sha256": "c4e032f0b4044cba1470e26cb9266501b9a4ff28b9de530cb8b36e5748b794b0",
+      "sha256": "d4b525c5b007fc1b9a15d5170547e7214273f4472d36022e294a646c958c51be",
       "bodyCutoutMask": "04_masks/top/top_03_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4745,12 +4745,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        384,
-        209,
-        655,
-        529
+        371,
+        195,
+        659,
+        575
       ],
-      "sha256": "537f9ec6a15b168d2d6355787fa899f4ad2dd5c256a49104cdecc95a2290b805",
+      "sha256": "5413453cf2cfcec1a8d92c3d3cd232ceec01d8117b382d28104cb758d02fe0ca",
       "bodyCutoutMask": "04_masks/top/top_04_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4781,12 +4781,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        219,
-        646,
-        450
+        372,
+        203,
+        653,
+        585
       ],
-      "sha256": "64872284fc7199b9f43bdb9f11cedd439bec4d89f32c98d53436374061eee69d",
+      "sha256": "0d93e92eb562a6fe4a503248577c3652c34cfa498d1a4bdc972302fce4549647",
       "bodyCutoutMask": "04_masks/top/top_13_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4815,12 +4815,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        431,
-        377,
-        616,
+        426,
+        400,
+        621,
         900
       ],
-      "sha256": "3ad80b95db6b37672951a366a90fd113dc333bf7aadd31949b6f0b109cd508b7",
+      "sha256": "36fb7f9ea1adbc10c704585fe594dfce991573f19e5d8dd5e1a63476129bb45e",
       "shoeOcclusionMask": "04_masks/bottom/bottom_03_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_03_female_bodycut.png",
       "fitBody": "female",
@@ -4851,12 +4851,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        423,
-        377,
-        616,
-        920
+        421,
+        400,
+        619,
+        898
       ],
-      "sha256": "32d7da47d985209e2e3c1c3a7da1cb47365956fe48f39e59e0a1461887791f6b",
+      "sha256": "00cf0f9a1edc19c541e12ce32faddf1c8a9fdbf320e96e16100e71417cbc2e97",
       "shoeOcclusionMask": "04_masks/bottom/bottom_04_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_04_female_bodycut.png",
       "fitBody": "female",
@@ -4887,12 +4887,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        423,
-        412,
-        602,
-        567
+        420,
+        400,
+        613,
+        850
       ],
-      "sha256": "69e8ffdefb61cb54c03c97c99a0a1a1fb940c73dffcd171b7910ee689e5dea2f",
+      "sha256": "f5d469dacb1ac89eb9792c2aed84d5bf11a7c07d7eb7780daac8c29150e8d7e3",
       "bodyCutoutMask": "04_masks/bottom/bottom_13_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -4919,12 +4919,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        463,
-        870,
-        610,
-        973
+        466,
+        845,
+        605,
+        974
       ],
-      "sha256": "0aefef39353fc90bf914481a2dc2a52ced4d339f9f6e30df2132c4ef9d8c3b97",
+      "sha256": "81ea5bf80178c438a6538faba4d8c13968dc2314e84bcad3c213817020898fa8",
       "bodyCutoutMask": "04_masks/shoe/shoe_03_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4952,12 +4952,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        453,
-        864,
-        620,
-        972
+        456,
+        845,
+        607,
+        974
       ],
-      "sha256": "b8a4b66f0a853d4418c9cce008b920d0d255614753657cde85055fb5d5b8be72",
+      "sha256": "1dae2f35263178f6aa0a163bbf6aecda20634ac830d70a85df20fb52186af2ec",
       "bodyCutoutMask": "04_masks/shoe/shoe_04_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -4985,12 +4985,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        418,
-        864,
-        655,
-        959
+        414,
+        846,
+        660,
+        960
       ],
-      "sha256": "a5ce76abf7219ffe843162235739bf8f3c3dfab0e8af9a90b45538ccd13a778b",
+      "sha256": "8ae32f6b403863835b99df90919be31ad85c7001905dbbabddee24e872731a11",
       "bodyCutoutMask": "04_masks/shoe/shoe_13_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5017,12 +5017,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        404,
-        209,
-        658,
-        907
+        374,
+        195,
+        662,
+        906
       ],
-      "sha256": "99af846eaeca045d9b7f73e8f4a28209d3e727000c86f536c9bfc4a83f25378b",
+      "sha256": "2695895450ca382b1a21850723d6394519eaf23ded309cd070fd841a6c2a0ae5",
       "shoeOcclusionMask": "04_masks/outfit/outfit_03_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_03_female_bodycut.png",
       "fitBody": "female",
@@ -5054,12 +5054,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        368,
-        213,
-        658,
-        575
+        365,
+        195,
+        662,
+        887
       ],
-      "sha256": "8cb3e886513e972e218b2dbba28744f533a9b93baa7d8170c839d6aac02c06b2",
+      "sha256": "4958bf0d308f3849bd7687906c629030d956566d63b087f887848c38672fc871",
       "bodyCutoutMask": "04_masks/outfit/outfit_13_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5088,12 +5088,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        397,
-        209,
-        654,
-        530
+        371,
+        195,
+        660,
+        575
       ],
-      "sha256": "58e3dd91669c3f4021d851bc62eff994ea8e9466d65a3026cf907e201c4b4560",
+      "sha256": "00a4163a23af44042f182a925dacfa1e5b9550b6f301ce23df772214e1b69d0f",
       "bodyCutoutMask": "04_masks/top/top_05_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -5124,12 +5124,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        219,
-        646,
-        459
+        373,
+        202,
+        652,
+        583
       ],
-      "sha256": "e5c63e163bd6d428fbe2b45926057c12bd3014c4c766a1111c9b3f8d351a0ae9",
+      "sha256": "77c80ddda2736e3596f09d9d387e89e076c9a1c63edb26857bc5bede2c63e153",
       "bodyCutoutMask": "04_masks/top/top_14_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5158,12 +5158,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        377,
-        219,
-        649,
-        464
+        374,
+        202,
+        654,
+        585
       ],
-      "sha256": "d4b6c2a1f388a984694fd3bd75af97ea7bdeae7ca407b671290199dd246b8f3b",
+      "sha256": "cb541a6f2f43568451979634adc00a3d7b1bc9318f4f9caabda007b96def728a",
       "bodyCutoutMask": "04_masks/top/top_15_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5192,12 +5192,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        432,
-        375,
-        603,
-        897
+        430,
+        400,
+        607,
+        901
       ],
-      "sha256": "07aab29782d80a25042684f8fc72cded313faa6cc19f7489359103e66c1e5fc0",
+      "sha256": "bc2dcc0110ede624f376033e25f476adaa18cbf95bf7aed723b7744dc5267806",
       "bodyCutoutMask": "04_masks/bottom/bottom_05_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -5228,12 +5228,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        428,
-        412,
-        603,
-        554
+        423,
+        400,
+        613,
+        850
       ],
-      "sha256": "90d2c279ba25d76a60ee263c0af41c65f748fc8a8cce008cc375a79e6d949dc2",
+      "sha256": "764d6e241d63c2090f273f582f0d71a47306c213785cd3fd285d26c2bc93dc6f",
       "bodyCutoutMask": "04_masks/bottom/bottom_14_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5260,12 +5260,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        423,
-        412,
-        602,
-        557
+        422,
+        400,
+        613,
+        850
       ],
-      "sha256": "1b4bef860c53c4403fdc82ee3243c6624217d5bcdd84e595cd8e39c72d23ca55",
+      "sha256": "a075d26d87a8a1b2c3a8522774cc422bc4fc6da1d6939a60fbb7f8279ab9fe97",
       "bodyCutoutMask": "04_masks/bottom/bottom_15_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5292,12 +5292,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        460,
-        864,
-        610,
-        972
+        466,
+        845,
+        604,
+        974
       ],
-      "sha256": "32f9abd954bb35e3c341b4a7cb9539f95c2aedab5fe117a1116b6f9814d7beca",
+      "sha256": "2c8ede18f21714a601ca8cf5978faf3f7dced6cf1cffd559dc860a9412d6d374",
       "bodyCutoutMask": "04_masks/shoe/shoe_05_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -5325,12 +5325,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        864,
-        655,
+        411,
+        846,
+        662,
         960
       ],
-      "sha256": "cd9ef0d1759b64257f867a517aed1992bb5db7480ec603891f22b9fd306bdec6",
+      "sha256": "6cc3460bb211fbbde7b138cf41dd87e4465edbe9c9656a8b7b0dbae7b519ddec",
       "bodyCutoutMask": "04_masks/shoe/shoe_14_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5357,12 +5357,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        420,
-        847,
-        655,
+        416,
+        846,
+        662,
         960
       ],
-      "sha256": "ea3a5fef5f7e3626c762751fa07ec16f8fcd844725e7bb4629fb5c618d273bcf",
+      "sha256": "19aaa2af672c16f536d5bf1d47863ea658e54da9b44551179e8f0efee834ea64",
       "bodyCutoutMask": "04_masks/shoe/shoe_15_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5389,12 +5389,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        404,
-        209,
-        641,
-        901
+        376,
+        195,
+        659,
+        904
       ],
-      "sha256": "4dd9afc44a2e22786b92a4bc68bfc7b62482409fe965f1e55e61d543b1a4b597",
+      "sha256": "7a278cee49bc2748e877dcc3aabacf36b8ea36f2805ffe86221d138f948d814b",
       "shoeOcclusionMask": "04_masks/outfit/outfit_04_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_04_female_bodycut.png",
       "fitBody": "female",
@@ -5426,12 +5426,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        395,
-        209,
-        654,
-        902
+        373,
+        195,
+        662,
+        898
       ],
-      "sha256": "4b98a2b750aa891777c3b270e4bb1a46a15bf6c7d93ef12e8827ae8d9c0156ab",
+      "sha256": "b23c2fa953c5aeca317906837448aeae05f53b3f234bdbcdf99cdb5d07d60160",
       "shoeOcclusionMask": "04_masks/outfit/outfit_05_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_05_female_bodycut.png",
       "fitBody": "female",
@@ -5463,12 +5463,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        380,
-        219,
-        644,
-        556
+        373,
+        195,
+        652,
+        886
       ],
-      "sha256": "5d088a3868ade108ce9fb9b957674d8924c6f7298a8e22d7ef6113fe226e119f",
+      "sha256": "d7391b36fc1f7a88b61393456f90d20b0eed8ac0b0d656061948e3eb55550be4",
       "bodyCutoutMask": "04_masks/outfit/outfit_14_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -5497,12 +5497,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        381,
-        219,
-        645,
-        898
+        376,
+        195,
+        650,
+        893
       ],
-      "sha256": "20074f650e9f7dcffb73bcd08940e7781c4494172dc90fbd94666ef729c9b267",
+      "sha256": "40fa99dc7bb51322107bd4f170950a377257821d2aac8dd1b1671c05039ccd2e",
       "shoeOcclusionMask": "04_masks/outfit/outfit_15_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_15_male_bodycut.png",
       "fitBody": "male",
@@ -5529,14 +5529,14 @@
       "pair": "hat_01_male",
       "path": "03_png_assets/hat/hat_01_female.png",
       "file": "03_png_assets/hat/hat_01_female.png",
-      "sha256": "b275a3e742bb5837a30f6c6571350e5d5a646145b7fb49b0fb61fa62e900569a",
+      "sha256": "bce5e8502d9a7b57c425462d7d76e61822c48d5b743cf2e90a615b8560ee1bf2",
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        80,
+        463,
+        76,
         568,
-        141
+        145
       ],
       "hairCutoutMask": "04_masks/hat/hat_01_female_haircut.png",
       "fitBody": "female",
@@ -5561,14 +5561,14 @@
       "pair": "hat_02_female",
       "path": "03_png_assets/hat/hat_02_male.png",
       "file": "03_png_assets/hat/hat_02_male.png",
-      "sha256": "f76b7c1a1e93c4e0c5eb105ae01a1a27ab96006a7995c0e954ebe9b35d2775c9",
+      "sha256": "034e99f52a1ded11f428d15e6a8af04fbe281ad7a0d93f94df91edbde24a6866",
       "width": 1024,
       "height": 1024,
       "box": [
         460,
-        76,
+        73,
         567,
-        136
+        140
       ],
       "hairCutoutMask": "04_masks/hat/hat_02_male_haircut.png",
       "fitBody": "male",
@@ -5593,14 +5593,14 @@
       "pair": "hat_02_male",
       "path": "03_png_assets/hat/hat_02_female.png",
       "file": "03_png_assets/hat/hat_02_female.png",
-      "sha256": "f7ed2c84f86c08d484841a1ef44723619cdaa3d52bf71187f472fde1b03cc678",
+      "sha256": "aa9bd561583676abda18c5123ea67848882251c88a351e75995489f1a6de4adb",
       "width": 1024,
       "height": 1024,
       "box": [
         459,
-        75,
+        73,
         568,
-        137
+        140
       ],
       "hairCutoutMask": "04_masks/hat/hat_02_female_haircut.png",
       "fitBody": "female",
@@ -5625,14 +5625,14 @@
       "pair": "hat_03_female",
       "path": "03_png_assets/hat/hat_03_male.png",
       "file": "03_png_assets/hat/hat_03_male.png",
-      "sha256": "120a8dbfcd03c819646c433642b2da00cd28df97fb7f398d89609d72cd24e3c3",
+      "sha256": "10a4786c0c1df8e09b2ba01fa66646b40e43fc1cf05f286c1a05ebcdfe8a2955",
       "width": 1024,
       "height": 1024,
       "box": [
         459,
-        86,
+        79,
         567,
-        141
+        149
       ],
       "hairCutoutMask": "04_masks/hat/hat_03_male_haircut.png",
       "fitBody": "male",
@@ -5657,14 +5657,14 @@
       "pair": "hat_03_male",
       "path": "03_png_assets/hat/hat_03_female.png",
       "file": "03_png_assets/hat/hat_03_female.png",
-      "sha256": "2b5eb0b977f53f69f53e97bdeae2fc8e7296950f062383d466f25178ef402414",
+      "sha256": "51eba6938bde64e1554bf13a77925e03c8c4fd1eade0bbace77229033982cb6c",
       "width": 1024,
       "height": 1024,
       "box": [
         453,
-        81,
+        75,
         577,
-        139
+        146
       ],
       "hairCutoutMask": "04_masks/hat/hat_03_female_haircut.png",
       "fitBody": "female",
@@ -5689,14 +5689,14 @@
       "pair": "hat_04_female",
       "path": "03_png_assets/hat/hat_04_male.png",
       "file": "03_png_assets/hat/hat_04_male.png",
-      "sha256": "c96aa333668d3d6fad52544235367de7cc2df95660f382b8f3df0ae6ed314faa",
+      "sha256": "f1d4de45735b0954f835a118c1392b689450fd3f1da6eec7359339d19815d65d",
       "width": 1024,
       "height": 1024,
       "box": [
         453,
-        78,
+        77,
         576,
-        142
+        144
       ],
       "hairCutoutMask": "04_masks/hat/hat_04_male_haircut.png",
       "fitBody": "male",
@@ -5721,14 +5721,14 @@
       "pair": "hat_04_male",
       "path": "03_png_assets/hat/hat_04_female.png",
       "file": "03_png_assets/hat/hat_04_female.png",
-      "sha256": "91cf4b78cf39ee1f7ce34f0eb66b2d4d277ded0c786fc5a6fecbb52203e262d4",
+      "sha256": "134785ddead8fe71dbaec3d393184d8ecf077b43a5d56fb34ea2eee82ef5fc71",
       "width": 1024,
       "height": 1024,
       "box": [
         455,
-        82,
+        80,
         577,
-        142
+        145
       ],
       "hairCutoutMask": "04_masks/hat/hat_04_female_haircut.png",
       "fitBody": "female",
@@ -5753,14 +5753,14 @@
       "pair": "hat_05_female",
       "path": "03_png_assets/hat/hat_05_male.png",
       "file": "03_png_assets/hat/hat_05_male.png",
-      "sha256": "f2a552093181b4f8059904a1b69b72abe23ac416c0b398886951396fe8e53da3",
+      "sha256": "91a609bfe7aa0a1188fa076b0df7acf34a40f304f7e7fb8a179d563bf11ac36b",
       "width": 1024,
       "height": 1024,
       "box": [
         442,
-        75,
+        72,
         585,
-        149
+        153
       ],
       "hairCutoutMask": "04_masks/hat/hat_05_male_haircut.png",
       "fitBody": "male",
@@ -5785,14 +5785,14 @@
       "pair": "hat_05_male",
       "path": "03_png_assets/hat/hat_05_female.png",
       "file": "03_png_assets/hat/hat_05_female.png",
-      "sha256": "e12502b56677ac910df6fea1a8ad9d8bfd88be312f4387be0632512c7143f6ba",
+      "sha256": "26be845b210d7ea951098cfd1a1e06b192af2e5958eb5576a2587fe1dfeabcb0",
       "width": 1024,
       "height": 1024,
       "box": [
         438,
         71,
         585,
-        148
+        149
       ],
       "hairCutoutMask": "04_masks/hat/hat_05_female_haircut.png",
       "fitBody": "female",
@@ -5817,7 +5817,7 @@
       "pair": "hat_06_female",
       "path": "03_png_assets/hat/hat_06_male.png",
       "file": "03_png_assets/hat/hat_06_male.png",
-      "sha256": "d2374f9b9076e5f23c51bb0bacb63cbff8993abe7ccfd84a99e0c00defb33930",
+      "sha256": "d0b8937dda19f68c06d82c36f73a723ffd039646f892bfbec1f06977557f75d0",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -5851,7 +5851,7 @@
       "pair": "hat_06_male",
       "path": "03_png_assets/hat/hat_06_female.png",
       "file": "03_png_assets/hat/hat_06_female.png",
-      "sha256": "94cb5323e6ece71de99e6b6f38af061a0cf478f43c48f0bc207eeb4c61fe8ae8",
+      "sha256": "dedaebe62ca4ba3fa4a34bdbafcc785b95a8b67ad823d942d8e9882cb238baf4",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -5885,14 +5885,14 @@
       "pair": "hat_07_female",
       "path": "03_png_assets/hat/hat_07_male.png",
       "file": "03_png_assets/hat/hat_07_male.png",
-      "sha256": "6626278773e2dd80cd52241423f15b83770cf7f15423e29b020c90b524314818",
+      "sha256": "ccbeb2c4e89c972c830daffb9ce5b461b5b20b8bb6ed4e2f31f23c172e38ea59",
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
-        62,
+        458,
+        61,
         581,
-        145
+        147
       ],
       "hairCutoutMask": "04_masks/hat/hat_07_male_haircut.png",
       "fitBody": "male",
@@ -5917,14 +5917,14 @@
       "pair": "hat_08_female",
       "path": "03_png_assets/hat/hat_08_male.png",
       "file": "03_png_assets/hat/hat_08_male.png",
-      "sha256": "7b51e59540ad2f941859ab3690ea2b8c353d444cbe06a2d935aeff6482d9b842",
+      "sha256": "64f864b67948368481c14a31907fd4c7a8370e3dcacdc461cd0c276578fe14d0",
       "width": 1024,
       "height": 1024,
       "box": [
         433,
-        69,
+        71,
         601,
-        143
+        142
       ],
       "hairCutoutMask": "04_masks/hat/hat_08_male_haircut.png",
       "fitBody": "male",
@@ -5950,14 +5950,14 @@
       "pair": "hat_09_female",
       "path": "03_png_assets/hat/hat_09_male.png",
       "file": "03_png_assets/hat/hat_09_male.png",
-      "sha256": "1735f0a3d901c60c425ed4af1c3858a53af532c5b200a8ae5572c7118f6f4500",
+      "sha256": "c1ccbed0d70f0b2dc7effa01628d3dfd380d205c86b06be57983f06de0cb4136",
       "width": 1024,
       "height": 1024,
       "box": [
         456,
-        66,
+        62,
         566,
-        140
+        145
       ],
       "hairCutoutMask": "04_masks/hat/hat_09_male_haircut.png",
       "fitBody": "male",
@@ -5982,14 +5982,14 @@
       "pair": "hat_10_female",
       "path": "03_png_assets/hat/hat_10_male.png",
       "file": "03_png_assets/hat/hat_10_male.png",
-      "sha256": "8bd2fc4bdbb24645f898cf025cb437cbdbe79a1665ffe1c8e26c493a11f94273",
+      "sha256": "ff6390e10bbf457391aa729a9a7ac2c53226d26849143f65b563d9537635227e",
       "width": 1024,
       "height": 1024,
       "box": [
         489,
-        53,
+        51,
         588,
-        134
+        136
       ],
       "hairCutoutMask": "04_masks/hat/hat_10_male_haircut.png",
       "fitBody": "male",
@@ -6014,7 +6014,7 @@
       "pair": "hat_11_female",
       "path": "03_png_assets/hat/hat_11_male.png",
       "file": "03_png_assets/hat/hat_11_male.png",
-      "sha256": "5a8706f2816fd5d27fefb5dc6c372a32c07187e66737c265033a4a1d451fdcee",
+      "sha256": "dd845562657a5be57f13ec0de22aa7718d058080a29b480e5bf2a6fe5a7a3526",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -6046,14 +6046,14 @@
       "pair": "hat_12_female",
       "path": "03_png_assets/hat/hat_12_male.png",
       "file": "03_png_assets/hat/hat_12_male.png",
-      "sha256": "f521149f7b6bda6e2731b808d1e5b294c81c462c02fd7fdf14875910c5e87655",
+      "sha256": "9cfc4af0b785334bf60273099edf9768f9ce02b3aa5277a6363ba31e3c73c0cc",
       "width": 1024,
       "height": 1024,
       "box": [
         414,
         79,
         630,
-        185
+        186
       ],
       "hairCutoutMask": "04_masks/hat/hat_12_male_haircut.png",
       "fitBody": "male",
@@ -6080,14 +6080,14 @@
       "pair": "hat_12_male",
       "path": "03_png_assets/hat/hat_12_female.png",
       "file": "03_png_assets/hat/hat_12_female.png",
-      "sha256": "a8f37ce5c9eac12835be27224c29425e1099ca794b2cfb0cd045c8c25b92db0a",
+      "sha256": "6be89472f673c2fc264ae9b422cb98a5bc7ad38b0a57f01ee1036a003d61f659",
       "width": 1024,
       "height": 1024,
       "box": [
         399,
         71,
         631,
-        192
+        193
       ],
       "hairCutoutMask": "04_masks/hat/hat_12_female_haircut.png",
       "fitBody": "female",
@@ -6114,14 +6114,14 @@
       "pair": "hat_13_female",
       "path": "03_png_assets/hat/hat_13_male.png",
       "file": "03_png_assets/hat/hat_13_male.png",
-      "sha256": "ce06d6b7e703e00d3655b8415c796f04f33231f2b695eeb77d873d1753911c01",
+      "sha256": "377afe5f1697888c051e90841f2b957082c6ca2602ddbdbff7f255bf9eb5fc3f",
       "width": 1024,
       "height": 1024,
       "box": [
         448,
-        73,
+        72,
         588,
-        195
+        197
       ],
       "hairCutoutMask": "04_masks/hat/hat_13_male_haircut.png",
       "fitBody": "male",
@@ -6146,14 +6146,14 @@
       "pair": "hat_13_male",
       "path": "03_png_assets/hat/hat_13_female.png",
       "file": "03_png_assets/hat/hat_13_female.png",
-      "sha256": "f2134ad02c019c1ffc68002ec9b37091f1d3717e7b00e9f39379eb474dbb9555",
+      "sha256": "6062c26086e2c82fad92aac0cd96eb30a5893375205a1b248516cac3341d9c86",
       "width": 1024,
       "height": 1024,
       "box": [
         442,
-        72,
+        75,
         596,
-        222
+        220
       ],
       "hairCutoutMask": "04_masks/hat/hat_13_female_haircut.png",
       "fitBody": "female",
@@ -6178,14 +6178,14 @@
       "pair": "hat_14_female",
       "path": "03_png_assets/hat/hat_14_male.png",
       "file": "03_png_assets/hat/hat_14_male.png",
-      "sha256": "6221f60aa29c6a2dbd9be68dc92650b927af3ebf99e8e9e3ee3ff1468fdc62d7",
+      "sha256": "89be1b8976652adfc785ac9f6aeef35e9389a46fa40e836517df668e5c2f09d4",
       "width": 1024,
       "height": 1024,
       "box": [
         465,
         56,
         558,
-        147
+        148
       ],
       "hairCutoutMask": "04_masks/hat/hat_14_male_haircut.png",
       "fitBody": "male",
@@ -6210,14 +6210,14 @@
       "pair": "hat_14_male",
       "path": "03_png_assets/hat/hat_14_female.png",
       "file": "03_png_assets/hat/hat_14_female.png",
-      "sha256": "84e5649f8c344dacccb16cf05cd2d370836612627e8e502ce923ea88e1947f20",
+      "sha256": "61037fa6b967ed65ef9559f8a751f351b397edc7a0c7fc211091e0f21a6ca099",
       "width": 1024,
       "height": 1024,
       "box": [
         456,
-        49,
+        44,
         568,
-        152
+        158
       ],
       "hairCutoutMask": "04_masks/hat/hat_14_female_haircut.png",
       "fitBody": "female",
@@ -6242,12 +6242,12 @@
       "pair": "hat_15_female",
       "path": "03_png_assets/hat/hat_15_male.png",
       "file": "03_png_assets/hat/hat_15_male.png",
-      "sha256": "5f45802612dd0e607a51eda30087ac688d43367fe107fb112d8eb478b476519a",
+      "sha256": "2037dfafd013bc901f47cd82762532ddea1e253744f23649c0c65ecf77fc5f99",
       "width": 1024,
       "height": 1024,
       "box": [
-        465,
-        90,
+        466,
+        91,
         564,
         151
       ],
@@ -6274,14 +6274,14 @@
       "pair": "hat_15_male",
       "path": "03_png_assets/hat/hat_15_female.png",
       "file": "03_png_assets/hat/hat_15_female.png",
-      "sha256": "9593f2e34d55b51b21aa8b21ec85a9d658658662125b71d436b06d62a7abdcc9",
+      "sha256": "d8c6c8b86570af88f63e1df016a1e15f9ab2da8a77e0ea3df6e9e983e580934e",
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
+        458,
         77,
         574,
-        149
+        150
       ],
       "hairCutoutMask": "04_masks/hat/hat_15_female_haircut.png",
       "fitBody": "female",
@@ -6306,7 +6306,7 @@
       "pair": "hat_16_female",
       "path": "03_png_assets/hat/hat_16_male.png",
       "file": "03_png_assets/hat/hat_16_male.png",
-      "sha256": "1312757623e86e809689bb72ac95c632825090527098c3a90a1cf2f7b503b171",
+      "sha256": "b17bc383b6944aaa8a1aecb04501f35beb17b9a368485e8019d8ef7eacbc1d5d",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -6340,7 +6340,7 @@
       "pair": "hat_16_male",
       "path": "03_png_assets/hat/hat_16_female.png",
       "file": "03_png_assets/hat/hat_16_female.png",
-      "sha256": "df57ff6fc9f6b5ea92a7b333b5ed17fe5c4f33407bac5eecf16d6fc74528247b",
+      "sha256": "dc0b25d578f52fce9d6b58c9fe3ab1894d59d0e3b163b8f8009757c6a38e1229",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -6374,14 +6374,14 @@
       "pair": "hat_17_male",
       "path": "03_png_assets/hat/hat_17_female.png",
       "file": "03_png_assets/hat/hat_17_female.png",
-      "sha256": "35b0e97b9c3b4e32bc4ee712b859f34f2c445a5b7df9922b8c899a369c2da50f",
+      "sha256": "82efd28d6aafd906fc25a3d6a70a5330ec76b4da5b07f6dd0ed574aa8478d8db",
       "width": 1024,
       "height": 1024,
       "box": [
         495,
-        56,
+        69,
         586,
-        156
+        144
       ],
       "hairCutoutMask": "04_masks/hat/hat_17_female_haircut.png",
       "fitBody": "female",
@@ -6406,14 +6406,14 @@
       "pair": "hat_18_male",
       "path": "03_png_assets/hat/hat_18_female.png",
       "file": "03_png_assets/hat/hat_18_female.png",
-      "sha256": "85b9f6bae7ba2537bc67961f3b24a553008b66c64d131ffaf4a759d47ccb1fe4",
+      "sha256": "bd348151c619933febfe26014798141fc7247ae61cb66f1e2c0acf90a598df95",
       "width": 1024,
       "height": 1024,
       "box": [
-        452,
-        61,
+        453,
+        64,
         581,
-        155
+        153
       ],
       "hairCutoutMask": "04_masks/hat/hat_18_female_haircut.png",
       "fitBody": "female",
@@ -6438,14 +6438,14 @@
       "pair": "hat_19_male",
       "path": "03_png_assets/hat/hat_19_female.png",
       "file": "03_png_assets/hat/hat_19_female.png",
-      "sha256": "9630641c2456d9b66f9b37f773b4d9247e238f64f9a996ec682322bf6faa86f3",
+      "sha256": "0f663ee24970060585ddee2b9b2a388162fe7455527c5a566eca6d9b6eacfae6",
       "width": 1024,
       "height": 1024,
       "box": [
-        448,
-        59,
+        449,
+        57,
         582,
-        156
+        158
       ],
       "hairCutoutMask": "04_masks/hat/hat_19_female_haircut.png",
       "fitBody": "female",
@@ -6470,12 +6470,12 @@
       "pair": "hat_20_male",
       "path": "03_png_assets/hat/hat_20_female.png",
       "file": "03_png_assets/hat/hat_20_female.png",
-      "sha256": "6e48efdd06b4341ad7c10429ebace1ee5752041969c50c286927d9844ee820c3",
+      "sha256": "383032cc4748c6826c82be54c70622ee086ed02de79a6788708ad90fc9784d3b",
       "width": 1024,
       "height": 1024,
       "box": [
         405,
-        48,
+        49,
         619,
         152
       ],
@@ -6507,11 +6507,11 @@
       "height": 1024,
       "box": [
         479,
-        243,
+        245,
         549,
-        290
+        289
       ],
-      "sha256": "699eea2a367a06440c7dd35ef3035fd2eb38e046833a5fb39c47e246c892bedc",
+      "sha256": "c658ad8be43d3daafe842f4d76571a16917b2748780f129ac48e30d8cfec6444",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6539,11 +6539,11 @@
       "height": 1024,
       "box": [
         472,
-        153,
+        156,
         553,
-        175
+        173
       ],
-      "sha256": "01bb689e6aa93f24f7870d9f3ac7c20d4f1941cb2922dbb3bd21d6a177359961",
+      "sha256": "bbb8d4083108ab363314fc0b1efeb679a31fa184cd7216f0df588bd6708c7234",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6571,11 +6571,11 @@
       "height": 1024,
       "box": [
         461,
-        150,
+        151,
         560,
         174
       ],
-      "sha256": "a467abf4c388bda7ec9c8a5f88c3dd9ab7878e56457f88f15b5a204dd43300fc",
+      "sha256": "7553c3658c376acf5bc106f0be5e00056dd268e1e44cef80b31268f5a3c6738b",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6602,12 +6602,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        468,
-        217,
-        562,
-        278
+        469,
+        207,
+        559,
+        261
       ],
-      "sha256": "fc5f33cdfa04d4e9265757615408ceb411cbd8f3b5136955f278768004371cfd",
+      "sha256": "01071ac710d28f36531a37fe51a755cfc383544fea5d32cc2246aa509f6ba356",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6637,12 +6637,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        458,
+        452,
         229,
-        608,
+        615,
         500
       ],
-      "sha256": "8bcbf475329dd128a34909d7fee60b108790478a74cce52635175d2cd06e927c",
+      "sha256": "9b0452a5e9e7ccfab84300fa339a639308158f20d38c746bb9f13a2da35c200b",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6669,12 +6669,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        465,
+        466,
         240,
         593,
-        459
+        460
       ],
-      "sha256": "1a53ab74a88e40ebd8f58fa71e532db1d2e46dd025bddee3a90fc330b1f56382",
+      "sha256": "6bfd38be4f632fe1ac7a246f2358be50e64e25d3e9c63bffe9874e6bd634ae25",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6701,12 +6701,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        396,
-        497,
-        646,
-        561
+        395,
+        498,
+        653,
+        566
       ],
-      "sha256": "7e7cb3c3ce069f0eb537052b6f653e1f4085f326d7eed502448c0b2b97c553bf",
+      "sha256": "6536ac06bc66e410abd5fa8838731a9ada1ac7204845302f53eeedd570afe6df",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6733,12 +6733,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        377,
-        485,
-        651,
-        547
+        375,
+        483,
+        659,
+        554
       ],
-      "sha256": "fe16a777d4e63fe3e8537fe83625a0b9150a0514503eb11f3a786a3b83a1afa4",
+      "sha256": "3362f1cbbddda7710107668977cd709342610c19712863df72997097c695a4b9",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6765,12 +6765,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        453,
-        158,
+        450,
+        152,
         572,
-        175
+        172
       ],
-      "sha256": "d8fc49552cc828904bc503ed602f02c3587868181586f78a8cb61df8a6fd0839",
+      "sha256": "1b350b48554e20aa9bec937cbcbaec017486e9d79988b73cda850bb7143c8b83",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6797,12 +6797,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        458,
-        166,
-        566,
-        184
+        437,
+        153,
+        580,
+        169
       ],
-      "sha256": "7bbb3593191639b86d0e1f0150702652e30a6db8b25e9db606bc0f811b2ea247",
+      "sha256": "073a8bc75f9bb5099d6a227eadf01f28b11a539e864a2440a45bb1ed747f8a69",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6829,12 +6829,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        475,
-        226,
+        476,
+        218,
         552,
-        313
+        322
       ],
-      "sha256": "9e52b1c3bb316506aed2ed99b41dbe0e7d32493e4668200e60c66bef342a96c7",
+      "sha256": "9d0023129ad935e71efe660d2c8b782f1ba9c66199efd882b46bd7f8cc517967",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6861,12 +6861,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        478,
-        235,
-        543,
-        303
+        492,
+        233,
+        532,
+        301
       ],
-      "sha256": "073ca875f9054a46405d40a2c3c16db557e7302c286896547d10cf8eab839731",
+      "sha256": "bd17f9c0e41d5929a46137c65881b6bb88639c86f054a3d6e7b7ee318f7d4e93",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6893,12 +6893,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        382,
-        498,
-        644,
-        570
+        381,
+        503,
+        646,
+        573
       ],
-      "sha256": "3ddd2115470924937e279658d23193b2cb16834975c7d1d0a8197d81100ca2e2",
+      "sha256": "eb311d77b1d1cb72cef35a154cc550956645aacc98a1cb943c0ede7dae8b2a53",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6925,12 +6925,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        372,
-        488,
-        656,
-        553
+        370,
+        496,
+        668,
+        565
       ],
-      "sha256": "b1892de8049db9b221da340c782ed487f67ec5dd07ab77f00c277dcf68532a3d",
+      "sha256": "16ffc492ac7eae77bcf714b9bad0e69d2ad55e27cf4c4ca06e800aca1813721a",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -6958,11 +6958,11 @@
       "height": 1024,
       "box": [
         360,
-        506,
+        505,
         453,
-        686
+        688
       ],
-      "sha256": "268622f52e7b3cc79411877e661f4e5cd3c1d65d61f10c0c6cccf69bf74b1115",
+      "sha256": "78c1263e95bef35e1c66a7ba43701a651852c25f6508e1a9b141991b1f233b36",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -6989,12 +6989,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        482,
-        166,
+        483,
+        170,
         542,
-        206
+        203
       ],
-      "sha256": "a7ec08ca17b445ba475399aeafbac9ffe7c6e8bad4e16ef05b1d3f8d249e289d",
+      "sha256": "6760dd885461f97ce7a0da68c00dbb3a0d9ba4a5dfb64df3ac1a5dae6d4bbe86",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7021,12 +7021,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        483,
+        484,
         223,
         542,
-        254
+        255
       ],
-      "sha256": "e9c673044cfa0d8c5d9db2f4b8adbc12b8234529b03f63cda899f8cb07e0f8d3",
+      "sha256": "d5f6b506b9e13790c8f72c35febf34bd6bfad449a94267963537c622f2b0ce25",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7053,12 +7053,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        570,
+        566,
         235,
-        611,
+        616,
         421
       ],
-      "sha256": "6ae2ea6e217f64aab2eca19c3906ed48eb1c60b47e85f69df981b026f79752bd",
+      "sha256": "9ce89e4517e23a76fd78232156bf49a30ca97757175ab9518a61eb157bac9adc",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7085,12 +7085,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        561,
+        553,
         236,
-        604,
+        613,
         435
       ],
-      "sha256": "3e0fbd17543b4357142e4e42c06f61c71940f25264ee3c0269a39f2fe813cd4f",
+      "sha256": "ffec31eb3ad8c400d87b0d5091545d16389a8bce8e0d53621c36a317348b3aee",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7118,11 +7118,11 @@
       "height": 1024,
       "box": [
         484,
-        211,
+        206,
         539,
-        222
+        228
       ],
-      "sha256": "626e61f9ecc2bb50a0b0bd02a94e3d7c8eb0b16c27d94cf6da37d553ca43fa67",
+      "sha256": "f1c65886bac9c89e2a8d73d03aa5cb381ae9196cd02c2ec2ef122f8546c2620c",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7149,12 +7149,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        493,
-        219,
+        494,
+        217,
         534,
-        229
+        232
       ],
-      "sha256": "95a136d1a85b523f5eee5bfd89bc0c20410c08f880b1cbd3711cbc352a75fda1",
+      "sha256": "ac9fd3490f72c0f39d471b78620d58e71b5735585a21e681f73bda9bba246104",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7181,12 +7181,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        384,
-        500,
-        628,
-        562
+        385,
+        511,
+        629,
+        565
       ],
-      "sha256": "8f607c8dc86156e18a095a1e23e617f2b7ab8f1234b314cf906f7fe2c5db19c7",
+      "sha256": "a65c245724d8be9a534e401f25c5d78e0460626ff64cb1cf6869f019736f4835",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7213,12 +7213,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        389,
-        489,
-        653,
-        545
+        382,
+        499,
+        648,
+        546
       ],
-      "sha256": "565128c3425c48e2be20caaf19500ca21cf9c679908f46d3848d51964f93949c",
+      "sha256": "a9251d308e147388291e96d76759ae50a63cbbf2c697a938a93700fb24b2a14d",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7245,12 +7245,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        485,
-        206,
+        486,
+        211,
         540,
-        245
+        242
       ],
-      "sha256": "7ff21432ce5cd9cfa9fb77404780f7135e03db8daf89e5a1b37f61c42234086e",
+      "sha256": "9c9a139fd36bbc0f0434a4d66a169d3dc364d2182fd026019872a932fd7eaa5b",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7277,12 +7277,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        487,
-        212,
+        488,
+        215,
         535,
-        251
+        250
       ],
-      "sha256": "0c79f2fc4d5fe293667789d81bdc9d384d5fa3fd4f3cd539186013a550106680",
+      "sha256": "468f7ff6c682733f557fef6eb57bff3a7a6cf2f50d6fd91f0872134a9e2afbe6",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7309,12 +7309,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        463,
-        171,
-        555,
-        208
+        467,
+        176,
+        549,
+        211
       ],
-      "sha256": "7932808a6be6bb7d569df5f0d34f759d3b13c0e6135640e4119ec71bebe99aa3",
+      "sha256": "0ba43edcd84352f9541cd3fa3eb5245e35414af353435b0a23ddbabf011d2d74",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -7341,12 +7341,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        469,
-        183,
-        553,
-        212
+        462,
+        176,
+        555,
+        211
       ],
-      "sha256": "05d55cc8559f5d386018dd461e42d2cb3de2ca347c16ad3cbafe0982395cb96c",
+      "sha256": "69e7c953216f7964a20602cdadee646da37b89a882cb0ff0a05639fe13e96464",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7374,11 +7374,11 @@
       "height": 1024,
       "box": [
         368,
-        467,
+        440,
         663,
-        534
+        561
       ],
-      "sha256": "204d17c281f3cc88df1f52e5ce3d62719dde01de0fdd43732caa8c1e6c510c6e",
+      "sha256": "573e79b952e6769e944bdafa6f143e5145a032cd49428289121600928c2cd51a",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7406,11 +7406,11 @@
       "height": 1024,
       "box": [
         596,
-        483,
+        491,
         667,
-        644
+        637
       ],
-      "sha256": "54cd6483d48284acc747e05fb687868371fbdb13314932c5c0d7d31d4f2ec017",
+      "sha256": "78bd1b4181545b3fd064b39f9d60a62d80d4f22dbffda4f32b2316a49f85935a",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7437,12 +7437,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        534,
-        173,
+        536,
+        174,
         541,
         180
       ],
-      "sha256": "54dc0a846d03d8928523d28556e8cd7e899594a91b95cccacce6860b4f0bdd02",
+      "sha256": "d385518e874d73f96dd141e41b742ced329ca0f5b4fd2d8038e9de9c843eed35",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -7469,12 +7469,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        209,
-        656,
-        552
+        372,
+        195,
+        657,
+        574
       ],
-      "sha256": "9155cdc8a52053ba17e966aa15372aed46cf056bb88d3872885388a5c042a886",
+      "sha256": "767a87c8bef60a76b984e1fe4bf5dcdee486b05ddeba41b0044e69ab94f7241c",
       "bodyCutoutMask": "04_masks/top/top_06_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -7505,12 +7505,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        406,
-        209,
-        625,
-        425
+        370,
+        218,
+        664,
+        580
       ],
-      "sha256": "5add0780c942b789c4b0c83d898b7cca78dc3df244c64a5fffc5cfdfbc5aee5f",
+      "sha256": "464b6019f8cda32ad09d549dbdf11143c4bd5539bf270c1f2fcde427b4399173",
       "bodyCutoutMask": "04_masks/top/top_07_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -7541,12 +7541,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        380,
-        209,
-        658,
-        542
+        370,
+        197,
+        661,
+        577
       ],
-      "sha256": "76880ff72ba3b5c5e291d66315993108a19223bc6f79b5b07e68eb6ec9d82aeb",
+      "sha256": "2da0e023bd57bf228e85d52accd4a0251c7f113396545749d80566024b8739ef",
       "bodyCutoutMask": "04_masks/top/top_08_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -7577,12 +7577,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        381,
-        209,
+        373,
+        218,
         658,
-        560
+        574
       ],
-      "sha256": "ed532df96efe746bf01f54b0af2531c449193c65d15b096272d18bf0da296efc",
+      "sha256": "625c122e0fef7e4314880e333e1acf59d285645b3d011e00be576eabc3649eee",
       "bodyCutoutMask": "04_masks/top/top_09_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -7613,12 +7613,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        374,
-        219,
-        652,
-        515
+        371,
+        203,
+        654,
+        585
       ],
-      "sha256": "69f8acb2cd7b1bcc9b75cdd78323ab06e402ea7f31b2a324cfa615ecd386f5c6",
+      "sha256": "2147a752809de1160d91bdc89569218d2c46e5eca86b258900ecb0564db34f01",
       "bodyCutoutMask": "04_masks/top/top_16_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -7647,12 +7647,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        365,
-        219,
-        659,
-        520
+        363,
+        203,
+        661,
+        586
       ],
-      "sha256": "ad308c96828b36bb8e083c9d13038c7b61763f8df6f46551e309b857f10faed9",
+      "sha256": "6c01d6c81d35de293de8105d0a7b082762349af77b1eb11332e5d24b42f5df17",
       "bodyCutoutMask": "04_masks/top/top_17_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -7681,12 +7681,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        373,
-        210,
-        654,
-        436
+        370,
+        197,
+        656,
+        575
       ],
-      "sha256": "65b7f1828a7e852f43f041c49b27e0410673fc3643d343b3f966e622d611f801",
+      "sha256": "1dc726f464f74b4ff0f1b82cbc081f4e5a395ef39467e4866751c3cf90f81541",
       "bodyCutoutMask": "04_masks/top/top_18_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -7712,14 +7712,14 @@
       "pair": "hat_07_male",
       "path": "03_png_assets/hat/hat_07_female.png",
       "file": "03_png_assets/hat/hat_07_female.png",
-      "sha256": "8148f0cba49947ac6852a974113f4b781fd2bdedaebfcab31b2ca82d3ea05efc",
+      "sha256": "222f7481222d138cf0a9be84e488468e8f8de4deeb6c1cb3409e4550f1509ee0",
       "width": 1024,
       "height": 1024,
       "box": [
         454,
         60,
         581,
-        143
+        144
       ],
       "hairCutoutMask": "04_masks/hat/hat_07_female_haircut.png",
       "fitBody": "female",
@@ -7744,12 +7744,12 @@
       "pair": "hat_08_male",
       "path": "03_png_assets/hat/hat_08_female.png",
       "file": "03_png_assets/hat/hat_08_female.png",
-      "sha256": "562dcc24c44b57bc8e5981e7f0d26232404061a6b20db6a95b076928c96abbf6",
+      "sha256": "5deb9c581e8c45c8fbcd0e571a750e7b7cda6adbe48a9841ec97e8f65784dfbc",
       "width": 1024,
       "height": 1024,
       "box": [
         427,
-        72,
+        73,
         599,
         142
       ],
@@ -7777,14 +7777,14 @@
       "pair": "hat_09_male",
       "path": "03_png_assets/hat/hat_09_female.png",
       "file": "03_png_assets/hat/hat_09_female.png",
-      "sha256": "74a94b942772077cff79a2c6e3addf69ae530420b6b9e78ea8c9b4c79eb79ba1",
+      "sha256": "9f8f2a4bde2d2fea68be9c10000269753e0024dd7de305f46e33adadc9aa1ebc",
       "width": 1024,
       "height": 1024,
       "box": [
         456,
-        68,
+        65,
         568,
-        141
+        145
       ],
       "hairCutoutMask": "04_masks/hat/hat_09_female_haircut.png",
       "fitBody": "female",
@@ -7809,14 +7809,14 @@
       "pair": "hat_17_female",
       "path": "03_png_assets/hat/hat_17_male.png",
       "file": "03_png_assets/hat/hat_17_male.png",
-      "sha256": "57f0ccfab373878ce4be227ad6489a785a847bb20d0a344a6ba2cf4864bf3ee1",
+      "sha256": "3e2342c1863f8134f007207b09406894c7096ce62fc0cbf895bb909fe2041127",
       "width": 1024,
       "height": 1024,
       "box": [
-        496,
-        63,
+        497,
+        66,
         581,
-        145
+        143
       ],
       "hairCutoutMask": "04_masks/hat/hat_17_male_haircut.png",
       "fitBody": "male",
@@ -7841,14 +7841,14 @@
       "pair": "hat_18_female",
       "path": "03_png_assets/hat/hat_18_male.png",
       "file": "03_png_assets/hat/hat_18_male.png",
-      "sha256": "ae30ae75c72e8160eff974502fa9c9e6e3798276bb82e32f7717a0a9de676897",
+      "sha256": "7f027567de5f9acea000994d5351c7234dd7b2a7c7ec037cbaa3d0e3bcb6c0a5",
       "width": 1024,
       "height": 1024,
       "box": [
         456,
-        78,
+        73,
         577,
-        151
+        156
       ],
       "hairCutoutMask": "04_masks/hat/hat_18_male_haircut.png",
       "fitBody": "male",
@@ -7873,14 +7873,14 @@
       "pair": "hat_19_female",
       "path": "03_png_assets/hat/hat_19_male.png",
       "file": "03_png_assets/hat/hat_19_male.png",
-      "sha256": "d301cbe2f8074cf33f6ba0941a50c5e93049cb3844c3c484e0e079cda98c70f8",
+      "sha256": "8301e9731551660e82d68aca9a9d97471bddb52718d4e6493af9c031d2fa5b77",
       "width": 1024,
       "height": 1024,
       "box": [
         458,
-        86,
+        79,
         589,
-        157
+        164
       ],
       "hairCutoutMask": "04_masks/hat/hat_19_male_haircut.png",
       "fitBody": "male",
@@ -7908,12 +7908,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        430,
-        377,
-        605,
-        895
+        423,
+        400,
+        615,
+        899
       ],
-      "sha256": "17f075b700a6635ab0c872d9418d8cff8d76ed60757886607106342b63418da8",
+      "sha256": "fc759cc11e8d3cdd1c23efd2c730973fd49c830bef482fb5ca336c079f9c52ec",
       "shoeOcclusionMask": "04_masks/bottom/bottom_06_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_06_female_bodycut.png",
       "fitBody": "female",
@@ -7944,12 +7944,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        433,
-        378,
-        604,
-        903
+        423,
+        400,
+        618,
+        900
       ],
-      "sha256": "6ffb05703b8c9847d3db94e3c66b58f95fcbad9294c2780b667567747c45e357",
+      "sha256": "9a367da49c38d47db4ab02713a38fb0b3bd1c3aed5c7f21d228c07fb0e095d77",
       "shoeOcclusionMask": "04_masks/bottom/bottom_07_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_07_female_bodycut.png",
       "fitBody": "female",
@@ -7980,12 +7980,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        429,
-        375,
-        606,
-        714
+        425,
+        400,
+        615,
+        850
       ],
-      "sha256": "1e2f450b0a84dfdc2bd7d6247abbd56c6e97bf616e6deebab3ea38679039354e",
+      "sha256": "143e9f56129032b8a57ffee719472956b8503bcc06f38219ba20065bdc334e50",
       "bodyCutoutMask": "04_masks/bottom/bottom_08_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8015,12 +8015,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        429,
-        382,
-        607,
-        858
+        431,
+        400,
+        610,
+        850
       ],
-      "sha256": "984b00d325be3064c539a2e234694a00d343f793d6a25d2f4e9aa15cf5b9d521",
+      "sha256": "7b556bbf25b3932921b8f88c87138f4cf4c601de529ff651f5698503c432978e",
       "bodyCutoutMask": "04_masks/bottom/bottom_09_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8051,12 +8051,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        378,
-        607,
-        912
+        431,
+        400,
+        609,
+        910
       ],
-      "sha256": "679f9d4ca4ff75b374ed14e580269c5c292ffa8f1989415b504611a0f2b7aa5e",
+      "sha256": "679b579b0a2fbc1fca1d08b2ad35a437be206798b0c641f0ec9afb2332d99e06",
       "shoeOcclusionMask": "04_masks/bottom/bottom_10_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_10_female_bodycut.png",
       "fitBody": "female",
@@ -8087,12 +8087,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        387,
-        412,
-        646,
-        798
+        380,
+        411,
+        649,
+        850
       ],
-      "sha256": "6bbdd564df6b1c276a9755365b54538a86225838ed9e2ce4432bfc03431f77a2",
+      "sha256": "192eef5ea466c7ca72045d8a307c5aff013c42d9bba4576be20afda9289c1ebe",
       "bodyCutoutMask": "04_masks/bottom/bottom_16_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8119,12 +8119,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        432,
-        417,
-        616,
-        772
+        423,
+        400,
+        634,
+        850
       ],
-      "sha256": "e84a4c40a9f4ae404b14f9a5ce20e45e033af7128126bb0854cbd6ce94bbe3b3",
+      "sha256": "8a00a1563b40592588eebe604c88566e59be4041975b3d56223f30e9500c4bc7",
       "bodyCutoutMask": "04_masks/bottom/bottom_17_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8153,12 +8153,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        363,
-        412,
-        678,
-        754
+        353,
+        400,
+        680,
+        850
       ],
-      "sha256": "dbc6f028874fa7fb82ce7023b7bcd645a5fb62caa0e5c2e484fbe07bd8992c60",
+      "sha256": "70164ba5177743cc41f137c3b84c74796ecdf3860cae45b0ce1a1b17fea41ddd",
       "bodyCutoutMask": "04_masks/bottom/bottom_18_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8185,12 +8185,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        413,
-        412,
-        613,
-        563
+        403,
+        400,
+        627,
+        850
       ],
-      "sha256": "3cdb03ab90ea06e5dd2fc03bcdcf79a91fa8bca8e62234c4107182b3cd23e9c0",
+      "sha256": "5ab0ea8afb82fcef92208378b14392423b1494107f309966cba604df13217417",
       "bodyCutoutMask": "04_masks/bottom/bottom_19_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8218,11 +8218,11 @@
       "height": 1024,
       "box": [
         428,
-        412,
-        632,
-        907
+        414,
+        625,
+        905
       ],
-      "sha256": "3728e765a27e1b8aca60af3eacb9dbf0751d744a6bc83e9768421983baaf38c9",
+      "sha256": "8d7ca4c1df897b70dfc3936db90040ef6daeff94ba9b02ea93223ed3d122b8e9",
       "shoeOcclusionMask": "04_masks/bottom/bottom_20_male_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/bottom/bottom_20_male_bodycut.png",
       "fitBody": "male",
@@ -8250,12 +8250,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        461,
-        865,
-        615,
+        463,
+        845,
+        607,
         974
       ],
-      "sha256": "1c82210464ba16ded2afcbecebbbaff1abde5ae9488ee9407743453e1d25ec03",
+      "sha256": "c873946518d033956d0c08c73346e3c638201e7326511a268d33665d50c291a5",
       "bodyCutoutMask": "04_masks/shoe/shoe_06_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8283,12 +8283,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        460,
-        808,
-        617,
-        972
+        465,
+        835,
+        603,
+        974
       ],
-      "sha256": "3f904d399dd4034e3187e483cb98f53b78a2130e828554b00ba69482c40d171f",
+      "sha256": "1a4dd3eb53e978b37b8f8039bf5a0d9220929209d22ea62c31b72483b2e2f90f",
       "bodyCutoutMask": "04_masks/shoe/shoe_07_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8316,12 +8316,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        458,
-        879,
-        620,
-        973
+        465,
+        845,
+        601,
+        974
       ],
-      "sha256": "c3c505b5e64bc41e2d4fbc0cc1b7a0744edbfa2ee0c48ff89580ab7164544209",
+      "sha256": "35d5645827db79fd5b3a3db667411de3bb58a4e8f4b88bbd7f0d1ed202e33332",
       "bodyCutoutMask": "04_masks/shoe/shoe_08_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8349,12 +8349,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
-        837,
-        617,
-        973
+        466,
+        845,
+        600,
+        974
       ],
-      "sha256": "049e0c77a149d25ed425e17c5c7183271c537ae75b3a9594a44f7921e61dfe52",
+      "sha256": "aec73c5685dd431a112f9615b0f3ce7a0482cf23229aabfb232b5477c260cb66",
       "bodyCutoutMask": "04_masks/shoe/shoe_09_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8382,12 +8382,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        864,
-        615,
-        973
+        469,
+        845,
+        601,
+        974
       ],
-      "sha256": "f15421fdbdaba1c8c9dad40f32206d93c5b51259e71d6a1239c3245eec7e1428",
+      "sha256": "5f1153d69ba2487c787b17888b7ce967d79d24e6d6b0c57eadd9e2048389e2bb",
       "bodyCutoutMask": "04_masks/shoe/shoe_10_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8415,12 +8415,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        420,
-        849,
-        654,
-        961
+        417,
+        846,
+        660,
+        960
       ],
-      "sha256": "a302d75f1980d77a55b17531a8eebe00086ee80b617581ead50f75e00f304e23",
+      "sha256": "a3fa209e336a798e93f49b7c6e64ad9cdc6d8c4559219b5e6a771aa3bc159e1e",
       "bodyCutoutMask": "04_masks/shoe/shoe_16_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8447,12 +8447,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        421,
-        700,
-        655,
-        959
+        416,
+        732,
+        658,
+        960
       ],
-      "sha256": "f7d16fa062802f42cc208e4fe0206da7fa206025eb4ae94fb1f94145a92fbf2b",
+      "sha256": "1977a5278d0fda1ac7e913263689540572641f0cbec47a54669f6f73174c5e5c",
       "bodyCutoutMask": "04_masks/shoe/shoe_17_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8479,12 +8479,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        418,
-        860,
-        654,
+        417,
+        846,
+        665,
         960
       ],
-      "sha256": "2ff03da92982922dac5017f31c414bb691aaba6808fc756119975a56b8feb3e3",
+      "sha256": "75ff9a7c63a8b790a5e96f471662a8ce0e5ada589a48672cf848f83fd2871164",
       "bodyCutoutMask": "04_masks/shoe/shoe_18_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8511,12 +8511,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        421,
-        864,
-        651,
+        415,
+        846,
+        662,
         960
       ],
-      "sha256": "e8adc9eb01c8dbfcd6912927397a2bd390dd537e71cc1e7207a4fef17d8f811f",
+      "sha256": "abe44666b4e2c72bda381a030f4192fbe2312331d2abb190f8d6a167753a0828",
       "bodyCutoutMask": "04_masks/shoe/shoe_19_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8543,12 +8543,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        414,
-        830,
-        656,
+        412,
+        844,
+        666,
         960
       ],
-      "sha256": "5a8023c268821f495f44275696623e9c99d86ee790375f443ae55523038d6066",
+      "sha256": "2d391509a2b68ef87e45f4ca07d8652e7305987a360c9bf25d8b4012f694caf8",
       "bodyCutoutMask": "04_masks/shoe/shoe_20_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8575,12 +8575,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        209,
-        657,
-        926
+        373,
+        195,
+        660,
+        901
       ],
-      "sha256": "d812e1473aab2747846869f4e507ae385abee3d927d384bcce2ac5f096c350f9",
+      "sha256": "7a1fb9c5164c4deb630277f2a5a3bd9f27f0b9d5c7893c239900a586373dd031",
       "shoeOcclusionMask": "04_masks/outfit/outfit_06_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_06_female_bodycut.png",
       "fitBody": "female",
@@ -8612,12 +8612,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        209,
-        673,
-        825
+        374,
+        195,
+        678,
+        897
       ],
-      "sha256": "cdbec11c14d87fdda4fe2cf134bd6964783ca1a8c26c9dfb7d71fd18d11377e5",
+      "sha256": "b311f63c1231404e164f808ba405b25ebae9dd53f99fb60e9e39d6f6b9dea310",
       "bodyCutoutMask": "04_masks/outfit/outfit_07_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8648,12 +8648,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        379,
-        209,
-        656,
-        897
+        373,
+        195,
+        663,
+        898
       ],
-      "sha256": "5a66c09611fd44e38e5dc2ae78e14885ab161a2d32e80a7b05a96e89a296ecda",
+      "sha256": "849acfaa810b9c225711147ec7474d6a0654f4bee47b59f2d8417fd71d6a5a9e",
       "shoeOcclusionMask": "04_masks/outfit/outfit_08_female_shoeocclusion.png",
       "bodyCutoutMask": "04_masks/outfit/outfit_08_female_bodycut.png",
       "fitBody": "female",
@@ -8685,12 +8685,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        401,
-        209,
-        658,
-        794
+        374,
+        195,
+        661,
+        897
       ],
-      "sha256": "c37c7cc7b378ca333a6920d5bafc8ae84d6a365b195da68db93029a057fd0c39",
+      "sha256": "2e6161fef8a00d2bb52c20d5aff91c502cad0d7e2a922135a69f68337593a19d",
       "bodyCutoutMask": "04_masks/outfit/outfit_09_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8721,12 +8721,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        403,
-        209,
-        654,
-        736
+        372,
+        195,
+        661,
+        899
       ],
-      "sha256": "2c4ca8bc44e5d94ea98a3a12b6d699af1197ebd910c0d11178a2dd9580fc2a90",
+      "sha256": "8b0af870d0d2901bb42181d22de82ef86eebd409741a3fb07cf3d9a87ecba0c9",
       "bodyCutoutMask": "04_masks/outfit/outfit_10_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -8757,12 +8757,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        368,
-        219,
-        657,
-        580
+        359,
+        195,
+        670,
+        888
       ],
-      "sha256": "d7ffdae189cbdcff8ecb7be2cd1ebe7c55f8989b4c8140c8584deadc3ba4703a",
+      "sha256": "45a0aab19b13faa68d5b31d267e0dc848c26333d4c90fdc506a7545bc4b55b7e",
       "bodyCutoutMask": "04_masks/outfit/outfit_16_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8791,12 +8791,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        358,
-        219,
-        668,
-        598
+        349,
+        195,
+        681,
+        889
       ],
-      "sha256": "b145d97250f73ecf08e1e7a8896cd58c2de0fe9be1a5dc610f306a7240d28d8b",
+      "sha256": "c1e3b56f2ffa68e868e02a084750087b332c12fd7de8cfaa5afe19abe40ec4c6",
       "bodyCutoutMask": "04_masks/outfit/outfit_17_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8825,12 +8825,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        380,
-        219,
-        644,
-        555
+        371,
+        195,
+        656,
+        888
       ],
-      "sha256": "c23c2112492736bab9a5346ce67c78a00c2237337a7b7e1745a1e0e6e37d0841",
+      "sha256": "e63eaf24eedd5c96f672d7820d19caafe8fe57c2ba6ffa390b2a8c2963df906b",
       "bodyCutoutMask": "04_masks/outfit/outfit_18_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8859,12 +8859,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        382,
-        219,
-        641,
-        554
+        373,
+        195,
+        655,
+        886
       ],
-      "sha256": "66dd4914e2e255bee059635b9199c670a75613207330b6e50628ca005946f48d",
+      "sha256": "55da570e9b94b4bf3ed6bf14dead1b150be4370bf5f139f6949ad61f1968e52a",
       "bodyCutoutMask": "04_masks/outfit/outfit_19_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8893,12 +8893,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        385,
-        219,
-        647,
-        676
+        369,
+        195,
+        659,
+        884
       ],
-      "sha256": "38bbe8b5cc285615921ce491c0328c98e8a715f2db4b7b6830a2caa81ad16f0a",
+      "sha256": "604a4f6c32413e40c9378ab766f63fe41660a6ce9c639f62a0ff518b480f56ec",
       "bodyCutoutMask": "04_masks/outfit/outfit_20_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -8927,12 +8927,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        350,
-        483,
+        351,
+        495,
         440,
-        658
+        646
       ],
-      "sha256": "4f0ac98c806b5299ef268c60ddf662a1bab9bd9afb103090fadf236c29b47936",
+      "sha256": "31a8df03815f1fd0ef8ea9d980f60c0375968a5194142dc1fb601b0d4cbe8b70",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -8959,12 +8959,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        468,
-        168,
+        469,
+        167,
         554,
-        211
+        213
       ],
-      "sha256": "161475e8952d4f8e6e29b4dbfbea839304e6587705ab3c9c37fedd9fd1bcf072",
+      "sha256": "6ed65347427302570c8aa48750afdd3745a0bb0629d7c3169307e07df3f3b241",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -8992,11 +8992,11 @@
       "height": 1024,
       "box": [
         471,
-        152,
+        153,
         553,
-        175
+        174
       ],
-      "sha256": "d41fd00d98f97065baa4c15b6aeba876c973e76357ecac12253d319f9b4d2f2a",
+      "sha256": "e40494bdf0523b3843248630dd336801f3493fcfdeff6f0131855412cbd0e845",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -9024,11 +9024,11 @@
       "height": 1024,
       "box": [
         368,
-        478,
+        459,
         658,
-        548
+        567
       ],
-      "sha256": "a0facd578464fd6255b94814cc253d24bd25cb73afaede67d761a5da8f6f72cb",
+      "sha256": "49f9375928d60f0342c90d481fd3f84b93eb0c5d170939181b93384c661add98",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -9056,11 +9056,11 @@
       "height": 1024,
       "box": [
         598,
-        499,
+        509,
         665,
-        663
+        654
       ],
-      "sha256": "5ababbd3030559dc60bdbb6810117ef960766057d095affd5b4391fb9d98106c",
+      "sha256": "7a69acfb85dea7395e73f41b7ee23aa940b01014ff9f2a7a9e7da546361a2eee",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -9087,12 +9087,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        532,
-        173,
+        533,
+        174,
         537,
-        178
+        179
       ],
-      "sha256": "42491eef7c95c6c04742e248459fd5403a0cb3d931b0a7e14789dfbf741c21f9",
+      "sha256": "174662427ce44577492c70db44f79181ad821f49137a6743a10bbe3ac9de5f4b",
       "fitBody": "male",
       "designAvailableFor": [
         "male",
@@ -9119,12 +9119,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        408,
-        209,
-        654,
-        530
+        373,
+        218,
+        659,
+        575
       ],
-      "sha256": "4a7d26e6c080581f8041faa9dba9031402c9112155779404ce963bb8f9ddba8d",
+      "sha256": "2e501f4751ed6f5fc00a6768aa9f01c6521f4a3d9913f9bb664e468cf2928cc2",
       "bodyCutoutMask": "04_masks/top/top_10_female_bodycut.png",
       "fitBody": "female",
       "designAvailableFor": [
@@ -9156,11 +9156,11 @@
       "height": 1024,
       "box": [
         374,
-        217,
-        653,
-        455
+        202,
+        652,
+        583
       ],
-      "sha256": "6ff15af917e9d1dbcca28fa995b084059d9af38e230bbbf0c38b133ea422c789",
+      "sha256": "f77f9eddba622b98a84b4609b2e791d1ff8afc106b2b19342553a4d1f9a7e630",
       "bodyCutoutMask": "04_masks/top/top_19_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -9189,12 +9189,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        375,
-        219,
-        651,
-        526
+        374,
+        202,
+        652,
+        583
       ],
-      "sha256": "ed90749695ba3f042de80121aade17a0e7fc3d7f6db2cdbc103c4f3964696533",
+      "sha256": "01abc6cb5e4d060f82ecb37f0a842f0e35904b24e2ce126cf788eeb8bc9ff8c0",
       "bodyCutoutMask": "04_masks/top/top_20_male_bodycut.png",
       "fitBody": "male",
       "designAvailableFor": [
@@ -9220,14 +9220,14 @@
       "pair": "hat_10_male",
       "path": "03_png_assets/hat/hat_10_female.png",
       "file": "03_png_assets/hat/hat_10_female.png",
-      "sha256": "09fa0176a9aa83c1e1f8057c158f8c052dba153a2dcecdf7cc8160a2abe3d17c",
+      "sha256": "5ed1f07c33fa291d84d53635dc53a9aa3c22953b27d25c113672b9e295d0e55f",
       "width": 1024,
       "height": 1024,
       "box": [
-        491,
-        56,
+        492,
+        55,
         587,
-        134
+        136
       ],
       "hairCutoutMask": "04_masks/hat/hat_10_female_haircut.png",
       "fitBody": "female",
@@ -9252,14 +9252,14 @@
       "pair": "hat_20_female",
       "path": "03_png_assets/hat/hat_20_male.png",
       "file": "03_png_assets/hat/hat_20_male.png",
-      "sha256": "c95693a5402e42d2a5e89fbb1b0053b3419242f6539ce0cf6a2d1f8f0b256220",
+      "sha256": "223c6e845beab2acff09f9527bf6347ad6b471ba731331576f82c9261bb80642",
       "width": 1024,
       "height": 1024,
       "box": [
         424,
-        69,
+        66,
         603,
-        145
+        149
       ],
       "hairCutoutMask": "04_masks/hat/hat_20_male_haircut.png",
       "fitBody": "male",
@@ -9288,11 +9288,11 @@
       "height": 1024,
       "box": [
         467,
-        152,
+        156,
         557,
-        177
+        174
       ],
-      "sha256": "31f18772da41cbdd02ab9d14dec24c81b69281892a872ffaf8ecce37c5c2e22e",
+      "sha256": "7714ac0f53bf9475559ba0fa227563c515176dd2b85863c3b5be9ffafcee32a5",
       "fitBody": "female",
       "designAvailableFor": [
         "male",
@@ -9315,14 +9315,14 @@
       "pair": "male_hair_04_back",
       "path": "03_png_assets/hair/male_hair_04_front.png",
       "file": "03_png_assets/hair/male_hair_04_front.png",
-      "sha256": "93bb8590deb42f1693a54fa5119b7b66a57bd536ec520ce6b2e5cb445a17b9f8",
+      "sha256": "537c0c48679803cd544bad732524faf8f73b1fc4b6ce22b3da6b1d9ee43f756f",
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        82,
-        563,
-        169
+        463,
+        83,
+        562,
+        170
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_04_v2.png",
@@ -9355,14 +9355,14 @@
       "pair": "male_hair_04_front",
       "path": "03_png_assets/hair/male_hair_04_back.png",
       "file": "03_png_assets/hair/male_hair_04_back.png",
-      "sha256": "f9f5f22f735c4c49c4deb91911dc76308a07e7b3e0e765461fdb5e95cbfb8adc",
+      "sha256": "8e222f87df12c9962d37a4df22ec48998c2949dec9688d43b2e60b17d522123d",
       "width": 1024,
       "height": 1024,
       "box": [
-        465,
-        85,
-        560,
-        140
+        464,
+        84,
+        561,
+        141
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_04_v2.png",
@@ -9395,13 +9395,13 @@
       "pair": "male_hair_05_back",
       "path": "03_png_assets/hair/male_hair_05_front.png",
       "file": "03_png_assets/hair/male_hair_05_front.png",
-      "sha256": "fe1e4b7203dc541e6233ffc2560bdbbfebf6031d879d32878ee8a84e7cd422aa",
+      "sha256": "1a9b793eda8b90f4cd51e632efcab5a301e55f385f662fc636881f40ce957e7a",
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
-        83,
-        566,
+        459,
+        85,
+        564,
         173
       ],
       "directOriginalSourcePaint": true,
@@ -9434,7 +9434,7 @@
       "pair": "male_hair_05_front",
       "path": "03_png_assets/hair/male_hair_05_back.png",
       "file": "03_png_assets/hair/male_hair_05_back.png",
-      "sha256": "11cbae39a51afb9595874cfa45da887ef26f2b73ecfc679448a3ff2e6b84ac39",
+      "sha256": "840c7c665874ddd2fa7d1e81365d1835950f7b90d73157c399f3b0b453ee40c7",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -9473,12 +9473,12 @@
       "pair": "male_hair_06_back",
       "path": "03_png_assets/hair/male_hair_06_front.png",
       "file": "03_png_assets/hair/male_hair_06_front.png",
-      "sha256": "61dd987dbf997d5d384e6f6f8cfe91edd906257a82ddce75be08d919b3a1fa99",
+      "sha256": "3f5210630fce322c61c7282b29fe866dbfc86c67fb37ee992dc301bcf33c2e27",
       "width": 1024,
       "height": 1024,
       "box": [
-        465,
-        85,
+        466,
+        86,
         559,
         156
       ],
@@ -9513,14 +9513,14 @@
       "pair": "male_hair_06_front",
       "path": "03_png_assets/hair/male_hair_06_back.png",
       "file": "03_png_assets/hair/male_hair_06_back.png",
-      "sha256": "dcd400135e1372251ddcc790e75ae21db4c0808de7aac0d07cc17e1d51dca600",
+      "sha256": "c76b5c16a2e8a97dd1643aacb1da50af351e70ce447c9971eaf0baae1aeb5996",
       "width": 1024,
       "height": 1024,
       "box": [
         467,
-        88,
-        557,
-        140
+        87,
+        558,
+        141
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_06_v5.png",
@@ -9553,12 +9553,12 @@
       "pair": "male_hair_07_back",
       "path": "03_png_assets/hair/male_hair_07_front.png",
       "file": "03_png_assets/hair/male_hair_07_front.png",
-      "sha256": "c03d7e6b324803333e0a081283fa7d34c9018c097986f339f34c542f47758040",
+      "sha256": "08049ce0c44523d157155d8e91203bd63369dc0fe1b8731c1270ec7133f71cc4",
       "width": 1024,
       "height": 1024,
       "box": [
         465,
-        82,
+        83,
         560,
         163
       ],
@@ -9593,14 +9593,14 @@
       "pair": "male_hair_07_front",
       "path": "03_png_assets/hair/male_hair_07_back.png",
       "file": "03_png_assets/hair/male_hair_07_back.png",
-      "sha256": "4065836004a7442ed99746fed385f65c2b1e6347f2f7cdcba09f464cb83f3b9f",
+      "sha256": "3f96d6cb2042f5011c0b9577ebc32a27fedf0766d45b12e009b6b1653e871042",
       "width": 1024,
       "height": 1024,
       "box": [
-        468,
-        85,
-        556,
-        140
+        467,
+        84,
+        557,
+        141
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_07.png",
@@ -9633,14 +9633,14 @@
       "pair": "male_hair_08_back",
       "path": "03_png_assets/hair/male_hair_08_front.png",
       "file": "03_png_assets/hair/male_hair_08_front.png",
-      "sha256": "d2186412f87ab807a7a4e3681a4cb8398821d347ff56e59f379a7d9f07c5d27e",
+      "sha256": "38bfb4bd7d76509e7cd2e0ab3d679e0fd0acd35012daaaa37f40f384ce1ea7b6",
       "width": 1024,
       "height": 1024,
       "box": [
-        457,
-        80,
-        566,
-        174
+        458,
+        82,
+        565,
+        175
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/generated/r4/male_hair_08_rgb_edge_v1.png",
@@ -9672,7 +9672,7 @@
       "pair": "male_hair_08_front",
       "path": "03_png_assets/hair/male_hair_08_back.png",
       "file": "03_png_assets/hair/male_hair_08_back.png",
-      "sha256": "4075c3af05da14102ae445fafda44e69dcdb828e929833d7d4dcf7a173bc2799",
+      "sha256": "fbff08ca062e92f1ddf7c00145419c81a396120b6fabc3a43604a50798bc7171",
       "width": 1024,
       "height": 1024,
       "box": [
@@ -9711,14 +9711,14 @@
       "pair": "male_hair_09_back",
       "path": "03_png_assets/hair/male_hair_09_front.png",
       "file": "03_png_assets/hair/male_hair_09_front.png",
-      "sha256": "6c760525e9047ecbd6bdda61fb2960e89451f8c9319e8a4785f01605ba91ee29",
+      "sha256": "cf33ebbb4ad37c008e71981fbdd7c15c15b91281ffb2db50abdc395a5bde9785",
       "width": 1024,
       "height": 1024,
       "box": [
-        461,
-        88,
-        561,
-        167
+        455,
+        83,
+        568,
+        169
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_09_v3.png",
@@ -9751,14 +9751,14 @@
       "pair": "male_hair_09_front",
       "path": "03_png_assets/hair/male_hair_09_back.png",
       "file": "03_png_assets/hair/male_hair_09_back.png",
-      "sha256": "186df8fc56793207208acdbb5c442c02fac32c2030711ab4894f5d00015778f5",
+      "sha256": "752a77b2a5e571f428a1ce6c0e50283beec44aed7e781702662b5599a3f2ce63",
       "width": 1024,
       "height": 1024,
       "box": [
-        466,
-        89,
-        558,
-        140
+        461,
+        84,
+        563,
+        166
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_09_v3.png",
@@ -9791,12 +9791,12 @@
       "pair": "male_hair_10_back",
       "path": "03_png_assets/hair/male_hair_10_front.png",
       "file": "03_png_assets/hair/male_hair_10_front.png",
-      "sha256": "ea863404b6ea262ba21de790e3df489277e99770ecdef9b5a37e42844009c261",
+      "sha256": "5773e8080d1524f6efce42bbbfd690b2cb087906a5ec2b9e794d67107b106183",
       "width": 1024,
       "height": 1024,
       "box": [
-        462,
-        80,
+        463,
+        81,
         562,
         165
       ],
@@ -9831,14 +9831,14 @@
       "pair": "male_hair_10_front",
       "path": "03_png_assets/hair/male_hair_10_back.png",
       "file": "03_png_assets/hair/male_hair_10_back.png",
-      "sha256": "06560a01fb40a772c10bd45621be37bd426a5d89070dde87a49f6dfdc7ae9b96",
+      "sha256": "8debf203d721cc3ceb59b87be7bf028c803b9730669ebbfeba22a4cd95b02919",
       "width": 1024,
       "height": 1024,
       "box": [
-        464,
-        82,
-        561,
-        140
+        463,
+        81,
+        562,
+        141
       ],
       "directOriginalSourcePaint": true,
       "source": "03_제작기록/r9/generated/male_hair_10_v5.png",
@@ -9873,12 +9873,12 @@
       "file": "03_png_assets/hair/female_hair_07_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "9bc27d9c955312f7bac10608fcf840ad9ffc509e31fabc7f6dfa280df17675d5",
+      "sha256": "8a84677837b1a3ca146b72b331a0b592a7b9d80d8c886a80af32dc9e3fb8906f",
       "box": [
-        461,
-        64,
-        589,
-        160
+        455,
+        83,
+        568,
+        176
       ],
       "source": "03_제작기록/r9/generated/female_hair_07_v2.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_07_complete_v2.png",
@@ -9912,10 +9912,10 @@
       "file": "03_png_assets/hair/female_hair_07_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "679191bcdf81452bb278052ed8dcad39393e4619cd164acb7cea0d89c7152d49",
+      "sha256": "1473e3f73989a8e640f5087272ba369f65d7cc342762271f6e7a0c75dcf8e3c6",
       "box": [
-        463,
-        66,
+        462,
+        64,
         627,
         319
       ],
@@ -9951,12 +9951,12 @@
       "file": "03_png_assets/hair/female_hair_04_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "0ab0dc1acbb7b9ed5d455fe8faf7793061d8faca54bb4ec30d9c1bf51c890a27",
+      "sha256": "54c09548c4cffcfc4e40822d33a78acbf49f6875cf5deaa40fd53800d09b76d5",
       "box": [
-        453,
-        76,
-        571,
-        160
+        448,
+        80,
+        580,
+        179
       ],
       "source": "03_제작기록/r9/generated/female_hair_04_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_04_rgb_edge_v1.png",
@@ -9990,12 +9990,12 @@
       "file": "03_png_assets/hair/female_hair_04_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "66fa42091a4140a796d4e0fc3d7ea2ac217ad527b5c53e5e66d481a33b63ce6c",
+      "sha256": "569bcad84ce509819e64bb7350feba3e6b268f72ac4640df70a0232a7c5722d4",
       "box": [
-        423,
-        78,
-        649,
-        378
+        380,
+        80,
+        650,
+        383
       ],
       "source": "03_제작기록/r9/generated/female_hair_04_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_04_rgb_edge_v1.png",
@@ -10029,12 +10029,12 @@
       "file": "03_png_assets/hair/female_hair_05_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "189f56ade5283157e6981ad33bc6ed9a3d2e8b089a81bd2881127e82f22ddec3",
+      "sha256": "499fb767488a70c367f57ead74918aedbdc665da441e30b0c40af6079782e5ed",
       "box": [
-        454,
-        80,
-        571,
-        160
+        455,
+        81,
+        569,
+        164
       ],
       "source": "03_제작기록/r9/generated/female_hair_05_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_05_rgb_edge_v1.png",
@@ -10068,10 +10068,10 @@
       "file": "03_png_assets/hair/female_hair_05_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "5e87e1b2c7b4b6e1675e3081bc281ac627876d9c54368f610486f06669e0afc3",
+      "sha256": "938fa5759e71652f023db2a4f824e24286caf200c83040a27c02aa354e76c5d4",
       "box": [
         449,
-        83,
+        80,
         578,
         252
       ],
@@ -10107,12 +10107,12 @@
       "file": "03_png_assets/hair/female_hair_06_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "d7b0bd1abf8b227f40b0f182cd29135e5e6f3a175746fd40db203110f0b75a80",
+      "sha256": "f52531fe977861e7bbbcfebab4a8c15207d718fc9149194fe28d852ea1aaf67d",
       "box": [
-        462,
+        464,
         69,
         561,
-        160
+        174
       ],
       "source": "03_제작기록/r9/generated/female_hair_06_v2.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_06_rgb_edge_v1.png",
@@ -10146,12 +10146,12 @@
       "file": "03_png_assets/hair/female_hair_06_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "a840b1a131f3f278e07dae51860d8a6a8225c42b4078399e3d7d60f64bc64c42",
+      "sha256": "649bbb7eb49df479202f812201ec06f538d4373b375cf95e88bbfcf309b95936",
       "box": [
         465,
-        71,
-        559,
-        162
+        70,
+        560,
+        170
       ],
       "source": "03_제작기록/r9/generated/female_hair_06_v2.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_06_rgb_edge_v1.png",
@@ -10185,12 +10185,12 @@
       "file": "03_png_assets/hair/female_hair_08_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "56cdccdaeb38c60463a00a4457b783ebe0c0dfa5a0efccf34e01b869d7229920",
+      "sha256": "d8c9fbf7cc5484b46123015b1b34c490418fe1a3632ef56115b7f3cf2e887188",
       "box": [
-        457,
+        458,
         80,
         567,
-        160
+        161
       ],
       "source": "03_제작기록/r9/generated/female_hair_08_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_08_rgb_edge_v1.png",
@@ -10218,12 +10218,12 @@
       "file": "03_png_assets/hair/female_hair_08_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "4f3b0722d82f51e854d52306860af8872f85c308b6f5849e65801a6b65c90f38",
+      "sha256": "7eecb428ea23b37a3e8e85d16cd0366528e7fb2659b449215d88678cb707521e",
       "box": [
-        462,
-        81,
-        563,
-        161
+        461,
+        80,
+        564,
+        162
       ],
       "source": "03_제작기록/r9/generated/female_hair_08_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_08_rgb_edge_v1.png",
@@ -10251,11 +10251,11 @@
       "file": "03_png_assets/hair/female_hair_09_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "91e6478de92eaca32ef9c51ca83b89ae35876a884eb82a1930c251ea474a29cc",
+      "sha256": "99ef25870d1535e0bd167a9291fcfaa2ed90e287b3a708b3e672837d0284f797",
       "box": [
-        449,
-        74,
-        575,
+        451,
+        76,
+        574,
         182
       ],
       "source": "03_제작기록/generated/r4/female_hair_09_rgb_edge_v1.png",
@@ -10282,7 +10282,7 @@
       "file": "03_png_assets/hair/female_hair_09_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "17d396eea5f6729950e08be8261dad4e3c15fb44a95698dd8ff63a97233f5ccf",
+      "sha256": "4c8d21ab0152ec98687756e46f9cdff835c24f714b76faff54c28d2a294e3460",
       "box": [
         466,
         89,
@@ -10313,12 +10313,12 @@
       "file": "03_png_assets/hair/female_hair_10_front.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "6ccb855594ed013cd2ef4436bee4a613f28fb1d9de8215d3ae90b14d2c41658b",
+      "sha256": "50ea47db67d485ecd5bdc974566ff74ed7540d5432338d74cb08fcda001893c5",
       "box": [
-        441,
-        78,
-        583,
-        160
+        447,
+        80,
+        577,
+        175
       ],
       "source": "03_제작기록/r9/generated/female_hair_10_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_10_rgb_edge_v1.png",
@@ -10352,12 +10352,12 @@
       "file": "03_png_assets/hair/female_hair_10_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "cd84960b0cb920c274fc27ccc030b1f578e353423fc642bab9112b154a5eb246",
+      "sha256": "dd5f397ad2a11932eed8659273c1097008239982989b195189664c83b858ea44",
       "box": [
-        423,
-        80,
-        652,
-        378
+        368,
+        79,
+        667,
+        477
       ],
       "source": "03_제작기록/r9/generated/female_hair_10_v1.png",
       "originalCompleteSource": "03_제작기록/generated/r4/female_hair_10_rgb_edge_v1.png",
@@ -10389,12 +10389,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "c68b016f5a23664af24f25e5f2b2ca1bdea7b60db14b892d7aeda1cf1d30835c",
+      "sha256": "faad60121ea6ff068377efef42a5059aa398073455a313a7e8d4c2d056c71a31",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_03.png",
@@ -10415,12 +10415,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
-      "sha256": "f5f21241ed27bc90e66f92e26fac095d83d1b4a6f481529477cdce0917a2e5ba",
+      "sha256": "f6b4751d168383322c09e77d35fc76e7aad1172c787c06a0b7facf97cebd7611",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/female_nose_03.png",
@@ -10441,12 +10441,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        188
+        505,
+        165,
+        523,
+        186
       ],
-      "sha256": "925012a2788186633d14d84d8005c6ce78b7767ec2c7cc310ab0ca415adac85d",
+      "sha256": "528930386fae4858f3e135288ccc3c1123c4edb9df498a87363d1b557938e9dc",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/male_nose_03.png",
@@ -10467,12 +10467,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "f19bab9c632aa6aa20d851ae13db870a3832de3facea8c2837a408a30cc9c28f",
+      "sha256": "f96f75d2eeda4cb7839b6c95fae544873a6412d251dc3a7174f67969d78afc9a",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_03.png",
@@ -10493,12 +10493,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
-      "sha256": "0a2dc614160da2eea0896fc4fc4ee8482ee81475c5face3b3b9a7de5766a61f9",
+      "sha256": "1b8a40e44db6585917c7cd8e82223cdc777f688ffa07e52b50dd6b9b272ded9f",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/female_nose_04.png",
@@ -10519,12 +10519,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        188
+        505,
+        165,
+        523,
+        186
       ],
-      "sha256": "63c9091331ff618f0735e0a4544b364ca86a346cfc5156e8ff04cbc39e2c474b",
+      "sha256": "c38875a527b8c87aab3d550757f002651032fcf6b7bcfb07cd26782101f74d6a",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/male_nose_04.png",
@@ -10545,12 +10545,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "7a848864cc302bda5b4c57ee5306c15bf2edb40ce7dd1023b3cc7be1f73680c8",
+      "sha256": "ff5e42500b9ecd98c81a53c7e83cd06b4098557d6b29dd7216ab963becdb837f",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_04.png",
@@ -10571,12 +10571,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "fdee89f889c34ed85068898eda919037dc17c615dc551789856403e1b2f995fe",
+      "sha256": "c743abb54e6aa8f0e849e0253124688b5145c3505aea67bd2b84e07af83dbf5d",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_04.png",
@@ -10597,12 +10597,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
-      "sha256": "2590246531cf4efa7492f2ced5a07c67e1070982b69e63967faf62faad09fdd4",
+      "sha256": "85289309722dfaa9c4bf9543533dc5b576a3afbf4946ed315a540e281df2396c",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/female_nose_05.png",
@@ -10623,12 +10623,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        188
+        505,
+        165,
+        523,
+        186
       ],
-      "sha256": "a15db3f2ecaf2437738fc3c73791609bde9702b4d43bced5cae39a73b2ccf1ab",
+      "sha256": "6808e1021075cb6fd796816d6b057413eaf34b1cd82247501399ffe820c5b67d",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/male_nose_05.png",
@@ -10649,12 +10649,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        188
+        505,
+        165,
+        523,
+        186
       ],
-      "sha256": "989ab2a9350a086f76684201edf8512f03cbb706f1ca5ea0acfa6479442c4c12",
+      "sha256": "a1706d56903d3182b14338a085ef6d9309dae18b206df62631c5e44acfe39b62",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/male_nose_06.png",
@@ -10675,12 +10675,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
-      "sha256": "50540e45ec6337f2830bc95fc447dc6dcd9901cf8991a2a5e77d322bef704372",
+      "sha256": "b261d56e2e1e3b189621350ab583726506b82703521e3dd626b42c47d9adfd5b",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/female_nose_06.png",
@@ -10701,12 +10701,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        189
+        504,
+        165,
+        523,
+        188
       ],
-      "sha256": "8bcce4536b637a396523f356ce632f6935dd64c4e2affa5e0252a073aa2fd2a0",
+      "sha256": "588faaae1569de597e23aa38c40a95287ea17b8888b21a316a546ba24fcf225a",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/female_nose_07.png",
@@ -10727,12 +10727,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        502,
-        163,
-        524,
-        188
+        505,
+        165,
+        523,
+        186
       ],
-      "sha256": "ec3e1bfe1a70949302956be2caf0cba7f267d97d992ef8320c7e7ebbbd006137",
+      "sha256": "4772fcbf9d474b58b95e1e99fc1ae1eb1b75867a18518063bd73e8274f1280ba",
       "tintable": false,
       "slot": "nose",
       "nativeCompanion": "03_hd_assets/features/male_nose_07.png",
@@ -10753,12 +10753,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "2a27d9d8dd5f53c1d98f18fc022797ddfa8bb1d935bd2c18a86aa5f0c161cc56",
+      "sha256": "c701386e04c0f560ec46882419209321a02ca7cb828e7cc1ad7f38a40c3974e7",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_05.png",
@@ -10779,12 +10779,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "9ee4d88f604222e0794fd7fe46c2b62322b695af220d473fbd7a11b0bc462487",
+      "sha256": "0bb08081e459f31c5132125cf07364a97b8b73ce94a2284028d5538c8ec40ee1",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_05.png",
@@ -10805,12 +10805,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "2571036d28265a9784ee32312318b2375477e1015fe1c8d9758ea136fb78d9df",
+      "sha256": "710dd48fb43d10c06cc7ce75474ea1c9aa5c39ee1390a954b61bd7c4f26f70b1",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_06.png",
@@ -10831,12 +10831,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "4449a28acb039222d3a1b09c7b3e3efe031fb23aa36f62b560f1e42a1547d24c",
+      "sha256": "574eb85ec5d4f80ff391ab9b3d6a4bd36238b594f14efb5c0d0718173a0ed719",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_06.png",
@@ -10857,12 +10857,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "9eed32495de418460cf2e43cc2a1d85fab826d754cbff9423746fa12905f7a04",
+      "sha256": "090e00b3a9014add1511b5ce7aad4825327c07d2acf95182a2ae5a3fc3689e9a",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_07.png",
@@ -10883,12 +10883,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "83382cdd0b0844614686ee866d35e38f353099091cf7ce87f23536b79b4657a3",
+      "sha256": "65848990c3acd21b0a14c15d0882fbd83f2d7a4b4fe42db0af1885167d2e699c",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_07.png",
@@ -10909,12 +10909,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "df834abb6394d5cc65741a7f97fed3176db43ee8120693c6a6b6862772ae078a",
+      "sha256": "61bf1ee4986893f644241074fd222e0f8b1e1a2603bf3ccec5c0deb59cb0f20c",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_03_smile.png",
@@ -10935,12 +10935,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "0916b05a48b0f58c3c58ae77c2d55dfc5ba60d9d469003208829eea20d979602",
+      "sha256": "4e295b425fd5efa59c61b7dc0e6179fbe8d2e3c18e70c3e70c57462ab2b7f52d",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_03_smile.png",
@@ -10961,12 +10961,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "998f8a74a1110aba9ecd76bdd45b0b76ff3c31dd4bc77a0a48e7eca6b92d4289",
+      "sha256": "2a8e592caf538a8ea8835effad0c46966e7e6cd1576c5a287eb29c95c22e45f9",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_04_smile.png",
@@ -10987,12 +10987,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "b3cd22ff4bc3565c80353f5f81ba12050154376cd6f1a86db9b18e31792cfb49",
+      "sha256": "5d32c41a6250eb84d070a1cdd65eaf3fcda45e6ec7b93e99971e39010f042513",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_04_smile.png",
@@ -11013,12 +11013,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "1d4d221130d4566e9d1fa72c69f68a2c63f2086ea6d0438391e6de6f1d0da49c",
+      "sha256": "d310ddea9733c75eba6ac657a53cff5779ad870b127c70d309f9cd7544e98102",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_05_smile.png",
@@ -11039,12 +11039,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "432e0713fc7345739a134b677db4db14a85384af1a1a636668b4b45e08f61f2e",
+      "sha256": "42ede17b97bc2721d2c249b82d5c6e687465a65eab044293c26144084f22a4f7",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_06_smile.png",
@@ -11065,12 +11065,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "64d19acb59ca5569796bd07b40c0cefd6ce5e3c194b83e33791818e4907183a2",
+      "sha256": "a1aad0a3e46cba8df7f7a753fe11743e78f05ccd18107bddd6b5f5cf227fe7aa",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_05_smile.png",
@@ -11091,12 +11091,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "b417fd8cb522be2ae7e86920c792184933d62bd1b1a2d8328d94cc729a641a8d",
+      "sha256": "748f63576f2b538f2a6be7e4b92cb31ef5732e3631d36200babdbac29d4ed639",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_06_smile.png",
@@ -11117,12 +11117,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        184,
-        535,
-        204
+        493,
+        187,
+        534,
+        203
       ],
-      "sha256": "32187aa7a5fab645353af4187a3c909670c0042d13ac2211ddec86725031e250",
+      "sha256": "64f710e61258b6982c86cbdc667b9bcb13005ff7cfd178625f72733fd28a733a",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/female_mouth_07_smile.png",
@@ -11143,12 +11143,12 @@
       "width": 1024,
       "height": 1024,
       "box": [
-        490,
-        183,
-        535,
-        202
+        493,
+        185,
+        534,
+        201
       ],
-      "sha256": "59c3f4d700da29f6047f1ff1fcafd71ad18dd7d951be07b4491d4d13e46ccd04",
+      "sha256": "b799188e7175aef8feb7d34acd3b3b8f3f88aaa537b95310fda550110fc01454",
       "tintable": false,
       "slot": "mouth",
       "nativeCompanion": "03_hd_assets/features/male_mouth_07_smile.png",

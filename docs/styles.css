@@ -616,7 +616,7 @@ a { color: inherit; }
 .kg-try-media { position: relative; overflow: hidden; margin-bottom: 4px; border: 1px solid var(--line); border-radius: var(--r-md); transition: border-color .2s ease, box-shadow .2s ease; }
 .kg-try-tile:hover .kg-try-media { border-color: var(--line-2); box-shadow: var(--shadow-card); }
 .kg-try-tile.is-on .kg-try-media { border-color: var(--ink); box-shadow: 0 0 0 1px var(--ink); }
-.kg-try-tile.is-off .kg-try-media .kg-stage > svg { opacity: .55; }
+.kg-try-tile.is-off .kg-try-media .kg-stage > svg, .kg-try-tile.is-off .kg-try-media .kg-stage > .kg-photo { opacity: .55; }
 .kg-try-badge { position: absolute; z-index: 3; top: 6px; left: 6px; padding: 2px 8px; border-radius: 999px; background: rgba(255, 253, 250, .92); box-shadow: 0 2px 6px -2px rgba(33, 27, 40, .3); color: var(--text); font-size: 11px; font-weight: 800; line-height: 1.5; }
 .kg-try-badge:empty { display: none; }
 .kg-try-tile.is-tried .kg-try-badge { background: var(--accent); color: var(--accent-ink); }
@@ -687,9 +687,9 @@ a { color: inherit; }
 .kg-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 12px; }
 .kg-item { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 7px 7px 12px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--paper); box-shadow: var(--shadow-card); transition: transform .35s var(--ease), box-shadow .35s var(--ease); }
 .kg-item-media { position: relative; isolation: isolate; overflow: hidden; border-radius: 14px; }
-.kg-item-media .kg-stage > svg, .kg-item-media .kg-stage > .kg-actor { transition: transform .6s var(--ease); }
+.kg-item-media .kg-stage > svg, .kg-item-media .kg-stage > .kg-actor, .kg-item-media .kg-stage > .kg-photo { transition: transform .6s var(--ease); }
 .kg-item:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
-.kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: scale(1.04); }
+.kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor, .kg-item:hover .kg-item-media .kg-stage > .kg-photo { transform: scale(1.04); }
 .kg-item-code { position: absolute; z-index: 3; top: 9px; left: 9px; padding: 4px 9px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255, 253, 250, .9); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 2px 6px -2px rgba(33, 27, 40, .25); font-size: 12px; font-weight: 800; line-height: 1.2; color: var(--text); }
 .kg-item-code.accent { border-color: rgba(195, 61, 96, .35); color: var(--accent-text); }
 /* 번호 단추(누르면 복사 — 채팅 상점과 같은 번호). 손가락으로 누르기 쉽게 보이는 것보다 넓게 받는다 */
@@ -1174,7 +1174,7 @@ button.kg-item-code:focus-visible { outline: 2px solid var(--ink); outline-offse
 }
 @media (hover: none) {
   .kg-item:hover { transform: none; box-shadow: var(--shadow-card); }
-  .kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor { transform: none; }
+  .kg-item:hover .kg-item-media .kg-stage > svg, .kg-item:hover .kg-item-media .kg-stage > .kg-actor, .kg-item:hover .kg-item-media .kg-stage > .kg-photo { transform: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }

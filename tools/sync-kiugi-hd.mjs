@@ -49,7 +49,10 @@ export function readHdPackage(pkg = process.env.KIUGI_HD_PACKAGE || DEFAULT_PACK
   for (const [where, r] of [['02_클로드인계/HANDOFF_READY.json', readyA], ['HANDOFF_READY.json', readyB]]) if (r.ready !== true || r.status !== 'ready' || r.validationPassed !== true) problems.push(where + ' 가 준비되지 않았어요');
   if (JSON.stringify(readyA) !== JSON.stringify(readyB)) problems.push('두 HANDOFF_READY 가 달라요');
   for (const f of [path.join(handoff, 'STATUS.json'), path.join(pkg, 'STATUS.json')]) { const st = readJson(f); if (st.packageId !== readyA.packageId || st.ready !== true || st.status !== 'ready') problems.push(path.relative(pkg, f) + ' 가 준비 중이에요'); }
-  const rt = readJson(path.join(handoff, 'RUNTIME_FILES.json'));
+  // 런타임 목록: R9 는 02_클로드인계 안, R9 FIX1(2026-10-22)은 패키지 맨 위 — 둘 다 본다(안이 먼저)
+  const rtFile = [path.join(handoff, 'RUNTIME_FILES.json'), path.join(pkg, 'RUNTIME_FILES.json')].find((f) => fs.existsSync(f));
+  if (!rtFile) throw Object.assign(Error('패키지를 아직 가져올 수 없어요: RUNTIME_FILES.json 이 없어요'), { notReady: true });
+  const rt = readJson(rtFile);
   if (rt.packageId !== readyA.packageId) problems.push('RUNTIME_FILES.json 패키지 이름');
   const runtime = hashMap(rt.files);
   if (problems.length) throw Object.assign(Error('패키지를 아직 가져올 수 없어요: ' + problems.join(' · ')), { notReady: true });
@@ -75,13 +78,17 @@ export function readHdPackage(pkg = process.env.KIUGI_HD_PACKAGE || DEFAULT_PACK
   const refs = manifestPaths(hd), runtimeHd = [...runtime.keys()].filter((p) => /^(03_hd_assets|03_제작기록)\//.test(p) && !Object.values(MANIFESTS).includes(p));
   const missing = [...refs].filter((p) => !runtime.has(p));
   if (missing.length) throw Error('등록부가 가리키는데 런타임 파일에 없음: ' + missing.slice(0, 5).join(', '));
+  // 등록부가 가리키지 않는 고해상도 파일: R9 FIX1(2026-10-22)은 고친 그림을 새 길(03_제작기록/r9_fix1/…)에 두고 등록부를 그리로 바꿨다 —
+  //  예전 그림(03_hd_assets/hair/female_hair_02_back.png 등)은 런타임 목록에 남아 있지만 그리지 않으니 사이트에 넣지 않는다(알리기만)
   const extra = runtimeHd.filter((p) => !refs.has(p));
-  if (extra.length) throw Error('등록부가 가리키지 않는 고해상도 파일: ' + extra.slice(0, 5).join(', '));
+  if (extra.length) console.log(`등록부가 가리키지 않아 넣지 않는 고해상도 파일 ${extra.length}개(예: ${extra.slice(0, 3).join(', ')})`);
   for (const rel of refs) take(rel);
   const index = { v: 1, packageId: readyA.packageId, publishedAt: readyA.publishedAt || null,
     code: Object.fromEntries(Object.entries(CODE).map(([k, rel]) => [k, { path: rel, v: v12(runtime.get(rel)) }])),
     manifests: Object.fromEntries(Object.entries(MANIFESTS).map(([k, rel]) => [k, { path: rel, v: v12(runtime.get(rel)) }])) };
-  const files = { packageId: readyA.packageId, note: '패키지 RUNTIME_FILES.json 의 해시(호환 그림 03_png_assets·04_masks 는 docs/kiugi/<판>/ 사본이 같은지 시험이 본다)', files: Object.fromEntries([...runtime].sort(([a], [b]) => (a < b ? -1 : 1))) };
+  // 목록: 호환 그림(03_png_assets·04_masks — docs/kiugi/<판>/ 사본이 같은지 시험이 본다)과 넣은 파일(want)만 — 등록부가 가리키지 않아 넣지 않은 예전 고해상도 그림은 뺀다(R9 FIX1)
+  const listed = [...runtime].filter(([p]) => want.has(p) || /^(03_png_assets|04_masks)\//.test(p));
+  const files = { packageId: readyA.packageId, note: '패키지 RUNTIME_FILES.json 의 해시(호환 그림 03_png_assets·04_masks 는 docs/kiugi/<판>/ 사본이 같은지 시험이 본다 · 고해상도는 넣은 것만)', files: Object.fromEntries(listed.sort(([a], [b]) => (a < b ? -1 : 1))) };
   return { packageId: readyA.packageId, want, index, files };
 }
 

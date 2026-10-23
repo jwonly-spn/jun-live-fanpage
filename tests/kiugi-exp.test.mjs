@@ -71,7 +71,7 @@ test('표정 채팅(expLine): "!표정 <이름>" · 자동을 고르면 "!표정
   assert.match(feed, /expressionFor\(catalog, seasonId, level, exp\)\.name/); assert.match(feed, /photoBox\(\{ catalog, character, worn: c\.worn, level, exp, seasonId/);
   assert.match(feed, /\.\.\.\(exp \? \{ exp \} : \{\}\)/, '캐릭터 페이지 미리 보기에도');
   assert.match(await src('views/kiugi.js'), /expressionFor\(catalog, seasonId, p\.level, Number\.isInteger\(p\.exp\) \? p\.exp : null\)/);
-  assert.match(await src('lib/raster.js'), /const expression = expressionFor\(catalog, seasonId, level \|\| 1, exp\);/);
+  assert.match(await src('lib/raster.js'), /const expression = it \? null : expressionFor\(catalog, seasonId, level \|\| 1, exp\);/, '캐릭터 사진은 고른 표정 · 옷 한 벌 사진은 기본 얼굴(itemSvg 와 같게)');
   assert.match(await src('lib/kiugi-hd.js'), /expressionFor\(opts\.catalog, opts\.seasonId, Number\(opts\.level\) \|\| 1, opts\.exp \?\? null\)/);
 });
 

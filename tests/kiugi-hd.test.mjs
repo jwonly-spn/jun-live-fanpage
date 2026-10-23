@@ -43,7 +43,7 @@ test('그리는 코드(renderer.js · hair-color.js · renderer-hd.js)는 패키
     assert.equal(sha(await readFile(hdRoot + rel)), want, rel + ' 은 패키지 그대로(고치지 않는다)');
     assert.equal(files[rel], want, rel);
   }
-  assert.equal(index.packageId, 'DJ_STYLE_20261018_REDO_R9');
+  assert.equal(index.packageId, 'DJ_STYLE_20261019_R9_FIX1'); // 2026-10-23 R9 FIX1(머리 2·10 잘림·흰 테두리·웃는 눈 등 8가지 고침)
   assert.equal(index.packageId, ART.packageId, '고해상도와 호환 그림은 같은 패키지');
   for (const e of [...Object.values(index.code), ...Object.values(index.manifests)]) assert.equal(e.v, files[e.path].slice(0, 12), e.path);
   assert.deepEqual(Object.keys(index.code).sort(), ['assets', 'hairColor', 'renderer', 'rendererHd']);

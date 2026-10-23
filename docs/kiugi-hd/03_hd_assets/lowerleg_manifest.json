@@ -1,8 +1,8 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "assets": {
     "female": {
-      "path": "03_제작기록/r9/wardrobe_hd/lowerleg/female_lowerleg.png",
+      "path": "03_제작기록/r9_fix1/body_edge_mattes/female_lowerleg.png",
       "rect": [
         452.10526315789474,
         740.2631578947369,
@@ -13,7 +13,7 @@
         558,
         887
       ],
-      "sha256": "1e29f71ac0514f25aafeb76530c4cda8ae6c2bce255ad225a2392cc3932a6516",
+      "sha256": "0dc584fdd1b89d7f9bd9da75948e3c24744d38149334b5f909f5daebbfaac9ac",
       "source": "03_제작기록/r9/wardrobe_hd/lowerleg/female_native_v1.png",
       "sourceSha256": "4cd950710c9dc6c93b26ac33e881416f0c1154b3c53b5d891ebaf2f0da487128",
       "density": 3.8000000000000003,
@@ -45,10 +45,11 @@
           330,
           330
         ]
-      }
+      },
+      "fix1BoundaryWhiteMatteRemoved": true
     },
     "male": {
-      "path": "03_제작기록/r9/wardrobe_hd/lowerleg/male_lowerleg.png",
+      "path": "03_제작기록/r9_fix1/body_edge_mattes/male_lowerleg.png",
       "rect": [
         417.36842105263156,
         740.2631578947369,
@@ -59,7 +60,7 @@
         908,
         833
       ],
-      "sha256": "fae92bc7a2aef05d7a4ce6e394d25376f1fe2ad8c8061037e745a04b342e0222",
+      "sha256": "cd9aabf672b16ace36f522a2fa19fea2dc64bf33d2e5c8426071f7694ccfa370",
       "source": "03_제작기록/r9/wardrobe_hd/lowerleg/male_native_v1.png",
       "sourceSha256": "5f7b069058c56566b1745941b6b910911dcaf417a56d84f2b7ee42a8922309bc",
       "density": 3.8000000000000003,
@@ -91,7 +92,8 @@
           330,
           330
         ]
-      }
+      },
+      "fix1BoundaryWhiteMatteRemoved": true
     }
   },
   "use": "Only when native shoes are selected; native foot skin under footwear replaces rejected old SD rectangular patch.",
@@ -99,5 +101,9 @@
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }

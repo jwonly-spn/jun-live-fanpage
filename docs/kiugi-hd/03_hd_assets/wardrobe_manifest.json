@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "required": 240,
   "available": 240,
   "missingNative": [],
@@ -37,8 +37,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_01_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_01_female.png",
           "rect": [
             0,
             0,
@@ -49,8 +48,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_01_female_garment_restore",
@@ -161,6 +161,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_01_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -204,8 +220,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_01_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_01_male.png",
           "rect": [
             0,
             0,
@@ -216,8 +231,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_01_male_garment_restore",
@@ -328,6 +344,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_01_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -371,8 +403,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_02_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_02_female.png",
           "rect": [
             0,
             0,
@@ -383,8 +414,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_02_female_garment_restore",
@@ -495,6 +527,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_02_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -538,8 +586,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_02_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_02_male.png",
           "rect": [
             0,
             0,
@@ -550,8 +597,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_02_male_garment_restore",
@@ -662,6 +710,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_02_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -705,8 +769,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_03_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_03_female.png",
           "rect": [
             0,
             0,
@@ -717,8 +780,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_03_female_garment_restore",
@@ -829,6 +893,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_03_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -867,8 +947,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_03_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_03_male.png",
           "rect": [
             0,
             0,
@@ -879,8 +958,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_03_male_garment_restore",
@@ -991,6 +1071,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_03_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -1034,8 +1130,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_04_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_04_female.png",
           "rect": [
             0,
             0,
@@ -1046,8 +1141,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_04_female_garment_restore",
@@ -1244,6 +1340,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_04_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -1299,8 +1411,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_04_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_04_male.png",
           "rect": [
             0,
             0,
@@ -1311,8 +1422,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_04_male_garment_restore",
@@ -1423,6 +1535,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_04_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -1466,8 +1594,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_05_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_05_female.png",
           "rect": [
             0,
             0,
@@ -1478,8 +1605,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_05_female_garment_restore",
@@ -1676,6 +1804,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_05_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -1731,8 +1875,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_05_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_05_male.png",
           "rect": [
             0,
             0,
@@ -1743,8 +1886,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_05_male_garment_restore",
@@ -1855,6 +1999,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_05_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -1898,8 +2058,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_06_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_06_female.png",
           "rect": [
             0,
             0,
@@ -1910,8 +2069,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_06_female_garment_restore",
@@ -2108,6 +2268,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_06_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2163,8 +2339,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_06_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_06_male.png",
           "rect": [
             0,
             0,
@@ -2175,8 +2350,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_06_male_garment_restore",
@@ -2287,6 +2463,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_06_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2330,8 +2522,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_07_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_07_male.png",
           "rect": [
             0,
             0,
@@ -2342,8 +2533,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_07_male_garment_restore",
@@ -2454,6 +2646,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_07_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2492,8 +2700,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_08_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_08_female.png",
           "rect": [
             0,
             0,
@@ -2504,8 +2711,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_08_female_garment_restore",
@@ -2616,6 +2824,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_08_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2659,8 +2883,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_08_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_08_male.png",
           "rect": [
             0,
             0,
@@ -2671,8 +2894,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_08_male_garment_restore",
@@ -2783,6 +3007,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_08_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2826,8 +3066,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_09_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_09_female.png",
           "rect": [
             0,
             0,
@@ -2838,8 +3077,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_09_female_garment_restore",
@@ -2950,6 +3190,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_09_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -2993,8 +3249,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_09_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_09_male.png",
           "rect": [
             0,
             0,
@@ -3005,8 +3260,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_09_male_garment_restore",
@@ -3117,6 +3373,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_09_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3160,8 +3432,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_10_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_10_female.png",
           "rect": [
             0,
             0,
@@ -3172,8 +3443,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_10_female_garment_restore",
@@ -3284,6 +3556,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_10_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3327,8 +3615,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_10_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_10_male.png",
           "rect": [
             0,
             0,
@@ -3339,8 +3626,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_10_male_garment_restore",
@@ -3451,6 +3739,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_10_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3494,8 +3798,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_11_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_11_female.png",
           "rect": [
             0,
             0,
@@ -3506,8 +3809,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_11_female_garment_restore",
@@ -3618,6 +3922,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_11_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3661,8 +3981,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_11_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_11_male.png",
           "rect": [
             0,
             0,
@@ -3673,8 +3992,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_11_male_garment_restore",
@@ -3785,6 +4105,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_11_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3828,8 +4164,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_12_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_12_female.png",
           "rect": [
             0,
             0,
@@ -3840,8 +4175,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_12_female_garment_restore",
@@ -3952,6 +4288,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_12_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -3995,8 +4347,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_12_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_12_male.png",
           "rect": [
             0,
             0,
@@ -4007,8 +4358,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_12_male_garment_restore",
@@ -4119,6 +4471,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_12_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4162,8 +4530,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_13_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_13_female.png",
           "rect": [
             0,
             0,
@@ -4174,8 +4541,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_13_female_garment_restore",
@@ -4286,6 +4654,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_13_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4329,8 +4713,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_13_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_13_male.png",
           "rect": [
             0,
             0,
@@ -4341,8 +4724,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_13_male_garment_restore",
@@ -4453,6 +4837,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_13_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4491,8 +4891,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_14_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_14_female.png",
           "rect": [
             0,
             0,
@@ -4503,8 +4902,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_14_female_garment_restore",
@@ -4615,6 +5015,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_14_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4653,8 +5069,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_14_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_14_male.png",
           "rect": [
             0,
             0,
@@ -4665,8 +5080,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_14_male_garment_restore",
@@ -4777,6 +5193,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_14_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4820,8 +5252,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_15_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_15_female.png",
           "rect": [
             0,
             0,
@@ -4832,8 +5263,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_15_female_garment_restore",
@@ -4944,6 +5376,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_15_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -4987,8 +5435,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_15_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_15_male.png",
           "rect": [
             0,
             0,
@@ -4999,8 +5446,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_15_male_garment_restore",
@@ -5111,6 +5559,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_15_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -5154,8 +5618,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_16_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_16_female.png",
           "rect": [
             0,
             0,
@@ -5166,8 +5629,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_16_female_garment_restore",
@@ -5278,6 +5742,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_16_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -5321,8 +5801,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_16_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_16_male.png",
           "rect": [
             0,
             0,
@@ -5333,8 +5812,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_16_male_garment_restore",
@@ -5445,6 +5925,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_16_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -5488,8 +5984,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_17_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_17_female.png",
           "rect": [
             0,
             0,
@@ -5500,8 +5995,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_17_female_garment_restore",
@@ -5612,6 +6108,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_17_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -5655,8 +6167,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_17_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_17_male.png",
           "rect": [
             0,
             0,
@@ -5667,8 +6178,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_17_male_garment_restore",
@@ -5779,6 +6291,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_17_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -5822,8 +6350,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_18_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_18_female.png",
           "rect": [
             0,
             0,
@@ -5834,8 +6361,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_18_female_garment_restore",
@@ -6032,6 +6560,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_18_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6082,8 +6626,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_18_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_18_male.png",
           "rect": [
             0,
             0,
@@ -6094,8 +6637,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_18_male_garment_restore",
@@ -6206,6 +6750,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_18_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6249,8 +6809,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_19_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_19_female.png",
           "rect": [
             0,
             0,
@@ -6261,8 +6820,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_19_female_garment_restore",
@@ -6373,6 +6933,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_19_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6411,8 +6987,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_19_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_19_male.png",
           "rect": [
             0,
             0,
@@ -6423,8 +6998,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_19_male_garment_restore",
@@ -6535,6 +7111,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_19_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6578,8 +7170,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_20_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_20_female.png",
           "rect": [
             0,
             0,
@@ -6590,8 +7181,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_20_female_garment_restore",
@@ -6702,6 +7294,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_20_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6740,8 +7348,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_20_male_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_20_male.png",
           "rect": [
             0,
             0,
@@ -6752,8 +7359,9 @@
             1024,
             1024
           ],
-          "sha256": "b218aa7d0116af9af38add27fbea3fd33e0fdcdec66f2fd0117ca3de4ab045a8",
-          "mask": true
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_20_male_garment_restore",
@@ -6864,6 +7472,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_20_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df3a2941937565f1458217cc6f6bbf839049503cb146d9bb170423f577007357",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -6907,8 +7531,7 @@
       },
       "bodyCompanion": {
         "replacementMask": {
-          "id": "top_07_female_body_replace",
-          "path": "03_hd_assets/wardrobe/rasters/8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_07_female.png",
           "rect": [
             0,
             0,
@@ -6919,8 +7542,9 @@
             1024,
             1024
           ],
-          "sha256": "8caac608c0f6ad55c4769da447700a7a00affa6ab8d63f067e8dae7f8bd389fd",
-          "mask": true
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "id": "top_07_female_garment_restore",
@@ -7031,6 +7655,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/top_07_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a2a7098c90d0a75f7b013d377e279dfc2b71322467e8f83a314c52ad5e5ced45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "temporaryGarmentMatte": {
@@ -21054,7 +21694,7 @@
       "sourceSha256": "06913202edbc730f1fba2a951a3bed8cee43a7ad17603fb5d4cb40bebb4a65f3",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/658409fd75e715c92c36127b3223462b8320c8892ef4ba68526d6fcbbd1f3bfc.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_01_female.png",
           "rect": [
             0,
             0,
@@ -21065,11 +21705,12 @@
             1024,
             1024
           ],
-          "sha256": "658409fd75e715c92c36127b3223462b8320c8892ef4ba68526d6fcbbd1f3bfc",
-          "mask": true
+          "sha256": "6d8501afb64e22e3a5d5aff06d0d8366ff363c4683e09c16b4c9b020f97f95b3",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/11c067fcd2e0f2365edd7f216c3a97dfc35ad00bd346b4118e99593fe143c94a.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_female_cloth_only_overlay.png",
           "rect": [
             374.7344434706398,
             170.49430324276952,
@@ -21080,7 +21721,12 @@
             429,
             1093
           ],
-          "sha256": "11c067fcd2e0f2365edd7f216c3a97dfc35ad00bd346b4118e99593fe143c94a"
+          "sha256": "2d2b678a3b1efbdbdee525321254c595abe92acb3bec21df381bd0a914f9831e",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/11c067fcd2e0f2365edd7f216c3a97dfc35ad00bd346b4118e99593fe143c94a.png",
+          "removedLowerAnkleSkinPixels": 152,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/eb35c8faa737b6973c2cc7de95c02c02488cbd6325d1a71728abe6532c84f021.png",
@@ -21175,7 +21821,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/821ed55903ddf355ed440b104b2b47f5cf53062fba2caf52a2fd0b4e44505849.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_01_female_shoeocclusion.png",
           "rect": [
             374.7344434706398,
@@ -21187,8 +21833,11 @@
             429,
             1093
           ],
-          "sha256": "821ed55903ddf355ed440b104b2b47f5cf53062fba2caf52a2fd0b4e44505849",
-          "mask": true
+          "sha256": "218c8ed6896fc16e226e38a39ba9485aa39bd0b2b9d5997ebca17c54caac0f64",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_01_female_neck_paint",
@@ -21260,6 +21909,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_01_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "6d8501afb64e22e3a5d5aff06d0d8366ff363c4683e09c16b4c9b020f97f95b3",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_female_cloth_only_overlay.png",
+          "rect": [
+            374.7344434706398,
+            170.49430324276952,
+            287.2532865907099,
+            731.8597721297107
+          ],
+          "pixelSize": [
+            429,
+            1093
+          ],
+          "sha256": "2d2b678a3b1efbdbdee525321254c595abe92acb3bec21df381bd0a914f9831e",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/11c067fcd2e0f2365edd7f216c3a97dfc35ad00bd346b4118e99593fe143c94a.png",
+          "removedLowerAnkleSkinPixels": 152,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -21312,7 +21996,7 @@
       "sourceSha256": "0e75ee0b1417e7c0ab283c70109d2251f197710349310d0dda2ca9050650629b",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/ea6a1a36c97429456bfbf48b1668a7e876ad09e23f8d0d57f37c20aa35dec0a5.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_01_male.png",
           "rect": [
             0,
             0,
@@ -21323,11 +22007,12 @@
             1024,
             1024
           ],
-          "sha256": "ea6a1a36c97429456bfbf48b1668a7e876ad09e23f8d0d57f37c20aa35dec0a5",
-          "mask": true
+          "sha256": "be9b49904d3f71a4890c6b4925b472636094db89fa3c8ddf4eb25d0f356ea79b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/e5979f4be88e706c76d8485bc79f069c74d6af8e11f6f1148fb2ad83fe0c7a0d.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_male_cloth_only_overlay.png",
           "rect": [
             372.19839566548217,
             170.51964957956585,
@@ -21338,7 +22023,12 @@
             429,
             1101
           ],
-          "sha256": "e5979f4be88e706c76d8485bc79f069c74d6af8e11f6f1148fb2ad83fe0c7a0d"
+          "sha256": "ca86c3f9d1cda483b248599ffba2fb2c9c18496a0eb3866f4b4b4d0b82511b7d",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/e5979f4be88e706c76d8485bc79f069c74d6af8e11f6f1148fb2ad83fe0c7a0d.png",
+          "removedLowerAnkleSkinPixels": 180,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/ca042761ddd115729f83051e8a92562c9fbd4e7162955134b7d9351b4c04e992.png",
@@ -21433,7 +22123,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/1865b6d1efa5cda5d4d7ceaceebd5adfcf687b4f322584eabcae17373fa0fde3.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_01_male_shoeocclusion.png",
           "rect": [
             372.19839566548217,
@@ -21445,8 +22135,11 @@
             429,
             1101
           ],
-          "sha256": "1865b6d1efa5cda5d4d7ceaceebd5adfcf687b4f322584eabcae17373fa0fde3",
-          "mask": true
+          "sha256": "d42277bf466e8bc8b364e1d3f9238c6036c57e8f4e4dd74e7118d496ae6f928f",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_01_male_neck_paint",
@@ -21518,6 +22211,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_01_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "be9b49904d3f71a4890c6b4925b472636094db89fa3c8ddf4eb25d0f356ea79b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_01_male_cloth_only_overlay.png",
+          "rect": [
+            372.19839566548217,
+            170.51964957956585,
+            284.1334482637301,
+            729.209618970552
+          ],
+          "pixelSize": [
+            429,
+            1101
+          ],
+          "sha256": "ca86c3f9d1cda483b248599ffba2fb2c9c18496a0eb3866f4b4b4d0b82511b7d",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/e5979f4be88e706c76d8485bc79f069c74d6af8e11f6f1148fb2ad83fe0c7a0d.png",
+          "removedLowerAnkleSkinPixels": 180,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -21570,7 +22298,7 @@
       "sourceSha256": "982febb9567c9d453b13b5ef8d1c9c00187c7b49cb26e2087461bdc18d28b824",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/e8acfc916d51a5cf6f7d83d531443c3445af25675389a6960526bc025d189c23.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_02_female.png",
           "rect": [
             0,
             0,
@@ -21581,11 +22309,12 @@
             1024,
             1024
           ],
-          "sha256": "e8acfc916d51a5cf6f7d83d531443c3445af25675389a6960526bc025d189c23",
-          "mask": true
+          "sha256": "92799c7a6f2cf52bbcfd537eb866d81f1aa6367c7c6d02bcbc6ab01857d14a7e",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/efc9c092ea2201f6bdcd46084a1fcc532b4a87a031cc8981ca7d57b100e12e93.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_female_cloth_only_overlay.png",
           "rect": [
             373.45462506458364,
             170.4796441112853,
@@ -21596,7 +22325,12 @@
             432,
             1085
           ],
-          "sha256": "efc9c092ea2201f6bdcd46084a1fcc532b4a87a031cc8981ca7d57b100e12e93"
+          "sha256": "21fac6370934fd155faa0281b62fbcb0f05a1018e9ad0f24b0dd4c4a9618ac1f",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/efc9c092ea2201f6bdcd46084a1fcc532b4a87a031cc8981ca7d57b100e12e93.png",
+          "removedLowerAnkleSkinPixels": 92,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/06c167dc5fa885dfa892bb9d27a3172d5343a1bd2868f024f0d539a5f1a58bc6.png",
@@ -21691,7 +22425,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/99f24c435fde933714b45b8361ce63e708e71e9398b3c1a7d5b60df68cd1aa60.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_02_female_shoeocclusion.png",
           "rect": [
             373.45462506458364,
@@ -21703,8 +22437,11 @@
             432,
             1085
           ],
-          "sha256": "99f24c435fde933714b45b8361ce63e708e71e9398b3c1a7d5b60df68cd1aa60",
-          "mask": true
+          "sha256": "38b6980bd5412d293bc1e2056b5a5c916fb68c7bbb6073e875b3403dfaed43b4",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_02_female_neck_paint",
@@ -21776,6 +22513,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_02_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "92799c7a6f2cf52bbcfd537eb866d81f1aa6367c7c6d02bcbc6ab01857d14a7e",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_female_cloth_only_overlay.png",
+          "rect": [
+            373.45462506458364,
+            170.4796441112853,
+            289.026472725999,
+            725.9113956196965
+          ],
+          "pixelSize": [
+            432,
+            1085
+          ],
+          "sha256": "21fac6370934fd155faa0281b62fbcb0f05a1018e9ad0f24b0dd4c4a9618ac1f",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/efc9c092ea2201f6bdcd46084a1fcc532b4a87a031cc8981ca7d57b100e12e93.png",
+          "removedLowerAnkleSkinPixels": 92,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -21828,7 +22600,7 @@
       "sourceSha256": "3e3b524d7ea7e18b2e9ee66e2bfe2354dfc7d2c4d7a9056a6c34e325553a6b26",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/79113b95d93a05b9e2584d79e477f41e42ed8d01904d1212b009039dd9f3f354.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_02_male.png",
           "rect": [
             0,
             0,
@@ -21839,11 +22611,12 @@
             1024,
             1024
           ],
-          "sha256": "79113b95d93a05b9e2584d79e477f41e42ed8d01904d1212b009039dd9f3f354",
-          "mask": true
+          "sha256": "9fc0a1501b38dd6d38f5f6bdcd646be12c2a44cdd00863521f1ba71d78d44859",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/e3c81a5da0b1a00e00afca17687b684c2b16ebb80c758aab92d89a5ab9a9e4cf.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_male_cloth_only_overlay.png",
           "rect": [
             376.92372969415675,
             170.3815247133802,
@@ -21854,7 +22627,12 @@
             418,
             1115
           ],
-          "sha256": "e3c81a5da0b1a00e00afca17687b684c2b16ebb80c758aab92d89a5ab9a9e4cf"
+          "sha256": "4bb58d39b1ab3aeaee44d9f8d8d38b660dd6bb17d7aa177bda151ba0b85f7195",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/e3c81a5da0b1a00e00afca17687b684c2b16ebb80c758aab92d89a5ab9a9e4cf.png",
+          "removedLowerAnkleSkinPixels": 314,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/e34dd64cd52ead0f2663baf4ce4258dd70a08f364f435dfdc409e817d39b465b.png",
@@ -21949,7 +22727,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/4e08c268bb3899128b1eafe9d62acb9de7d714afdd5b8a063f4cea8da4c69090.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_02_male_shoeocclusion.png",
           "rect": [
             376.92372969415675,
@@ -21961,8 +22739,11 @@
             418,
             1115
           ],
-          "sha256": "4e08c268bb3899128b1eafe9d62acb9de7d714afdd5b8a063f4cea8da4c69090",
-          "mask": true
+          "sha256": "912f7a5f272bd734e2237a305e194f109f0604fbe7c10473d6f39c31ff27de8b",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_02_male_neck_paint",
@@ -22034,6 +22815,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_02_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "9fc0a1501b38dd6d38f5f6bdcd646be12c2a44cdd00863521f1ba71d78d44859",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_02_male_cloth_only_overlay.png",
+          "rect": [
+            376.92372969415675,
+            170.3815247133802,
+            272.55204184129406,
+            727.0227910359878
+          ],
+          "pixelSize": [
+            418,
+            1115
+          ],
+          "sha256": "4bb58d39b1ab3aeaee44d9f8d8d38b660dd6bb17d7aa177bda151ba0b85f7195",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/e3c81a5da0b1a00e00afca17687b684c2b16ebb80c758aab92d89a5ab9a9e4cf.png",
+          "removedLowerAnkleSkinPixels": 314,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -22086,7 +22902,7 @@
       "sourceSha256": "f4b0dda53833626e3de24fa81a7f1af3dbfb05298da6113a326f705390c4f806",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/50ab52f82c6c166c03b4b2540120302f534e47035d9375904471bcb2fd66e9ab.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_03_female.png",
           "rect": [
             0,
             0,
@@ -22097,11 +22913,12 @@
             1024,
             1024
           ],
-          "sha256": "50ab52f82c6c166c03b4b2540120302f534e47035d9375904471bcb2fd66e9ab",
-          "mask": true
+          "sha256": "f119169033bb590750c50f743da85d07636315b93552b6b4b154cb27e8ac0147",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/00f687794a3c42aed65a47f4484a4fdbb75c2fcd199811d39f469e06a35441ea.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_female_cloth_only_overlay.png",
           "rect": [
             374.24760303659144,
             170.57814319612635,
@@ -22112,7 +22929,12 @@
             429,
             1097
           ],
-          "sha256": "00f687794a3c42aed65a47f4484a4fdbb75c2fcd199811d39f469e06a35441ea"
+          "sha256": "347243218dcabc5a40dc4297119155edef7c42fa29beccb4abbda41fcfa79457",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/00f687794a3c42aed65a47f4484a4fdbb75c2fcd199811d39f469e06a35441ea.png",
+          "removedLowerAnkleSkinPixels": 4,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/797a1b70cb564a84afba291d94f61641aa79dc6fd647afa52277ca21053907c1.png",
@@ -22207,7 +23029,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/8749dad5217c88574d37ae3b07a3f114dacfcba73dee61faa3c6c52f0c3d1799.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_03_female_shoeocclusion.png",
           "rect": [
             374.24760303659144,
@@ -22219,8 +23041,11 @@
             429,
             1097
           ],
-          "sha256": "8749dad5217c88574d37ae3b07a3f114dacfcba73dee61faa3c6c52f0c3d1799",
-          "mask": true
+          "sha256": "6e175d30a18d76319f8d400b583946a28fb3c940717038af685de5c927951111",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_03_female_neck_paint",
@@ -22292,6 +23117,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_03_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "f119169033bb590750c50f743da85d07636315b93552b6b4b154cb27e8ac0147",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_female_cloth_only_overlay.png",
+          "rect": [
+            374.24760303659144,
+            170.57814319612635,
+            286.98416034043447,
+            733.8499391455865
+          ],
+          "pixelSize": [
+            429,
+            1097
+          ],
+          "sha256": "347243218dcabc5a40dc4297119155edef7c42fa29beccb4abbda41fcfa79457",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/00f687794a3c42aed65a47f4484a4fdbb75c2fcd199811d39f469e06a35441ea.png",
+          "removedLowerAnkleSkinPixels": 4,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -22344,7 +23204,7 @@
       "sourceSha256": "bdfb48ebfdde66d3a404c9214fa4eb4174afdda6e2fa3614ad598b7ee9beab99",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/065065d830e67144eaa87b7bdf8d4e486b811db1136be13e73dd2397f50d4b43.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_03_male.png",
           "rect": [
             0,
             0,
@@ -22355,11 +23215,12 @@
             1024,
             1024
           ],
-          "sha256": "065065d830e67144eaa87b7bdf8d4e486b811db1136be13e73dd2397f50d4b43",
-          "mask": true
+          "sha256": "42049ccab99eb83f7d2d94cb02913d7edede1d2b53095ab6c52587d7237cb6be",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/0a8d25c8fa318f3a4f3673caf771a659e4fc77e15d2f5b5ac85647f17fa57cca.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_male_cloth_only_overlay.png",
           "rect": [
             373.14113075716523,
             170.14455297305003,
@@ -22370,7 +23231,12 @@
             418,
             1088
           ],
-          "sha256": "0a8d25c8fa318f3a4f3673caf771a659e4fc77e15d2f5b5ac85647f17fa57cca"
+          "sha256": "1a72120f8de1c27984ae606a2d72e7265b7a131fd0ddf7a160aef8562fc0d827",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0a8d25c8fa318f3a4f3673caf771a659e4fc77e15d2f5b5ac85647f17fa57cca.png",
+          "removedLowerAnkleSkinPixels": 9,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/09b104b14e349c93538bf1e028ed343020d32bcb023e6d305082350f7266b241.png",
@@ -22465,7 +23331,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/38b25b05df7aafadd84d1951e3c9959967741b112ca8363a0cb70ec582aa5735.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_03_male_shoeocclusion.png",
           "rect": [
             373.14113075716523,
@@ -22477,8 +23343,11 @@
             418,
             1088
           ],
-          "sha256": "38b25b05df7aafadd84d1951e3c9959967741b112ca8363a0cb70ec582aa5735",
-          "mask": true
+          "sha256": "c4b048880c93e6daee79a490f0f5eaaf092d571a9259abc949185af3e1880d64",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_03_male_neck_paint",
@@ -22550,6 +23419,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_03_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "42049ccab99eb83f7d2d94cb02913d7edede1d2b53095ab6c52587d7237cb6be",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_03_male_cloth_only_overlay.png",
+          "rect": [
+            373.14113075716523,
+            170.14455297305003,
+            280.5094110936832,
+            730.1297590189648
+          ],
+          "pixelSize": [
+            418,
+            1088
+          ],
+          "sha256": "1a72120f8de1c27984ae606a2d72e7265b7a131fd0ddf7a160aef8562fc0d827",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0a8d25c8fa318f3a4f3673caf771a659e4fc77e15d2f5b5ac85647f17fa57cca.png",
+          "removedLowerAnkleSkinPixels": 9,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -22602,7 +23506,7 @@
       "sourceSha256": "a2a9f0abf46b333cf015e8f1b295c527866f9ba64899ca2562ce86a78e2fb041",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/fb34388bc2771ee434e6d4343d3ef095ff1777f96be997e60d6070842e637819.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_04_female.png",
           "rect": [
             0,
             0,
@@ -22613,11 +23517,12 @@
             1024,
             1024
           ],
-          "sha256": "fb34388bc2771ee434e6d4343d3ef095ff1777f96be997e60d6070842e637819",
-          "mask": true
+          "sha256": "ccdde521f55a7cd453b0004a1b8a39d9be282e20676d0598b873865e616abf8b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/67324f4cbe37c92aeef258f940f812b6c5825d011bac8518172caf37d8a6debf.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_female_cloth_only_overlay.png",
           "rect": [
             376.74956822107083,
             170.41450777202073,
@@ -22628,7 +23533,12 @@
             428,
             1111
           ],
-          "sha256": "67324f4cbe37c92aeef258f940f812b6c5825d011bac8518172caf37d8a6debf"
+          "sha256": "49422d8fd529b2fcb81c440435087307bffdf433835a01e000cc903ff911d7bb",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/67324f4cbe37c92aeef258f940f812b6c5825d011bac8518172caf37d8a6debf.png",
+          "removedLowerAnkleSkinPixels": 449,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/a7210ea4c8ab8174a352b67f123e1920ea55cc2799bbba69f32cc0cdbc98f3a3.png",
@@ -22723,7 +23633,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/0df697c40895059eb8a9593b4ad804d8babb678c4cf2c05f16e7b139265dc379.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_04_female_shoeocclusion.png",
           "rect": [
             376.74956822107083,
@@ -22735,8 +23645,11 @@
             428,
             1111
           ],
-          "sha256": "0df697c40895059eb8a9593b4ad804d8babb678c4cf2c05f16e7b139265dc379",
-          "mask": true
+          "sha256": "3b5751d094aa3d00601431510860d2ba58768e2455f8d5fceaeb04d4de3e111f",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_04_female_neck_paint",
@@ -22808,6 +23721,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_04_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "ccdde521f55a7cd453b0004a1b8a39d9be282e20676d0598b873865e616abf8b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_female_cloth_only_overlay.png",
+          "rect": [
+            376.74956822107083,
+            170.41450777202073,
+            282.37651122625215,
+            732.9913644214162
+          ],
+          "pixelSize": [
+            428,
+            1111
+          ],
+          "sha256": "49422d8fd529b2fcb81c440435087307bffdf433835a01e000cc903ff911d7bb",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/67324f4cbe37c92aeef258f940f812b6c5825d011bac8518172caf37d8a6debf.png",
+          "removedLowerAnkleSkinPixels": 449,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -22860,7 +23808,7 @@
       "sourceSha256": "d95031061432777e3ed5054b4a6e221154a3a7760618c0192729b2a7dc7a7f55",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/05b772a4e8492c24d84694a15b35319bb5bdbd38cfebaed76b80eb20597f9836.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_04_male.png",
           "rect": [
             0,
             0,
@@ -22871,11 +23819,12 @@
             1024,
             1024
           ],
-          "sha256": "05b772a4e8492c24d84694a15b35319bb5bdbd38cfebaed76b80eb20597f9836",
-          "mask": true
+          "sha256": "adb871eb86173bdb3f84e963eef9ede9ab29ae317097a2de28db8720aafb4cee",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_male_cloth_only_overlay.png",
           "rect": [
             371.000427837992,
             170.03190958357104,
@@ -22886,7 +23835,12 @@
             425,
             1087
           ],
-          "sha256": "85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89"
+          "sha256": "85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89.png",
+          "removedLowerAnkleSkinPixels": 0,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/06b2017e36efe5cde20974883749c21c40735c616af8649b84a5d1e50d644834.png",
@@ -22981,7 +23935,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/2c387fb276366c689cbccda1260157ad4faabe3e3065bac8b2c55933b677b977.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_04_male_shoeocclusion.png",
           "rect": [
             371.000427837992,
@@ -22993,8 +23947,11 @@
             425,
             1087
           ],
-          "sha256": "2c387fb276366c689cbccda1260157ad4faabe3e3065bac8b2c55933b677b977",
-          "mask": true
+          "sha256": "30524769a37256b2a77dc277325b466e0c592605aea056dc288c070b3978bf89",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_04_male_neck_paint",
@@ -23066,6 +24023,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_04_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "adb871eb86173bdb3f84e963eef9ede9ab29ae317097a2de28db8720aafb4cee",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_04_male_cloth_only_overlay.png",
+          "rect": [
+            371.000427837992,
+            170.03190958357104,
+            285.24761123787795,
+            729.562713918996
+          ],
+          "pixelSize": [
+            425,
+            1087
+          ],
+          "sha256": "85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/85fbf2dd940bc382b140d629933b91594f1578ed72913a91c77ff7ee34551b89.png",
+          "removedLowerAnkleSkinPixels": 0,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -23118,7 +24110,7 @@
       "sourceSha256": "12a18bff2545cb5c36480fa87cbbd260e6d07af226d8b04fc8be8eb1c5e0e260",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/6d407af87ca1cb65e3b97102219dd2396811cf19eadf9bcd98c396eb12a8b9f5.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_05_female.png",
           "rect": [
             0,
             0,
@@ -23129,11 +24121,12 @@
             1024,
             1024
           ],
-          "sha256": "6d407af87ca1cb65e3b97102219dd2396811cf19eadf9bcd98c396eb12a8b9f5",
-          "mask": true
+          "sha256": "01b0477f1e3e6c066140fcefd68613d0b514d444a088e6d5c4db4d69e894faf5",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/3fb726a2bf48a3abe7cf7c250c3388aa3a19f3597812469e201751aa1a15d9bc.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_female_cloth_only_overlay.png",
           "rect": [
             373.45462506458364,
             170.4796441112853,
@@ -23144,7 +24137,12 @@
             431,
             1085
           ],
-          "sha256": "3fb726a2bf48a3abe7cf7c250c3388aa3a19f3597812469e201751aa1a15d9bc"
+          "sha256": "8717e09f31945632c13e98d3e1244eb93baef51fa1757f3890d73caffdccc00d",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/3fb726a2bf48a3abe7cf7c250c3388aa3a19f3597812469e201751aa1a15d9bc.png",
+          "removedLowerAnkleSkinPixels": 27,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/f8913965f742dafc9dbe3a14decc0dce4df93a567be1f3220bda4854b592df6f.png",
@@ -23239,7 +24237,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/0df197157b3691d89b337ece7cbd29b825867b57dfbe3773430539f2090a32c6.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_05_female_shoeocclusion.png",
           "rect": [
             373.45462506458364,
@@ -23251,8 +24249,11 @@
             431,
             1085
           ],
-          "sha256": "0df197157b3691d89b337ece7cbd29b825867b57dfbe3773430539f2090a32c6",
-          "mask": true
+          "sha256": "132c2a3edb310b9b37c0c57396bf04e1d25873c251cd314a5145292a29989031",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_05_female_neck_paint",
@@ -23324,6 +24325,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_05_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "01b0477f1e3e6c066140fcefd68613d0b514d444a088e6d5c4db4d69e894faf5",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_female_cloth_only_overlay.png",
+          "rect": [
+            373.45462506458364,
+            170.4796441112853,
+            288.35742996505917,
+            725.9113956196965
+          ],
+          "pixelSize": [
+            431,
+            1085
+          ],
+          "sha256": "8717e09f31945632c13e98d3e1244eb93baef51fa1757f3890d73caffdccc00d",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/3fb726a2bf48a3abe7cf7c250c3388aa3a19f3597812469e201751aa1a15d9bc.png",
+          "removedLowerAnkleSkinPixels": 27,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -23376,7 +24412,7 @@
       "sourceSha256": "55935a5c176428790a2ad50a5f397d529cc6e4ecd6e8a7312afdf660da0d099f",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/4262156f524cc3857fcd8d6c2521662e839633c12fd77c4430a481a4dabdbc62.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_05_male.png",
           "rect": [
             0,
             0,
@@ -23387,11 +24423,12 @@
             1024,
             1024
           ],
-          "sha256": "4262156f524cc3857fcd8d6c2521662e839633c12fd77c4430a481a4dabdbc62",
-          "mask": true
+          "sha256": "1a01eef67205b88eb0d601670a0175fdc585a04e57fc15f3e004890dde629898",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/d9a87a3ee8983d30dc41d12a4a94c39d5aed649f93cfdc5868d43452352f9043.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_male_cloth_only_overlay.png",
           "rect": [
             365.22154601751015,
             170.0976937860346,
@@ -23402,7 +24439,12 @@
             450,
             1085
           ],
-          "sha256": "d9a87a3ee8983d30dc41d12a4a94c39d5aed649f93cfdc5868d43452352f9043"
+          "sha256": "8dcaf850655c77998e0cd707b82d88b4435f29956507d03c7e597daf10017123",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/d9a87a3ee8983d30dc41d12a4a94c39d5aed649f93cfdc5868d43452352f9043.png",
+          "removedLowerAnkleSkinPixels": 194,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/99ed9850a995f15c5d3ff64f5632327dc84ec3c008d7629bf1f58e55449de709.png",
@@ -23497,7 +24539,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/04b370531d588bcb926e599030df09b288361c868ccb747975f6495866b71433.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_05_male_shoeocclusion.png",
           "rect": [
             365.22154601751015,
@@ -23509,8 +24551,11 @@
             450,
             1085
           ],
-          "sha256": "04b370531d588bcb926e599030df09b288361c868ccb747975f6495866b71433",
-          "mask": true
+          "sha256": "f7f9c6b12d66f25a88d8407119717ec973dd7b9620734611d84a290ef2994d4f",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_05_male_neck_paint",
@@ -23582,6 +24627,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_05_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "1a01eef67205b88eb0d601670a0175fdc585a04e57fc15f3e004890dde629898",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_05_male_cloth_only_overlay.png",
+          "rect": [
+            365.22154601751015,
+            170.0976937860346,
+            301.48942985265853,
+            726.9245142002989
+          ],
+          "pixelSize": [
+            450,
+            1085
+          ],
+          "sha256": "8dcaf850655c77998e0cd707b82d88b4435f29956507d03c7e597daf10017123",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/d9a87a3ee8983d30dc41d12a4a94c39d5aed649f93cfdc5868d43452352f9043.png",
+          "removedLowerAnkleSkinPixels": 194,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -23634,7 +24714,7 @@
       "sourceSha256": "6b9115c1132e94ea9f4d4f672c155a3294c55946c6656236175f242520572161",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/5897f802bee8d1e4dcdb113c50b1eb9bcbfe7f32b8346164269a2d48c755d17c.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_06_female.png",
           "rect": [
             0,
             0,
@@ -23645,11 +24725,12 @@
             1024,
             1024
           ],
-          "sha256": "5897f802bee8d1e4dcdb113c50b1eb9bcbfe7f32b8346164269a2d48c755d17c",
-          "mask": true
+          "sha256": "33aceb07227c0c0164566bed989309a19596c08761e30a477fa63d0963af082b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/87c58780b23f008b3b2f9d035a5dfe49caafd6d0777127e92f867f46686ec71e.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_female_cloth_only_overlay.png",
           "rect": [
             373.0332225913621,
             170.02325581395348,
@@ -23660,7 +24741,12 @@
             452,
             1150
           ],
-          "sha256": "87c58780b23f008b3b2f9d035a5dfe49caafd6d0777127e92f867f46686ec71e"
+          "sha256": "ebd10dbfa58a3676c955bc560836f16eda4e9f19447a5662203ef4e707d7bc62",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/87c58780b23f008b3b2f9d035a5dfe49caafd6d0777127e92f867f46686ec71e.png",
+          "removedLowerAnkleSkinPixels": 102,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/5a3776a2e46f7d40fb3d52b9683cd32739a0b529bde062d4886e72559b52d59f.png",
@@ -23755,7 +24841,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/897f5d1f26d9bcac0bf6a44f12c66ef6555a4e0a7e1dd9973f4f24c450735ff8.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_06_female_shoeocclusion.png",
           "rect": [
             373.0332225913621,
@@ -23767,8 +24853,11 @@
             452,
             1150
           ],
-          "sha256": "897f5d1f26d9bcac0bf6a44f12c66ef6555a4e0a7e1dd9973f4f24c450735ff8",
-          "mask": true
+          "sha256": "a41b2d7eeafc5f3ad0f7e1676e4537b24945489a4643157444ecb23cbf08882d",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_06_female_neck_paint",
@@ -23840,6 +24929,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_06_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "33aceb07227c0c0164566bed989309a19596c08761e30a477fa63d0963af082b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_female_cloth_only_overlay.png",
+          "rect": [
+            373.0332225913621,
+            170.02325581395348,
+            286.81727574750835,
+            729.734219269103
+          ],
+          "pixelSize": [
+            452,
+            1150
+          ],
+          "sha256": "ebd10dbfa58a3676c955bc560836f16eda4e9f19447a5662203ef4e707d7bc62",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/87c58780b23f008b3b2f9d035a5dfe49caafd6d0777127e92f867f46686ec71e.png",
+          "removedLowerAnkleSkinPixels": 102,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -23892,7 +25016,7 @@
       "sourceSha256": "8edf2611cfa69ffc832fa26f52b3ac82376fdbf6d4636bf7fe7fc58a3062e092",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/ef7b249774309b88b3875e6a13b6b8432cf3b3c06a3b756e98de6de46e39d181.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_06_male.png",
           "rect": [
             0,
             0,
@@ -23903,11 +25027,12 @@
             1024,
             1024
           ],
-          "sha256": "ef7b249774309b88b3875e6a13b6b8432cf3b3c06a3b756e98de6de46e39d181",
-          "mask": true
+          "sha256": "f129ac5a74bb2944f2f410431718f2e73420fe78ccf90d664fb45eed3feaff36",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/0274c1e8cfa878ef36866e1b43fe4adfb884fa29b2e5bda7bfa14b34a50a1e16.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_male_cloth_only_overlay.png",
           "rect": [
             358.37747754170823,
             170.14455297305003,
@@ -23918,7 +25043,12 @@
             460,
             1087
           ],
-          "sha256": "0274c1e8cfa878ef36866e1b43fe4adfb884fa29b2e5bda7bfa14b34a50a1e16"
+          "sha256": "22d724d8e85a6e599ecfacd1bcf27e09e6e55bf5a9ea339b85f19b50996cd60b",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0274c1e8cfa878ef36866e1b43fe4adfb884fa29b2e5bda7bfa14b34a50a1e16.png",
+          "removedLowerAnkleSkinPixels": 349,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/3cfff51e02dd6e88422c1319b04ec79eef8717826ad5964ad6761b0ec6065938.png",
@@ -24013,7 +25143,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/725702dbebd8c371b7d25ca96042bfe74aa53f430e75a59cf654e55c9b899a3e.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_06_male_shoeocclusion.png",
           "rect": [
             358.37747754170823,
@@ -24025,8 +25155,11 @@
             460,
             1087
           ],
-          "sha256": "725702dbebd8c371b7d25ca96042bfe74aa53f430e75a59cf654e55c9b899a3e",
-          "mask": true
+          "sha256": "92b20ad43199653578e5097357cb4c17b10656b31effc5d89b1fc1ccfbbf1739",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_06_male_neck_paint",
@@ -24098,6 +25231,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_06_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "f129ac5a74bb2944f2f410431718f2e73420fe78ccf90d664fb45eed3feaff36",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_06_male_cloth_only_overlay.png",
+          "rect": [
+            358.37747754170823,
+            170.14455297305003,
+            308.6945672322829,
+            729.4586838728077
+          ],
+          "pixelSize": [
+            460,
+            1087
+          ],
+          "sha256": "22d724d8e85a6e599ecfacd1bcf27e09e6e55bf5a9ea339b85f19b50996cd60b",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0274c1e8cfa878ef36866e1b43fe4adfb884fa29b2e5bda7bfa14b34a50a1e16.png",
+          "removedLowerAnkleSkinPixels": 349,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -24150,7 +25318,7 @@
       "sourceSha256": "c9a8782246dcd722dc1b9259912dc62834a5610799f73d45b70cc6d29d9d0674",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/f2f8c1f50627884d010ced9b9a59d4d412f64a7551a52daf99f1a61452ee06e6.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_07_female.png",
           "rect": [
             0,
             0,
@@ -24161,8 +25329,9 @@
             1024,
             1024
           ],
-          "sha256": "f2f8c1f50627884d010ced9b9a59d4d412f64a7551a52daf99f1a61452ee06e6",
-          "mask": true
+          "sha256": "746a34dc49e5899293a1989d63e97aebad00c3d3b3f5e34076e7ba989c50a3f7",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/ee925dc196878b5c66a94f0ec31ae3448bc7a15999a6415a6c29e690a5ee020a.png",
@@ -24356,6 +25525,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_07_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "746a34dc49e5899293a1989d63e97aebad00c3d3b3f5e34076e7ba989c50a3f7",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -24408,7 +25593,7 @@
       "sourceSha256": "6a8ce1783854464454d03d45271f82d87024ed1a4febcf5e9c0adf07014e046b",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/60375aa3aaa4aed5de7408ae972c7f4e2e1e21f54d16a0dfe2d4506f812c4619.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_07_male.png",
           "rect": [
             0,
             0,
@@ -24419,8 +25604,9 @@
             1024,
             1024
           ],
-          "sha256": "60375aa3aaa4aed5de7408ae972c7f4e2e1e21f54d16a0dfe2d4506f812c4619",
-          "mask": true
+          "sha256": "315a8e6b12374dbf5b7a937a58fe14069e1f63b9ace9a50b6936afb73dd5aef8",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/a14361ac61277513dcf50b3ee0400f84259dc9ac427e24356dd08f9f84015f34.png",
@@ -24614,6 +25800,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_07_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "315a8e6b12374dbf5b7a937a58fe14069e1f63b9ace9a50b6936afb73dd5aef8",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -24666,7 +25868,7 @@
       "sourceSha256": "1ecce8745456244c5219ebf266fbaea49c4b128be3533d865a6b8cdb50445c89",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/f8a0b9521216c57c3b85f839c0c06bf6a340d304142f7e24c6f2cef36d1a7b4a.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_08_female.png",
           "rect": [
             0,
             0,
@@ -24677,11 +25879,12 @@
             1024,
             1024
           ],
-          "sha256": "f8a0b9521216c57c3b85f839c0c06bf6a340d304142f7e24c6f2cef36d1a7b4a",
-          "mask": true
+          "sha256": "7ca077402468797139f65fc1ac88d7b2fd500d943e1b792905335c928b30824b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/6c8e84dc6e4b479fba69385dee93fa709a571c80473399dcf94e80bb284e72ae.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_female_cloth_only_overlay.png",
           "rect": [
             373.15188762071995,
             170.4249341527656,
@@ -24692,7 +25895,12 @@
             431,
             1082
           ],
-          "sha256": "6c8e84dc6e4b479fba69385dee93fa709a571c80473399dcf94e80bb284e72ae"
+          "sha256": "5719e51dcab16f2828251efeafa09e09f8d302d373e6b4082c1f7fc8b159ba56",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/6c8e84dc6e4b479fba69385dee93fa709a571c80473399dcf94e80bb284e72ae.png",
+          "removedLowerAnkleSkinPixels": 36,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/066962f08933317f31632dae6fadbad0e85a1a107cb0a8acf3e5973247b3f275.png",
@@ -24787,7 +25995,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/de05ec3e2ab67c19f7b269b70363d5294088681a7e49d75c585c8fbe345588eb.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_08_female_shoeocclusion.png",
           "rect": [
             373.15188762071995,
@@ -24799,8 +26007,11 @@
             431,
             1082
           ],
-          "sha256": "de05ec3e2ab67c19f7b269b70363d5294088681a7e49d75c585c8fbe345588eb",
-          "mask": true
+          "sha256": "be72b8562b9321f665246567f019a56555bef43f7b4a33c2b0f255802b0445f2",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_08_female_neck_paint",
@@ -24872,6 +26083,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_08_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "7ca077402468797139f65fc1ac88d7b2fd500d943e1b792905335c928b30824b",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_female_cloth_only_overlay.png",
+          "rect": [
+            373.15188762071995,
+            170.4249341527656,
+            289.099209833187,
+            725.766461808604
+          ],
+          "pixelSize": [
+            431,
+            1082
+          ],
+          "sha256": "5719e51dcab16f2828251efeafa09e09f8d302d373e6b4082c1f7fc8b159ba56",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/6c8e84dc6e4b479fba69385dee93fa709a571c80473399dcf94e80bb284e72ae.png",
+          "removedLowerAnkleSkinPixels": 36,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -24924,7 +26170,7 @@
       "sourceSha256": "183fb14fca25894b48c5e41b2a2c1ab2222d5d2165ef459ee1526880ac478fac",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/8f06a624414a57125f73910c4baf493af897d656c461f538a6b370dd7a24fac8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_08_male.png",
           "rect": [
             0,
             0,
@@ -24935,11 +26181,12 @@
             1024,
             1024
           ],
-          "sha256": "8f06a624414a57125f73910c4baf493af897d656c461f538a6b370dd7a24fac8",
-          "mask": true
+          "sha256": "e9dd21f12acd445c3238672f14c2598aed325d2541373fc104c8ca8d55c0df61",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/86db046e3749c9c8cab149495513ffeb7324b0cfe9ea8614b5c666d248519907.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_male_cloth_only_overlay.png",
           "rect": [
             366.43198090692124,
             170.06483097638304,
@@ -24950,7 +26197,12 @@
             438,
             1088
           ],
-          "sha256": "86db046e3749c9c8cab149495513ffeb7324b0cfe9ea8614b5c666d248519907"
+          "sha256": "78d186bae8fe14a9a03ef8c72129284561c98dd1d56e768c155da8e0e5ea4a84",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/86db046e3749c9c8cab149495513ffeb7324b0cfe9ea8614b5c666d248519907.png",
+          "removedLowerAnkleSkinPixels": 1471,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/94b32a7a0c972b00b3360969f4fcd9d9d19316a0a3df68e1bdba9b115e831fe4.png",
@@ -25045,7 +26297,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/941b25184d2b82decc2ce52049e5b17d089f063c20084960c7859b89f9e91506.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_08_male_shoeocclusion.png",
           "rect": [
             366.43198090692124,
@@ -25057,8 +26309,11 @@
             438,
             1088
           ],
-          "sha256": "941b25184d2b82decc2ce52049e5b17d089f063c20084960c7859b89f9e91506",
-          "mask": true
+          "sha256": "8a666ad6ec7ba7b3d0fdc9b700d885e277227f6330628b979a82419146eb1cae",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_08_male_neck_paint",
@@ -25130,6 +26385,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_08_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e9dd21f12acd445c3238672f14c2598aed325d2541373fc104c8ca8d55c0df61",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_08_male_cloth_only_overlay.png",
+          "rect": [
+            366.43198090692124,
+            170.06483097638304,
+            293.7110390766929,
+            729.5835856516937
+          ],
+          "pixelSize": [
+            438,
+            1088
+          ],
+          "sha256": "78d186bae8fe14a9a03ef8c72129284561c98dd1d56e768c155da8e0e5ea4a84",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/86db046e3749c9c8cab149495513ffeb7324b0cfe9ea8614b5c666d248519907.png",
+          "removedLowerAnkleSkinPixels": 1471,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -25182,7 +26472,7 @@
       "sourceSha256": "35dd066877740a71c65a529edfb50ecad7a59c8170cace97aceb2d658be55321",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/3f4d5c4fecbdc6cdd8144865b5cba56726b4645a2535fdf147d5a9c936ddd613.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_09_female.png",
           "rect": [
             0,
             0,
@@ -25193,8 +26483,9 @@
             1024,
             1024
           ],
-          "sha256": "3f4d5c4fecbdc6cdd8144865b5cba56726b4645a2535fdf147d5a9c936ddd613",
-          "mask": true
+          "sha256": "d239f5a3cce2085f29b259295ca143b630780f859356349f83a84616f803bc2e",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/d5b5debd6984205a6288a3f0111fc341dc8f106664ddc313c9946d16cb1081c0.png",
@@ -25388,6 +26679,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_09_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "d239f5a3cce2085f29b259295ca143b630780f859356349f83a84616f803bc2e",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -25440,7 +26747,7 @@
       "sourceSha256": "9fd92a5f170c298138fb412bd69b5b9190baab48c4fe3d6d817330fd3106e22e",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/2a5b8320c4bc76cd7e70af58087d0dbb2c361201dcab7d02ba792a92b8a41f44.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_09_male.png",
           "rect": [
             0,
             0,
@@ -25451,8 +26758,9 @@
             1024,
             1024
           ],
-          "sha256": "2a5b8320c4bc76cd7e70af58087d0dbb2c361201dcab7d02ba792a92b8a41f44",
-          "mask": true
+          "sha256": "0d880fbb2837a1ab87e70dd6d603b2a02385711f631fbe24e5f94a6cf13b200a",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/a288d55ec1e2cd3e3b8479f4fd83d1fa92765f3f4c4e591989affb196d416138.png",
@@ -25646,6 +26954,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_09_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "0d880fbb2837a1ab87e70dd6d603b2a02385711f631fbe24e5f94a6cf13b200a",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -25698,7 +27022,7 @@
       "sourceSha256": "1398da9a29c3d5d115b917a9db769821c6f6d72351f82414c7e9e24feccc1c58",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/e6c16ae76d74773bbd7656a6f4f2d77ad52cb65477f9db652f503eebaacc30ad.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_10_female.png",
           "rect": [
             0,
             0,
@@ -25709,8 +27033,9 @@
             1024,
             1024
           ],
-          "sha256": "e6c16ae76d74773bbd7656a6f4f2d77ad52cb65477f9db652f503eebaacc30ad",
-          "mask": true
+          "sha256": "dc3a0dea12b50c3dbb66dc25e504ac7b0effe0e68bc4d03ed0d25f474bb19a69",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/8e9956dcc4917a641d416221e32ab0c04c337e905758e9b3a03f1c927e508816.png",
@@ -25904,6 +27229,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_10_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "dc3a0dea12b50c3dbb66dc25e504ac7b0effe0e68bc4d03ed0d25f474bb19a69",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -25956,7 +27297,7 @@
       "sourceSha256": "c06792289ae2d71514445aac9f657da8398e7b14674f632c424703024e555a3e",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/b1cf1269393348a0ca8a3b5f98260e7ce743993c2775799c64f211372b8cc22f.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_10_male.png",
           "rect": [
             0,
             0,
@@ -25967,8 +27308,9 @@
             1024,
             1024
           ],
-          "sha256": "b1cf1269393348a0ca8a3b5f98260e7ce743993c2775799c64f211372b8cc22f",
-          "mask": true
+          "sha256": "7d52e9b3779c60954b01e474ec5c1c5f67eb7948e292466568a6cee2418e2c45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/23266c7e55b59739132c3d408f7bf5c8dcc426a9a666261ee5da9ec8795b3734.png",
@@ -26162,6 +27504,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_10_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "7d52e9b3779c60954b01e474ec5c1c5f67eb7948e292466568a6cee2418e2c45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -26214,7 +27572,7 @@
       "sourceSha256": "eb4080671bae3fbbc1122487c4aaa638e83b0ebf8e1263bfa16b43a6da4c3479",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/94be431c9b3ebad09482bfb575a94afb4787e6a15f0942ba1e3265fa8ab58008.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_11_female.png",
           "rect": [
             0,
             0,
@@ -26225,8 +27583,9 @@
             1024,
             1024
           ],
-          "sha256": "94be431c9b3ebad09482bfb575a94afb4787e6a15f0942ba1e3265fa8ab58008",
-          "mask": true
+          "sha256": "b6d95b119ccc1d40de14918332caa8104b03e5857b97445bd1bff60bb6d7a69d",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/60d5c64da61c42fd57833cd1f49ddbec2262d9de20cbbbba1eb6c265e7fc3cac.png",
@@ -26420,6 +27779,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_11_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "b6d95b119ccc1d40de14918332caa8104b03e5857b97445bd1bff60bb6d7a69d",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -26472,7 +27847,7 @@
       "sourceSha256": "5f83d22a77159dce4001c5373facbca9a842532a99888c1ffd82463d5eb2e65a",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/4d0dcebd74ea4f60567c452382b63a9a9a6a967bd9bf561a9363804c8204a18e.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_11_male.png",
           "rect": [
             0,
             0,
@@ -26483,8 +27858,9 @@
             1024,
             1024
           ],
-          "sha256": "4d0dcebd74ea4f60567c452382b63a9a9a6a967bd9bf561a9363804c8204a18e",
-          "mask": true
+          "sha256": "73bd3ab2b782260ac352ce360c62cf930033855297307e4cac1f92665def4d45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/f723c0a742995e0baee8cf64ce772212973f8feb0f2e662a3d6b5bc2380447a1.png",
@@ -26678,6 +28054,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_11_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "73bd3ab2b782260ac352ce360c62cf930033855297307e4cac1f92665def4d45",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -26730,7 +28122,7 @@
       "sourceSha256": "59ced47ce97e63cf76b939028c9ed90b9de448c1c23b564e22dc6721e9566893",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/481d9ca188816a065076e4b3d86b8171131fb3541d05d3622f0d24bcae2af44c.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_12_female.png",
           "rect": [
             0,
             0,
@@ -26741,8 +28133,9 @@
             1024,
             1024
           ],
-          "sha256": "481d9ca188816a065076e4b3d86b8171131fb3541d05d3622f0d24bcae2af44c",
-          "mask": true
+          "sha256": "c0c1815d9ff8a6e210bdb1031b1dade7cfcdad1a80c27048db53a5ae4c5854d7",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/ec34bd03d395429300e8f563ed684b2cd75ef73de5206c099b8f4e95f2ad4aa5.png",
@@ -26936,6 +28329,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_12_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "c0c1815d9ff8a6e210bdb1031b1dade7cfcdad1a80c27048db53a5ae4c5854d7",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -26988,7 +28397,7 @@
       "sourceSha256": "1b815dd3bffdcda8de2c6f9b6743523c3f5ea60aed0e9ca18e16c18d80a4cc62",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/29dfc43ab6450e22785714560c84a274fc8207e0d45681d3adca97e1f222bb98.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_12_male.png",
           "rect": [
             0,
             0,
@@ -26999,8 +28408,9 @@
             1024,
             1024
           ],
-          "sha256": "29dfc43ab6450e22785714560c84a274fc8207e0d45681d3adca97e1f222bb98",
-          "mask": true
+          "sha256": "e937acd7734427436adde7eaa518764565b8f1f1a902b6354c3df30658ab0267",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/705033a5bbef2607f1a805cb5c7422664414d4c8484cab43fe70cafeb9cbd994.png",
@@ -27194,6 +28604,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_12_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e937acd7734427436adde7eaa518764565b8f1f1a902b6354c3df30658ab0267",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -27246,7 +28672,7 @@
       "sourceSha256": "b51c2855013c99bd5bf498f347309aee9544f2ec3d7a2e80b87acb247842aa74",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/1e756d7924782404984be46f1cb178d01f82e7654a07ce434c5b59c92f217efc.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_13_female.png",
           "rect": [
             0,
             0,
@@ -27257,8 +28683,9 @@
             1024,
             1024
           ],
-          "sha256": "1e756d7924782404984be46f1cb178d01f82e7654a07ce434c5b59c92f217efc",
-          "mask": true
+          "sha256": "67e86b786481e1801ca732b78dc81e01f2e3cf1e1c10c73e57a0f17e47eb719f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/881677212747c933e0091d95ddb12bf076ac950d74ede582e3556dc653b8722c.png",
@@ -27452,6 +28879,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_13_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "67e86b786481e1801ca732b78dc81e01f2e3cf1e1c10c73e57a0f17e47eb719f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -27504,7 +28947,7 @@
       "sourceSha256": "4dfbab04ac047c194e4fbeac91e726d5b27d25a19019e2cf4cfd6fe72cdcb17b",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/8219682816767b2459d2173d25f9d6acd6dfefd92096da4b015dce4463cc1dad.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_13_male.png",
           "rect": [
             0,
             0,
@@ -27515,8 +28958,9 @@
             1024,
             1024
           ],
-          "sha256": "8219682816767b2459d2173d25f9d6acd6dfefd92096da4b015dce4463cc1dad",
-          "mask": true
+          "sha256": "6eb12cdbd8b831e0eca80af3dc5726db08462efd036b915b333ab54cd7c64954",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/24be6b98648bae722a13da04ed598f7b606a31e7e591130c01411a23dc1b1b37.png",
@@ -27710,6 +29154,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_13_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "6eb12cdbd8b831e0eca80af3dc5726db08462efd036b915b333ab54cd7c64954",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -27762,7 +29222,7 @@
       "sourceSha256": "ee6b899e98e618cdd396735733884330c2dab9fd8795bab4c6121913a209df41",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/4c5fd1a751873dffa132f835a42e75932abf4853c82eba6af3dbd297af6dbfaa.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_14_female.png",
           "rect": [
             0,
             0,
@@ -27773,8 +29233,9 @@
             1024,
             1024
           ],
-          "sha256": "4c5fd1a751873dffa132f835a42e75932abf4853c82eba6af3dbd297af6dbfaa",
-          "mask": true
+          "sha256": "e5f658886e2c130ba181392cebd48514c0b1198827a8e7c45a2d996cdc3e2c94",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/ecec3cf77b1809b66ade846b80d368d8fcede203ba2348183e9fc28192b33a98.png",
@@ -27968,6 +29429,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_14_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e5f658886e2c130ba181392cebd48514c0b1198827a8e7c45a2d996cdc3e2c94",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -28020,7 +29497,7 @@
       "sourceSha256": "2161d7a83e950a25fd02c44e2d4dd006586f9567c8551969a8f2e09cf7983bd2",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/c4db63d7ae12a2d8ef31353b4b382fa18166231cffb14104bb38fcad94a0b230.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_14_male.png",
           "rect": [
             0,
             0,
@@ -28031,8 +29508,9 @@
             1024,
             1024
           ],
-          "sha256": "c4db63d7ae12a2d8ef31353b4b382fa18166231cffb14104bb38fcad94a0b230",
-          "mask": true
+          "sha256": "df647550843560112f873dfbf8c38b8337e55c4e04d8d1b5fef8a01bb276ef19",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/a7e50974ca0e8256beca8313ae8d8ca4d644406e5d818f9513695d898cbea757.png",
@@ -28226,6 +29704,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_14_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "df647550843560112f873dfbf8c38b8337e55c4e04d8d1b5fef8a01bb276ef19",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -28278,7 +29772,7 @@
       "sourceSha256": "6a48a4f63b7b35192a76313cacd3f075e1c5659184b1c78f468c64a248b76eea",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/78a02ec5145dc7ebc292a018ed19dfa43c35fc7d627fdade58480bfb2d3c6dcc.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_15_female.png",
           "rect": [
             0,
             0,
@@ -28289,11 +29783,12 @@
             1024,
             1024
           ],
-          "sha256": "78a02ec5145dc7ebc292a018ed19dfa43c35fc7d627fdade58480bfb2d3c6dcc",
-          "mask": true
+          "sha256": "23e247bb72eebe594ceb384bd3644a06fb559227864b407faea8ab3cc0456b5f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/affc980d268c359a371a71f0b2efaa4803d52ca25e0aa40f063313ec73ba97ba.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_female_cloth_only_overlay.png",
           "rect": [
             372.90968154316283,
             170.57814319612635,
@@ -28304,7 +29799,12 @@
             432,
             1088
           ],
-          "sha256": "affc980d268c359a371a71f0b2efaa4803d52ca25e0aa40f063313ec73ba97ba"
+          "sha256": "75213e4d216c303285561b18b8ced449b76d96c000d6bf8a0e3be64a964c39f3",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/affc980d268c359a371a71f0b2efaa4803d52ca25e0aa40f063313ec73ba97ba.png",
+          "removedLowerAnkleSkinPixels": 8856,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/e241f22d94dff2e65b6cef23a6f02402398dad15a31a9190444d61b8a3afb19b.png",
@@ -28399,7 +29899,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/04e8143433c7b74b05dad10dc58e4a3c339306fa2db2b76878c233fe220c9fa7.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_female_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_15_female_shoeocclusion.png",
           "rect": [
             372.90968154316283,
@@ -28411,8 +29911,11 @@
             432,
             1088
           ],
-          "sha256": "04e8143433c7b74b05dad10dc58e4a3c339306fa2db2b76878c233fe220c9fa7",
-          "mask": true
+          "sha256": "c5c4b02c285aba9fc1a998840f738f7b6a84194aba12a91597599cd9bf8bb863",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_female_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_15_female_neck_paint",
@@ -28484,6 +29987,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_15_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "23e247bb72eebe594ceb384bd3644a06fb559227864b407faea8ab3cc0456b5f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_female_cloth_only_overlay.png",
+          "rect": [
+            372.90968154316283,
+            170.57814319612635,
+            288.9910425805774,
+            727.8292924251579
+          ],
+          "pixelSize": [
+            432,
+            1088
+          ],
+          "sha256": "75213e4d216c303285561b18b8ced449b76d96c000d6bf8a0e3be64a964c39f3",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/affc980d268c359a371a71f0b2efaa4803d52ca25e0aa40f063313ec73ba97ba.png",
+          "removedLowerAnkleSkinPixels": 8856,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -28536,7 +30074,7 @@
       "sourceSha256": "d0d39e79eb4b3b71ae17be2039a6acf71259ad9bcfdffea2943302f67f7ee63b",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/2df55887a15b9206b418efb5db6b8d93481b5fd5d4f2714a75f486201be4814a.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_15_male.png",
           "rect": [
             0,
             0,
@@ -28547,11 +30085,12 @@
             1024,
             1024
           ],
-          "sha256": "2df55887a15b9206b418efb5db6b8d93481b5fd5d4f2714a75f486201be4814a",
-          "mask": true
+          "sha256": "08871bd9e98b6842089901fc9702667ee4311f29ebb0fa94bb371dd99ceed37c",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
-          "path": "03_hd_assets/wardrobe/rasters/0567883491f50890965e11d7b7f2b2f90478b50b51aef650941161fec445b4d9.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_male_cloth_only_overlay.png",
           "rect": [
             376.17507703522085,
             170.34922633444882,
@@ -28562,7 +30101,12 @@
             439,
             1172
           ],
-          "sha256": "0567883491f50890965e11d7b7f2b2f90478b50b51aef650941161fec445b4d9"
+          "sha256": "f04b196ba4cf4b7c118c1f989179ef3bdfacac7063690eb5918024a7d4985941",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0567883491f50890965e11d7b7f2b2f90478b50b51aef650941161fec445b4d9.png",
+          "removedLowerAnkleSkinPixels": 1827,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         },
         "face": {
           "path": "03_hd_assets/wardrobe/rasters/70f55ba69d846de28fa35328c043e3c5b7c1e33fa8d0664bbc762eba8e5627b0.png",
@@ -28657,7 +30201,7 @@
           "mask": true
         },
         {
-          "path": "03_hd_assets/wardrobe/rasters/1219493068a24895009e6f463f42b95c5e4f2f6c3d9bbc7ae4c84c5e6996433a.png",
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_male_cloth_hem_mask.png",
           "compatibilityPath": "04_masks/outfit/outfit_15_male_shoeocclusion.png",
           "rect": [
             376.17507703522085,
@@ -28669,8 +30213,11 @@
             439,
             1172
           ],
-          "sha256": "1219493068a24895009e6f463f42b95c5e4f2f6c3d9bbc7ae4c84c5e6996433a",
-          "mask": true
+          "sha256": "53ab134f555a3e3bf275a092c13db2ce689fa7f4b27a80a2a31e73b7c1643155",
+          "mask": true,
+          "fix1ActualClothHem": true,
+          "sourceOverlay": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_male_cloth_only_overlay.png",
+          "conservativeInnerHemClearanceLogicalPx": 6
         },
         {
           "id": "outfit_15_male_neck_paint",
@@ -28742,6 +30289,41 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_15_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "08871bd9e98b6842089901fc9702667ee4311f29ebb0fa94bb371dd99ceed37c",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
+        },
+        {
+          "path": "03_제작기록/r9_fix1/ankle_overlay/outfit_15_male_cloth_only_overlay.png",
+          "rect": [
+            376.17507703522085,
+            170.34922633444882,
+            273.8204499519565,
+            731.0195155892781
+          ],
+          "pixelSize": [
+            439,
+            1172
+          ],
+          "sha256": "f04b196ba4cf4b7c118c1f989179ef3bdfacac7063690eb5918024a7d4985941",
+          "fix1SemanticHemOnly": true,
+          "sourceOverlay": "03_hd_assets/wardrobe/rasters/0567883491f50890965e11d7b7f2b2f90478b50b51aef650941161fec445b4d9.png",
+          "removedLowerAnkleSkinPixels": 1827,
+          "opaqueClothRgbChanged": 0,
+          "revision": 3
         }
       ],
       "wholeFigureRegistration": {
@@ -28794,7 +30376,7 @@
       "sourceSha256": "a9dc461e2c1ac963811e71331e4a1942d023e49134249e9b25aad85a857585c0",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/31418d3ad1062b5942c6c964739cbf5b3d61b60b6c8e7bb7147fd523534ad3ca.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_16_female.png",
           "rect": [
             0,
             0,
@@ -28805,8 +30387,9 @@
             1024,
             1024
           ],
-          "sha256": "31418d3ad1062b5942c6c964739cbf5b3d61b60b6c8e7bb7147fd523534ad3ca",
-          "mask": true
+          "sha256": "e6676bccf66215a90bce7635ec1b1b1608dabc7f6079d4858a9812fe199ce29a",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/279954cb77d3da2c541b4d0559f1d1793f4c2f584306f9c548dbdd46bb52beb1.png",
@@ -29000,6 +30583,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_16_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "e6676bccf66215a90bce7635ec1b1b1608dabc7f6079d4858a9812fe199ce29a",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -29052,7 +30651,7 @@
       "sourceSha256": "402c6c74a195a6fe2e03f0c4ca46faac99e0f255171351250e7669852e226384",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/420b6774239e2b9c455a5b809793e60ae7da2cd9922fa5e05b93e41c5e8454b8.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_16_male.png",
           "rect": [
             0,
             0,
@@ -29063,8 +30662,9 @@
             1024,
             1024
           ],
-          "sha256": "420b6774239e2b9c455a5b809793e60ae7da2cd9922fa5e05b93e41c5e8454b8",
-          "mask": true
+          "sha256": "bc5455c004043b5a36e03dc900b0e0d50e5432dc944d3cc8c0d75d7815a106bf",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/4cc380abacd47476c70f4bf376395347dca138509ff9504e9a4f97b123885670.png",
@@ -29258,6 +30858,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_16_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "bc5455c004043b5a36e03dc900b0e0d50e5432dc944d3cc8c0d75d7815a106bf",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -29310,7 +30926,7 @@
       "sourceSha256": "225a655b858187b9f0a64cb828f08722ba13ff1b82804edba0b6aaaf2377756f",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/714d86a4b14bf7361ab0ece93ecd58616e235468aa7535df6f2d05e1fe2f75a7.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_17_female.png",
           "rect": [
             0,
             0,
@@ -29321,8 +30937,9 @@
             1024,
             1024
           ],
-          "sha256": "714d86a4b14bf7361ab0ece93ecd58616e235468aa7535df6f2d05e1fe2f75a7",
-          "mask": true
+          "sha256": "0d058a321b95205deddffd047c141d79f6cc0b68697c0018bd1670e8751a0101",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/2f291017833d09e9f1df5429d07477d127f96ef0b9787fbb43eabdb73cd01f5b.png",
@@ -29516,6 +31133,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_17_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "0d058a321b95205deddffd047c141d79f6cc0b68697c0018bd1670e8751a0101",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -29568,7 +31201,7 @@
       "sourceSha256": "e8e84212dd09a5ccdf83aa0314298c6ca6acb36905c8cc81897b3e9abf62d333",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/8e92de806cb28b82021c13c783b272d993d92a56a9504c05dcba6b84dd4335ba.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_17_male.png",
           "rect": [
             0,
             0,
@@ -29579,8 +31212,9 @@
             1024,
             1024
           ],
-          "sha256": "8e92de806cb28b82021c13c783b272d993d92a56a9504c05dcba6b84dd4335ba",
-          "mask": true
+          "sha256": "522e58da428aeaac1e054db85a5633af3a7a38684055f92d8ff8d96036ce0ea5",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/0bc86da66a22a02b17633d4f6bbb247b93a1981f33bfeb2b9d0ce01d2a80616f.png",
@@ -29774,6 +31408,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_17_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "522e58da428aeaac1e054db85a5633af3a7a38684055f92d8ff8d96036ce0ea5",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -29826,7 +31476,7 @@
       "sourceSha256": "40a86a923e8533cc7bfb4b9c16f6e6e4963d7fb889f267b35b72b1cd37c58708",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/267c551b5bf0a11fc6b8415ca0edd67a8f61b3dc020588d593591082cc0c56f3.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_18_female.png",
           "rect": [
             0,
             0,
@@ -29837,8 +31487,9 @@
             1024,
             1024
           ],
-          "sha256": "267c551b5bf0a11fc6b8415ca0edd67a8f61b3dc020588d593591082cc0c56f3",
-          "mask": true
+          "sha256": "0127af1868060d68f8e327cacedfeb012c0594f2d9e784fe52fbcd75e52c7941",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/3696b228c129cd78d36125067490e9e3d89b7fe776213b650444f8785b326fe8.png",
@@ -30032,6 +31683,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_18_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "0127af1868060d68f8e327cacedfeb012c0594f2d9e784fe52fbcd75e52c7941",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -30084,7 +31751,7 @@
       "sourceSha256": "c524f0d41e0c2ccbf732f99c011881922ff58f9a4702359b2d479b923df9d8e3",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/7d685496495f22970026b770cefa3d01a33177e09e7bc07ffc629aba61e15110.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_18_male.png",
           "rect": [
             0,
             0,
@@ -30095,8 +31762,9 @@
             1024,
             1024
           ],
-          "sha256": "7d685496495f22970026b770cefa3d01a33177e09e7bc07ffc629aba61e15110",
-          "mask": true
+          "sha256": "6d04cd49933458d579511498781410b5ca3f4b1a97195f7a1bbf80ce1f17b247",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/ed4f53f373fa30d4b74e342ae80da1a210b584cb5930a8c2c5744f167d46a01d.png",
@@ -30290,6 +31958,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_18_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "6d04cd49933458d579511498781410b5ca3f4b1a97195f7a1bbf80ce1f17b247",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -30342,7 +32026,7 @@
       "sourceSha256": "0883fe43be2105161355a21987fb53aee9254e86e6d729d7ae50549129f5b614",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/862984b22782de5dc10c6d27c50fd364708806adef1578c72b2ef9f2c365c80d.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_19_female.png",
           "rect": [
             0,
             0,
@@ -30353,8 +32037,9 @@
             1024,
             1024
           ],
-          "sha256": "862984b22782de5dc10c6d27c50fd364708806adef1578c72b2ef9f2c365c80d",
-          "mask": true
+          "sha256": "afac2edc973b365eb429de2c49ca5b53c38e760b25c5fcc420892b43765cb35f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/1775025a23178c7ca1dfbd74aa9850e0e1e4bdbf6134fd8a3c0a8ef1b8940c27.png",
@@ -30548,6 +32233,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_19_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "afac2edc973b365eb429de2c49ca5b53c38e760b25c5fcc420892b43765cb35f",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -30600,7 +32301,7 @@
       "sourceSha256": "bbc1cef8bfd84c493f1e4382c1ff0d26bcb7b91889039688445aa89420720b01",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/35576f81f4f0765fc9d25ea27665284a1e627f8fee02ea1ec8d13e217132f494.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_19_male.png",
           "rect": [
             0,
             0,
@@ -30611,8 +32312,9 @@
             1024,
             1024
           ],
-          "sha256": "35576f81f4f0765fc9d25ea27665284a1e627f8fee02ea1ec8d13e217132f494",
-          "mask": true
+          "sha256": "3f7080761813bb99e01a2f86df0c4afe7ecb9b99bd9ec93ec02bcfc7f1f263b4",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/c7ae79e2657f1437244c131a27cc81ce536b028d3f92c82c3a71f38af67a39ba.png",
@@ -30806,6 +32508,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_19_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "3f7080761813bb99e01a2f86df0c4afe7ecb9b99bd9ec93ec02bcfc7f1f263b4",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -30858,7 +32576,7 @@
       "sourceSha256": "3888f35e0db439825c564fbda3be5daa33a75c82e0cb0dec2691d15c58e3b4a2",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/6b7c758665986f4ba6e3cf91bf533ce63bd8e78d47e9d9a21ea92cfb766e9db7.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_20_female.png",
           "rect": [
             0,
             0,
@@ -30869,8 +32587,9 @@
             1024,
             1024
           ],
-          "sha256": "6b7c758665986f4ba6e3cf91bf533ce63bd8e78d47e9d9a21ea92cfb766e9db7",
-          "mask": true
+          "sha256": "a3ab963acfc30116426b0fb03723b31678bde3594708e228decc5788a96eb876",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/256d322dee6002e107337a34e0f02c327c5dc55705ac3585249d873c588a875c.png",
@@ -31064,6 +32783,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/female_face_master.png",
           "sourceSha256": "912df7d14f3898350d6b30f76ed1178c8eb6d28aaca74ef31915a473f5e6ccc5"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_20_female.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a3ab963acfc30116426b0fb03723b31678bde3594708e228decc5788a96eb876",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -31116,7 +32851,7 @@
       "sourceSha256": "df83d7e5413b8731451342e734896a046a5cb48e0d14ca923369d7ce172d2930",
       "bodyCompanion": {
         "replacementMask": {
-          "path": "03_hd_assets/wardrobe/rasters/9533d43d60053195aa6f5bc1259a7e22e971f643645ed755f878489bdfbae52b.png",
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_20_male.png",
           "rect": [
             0,
             0,
@@ -31127,8 +32862,9 @@
             1024,
             1024
           ],
-          "sha256": "9533d43d60053195aa6f5bc1259a7e22e971f643645ed755f878489bdfbae52b",
-          "mask": true
+          "sha256": "a5ac916ec39f951fb2905d186e109b1e27df3fcd1bd4b40768de957f8db0aef8",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         },
         "overlay": {
           "path": "03_hd_assets/wardrobe/rasters/52b79c352aedf13b114e9fa313bf9d68047a662df2e4651a37443817972816d6.png",
@@ -31322,6 +33058,22 @@
           "detail": "native_generated_face_source",
           "source": "03_제작기록/r9/hd/male_face_master.png",
           "sourceSha256": "4812e6dc9a6e0109debc5789b6965d55e45149c29aeea7072b34d5aa42ad6517"
+        },
+        {
+          "path": "03_제작기록/r9_fix1/compatibility_bake/native_replacement/outfit_20_male.png",
+          "rect": [
+            0,
+            0,
+            1024,
+            1024
+          ],
+          "pixelSize": [
+            1024,
+            1024
+          ],
+          "sha256": "a5ac916ec39f951fb2905d186e109b1e27df3fcd1bd4b40768de957f8db0aef8",
+          "mask": true,
+          "fix1MatchesNativeDefaultBody": true
         }
       ],
       "wholeFigureRegistration": {
@@ -31359,5 +33111,9 @@
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }

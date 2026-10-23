@@ -11,8 +11,16 @@
 //   저장소가 막혀 있으면(사생활 모드 등) 이번 창에서만. 서버로는 아무것도 보내지 않는다.
 //  그리기 차례: 화면 가까이 온 칸부터, 화면 가운데에 가까운 것 먼저, 한 번에 하나씩(그 사이에 화면이 멈추지 않게 쉰다). 그림 파일 받기는 미리 함께.
 // DOM·캔버스는 함수 안에서만 쓴다(노드 시험에서 이 파일을 불러 칸·열쇠·자리 셈을 시험한다).
+// 옷 한 벌 사진(2026-10-23 — 아이폰 사파리 "문제가 반복적으로 발생", 입혀 보기 신발 탭에서 페이지가 죽던 것):
+//  예전 옷 칸은 칸마다 캐릭터 전체(1024 그림 + 머리색 필터 · 몸 지우기 마스크)를 SVG 로 그리고 옷 있는 곳만 크게 당겨 보였다(kiugi-art.js itemSvg · thumbBox).
+//  사파리는 필터·마스크를 당긴 배율 그대로 1024 그림 전체 크기의 칸 밖 그림판에 그린다 — 신발 칸(그림 200 칸을 칸 너비로 당김)은 필터·마스크 하나에
+//  1,400×1,400 화소 안팎, 칸마다 여러 개라 칸 십여 개가 화면에 오면 메모리가 넘친다(크롬은 보이는 곳만 그려 시험에서 보이지 않았다). 모자·악세사리 칸도 같은 까닭으로 무겁다.
+//  → 옷 칸은 캔버스로 칸 크기(옷이 있는 곳 thumbBox 만 × 배율, 1024 원본보다 크게는 안 그림)만큼만 한 번 그려 작은 PNG(투명 — 칸 바탕이 비친다)로 둔다.
+//    그리는 차례·마스크·머리색은 카드 사진·저장하기와 같은 함수(characterPlan · paintPlan). 성별이 같으면 DJ 얼굴·머리로(itemSvg 와 같은 규칙).
 import { characterPlan, planUrls, paintPlan, artUrl, savePetUrl, alphaBox } from './kiugi-save.js';
 import { recolor } from '../kiugi/kiugi-hair-color.js';
+import { pairOf, partOf, slotOfPair, thumbBox } from '../kiugi/kiugi-art.js';
+import { normalizeLook, LOOK_DEFAULT } from '../kiugi/kiugi-look.js';
 import { expressionFor, preloadImage, ART } from './kiugi-draw.js';
 
 export const SIZE = 1024;
@@ -52,12 +60,25 @@ export function hashText(s) {
   for (let i = 0; i < s.length; i++) { const c = s.charCodeAt(i); a = Math.imul(a ^ c, 16777619); b = Math.imul(b ^ c, 2246822519); }
   return (a >>> 0).toString(16).padStart(8, '0') + (b >>> 0).toString(16).padStart(8, '0');
 }
-// 사진 한 장의 열쇠: 그림 주소(?v= 해시 포함 — 그림이 바뀌면 열쇠도 바뀐다) · 칸 · 배율 · 펫 · 표정 겹치기 · 그리는 방법 판
+// 사진 한 장의 열쇠: 그림 주소(?v= 해시 포함 — 그림이 바뀌면 열쇠도 바뀐다) · 칸 · 배율 · 펫 · 표정 겹치기 · 머리색 · 그리는 방법 판
 //  face: 표정 겹치기(볼 발그레 · 둥실 하트 — 그림 파일이 아니라 캔버스로 그려 주소만으로는 표정 1·2 가 같은 열쇠였다, 2026-10-19 고침)
-//  r2(2026-10-19): 남자 카드 칸(photoMale)·표정 겹치기 — 예전(r1) 사진은 쓰지 않는다
-export const RASTER_VERSION = 'r2';
-export function rasterKey(urls, { kind = 'photo', s = 1, female = false, pet = null, face = '' } = {}) {
-  return `${RASTER_VERSION}:${kind}:${s}:${female ? 'f' : 'm'}:${hashText([...urls, pet || '', face ? 'face:' + face : ''].join('|'))}`;
+//  hair: 머리색(물들이기는 그림 주소에 없어 같은 머리 그림·다른 색이 같은 열쇠였다 — 2026-10-23 고침) · crop: 옷 한 벌 사진의 칸(옷마다 다르다)
+//  r2(2026-10-19): 남자 카드 칸(photoMale)·표정 겹치기 / r3(2026-10-23): 머리색·옷 한 벌 사진 — 예전 사진은 쓰지 않는다
+export const RASTER_VERSION = 'r3';
+export function rasterKey(urls, { kind = 'photo', s = 1, female = false, pet = null, face = '', hair = '', crop = null } = {}) {
+  return `${RASTER_VERSION}:${kind}:${s}:${female ? 'f' : 'm'}:${hashText([...urls, pet || '', face ? 'face:' + face : '', hair ? 'hair:' + hair : '', crop ? 'crop:' + crop.join(',') : ''].join('|'))}`;
+}
+// 옷 한 벌 사진의 그림 계획: 옷 id → {plan, crop([x, y, w, h] — 1024 좌표), face(그릴 얼굴·머리)} · 그림이 없는 옷(예전 그림의 옷 등)은 null(화면이 이름 자리 표시로)
+//  crop: thumbBox(옷이 있는 곳을 넉넉히 감싼 정사각형). tall(전신 의상 세로 칸 3:4)이면 가운데 3/4 너비만(예전 SVG 의 133% 너비 · −16.7% 자리와 같은 곳)
+export function itemPlanOf(id, { gender = 'f', dj = null, tall = false } = {}) {
+  const g = gender === 'm' ? 'm' : 'f', p = pairOf(id), a = p ? partOf(p.category, g, p.number) : null, slot = a ? slotOfPair(id) : null;
+  if (!a || !slot) return null;
+  const face = dj && normalizeLook(dj).gender === g ? { ...normalizeLook(dj) } : { ...LOOK_DEFAULT, gender: g };
+  const m = /^(\d+) (\d+) (\d+) (\d+)$/.exec(thumbBox(a));
+  if (!m) return null;
+  const [x, y, w, h] = m.slice(1).map(Number);
+  const crop = tall ? [x + w / 8, y, (w * 3) / 4, h] : [x, y, w, h];
+  return { plan: characterPlan(face, { worn: { [slot]: id } }, null), crop, face };
 }
 // 표정 겹치기 글(시즌 목록 parts 중 그림 파일이 아닌 것 — exp-blush · exp-floating-hearts)
 export const faceExtras = (expression) => (Array.isArray(expression?.parts) ? expression.parts.filter((p) => /^exp-/.test(p)).sort().join(',') : '');
@@ -70,7 +91,7 @@ export function loadLite(base = '/') {
 }
 // 원본 주소 → 사본 주소(원본의 ?v= 가 사본 목록의 v 와 같을 때만, 아니면 원본 그대로)
 export function liteUrl(url, lite, base = '/') {
-  const m = /^(.*?)(\/kiugi\/[a-z0-9_/]+\.png)\?v=([0-9a-f]+)$/.exec(String(url));
+  const m = /^(.*?)(\/kiugi\/[a-z0-9_/]+\.(?:png|jpg))\?v=([0-9a-f]+)$/.exec(String(url)); // 배경은 2026-10-23 부터 .jpg(먼치킨 그림 용량 줄이기)
   const f = m && lite?.files?.[m[2]];
   if (!f || f.v !== m[3] || !/^[a-z0-9_/]+\.webp$/.test(f.file)) return url;
   return `${m[1]}/kiugi-lite/${f.file}?v=${f.t}`;
@@ -123,8 +144,10 @@ async function dbPut(rec) {
 // ---- 그리기 ----
 const canvasOf = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w)); c.height = Math.max(1, Math.round(h)); return c; };
 const free = (c) => { try { c.width = 0; c.height = 0; } catch { /* 무시 */ } };
-// 머리 물들이기(tone-map-v1 — kiugi-save.js tintedHair 와 같은 방법, 크기만 칸 배율에 맞춘다). 몇 장만 기억(DJ 마다 앞·뒷머리).
-const TINTS = new Map(), TINT_MAX = 10;
+// 손가락 화면(휴대폰·태블릿)인가 — 기억해 두는 것을 줄인다(아이폰 사파리는 캔버스·그림 메모리에 엄하다)
+const coarse = () => { try { return typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches; } catch { return false; } };
+// 머리 물들이기(tone-map-v1 — kiugi-save.js tintedHair 와 같은 방법, 크기만 칸 배율에 맞춘다). 몇 장만 기억(DJ 마다 앞·뒷머리 — 휴대폰은 4장, 1024 한 장이 4MB).
+const TINTS = new Map(), TINT_MAX = coarse() ? 4 : 10;
 function tinted(img, asset, color, n) {
   const key = [ART.packageId, asset.id, asset.v, color, n].join(':');
   if (TINTS.has(key)) { const c = TINTS.get(key); TINTS.delete(key); TINTS.set(key, c); return c; }
@@ -160,15 +183,15 @@ function pickType() {
 }
 // 그림 파일 → data: 주소(사이트 보안 규칙 CSP 는 그림을 같은 출처와 data: 만 허용 — blob: 은 쓰지 않는다)
 const dataUrl = (blob) => new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = () => reject(r.error); r.readAsDataURL(blob); });
-const toBlob = (c) => new Promise((resolve, reject) => {
-  const type = pickType();
+const toBlob = (c, png = false) => new Promise((resolve, reject) => {
+  const type = png ? 'image/png' : pickType();
   try { c.toBlob((b) => (b ? resolve(b) : reject(Error('사진을 만들지 못했어요.'))), type, type === 'image/webp' ? 0.9 : 0.92); } catch (e) { reject(e); }
 });
 
-// 한 장 그리기 → 캔버스. job = {plan, images(원본 주소 → 그림), kind, s, character, base}
+// 한 장 그리기 → 캔버스. job = {plan, images(원본 주소 → 그림), kind, s, character, base, crop?(옷 한 벌 — 그 칸, 여자 줄이기 없음), transparent?(바탕 없이)}
 function paint(job) {
-  const { plan, images, kind, s, character, base } = job;
-  const [cx, cy, cw, ch] = cropOf(kind, character), W = cw * s, H = ch * s, female = kind !== 'bust' && isFemale(character);
+  const { plan, images, kind, s, character, base, crop = null, transparent = false } = job;
+  const [cx, cy, cw, ch] = crop || cropOf(kind, character), W = cw * s, H = ch * s, female = !crop && kind !== 'bust' && isFemale(character);
   // 캐릭터 칸(칸 크기만 — 1024 전체를 그리지 않아 빠르다): 1024 좌표 → 칸 좌표(× s) · 여자는 발바닥 기준 0.91배
   const base0 = [s, 0, 0, s, -cx * s, -cy * s];
   const mat = female ? [s * FEMALE.s, 0, 0, s * FEMALE.s, s * (FEMALE.ox - FEMALE.ox * FEMALE.s) - cx * s, s * (FEMALE.oy - FEMALE.oy * FEMALE.s + FEMALE.dy) - cy * s] : base0;
@@ -185,30 +208,36 @@ function paint(job) {
   const out = canvasOf(W, H), o = out.getContext('2d');
   o.imageSmoothingEnabled = true; o.imageSmoothingQuality = 'high';
   if (plan.background) { o.setTransform(...base0); o.drawImage(images.get(artUrl(plan.background, base)), 0, 0, SIZE, SIZE); o.setTransform(1, 0, 0, 1, 0, 0); }
-  else drawStudio(o, W, H);
+  else if (!transparent) drawStudio(o, W, H);
   o.drawImage(art.canvas, 0, 0);
 
   for (const c of made) free(c);
   return out;
 }
 
-const MEM = new Map(), WAIT = new Map();
+// 이번 창에서 그린 사진(data: 글) — 휴대폰은 60장·그 밖은 300장까지(오래 안 쓴 것부터 버린다. 화면에 붙은 그림은 그대로 보인다)
+const MEM = new Map(), WAIT = new Map(), MEM_MAX = coarse() ? 60 : 300;
+const memGet = (k) => { const v = MEM.get(k); if (v) { MEM.delete(k); MEM.set(k, v); } return v; };
+const memSet = (k, v) => { MEM.delete(k); MEM.set(k, v); while (MEM.size > MEM_MAX) MEM.delete(MEM.keys().next().value); };
 // 이번 창에서 그린 사진 셈(속도 재기·시험용): mem(메모리) · db(이 브라우저 캐시) · drawn(새로 그림) · ms(새로 그린 시간 합)
 export const rasterStats = { mem: 0, db: 0, drawn: 0, ms: 0 };
 // 사진 한 장 → {url(data:), w, h} (같은 열쇠는 한 번만 그린다). opts = {catalog, character, worn, level, exp(고른 표정), seasonId, base, kind, cssWidth, dpr}
+//  옷 한 벌(opts.item = {id, gender, dj, tall} · kind 'item'): 그 옷만 입은 모습을 옷이 있는 칸만 · 바탕 없이(투명 PNG) · 이 브라우저 캐시(IndexedDB)에는 두지 않는다(카드 사진을 밀어내지 않게)
 export async function rasterize(opts) {
   const { catalog, character, worn = {}, level = 1, exp = null, seasonId = null, base = '/', kind = 'photo' } = opts;
-  const expression = expressionFor(catalog, seasonId, level || 1, exp);
-  const plan = characterPlan(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} }, expression);
-  const crop = cropOf(kind, character), s = scaleFor(opts.cssWidth, opts.dpr, crop[2]);
-  const urls = planUrls(plan, base);
-  const key = rasterKey(urls, { kind, s, female: isFemale(character), face: faceExtras(expression) });
-  if (MEM.has(key)) { rasterStats.mem++; return MEM.get(key); }
+  const it = opts.item ? itemPlanOf(opts.item.id, opts.item) : null;
+  if (opts.item && !it) throw Error('그림이 없는 옷이에요: ' + opts.item.id);
+  const expression = it ? null : expressionFor(catalog, seasonId, level || 1, exp);
+  const plan = it ? it.plan : characterPlan(character || {}, { worn: worn && typeof worn === 'object' ? worn : {} }, expression);
+  const crop = it ? it.crop : cropOf(kind, character), s = scaleFor(opts.cssWidth, opts.dpr, crop[2]);
+  const urls = planUrls(plan, base), who = it ? it.face : character;
+  const key = rasterKey(urls, { kind, s, female: !it && isFemale(character), face: faceExtras(expression), hair: normalizeLook(who || {}).hairColor, crop: it ? crop : null });
+  if (MEM.has(key)) { rasterStats.mem++; return memGet(key); }
   if (WAIT.has(key)) return WAIT.get(key);
   const job = (async () => {
     const t0 = typeof performance === 'object' ? performance.now() : 0;
-    const saved = await dbGet(key);
-    if (saved?.blob) { try { const r = { url: await dataUrl(saved.blob), w: saved.w, h: saved.h, cached: true }; MEM.set(key, r); rasterStats.db++; return r; } catch { /* 다시 그린다 */ } }
+    const saved = it ? null : await dbGet(key);
+    if (saved?.blob) { try { const r = { url: await dataUrl(saved.blob), w: saved.w, h: saved.h, cached: true }; memSet(key, r); rasterStats.db++; return r; } catch { /* 다시 그린다 */ } }
     const lite = await loadLite(base), images = new Map();
     // 그림 받기(사본이 있으면 사본 — 못 받으면 원본으로 한 번 더)
     await Promise.all(urls.map(async (u) => {
@@ -219,16 +248,18 @@ export async function rasterize(opts) {
     }));
     await turn();
     let canvas;
-    try { canvas = paint({ plan, images, kind, s, character, base }); }
+    try { canvas = paint({ plan, images, kind, s, character, base, ...(it ? { crop, transparent: true } : {}) }); }
     finally { release(); }
     // 다 그린 캔버스를 화면이 먼저 보여 줄 수 있게 넘긴다(그림 파일로 만드는 동안 기다리지 않게 — 화면 쪽이 다 쓴 뒤 비운다)
     const handed = typeof opts.onCanvas === 'function' && opts.onCanvas(canvas) === true;
-    const blob = await toBlob(canvas);
+    let blob;
+    try { blob = await toBlob(canvas, Boolean(it)); }
+    catch (e) { if (!handed) free(canvas); throw e; }
     const r = { url: await dataUrl(blob), w: canvas.width, h: canvas.height, cached: false };
     if (!handed) free(canvas);
-    MEM.set(key, r);
+    memSet(key, r);
     rasterStats.drawn++; if (t0) rasterStats.ms += performance.now() - t0;
-    void dbPut({ k: key, blob, w: r.w, h: r.h, at: Date.now() });
+    if (!it) void dbPut({ k: key, blob, w: r.w, h: r.h, at: Date.now() });
     return r;
   })();
   WAIT.set(key, job);

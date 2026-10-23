@@ -71,7 +71,7 @@ test('숨쉬기: 캐릭터 그림을 바탕(입은 배경·바탕 색)과 캐릭
   const c = await catalog();
   const withBg = characterMarkup(c, { gender: 'm' }, { bg: 'background_03', top: 'top_02' }, 1, { base: B, stage: null });
   const { scene, body } = splitScene(withBg);
-  assert.match(scene, /^<svg viewBox="0 0 1024 1024" xmlns="http:\/\/www\.w3\.org\/2000\/svg" aria-hidden="true"><image [^>]*background_03\.png[^>]*data-step="background"\/><\/svg>$/);
+  assert.match(scene, /^<svg viewBox="0 0 1024 1024" xmlns="http:\/\/www\.w3\.org\/2000\/svg" aria-hidden="true"><image [^>]*background_03\.jpg[^>]*data-step="background"\/><\/svg>$/);
   assert.doesNotMatch(body, /data-step="background"/); assert.match(body, /data-step="hair\.back"/); assert.match(body, /<defs>/);
   assert.match(body, /^<svg viewBox="0 0 1024 1024"[^>]* role="img"/, '이름(aria)은 캐릭터 쪽에');
   assert.equal(body.length + scene.length - '<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"></svg>'.length, withBg.length, '둘을 겹치면 원래 그림');

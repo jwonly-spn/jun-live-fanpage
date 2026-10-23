@@ -1,5 +1,5 @@
 // 가벼운 그림 사본 만들기(2026-10-18 사이트 새 구조 — 빠르게): docs/kiugi/ 의 큰 그림 중 메인 카드에 자주 나오는 것을 WebP 로 줄여 docs/kiugi-lite/ 에 둔다.
-//  지금은 공통 배경(kiugi/bg/background_XX.png — 1024 불투명 장면 그림, 한 장 1.4~1.9MB) → 같은 크기 WebP(품질 0.86, 한 장 약 0.1~0.2MB).
+//  지금은 공통 배경(kiugi/bg/background_XX.png — 1024 불투명 장면 그림, 한 장 1.4~1.9MB · 2026-10-23 부터 먼치킨이 .jpg 180~350KB 로 준다) → 같은 크기 WebP(품질 0.86, 한 장 약 0.1~0.2MB).
 //  캐릭터 조각(몸·옷·머리·마스크)은 줄이지 않는다 — 카드 칸이 커서(휴대폰 한 장 · PC 3장) 1024 그대로가 필요하고, 저장하기 그림은 원본 PNG 와 픽셀이 같아야 한다.
 //  docs/kiugi/ 는 먼치킨 저장소 tools/sync-kiugi-site.mjs 가 통째로 맞춰 쓰는 폴더라(모르는 파일은 지운다) 사본은 그 밖(docs/kiugi-lite/)에 둔다.
 //  목록 docs/kiugi-lite/index.json = {v:1, files:{"/kiugi/bg/background_01.png": {v:<원본 ?v= 값>, file:"bg/background_01.webp", t:<사본 해시 앞 12자>}}}
@@ -35,7 +35,7 @@ function backgrounds() {
   const list = [];
   for (const m of src.matchAll(/\{[^{}]*"category":"background"[^{}]*\}/g)) {
     const a = JSON.parse(m[0]);
-    if (a.dir === '/kiugi/bg/' && /^[a-z0-9_]+\.png$/.test(a.file) && /^[0-9a-f]{6,}$/.test(a.v)) list.push(a);
+    if (a.dir === '/kiugi/bg/' && /^[a-z0-9_]+\.(?:png|jpg)$/.test(a.file) && /^[0-9a-f]{6,}$/.test(a.v)) list.push(a);
   }
   return list;
 }
@@ -46,7 +46,7 @@ function serve() {
       const p = decodeURIComponent(new URL(req.url, 'http://x').pathname);
       const file = path.normalize(path.join(docs, p));
       if (!file.startsWith(docs + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) { res.writeHead(404).end(); return; }
-      res.writeHead(200, { 'Content-Type': file.endsWith('.png') ? 'image/png' : 'text/html; charset=utf-8' });
+      res.writeHead(200, { 'Content-Type': file.endsWith('.png') ? 'image/png' : file.endsWith('.jpg') ? 'image/jpeg' : 'text/html; charset=utf-8' });
       res.end(fs.readFileSync(file));
     });
     server.listen(0, '127.0.0.1', () => resolve(server));
@@ -72,7 +72,7 @@ app.whenReady().then(async () => {
       return btoa(s);
     })()`);
     if (!b64) { log('WebP 를 만들지 못함 ' + a.file); continue; }
-    const bytes = Buffer.from(b64, 'base64'), name = 'bg/' + a.file.replace(/\.png$/, '.webp');
+    const bytes = Buffer.from(b64, 'base64'), name = 'bg/' + a.file.replace(/\.(?:png|jpg)$/, '.webp');
     fs.mkdirSync(path.join(out, 'bg'), { recursive: true });
     fs.writeFileSync(path.join(out, name), bytes);
     const srcSize = fs.statSync(path.join(docs, 'kiugi', 'bg', a.file)).size;

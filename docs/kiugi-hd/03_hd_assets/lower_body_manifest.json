@@ -1,9 +1,9 @@
 {
-  "packageId": "DJ_STYLE_20261018_REDO_R9",
+  "packageId": "DJ_STYLE_20261019_R9_FIX1",
   "assets": {
     "female": {
       "paint": {
-        "path": "03_hd_assets/lower_body/female_bare_legs_no_guide_shoes.png",
+        "path": "03_제작기록/r9_fix1/body_edge_mattes/female_bare_legs_upper_extended.png",
         "rect": [
           290,
           320,
@@ -14,10 +14,23 @@
           1024,
           1536
         ],
-        "sha256": "259cafe4a8f2afc142cb414b34607d098d50dd6a4fd3241ef637c9ecace456be"
+        "sha256": "aaec7b61d642499ff413b7d7e5cd17570d40f4374229a0e4ae65d6f9fe8ad9d6",
+        "fix1BoundaryWhiteMatteRemoved": true,
+        "fix1UpperGuideFragmentRemoved": true,
+        "upperPatchSource": "03_제작기록/r9_fix1/generated/female_upper_thigh_extension_v1.png",
+        "upperPatchSourceSha256": "d0240dd2ed4867c19e938a117e1bd4e740367b4d526cafea099e2e109c253851",
+        "originalLowerPixelsPreservedBelowNativeY": 419,
+        "upperPatchWholeImageRegistration": {
+          "uniformScale": 0.998,
+          "offset": [
+            1.0,
+            2.0
+          ],
+          "bothKneeTemplateScore": 0.9959293603897095
+        }
       },
       "replacementMask": {
-        "path": "03_hd_assets/lower_body/female_canonical_legs_replace.png",
+        "path": "03_제작기록/r9_fix1/body_edge_mattes/female_canonical_legs_replace_current_body.png",
         "rect": [
           0,
           0,
@@ -28,8 +41,10 @@
           1024,
           1024
         ],
-        "sha256": "9f42f06981d33c703c394d68fbf5eec7c87b3c108b7ee886add808a8b5771d1a",
-        "mask": true
+        "sha256": "9545b89ccdbcdb9b6e2dcdcf2c250dd14d2ef6d7a94fdd20342c7827ad9ddcf2",
+        "mask": true,
+        "fix1MatchesActualCompatibleBody": true,
+        "sourcePreviousMask": "03_hd_assets/lower_body/female_canonical_legs_replace.png"
       },
       "source": "03_hd_assets/lower_body/female_complete_source_v2.png",
       "sourceSha256": "b807236f0518a2b09bada1e440c909f19d7a0adebd96c82bb178dfd63b65c917",
@@ -39,7 +54,7 @@
     },
     "male": {
       "paint": {
-        "path": "03_hd_assets/lower_body/male_bare_legs_no_guide_shoes.png",
+        "path": "03_제작기록/r9_fix1/body_edge_mattes/male_bare_legs_upper_extended.png",
         "rect": [
           290,
           320,
@@ -50,10 +65,23 @@
           1024,
           1536
         ],
-        "sha256": "984d2eb9a52ea236cfccce9ab9c17358db27702cca4b38e1e8ddb334045e0829"
+        "sha256": "6bccc23e59c52608f5e3271912598fce979fe65c6326302634ea69376a5ebd90",
+        "fix1BoundaryWhiteMatteRemoved": true,
+        "fix1UpperGuideFragmentRemoved": true,
+        "upperPatchSource": "03_제작기록/r9_fix1/generated/male_upper_thigh_extension_v1.png",
+        "upperPatchSourceSha256": "519e3e9f6bafc509cafcd1781b25b96edd6fab8b0efc5800229a42d06c6baab2",
+        "originalLowerPixelsPreservedBelowNativeY": 512,
+        "upperPatchWholeImageRegistration": {
+          "uniformScale": 0.996,
+          "offset": [
+            2.0,
+            3.0
+          ],
+          "bothKneeTemplateScore": 0.990999698638916
+        }
       },
       "replacementMask": {
-        "path": "03_hd_assets/lower_body/male_canonical_legs_replace.png",
+        "path": "03_제작기록/r9_fix1/body_edge_mattes/male_canonical_legs_replace_current_body.png",
         "rect": [
           0,
           0,
@@ -64,8 +92,10 @@
           1024,
           1024
         ],
-        "sha256": "9e14f1fa68877aa69dac6cecbeb5b47969b2dfe34dd7d6c1d18e5d0c4f11690f",
-        "mask": true
+        "sha256": "53af4db0d132c8aee1a255d67f1d35c529f82859ce8c508eb741c70f786f2d8d",
+        "mask": true,
+        "fix1MatchesActualCompatibleBody": true,
+        "sourcePreviousMask": "03_hd_assets/lower_body/male_canonical_legs_replace.png"
       },
       "source": "03_hd_assets/lower_body/male_complete_source_v2.png",
       "sourceSha256": "b5fd72f431a5221bd55f39661c8ba308341b5a2daa6d8a2563f1793e8b37e8e9",
@@ -78,5 +108,9 @@
   "readinessAuthority": [
     "STATUS.json",
     "02_클로드인계/HANDOFF_READY.json"
-  ]
+  ],
+  "ready": true,
+  "validationPassed": false,
+  "status": "ready",
+  "fix1FinalArtReview": "07_검사결과/r9_fix1/art_review.json"
 }
