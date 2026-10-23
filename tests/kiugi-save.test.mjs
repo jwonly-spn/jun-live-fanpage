@@ -247,7 +247,7 @@ test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고
   assert.deepEqual(out.slice(8, 12), [0, 0, 0, 0], '투명은 그대로'); assert.equal(out[15], 128);
   assert.equal(tintedHair(doc, 'IMG', asset, 'blond', cache), c, '같은 머리·같은 색은 다시 만들지 않는다');
   assert.equal(tintKey(asset, 'blond'), `${ART.packageId}:tone-map-v1:female_hair_09_back:0123456789ab:blond`); assert.equal(hairColor.VERSION, 'tone-map-v1');
-  assert.match(ART.packageId, /^DJ_STYLE_20261019_R9_FIX1$/); // 2026-10-23 R9 FIX1(같은 파일·id 규칙 — 그림만 고침) // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
+  assert.match(ART.packageId, /^DJ_STYLE_20261023_R9_FIX1_C1$/); // 2026-10-23 R9 FIX1(같은 파일·id 규칙 — 그림만 고침) // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
   for (const k of ['black', 'pink', 'sky', 'silver']) tintedHair(doc, 'IMG', asset, k, cache);
   assert.equal(cache.size, TINT_CACHE_MAX); assert.equal(c.width, 0, '오래된 것부터 비운다(캔버스 메모리 돌려주기)');
   assert.deepEqual(Object.keys(PALETTE), ['black', 'brown', 'light', 'blond', 'pink', 'purple', 'sky', 'silver']);

@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261019_R9_FIX1",
+  "packageId": "DJ_STYLE_20261023_R9_FIX1_C1",
   "required": 240,
   "available": 240,
   "missingNative": [],
@@ -1199,9 +1199,9 @@
             "path": "03_hd_assets/wardrobe/rasters/13091e50d2494e47764d89188c292eba453c312e86a4caffe91d2ae568f2fe4d.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -1214,7 +1214,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9740086793899536
             },
@@ -1275,9 +1275,9 @@
           "path": "03_hd_assets/wardrobe/rasters/13091e50d2494e47764d89188c292eba453c312e86a4caffe91d2ae568f2fe4d.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -1290,7 +1290,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9740086793899536
           },
@@ -1371,7 +1371,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9740086793899536
         },
@@ -2127,9 +2127,9 @@
             "path": "03_hd_assets/wardrobe/rasters/dac59dfe7884fcd63c407e5bbb9e90b77b00077c93134666a75ada53b0947192.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -2142,7 +2142,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9732702374458313
             },
@@ -2203,9 +2203,9 @@
           "path": "03_hd_assets/wardrobe/rasters/dac59dfe7884fcd63c407e5bbb9e90b77b00077c93134666a75ada53b0947192.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -2218,7 +2218,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9732702374458313
           },
@@ -2299,7 +2299,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9732702374458313
         },
@@ -6419,9 +6419,9 @@
             "path": "03_hd_assets/wardrobe/rasters/df306faed853af72c52e736d0298425d95b106e9b253b4cbc885092d707ba9a0.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -6434,7 +6434,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9764685034751892
             },
@@ -6495,9 +6495,9 @@
           "path": "03_hd_assets/wardrobe/rasters/df306faed853af72c52e736d0298425d95b106e9b253b4cbc885092d707ba9a0.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -6510,7 +6510,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9764685034751892
           },
@@ -6591,7 +6591,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9764685034751892
         },
@@ -7687,9 +7687,9 @@
       "compatibilityPath": "03_png_assets/bottom/bottom_01_female.png",
       "rect": [
         425.89962557274083,
-        382.0,
+        382,
         188.95027624309392,
-        532.0
+        532
       ],
       "pixelSize": [
         450,
@@ -7743,9 +7743,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_01_female_bodycut.png",
           "rect": [
             425.89962557274083,
-            382.0,
+            382,
             188.95027624309392,
-            532.0
+            532
           ],
           "pixelSize": [
             450,
@@ -7759,9 +7759,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_01_female_shoeocclusion.png",
           "rect": [
             425.89962557274083,
-            382.0,
+            382,
             188.95027624309392,
-            532.0
+            532
           ],
           "pixelSize": [
             450,
@@ -7820,9 +7820,9 @@
       "compatibilityPath": "03_png_assets/bottom/bottom_01_male.png",
       "rect": [
         425.0553233682913,
-        412.0,
+        412,
         210.45358090185675,
-        499.0
+        499
       ],
       "pixelSize": [
         477,
@@ -7876,9 +7876,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_01_male_bodycut.png",
           "rect": [
             425.0553233682913,
-            412.0,
+            412,
             210.45358090185675,
-            499.0
+            499
           ],
           "pixelSize": [
             477,
@@ -7892,9 +7892,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_01_male_shoeocclusion.png",
           "rect": [
             425.0553233682913,
-            412.0,
+            412,
             210.45358090185675,
-            499.0
+            499
           ],
           "pixelSize": [
             477,
@@ -7953,9 +7953,9 @@
       "compatibilityPath": "03_png_assets/bottom/bottom_03_female.png",
       "rect": [
         426.18928506258897,
-        377.0,
+        377,
         194.51148936170213,
-        523.0
+        523
       ],
       "pixelSize": [
         437,
@@ -8009,9 +8009,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_03_female_bodycut.png",
           "rect": [
             426.18928506258897,
-            377.0,
+            377,
             194.51148936170213,
-            523.0
+            523
           ],
           "pixelSize": [
             437,
@@ -8025,9 +8025,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_03_female_shoeocclusion.png",
           "rect": [
             426.18928506258897,
-            377.0,
+            377,
             194.51148936170213,
-            523.0
+            523
           ],
           "pixelSize": [
             437,
@@ -8086,9 +8086,9 @@
       "compatibilityPath": "03_png_assets/bottom/bottom_03_male.png",
       "rect": [
         412.77719050753103,
-        412.0,
+        412,
         209.15333822450478,
-        484.0
+        484
       ],
       "pixelSize": [
         589,
@@ -8142,9 +8142,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_03_male_bodycut.png",
           "rect": [
             412.77719050753103,
-            412.0,
+            412,
             209.15333822450478,
-            484.0
+            484
           ],
           "pixelSize": [
             589,
@@ -8158,9 +8158,9 @@
           "compatibilityPath": "04_masks/bottom/bottom_03_male_shoeocclusion.png",
           "rect": [
             412.77719050753103,
-            412.0,
+            412,
             209.15333822450478,
-            484.0
+            484
           ],
           "pixelSize": [
             589,
@@ -12842,9 +12842,9 @@
       "path": "03_hd_assets/wardrobe/rasters/b2392617e9941d92958ed2a524619e81e047a3dbb5505c7c893374128b72d6d9.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_01_female.png",
       "rect": [
-        479.0,
+        479,
         244.38194444444443,
-        70.0,
+        70,
         44.23611111111111
       ],
       "pixelSize": [
@@ -12880,9 +12880,9 @@
       "path": "03_hd_assets/wardrobe/rasters/e73ebdcad8c102d2b70a8fce293db43ae65cd426f92951798b990b6da93fac94.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_01_male.png",
       "rect": [
-        476.0,
+        476,
         227.57451403887688,
-        75.0,
+        75,
         62.850971922246224
       ],
       "pixelSize": [
@@ -12918,9 +12918,9 @@
       "path": "03_hd_assets/wardrobe/rasters/093bb6aeba4c1387979fb6d26437626d222ad9aba6d948d0150e09a406579cdc.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_02_female.png",
       "rect": [
-        461.0,
+        461,
         150.20608695652174,
-        99.0,
+        99,
         23.58782608695652
       ],
       "pixelSize": [
@@ -12956,9 +12956,9 @@
       "path": "03_hd_assets/wardrobe/rasters/0b5d75c388718932a01e4bb45d950e14b5dd643409bbb1eb29a8782f7d50bcb7.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_02_male.png",
       "rect": [
-        472.0,
+        472,
         155.4114785992218,
-        81.0,
+        81,
         17.17704280155642
       ],
       "pixelSize": [
@@ -12994,9 +12994,9 @@
       "path": "03_hd_assets/wardrobe/rasters/7cf99a2fca1101d0302cc6569cb54bb3412dd36f844074446b7e4cc6ad02cb89.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_04_female.png",
       "rect": [
-        465.0,
+        465,
         239.71077283372364,
-        128.0,
+        128,
         219.5784543325527
       ],
       "pixelSize": [
@@ -13035,7 +13035,7 @@
         451.81556503198294,
         229,
         162.36886993603412,
-        271.0
+        271
       ],
       "pixelSize": [
         843,
@@ -13067,9 +13067,9 @@
       "sourceRgbCoreChanged": 0,
       "shoulderAttachmentRepair": {
         "previousRect": [
-          458.0,
+          458,
           239.3220640569395,
-          150.0,
+          150,
           250.355871886121
         ],
         "sourceRgbCoreChanged": 0,
@@ -13159,9 +13159,9 @@
       "path": "03_hd_assets/wardrobe/rasters/a87622e7baf0a5848d3f89e3f72e2a88e9b0f5518a5fc708ef9a0ef89263cd9e.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_06_female.png",
       "rect": [
-        458.0,
+        458,
         165.97029702970298,
-        108.0,
+        108,
         18.059405940594058
       ],
       "pixelSize": [
@@ -13179,7 +13179,7 @@
             436.4263157894737,
             152.48,
             29.736842105263158,
-            16.0
+            16
           ],
           "pixelSize": [
             565,
@@ -13193,7 +13193,7 @@
             549.8294736842105,
             152.48,
             29.789473684210524,
-            16.0
+            16
           ],
           "pixelSize": [
             566,
@@ -13243,7 +13243,7 @@
             436.4263157894737,
             152.48,
             29.736842105263158,
-            16.0
+            16
           ],
           "pixelSize": [
             565,
@@ -13257,7 +13257,7 @@
             549.8294736842105,
             152.48,
             29.789473684210524,
-            16.0
+            16
           ],
           "pixelSize": [
             566,
@@ -13272,9 +13272,9 @@
       "path": "03_hd_assets/wardrobe/rasters/cd2b6f5dc6b56f8a47bf436f86735494ac407273c3772ed93790cc9bf51ae02f.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_06_male.png",
       "rect": [
-        453.0,
+        453,
         150.58808618504435,
-        119.0,
+        119,
         31.823827629911282
       ],
       "pixelSize": [
@@ -13292,7 +13292,7 @@
             450.0199524940618,
             151.6,
             25.55819477434679,
-            20.0
+            20
           ],
           "pixelSize": [
             538,
@@ -13306,7 +13306,7 @@
             546.4236966824644,
             151.6,
             25.545023696682463,
-            20.0
+            20
           ],
           "pixelSize": [
             539,
@@ -13356,7 +13356,7 @@
             450.0199524940618,
             151.6,
             25.55819477434679,
-            20.0
+            20
           ],
           "pixelSize": [
             538,
@@ -13370,7 +13370,7 @@
             546.4236966824644,
             151.6,
             25.545023696682463,
-            20.0
+            20
           ],
           "pixelSize": [
             539,
@@ -13419,9 +13419,9 @@
       "path": "03_hd_assets/wardrobe/rasters/07142e56f6a0c18b0ea6da869c8c3e7a16a9a70efe1b0c64ec2758bc88cb61c2.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_07_male.png",
       "rect": [
-        475.0,
+        475,
         217.12991266375545,
-        77.0,
+        77,
         104.74017467248909
       ],
       "pixelSize": [
@@ -13535,9 +13535,9 @@
       "path": "03_hd_assets/wardrobe/rasters/42a82f2d0ed3b71135b3724a6fbfee5c5b15f83c27f336337a03c773dc426216.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_09_female.png",
       "rect": [
-        350.0,
+        350,
         495.01612903225805,
-        90.0,
+        90,
         150.96774193548387
       ],
       "pixelSize": [
@@ -13573,9 +13573,9 @@
       "path": "03_hd_assets/wardrobe/rasters/200eaa22ab69d11714cb35039a620c970c3d90b75a951e47d5ef0a9c6ace8152.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_09_male.png",
       "rect": [
-        360.0,
+        360,
         504.3517441860465,
-        93.0,
+        93,
         183.29651162790697
       ],
       "pixelSize": [
@@ -13611,9 +13611,9 @@
       "path": "03_hd_assets/wardrobe/rasters/25fe1a06afc185e80a49a5bd833b75ccdd2c1c2d6f98038356769d8a08b1a475.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_10_female.png",
       "rect": [
-        468.0,
+        468,
         166.60620689655173,
-        86.0,
+        86,
         45.787586206896556
       ],
       "pixelSize": [
@@ -13649,7 +13649,7 @@
       "path": "03_hd_assets/wardrobe/rasters/120383a98a91825aef7579300609b95ae44ff20c0edb7eb4dd9f4acb74a7ad3d.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_10_male.png",
       "rect": [
-        482.0,
+        482,
         169.13454545454545,
         60.00000000000001,
         33.730909090909094
@@ -13687,7 +13687,7 @@
       "path": "03_hd_assets/wardrobe/rasters/7a623e39f364be06b9cbb9e48afd7d44181d50c7a68bc2e99ad83817a92fe433.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_11_female.png",
       "rect": [
-        489.0,
+        489,
         232.5177232447171,
         53.00000000000001,
         24.964553510565782
@@ -13725,7 +13725,7 @@
       "path": "03_hd_assets/wardrobe/rasters/031fe6416c246751713a82b7f0f680938fa64165721c7b5456429574a17e2045.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_11_male.png",
       "rect": [
-        483.0,
+        483,
         222.41491672700943,
         58.99999999999999,
         32.17016654598117
@@ -13763,9 +13763,9 @@
       "path": "03_hd_assets/wardrobe/rasters/d640213cd527dbe889ec175b830308906a1b32481909c910a72478d8a176778e.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_12_female.png",
       "rect": [
-        467.0,
+        467,
         155.34928229665073,
-        90.0,
+        90,
         18.301435406698566
       ],
       "pixelSize": [
@@ -13801,9 +13801,9 @@
       "path": "03_hd_assets/wardrobe/rasters/6b08ef054887ca126cadcf1db850ac7a9381d0a57624dcbcf25a837fdff3e429.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_12_male.png",
       "rect": [
-        471.0,
+        471,
         153.00441361916774,
-        82.0,
+        82,
         20.991172761664565
       ],
       "pixelSize": [
@@ -13842,7 +13842,7 @@
         552.7887013939838,
         236,
         59.42259721203228,
-        199.0
+        199
       ],
       "pixelSize": [
         407,
@@ -13858,7 +13858,7 @@
           "uniformScale": 0.14600146735143066,
           "offset": [
             500.6661775495232,
-            236.0
+            236
           ],
           "originalBox": [
             561,
@@ -13874,9 +13874,9 @@
       "sourceRgbCoreChanged": 0,
       "shoulderAttachmentRepair": {
         "previousRect": [
-          561.0,
+          561,
           263.4987714987715,
-          43.0,
+          43,
           144.002457002457
         ],
         "sourceRgbCoreChanged": 0,
@@ -13891,7 +13891,7 @@
         565.0879828326181,
         235,
         50.824034334763944,
-        186.0
+        186
       ],
       "pixelSize": [
         382,
@@ -13907,7 +13907,7 @@
           "uniformScale": 0.13304721030042918,
           "offset": [
             517.1909871244635,
-            235.0
+            235
           ],
           "originalBox": [
             570,
@@ -13923,9 +13923,9 @@
       "sourceRgbCoreChanged": 0,
       "shoulderAttachmentRepair": {
         "previousRect": [
-          570.0,
+          570,
           252.9764397905759,
-          41.0,
+          41,
           150.04712041884818
         ],
         "sourceRgbCoreChanged": 0,
@@ -13937,9 +13937,9 @@
       "path": "03_hd_assets/wardrobe/rasters/be3cd0c7ac77f64765a62cb044da8c67f0c57630e35c6545dc396159a58c4d63.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_14_female.png",
       "rect": [
-        493.0,
+        493,
         216.18255578093306,
-        41.0,
+        41,
         15.634888438133874
       ],
       "pixelSize": [
@@ -13975,7 +13975,7 @@
       "path": "03_hd_assets/wardrobe/rasters/f8633f92e0de5f0266a539bb2a656c0f692c1301f6c11404a5a4b5d9ca8cfef1.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_14_male.png",
       "rect": [
-        484.0,
+        484,
         205.61047345767577,
         54.99999999999999,
         21.779053084648492
@@ -14267,9 +14267,9 @@
       "path": "03_hd_assets/wardrobe/rasters/7f7aced41621ce2b45d4978fa1c5751d507be4525c871f8d3a9828e43d546410.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_16_female.png",
       "rect": [
-        487.0,
+        487,
         213.8900267141585,
-        48.0,
+        48,
         35.21994657168299
       ],
       "pixelSize": [
@@ -14305,9 +14305,9 @@
       "path": "03_hd_assets/wardrobe/rasters/b04b8af7850b550ba377514e279bf85cf80b055cc46532756b31fa409dd48416.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_16_male.png",
       "rect": [
-        485.0,
+        485,
         209.79385359116023,
-        55.0,
+        55,
         31.412292817679557
       ],
       "pixelSize": [
@@ -14343,9 +14343,9 @@
       "path": "03_hd_assets/wardrobe/rasters/f090c09238b5015c1dc39a2e7ecb7838efd817c2c888b583633633dc7d1799eb.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_17_female.png",
       "rect": [
-        469.0,
+        469,
         161.91739130434783,
-        84.0,
+        84,
         71.16521739130434
       ],
       "pixelSize": [
@@ -14363,7 +14363,7 @@
             461.4251954283587,
             175.71382740437892,
             14.402420574886534,
-            35.0
+            35
           ],
           "pixelSize": [
             272,
@@ -14377,7 +14377,7 @@
             542.1910336751139,
             175.32882520732608,
             12.580645161290322,
-            35.0
+            35
           ],
           "pixelSize": [
             234,
@@ -14427,7 +14427,7 @@
             461.4251954283587,
             175.71382740437892,
             14.402420574886534,
-            35.0
+            35
           ],
           "pixelSize": [
             272,
@@ -14441,7 +14441,7 @@
             542.1910336751139,
             175.32882520732608,
             12.580645161290322,
-            35.0
+            35
           ],
           "pixelSize": [
             234,
@@ -14456,9 +14456,9 @@
       "path": "03_hd_assets/wardrobe/rasters/a12191905c57afbc686e988729edcb50eeaa9810304484e8297c613e3362b016.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_17_male.png",
       "rect": [
-        463.0,
+        463,
         154.56127167630058,
-        92.0,
+        92,
         69.87745664739884
       ],
       "pixelSize": [
@@ -14476,7 +14476,7 @@
             466.4934188034188,
             174.90985754985755,
             15.333333333333334,
-            35.0
+            35
           ],
           "pixelSize": [
             230,
@@ -14490,7 +14490,7 @@
             541.0958341421967,
             175.07281740505348,
             7.724505327245053,
-            35.0
+            35
           ],
           "pixelSize": [
             145,
@@ -14540,7 +14540,7 @@
             466.4934188034188,
             174.90985754985755,
             15.333333333333334,
-            35.0
+            35
           ],
           "pixelSize": [
             230,
@@ -14554,7 +14554,7 @@
             541.0958341421967,
             175.07281740505348,
             7.724505327245053,
-            35.0
+            35
           ],
           "pixelSize": [
             145,
@@ -14569,9 +14569,9 @@
       "path": "03_hd_assets/wardrobe/rasters/7e77d0a895e6da951208deb11f72ead09f1d496c72dc589a2fa363cd59f49de5.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_18_female.png",
       "rect": [
-        368.0,
+        368,
         440.00632911392404,
-        295.0,
+        295,
         120.9873417721519
       ],
       "pixelSize": [
@@ -14607,9 +14607,9 @@
       "path": "03_hd_assets/wardrobe/rasters/9e623c98422c36080f8dfc49af45a8f0897855fe2694734e2888d305d9adb44f.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_18_male.png",
       "rect": [
-        368.0,
+        368,
         459.0402476780186,
-        290.0,
+        290,
         107.91950464396284
       ],
       "pixelSize": [
@@ -14645,9 +14645,9 @@
       "path": "03_hd_assets/wardrobe/rasters/9497024fcc44ab9567b1906106ede3ed434ce0f697b60950600bdebba58d3614.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_19_female.png",
       "rect": [
-        596.0,
+        596,
         490.040157480315,
-        71.0,
+        71,
         146.91968503937008
       ],
       "pixelSize": [
@@ -14683,9 +14683,9 @@
       "path": "03_hd_assets/wardrobe/rasters/1454ecb637dededf32545f15c7179875e649258cb17556f2fa35adb51e781c60.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_19_male.png",
       "rect": [
-        598.0,
+        598,
         508.7105263157895,
-        67.0,
+        67,
         144.57894736842107
       ],
       "pixelSize": [
@@ -14721,9 +14721,9 @@
       "path": "03_hd_assets/wardrobe/rasters/f0f67829a5d63d23225e5e4f09c9058640598f474a9bc52954a7195960e96b53.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_20_female.png",
       "rect": [
-        534.0,
+        534,
         172.757225433526,
-        7.0,
+        7,
         7.485549132947977
       ],
       "pixelSize": [
@@ -14759,9 +14759,9 @@
       "path": "03_hd_assets/wardrobe/rasters/8e5c334e08807f3ebfd3fb68b0bad9989db8dc79285c7cfeea8ab3c68692d6e2.png",
       "compatibilityPath": "03_png_assets/accessory/accessory_20_male.png",
       "rect": [
-        532.0,
+        532,
         172.9763779527559,
-        5.0,
+        5,
         5.047244094488189
       ],
       "pixelSize": [
@@ -14771,7 +14771,7 @@
       "sha256": "8e5c334e08807f3ebfd3fb68b0bad9989db8dc79285c7cfeea8ab3c68692d6e2",
       "source": "03_제작기록/r9/wardrobe_hd/generated/accessory_20_male_hd_v1.png",
       "sourceSha256": "7d16e9c22bb64c5f08ce9a23cc60e9158e7bfed5d1b57722e137713f172ab422",
-      "density": 127.0,
+      "density": 127,
       "nativeMaskEntries": [],
       "wholeItemRegistration": [
         {
@@ -14797,9 +14797,9 @@
       "path": "03_hd_assets/wardrobe/rasters/78c229b30790b4fb475db2f5829218101e598e77f39746c8b1ec578098ceef3d.png",
       "compatibilityPath": "03_png_assets/hat/hat_01_female.png",
       "rect": [
-        462.0,
+        462,
         75.95051194539249,
-        106.0,
+        106,
         69.09897610921502
       ],
       "pixelSize": [
@@ -14853,9 +14853,9 @@
       "path": "03_hd_assets/wardrobe/rasters/0907acee48dad8a2a42bae291d397e3d620ace26b2ebe6fd6a988a3fc3913e45.png",
       "compatibilityPath": "03_png_assets/hat/hat_01_male.png",
       "rect": [
-        460.0,
+        460,
         73.70087336244542,
-        106.0,
+        106,
         73.59825327510917
       ],
       "pixelSize": [
@@ -14909,9 +14909,9 @@
       "path": "03_hd_assets/wardrobe/rasters/47e1db98720f3b8de011b003dc2ff43241f7e4a9f0dc5b8610e266f6a8d33aad.png",
       "compatibilityPath": "03_png_assets/hat/hat_02_female.png",
       "rect": [
-        459.0,
+        459,
         72.14562118126273,
-        109.0,
+        109,
         67.70875763747455
       ],
       "pixelSize": [
@@ -14965,7 +14965,7 @@
       "path": "03_hd_assets/wardrobe/rasters/a25d28fceedbd6e8c58243ac03460be84381d4441f401573344845d9d650fc73.png",
       "compatibilityPath": "03_png_assets/hat/hat_02_male.png",
       "rect": [
-        460.0,
+        460,
         72.26483679525222,
         107.00000000000001,
         67.47032640949556
@@ -15021,9 +15021,9 @@
       "path": "03_hd_assets/wardrobe/rasters/6f5050e51c275076c1de64b2af3f236a4ea248d1f4f5c80f369c598caf751c42.png",
       "compatibilityPath": "03_png_assets/hat/hat_03_female.png",
       "rect": [
-        453.0,
+        453,
         74.36671802773498,
-        124.0,
+        124,
         71.26656394453005
       ],
       "pixelSize": [
@@ -15077,9 +15077,9 @@
       "path": "03_hd_assets/wardrobe/rasters/1e741f073b71f1862f8c0b106a8d3eeb240585c4f83319f5ec35df9a9d54c3d1.png",
       "compatibilityPath": "03_png_assets/hat/hat_03_male.png",
       "rect": [
-        459.0,
+        459,
         78.72033898305085,
-        108.0,
+        108,
         69.55932203389831
       ],
       "pixelSize": [
@@ -15133,9 +15133,9 @@
       "path": "03_hd_assets/wardrobe/rasters/d49889470145b710c24d00fe2ebdac878d31b00b1248766379894af0fdb3328f.png",
       "compatibilityPath": "03_png_assets/hat/hat_04_female.png",
       "rect": [
-        455.0,
+        455,
         79.69169960474308,
-        122.0,
+        122,
         64.61660079051383
       ],
       "pixelSize": [
@@ -15189,9 +15189,9 @@
       "path": "03_hd_assets/wardrobe/rasters/b82c84d2dea950cf2bc2a839e7896b78e0de37151a0afef597881c9d8e6d5628.png",
       "compatibilityPath": "03_png_assets/hat/hat_04_male.png",
       "rect": [
-        453.0,
+        453,
         76.34996102883866,
-        123.0,
+        123,
         67.30007794232269
       ],
       "pixelSize": [
@@ -15245,9 +15245,9 @@
       "path": "03_hd_assets/wardrobe/rasters/a95e9e83cbf0e60ec4d9838b36739bb77535772176b124a55f9d3ec62d30d708.png",
       "compatibilityPath": "03_png_assets/hat/hat_05_female.png",
       "rect": [
-        438.0,
+        438,
         70.25495049504951,
-        147.0,
+        147,
         78.49009900990099
       ],
       "pixelSize": [
@@ -15301,9 +15301,9 @@
       "path": "03_hd_assets/wardrobe/rasters/c60ab55366c2781858cf9aa8acc779ccf81dff700f3c222f9417729f12875766.png",
       "compatibilityPath": "03_png_assets/hat/hat_05_male.png",
       "rect": [
-        442.0,
+        442,
         71.45714285714286,
-        143.0,
+        143,
         81.08571428571429
       ],
       "pixelSize": [
@@ -15357,9 +15357,9 @@
       "path": "03_hd_assets/wardrobe/rasters/adb1aa036782b7e22612cd12a613a358edfbf8de56ee20916b9757578c33f1aa.png",
       "compatibilityPath": "03_png_assets/hat/hat_06_female.png",
       "rect": [
-        405.0,
+        405,
         22.34409799554565,
-        230.0,
+        230,
         180.3118040089087
       ],
       "pixelSize": [
@@ -15413,9 +15413,9 @@
       "path": "03_hd_assets/wardrobe/rasters/b7b24fc4be873fa135f5e415a93f3d6cda62b5b86848dca3d2185511cd2b3c60.png",
       "compatibilityPath": "03_png_assets/hat/hat_06_male.png",
       "rect": [
-        409.0,
+        409,
         19.130257009345787,
-        219.0,
+        219,
         174.73948598130843
       ],
       "pixelSize": [
@@ -15469,9 +15469,9 @@
       "path": "03_hd_assets/wardrobe/rasters/e9d4cda9149422b7910ae9357bbbd928707fb77dccf7c7b3a94f37ebe0fefc89.png",
       "compatibilityPath": "03_png_assets/hat/hat_07_female.png",
       "rect": [
-        454.0,
+        454,
         59.073421439060205,
-        127.0,
+        127,
         84.85315712187959
       ],
       "pixelSize": [
@@ -15525,9 +15525,9 @@
       "path": "03_hd_assets/wardrobe/rasters/32c5de274dcf1a5aae5e53fdb11cce47e6489be0c20d52d2d1d01e836e68ce59.png",
       "compatibilityPath": "03_png_assets/hat/hat_07_male.png",
       "rect": [
-        457.0,
+        457,
         60.27064220183487,
-        124.0,
+        124,
         86.45871559633026
       ],
       "pixelSize": [
@@ -15581,9 +15581,9 @@
       "path": "03_hd_assets/wardrobe/rasters/d38909d18b69ca63a23f75cdfce9d0b2e53e810906b7813407c36ccb38b89dc7.png",
       "compatibilityPath": "03_png_assets/hat/hat_08_female.png",
       "rect": [
-        427.0,
+        427,
         72.72463768115941,
-        172.0,
+        172,
         68.55072463768116
       ],
       "pixelSize": [
@@ -15637,9 +15637,9 @@
       "path": "03_hd_assets/wardrobe/rasters/cbd683aa9f0932ba8e915565b14917a5a9ddcb7cb0afe3d88bc9bcfe2e98655e.png",
       "compatibilityPath": "03_png_assets/hat/hat_08_male.png",
       "rect": [
-        433.0,
+        433,
         70.65102639296188,
-        168.0,
+        168,
         70.69794721407625
       ],
       "pixelSize": [
@@ -15693,7 +15693,7 @@
       "path": "03_hd_assets/wardrobe/rasters/d4f958fa82399953b81168004368f633aad9c477eb2bf24e23505dc2abee27e2.png",
       "compatibilityPath": "03_png_assets/hat/hat_09_female.png",
       "rect": [
-        456.0,
+        456,
         64.30687093779017,
         111.99999999999999,
         80.38625812441968
@@ -15749,9 +15749,9 @@
       "path": "03_hd_assets/wardrobe/rasters/4ce38e1f46ef3e81e66cd7b321a62e2de908ce2b6db27cfabc742addfb9a6ef0.png",
       "compatibilityPath": "03_png_assets/hat/hat_09_male.png",
       "rect": [
-        456.0,
+        456,
         61.80130597014925,
-        110.0,
+        110,
         82.3973880597015
       ],
       "pixelSize": [
@@ -15805,9 +15805,9 @@
       "path": "03_hd_assets/wardrobe/rasters/842b9040ab18b82a77f75741554680634124b92da13272251d9287846070ff64.png",
       "compatibilityPath": "03_png_assets/hat/hat_10_female.png",
       "rect": [
-        491.0,
+        491,
         54.11823647294589,
-        96.0,
+        96,
         81.76352705410821
       ],
       "pixelSize": [
@@ -15861,9 +15861,9 @@
       "path": "03_hd_assets/wardrobe/rasters/112014da9f121daa3da203c433d66630c082b27ba70b3d24cf84dd7806b35484.png",
       "compatibilityPath": "03_png_assets/hat/hat_10_male.png",
       "rect": [
-        489.0,
+        489,
         50.74568138195777,
-        99.0,
+        99,
         85.50863723608445
       ],
       "pixelSize": [
@@ -15917,9 +15917,9 @@
       "path": "03_hd_assets/wardrobe/rasters/4980ee154c4043ba369b669b6ebb46977eb32b6a949397c4e84f00f94f56c01d.png",
       "compatibilityPath": "03_png_assets/hat/hat_11_female.png",
       "rect": [
-        451.0,
+        451,
         65.23701298701299,
-        124.0,
+        124,
         81.52597402597404
       ],
       "pixelSize": [
@@ -15973,9 +15973,9 @@
       "path": "03_hd_assets/wardrobe/rasters/2988dafed30dd2b5e48653003de7c0282d564c3ec855e198330c7663c1151dde.png",
       "compatibilityPath": "03_png_assets/hat/hat_11_male.png",
       "rect": [
-        456.0,
+        456,
         71.95454545454545,
-        118.0,
+        118,
         75.0909090909091
       ],
       "pixelSize": [
@@ -16029,7 +16029,7 @@
       "path": "03_hd_assets/wardrobe/rasters/edcb5cda84d8a6e3582fd2543a7bc97a075c3abc56ca67c1b42b289232441d31.png",
       "compatibilityPath": "03_png_assets/hat/hat_12_female.png",
       "rect": [
-        399.0,
+        399,
         71.46043956043957,
         231.99999999999997,
         120.07912087912086
@@ -16085,9 +16085,9 @@
       "path": "03_hd_assets/wardrobe/rasters/7c504a1885c38b4e084ea9133298fa6abb06ea5e0d6b2c1e98fca9240fe98e65.png",
       "compatibilityPath": "03_png_assets/hat/hat_12_male.png",
       "rect": [
-        414.0,
+        414,
         78.57788347205708,
-        216.0,
+        216,
         106.84423305588585
       ],
       "pixelSize": [
@@ -16141,9 +16141,9 @@
       "path": "03_hd_assets/wardrobe/rasters/28fd3b09232d543d1f41b694791543f45e683e2230952bbc0c197204152dca07.png",
       "compatibilityPath": "03_png_assets/hat/hat_13_female.png",
       "rect": [
-        442.0,
+        442,
         74.86023444544634,
-        154.0,
+        154,
         144.27953110910732
       ],
       "pixelSize": [
@@ -16197,9 +16197,9 @@
       "path": "03_hd_assets/wardrobe/rasters/5482a5b496a5dd616cfbaf7801c8f8fa22b3d42f26a98b61e7eb390f1143a231.png",
       "compatibilityPath": "03_png_assets/hat/hat_13_male.png",
       "rect": [
-        448.0,
+        448,
         71.24937862468931,
-        140.0,
+        140,
         125.50124275062137
       ],
       "pixelSize": [
@@ -16253,9 +16253,9 @@
       "path": "03_hd_assets/wardrobe/rasters/baf45a4441d5a0dcddf917891b392a04c02b26c00a9bc027e69ff0096ffb387f.png",
       "compatibilityPath": "03_png_assets/hat/hat_14_female.png",
       "rect": [
-        456.0,
+        456,
         43.465092402464066,
-        112.0,
+        112,
         114.06981519507187
       ],
       "pixelSize": [
@@ -16309,9 +16309,9 @@
       "path": "03_hd_assets/wardrobe/rasters/73b9b5d36cfd0fc95ad96fe457d7966c4c1b7c9cafaa9d99ea3c20f719df119a.png",
       "compatibilityPath": "03_png_assets/hat/hat_14_male.png",
       "rect": [
-        465.0,
+        465,
         55.2468152866242,
-        93.0,
+        93,
         92.5063694267516
       ],
       "pixelSize": [
@@ -16365,9 +16365,9 @@
       "path": "03_hd_assets/wardrobe/rasters/a2f5bac7cfd7b53760e4abf824bd5d5096a7a94996a1c503a61722558d19408b.png",
       "compatibilityPath": "03_png_assets/hat/hat_15_female.png",
       "rect": [
-        457.0,
+        457,
         76.80606281957633,
-        117.0,
+        117,
         72.38787436084733
       ],
       "pixelSize": [
@@ -16421,7 +16421,7 @@
       "path": "03_hd_assets/wardrobe/rasters/cb55392ac0d7dff8bf14cd809d3b2e36f3076bb886347847007ddaf0359389af.png",
       "compatibilityPath": "03_png_assets/hat/hat_15_male.png",
       "rect": [
-        465.0,
+        465,
         90.09057971014494,
         98.99999999999999,
         60.81884057971014
@@ -16477,9 +16477,9 @@
       "path": "03_hd_assets/wardrobe/rasters/bdcd5691f52ee58a67f7b079f5bca81ac8dfaf2447a287755bcd570602d0f41b.png",
       "compatibilityPath": "03_png_assets/hat/hat_16_female.png",
       "rect": [
-        396.0,
+        396,
         26.72959183673469,
-        250.0,
+        250,
         189.5408163265306
       ],
       "pixelSize": [
@@ -16533,7 +16533,7 @@
       "path": "03_hd_assets/wardrobe/rasters/5a678b21631223b7d86a0963a0401b4a80c5015bf12c11c83d672aefd3afe100.png",
       "compatibilityPath": "03_png_assets/hat/hat_16_male.png",
       "rect": [
-        401.0,
+        401,
         27.375392670157066,
         244.00000000000003,
         174.2492146596859
@@ -16589,9 +16589,9 @@
       "path": "03_hd_assets/wardrobe/rasters/cd39c404fd264fb57199e1e88fdce18ce124f9f0267beb28cdaf04742c16d187.png",
       "compatibilityPath": "03_png_assets/hat/hat_17_female.png",
       "rect": [
-        495.0,
+        495,
         68.5111111111111,
-        91.0,
+        91,
         74.97777777777777
       ],
       "pixelSize": [
@@ -16645,9 +16645,9 @@
       "path": "03_hd_assets/wardrobe/rasters/0fa5549f4ddea1247c4b6bd1677626f76945c53e20f2dab09edb751c593a5d71.png",
       "compatibilityPath": "03_png_assets/hat/hat_17_male.png",
       "rect": [
-        496.0,
+        496,
         65.40219560878243,
-        85.0,
+        85,
         77.19560878243513
       ],
       "pixelSize": [
@@ -16701,9 +16701,9 @@
       "path": "03_hd_assets/wardrobe/rasters/8ec5ad06262e39eb0ae504be87b7bc1c27729b5ee91e1d07859c0d1c04b8ec5e.png",
       "compatibilityPath": "03_png_assets/hat/hat_18_female.png",
       "rect": [
-        452.0,
+        452,
         63.65931558935361,
-        129.0,
+        129,
         88.68136882129278
       ],
       "pixelSize": [
@@ -16757,9 +16757,9 @@
       "path": "03_hd_assets/wardrobe/rasters/3d4fa56d3c2922f54b1d3ec82efd39509c29081bde435999070e61bb05407566.png",
       "compatibilityPath": "03_png_assets/hat/hat_18_male.png",
       "rect": [
-        456.0,
+        456,
         72.9655172413793,
-        121.0,
+        121,
         83.06896551724138
       ],
       "pixelSize": [
@@ -16813,9 +16813,9 @@
       "path": "03_hd_assets/wardrobe/rasters/8d476224366bff8946ac076756e2c234c655780bb1ee3538d2494958c1deb68a.png",
       "compatibilityPath": "03_png_assets/hat/hat_19_female.png",
       "rect": [
-        448.0,
+        448,
         56.806291390728475,
-        134.0,
+        134,
         101.38741721854305
       ],
       "pixelSize": [
@@ -16869,9 +16869,9 @@
       "path": "03_hd_assets/wardrobe/rasters/5ef6a2c24fd01fea3233579a5f46af30df9c18ccbbd7c46926e7b5042fe232d1.png",
       "compatibilityPath": "03_png_assets/hat/hat_19_male.png",
       "rect": [
-        458.0,
+        458,
         78.83395942900076,
-        131.0,
+        131,
         85.3320811419985
       ],
       "pixelSize": [
@@ -16925,9 +16925,9 @@
       "path": "03_hd_assets/wardrobe/rasters/83f7339f435f2f1eb89d12c1516e7f1989eaded607931b59686a374851d8173a.png",
       "compatibilityPath": "03_png_assets/hat/hat_20_female.png",
       "rect": [
-        405.0,
+        405,
         48.79754601226995,
-        214.0,
+        214,
         102.40490797546012
       ],
       "pixelSize": [
@@ -16981,9 +16981,9 @@
       "path": "03_hd_assets/wardrobe/rasters/5cd796a2b40bd5fa08e39cccc0e438b2b9ee1305da416c4123118bbcc84ba505.png",
       "compatibilityPath": "03_png_assets/hat/hat_20_male.png",
       "rect": [
-        424.0,
+        424,
         65.15655637254902,
-        179.0,
+        179,
         83.68688725490196
       ],
       "pixelSize": [
@@ -17248,7 +17248,7 @@
         "uniformScale": 0.2631578947368421,
         "offset": [
           365,
-          650.0
+          650
         ],
         "floorY": 960,
         "referenceViewport": [
@@ -17380,7 +17380,7 @@
       "rect": [
         410.2631578947368,
         845.2631578947369,
-        255.0,
+        255,
         114.73684210526315
       ],
       "pixelSize": [
@@ -17398,7 +17398,7 @@
           "rect": [
             410.2631578947368,
             845.2631578947369,
-            255.0,
+            255,
             114.73684210526315
           ],
           "pixelSize": [
@@ -17427,7 +17427,7 @@
           "rect": [
             410.2631578947368,
             845.2631578947369,
-            255.0,
+            255,
             114.73684210526315
           ],
           "pixelSize": [
@@ -17461,7 +17461,7 @@
           "rect": [
             410.2631578947368,
             845.2631578947369,
-            255.0,
+            255,
             114.73684210526315
           ],
           "pixelSize": [
@@ -17476,7 +17476,7 @@
         "uniformScale": 0.2631578947368421,
         "offset": [
           365,
-          645.0
+          645
         ],
         "floorY": 960,
         "referenceViewport": [
@@ -18404,7 +18404,7 @@
       "id": "shoe_07_female",
       "path": "03_hd_assets/wardrobe/rasters/e77f1d1d2d5bba1622d0fe85243e97d63a6237d9c8399bd8b5ab51dc123d1e33.png",
       "rect": [
-        465.0,
+        465,
         834.5263157894738,
         137.6315789473684,
         139.4736842105263
@@ -18422,7 +18422,7 @@
         "paint": {
           "path": "03_hd_assets/wardrobe/rasters/e77f1d1d2d5bba1622d0fe85243e97d63a6237d9c8399bd8b5ab51dc123d1e33.png",
           "rect": [
-            465.0,
+            465,
             834.5263157894738,
             137.6315789473684,
             139.4736842105263
@@ -18451,7 +18451,7 @@
         "guideSkinMask": {
           "path": "03_hd_assets/wardrobe/rasters/060a5859e97616e9c093ebc991fa8d3b9323b0142971b64015ddc60ee9008155.png",
           "rect": [
-            465.0,
+            465,
             834.5263157894738,
             137.6315789473684,
             139.4736842105263
@@ -18485,7 +18485,7 @@
         {
           "path": "03_hd_assets/wardrobe/rasters/060a5859e97616e9c093ebc991fa8d3b9323b0142971b64015ddc60ee9008155.png",
           "rect": [
-            465.0,
+            465,
             834.5263157894738,
             137.6315789473684,
             139.4736842105263
@@ -19186,7 +19186,7 @@
         "uniformScale": 0.2631578947368421,
         "offset": [
           365,
-          654.0
+          654
         ],
         "floorY": 974,
         "referenceViewport": [
@@ -20458,7 +20458,7 @@
       "rect": [
         464.7368421052631,
         845.0526315789475,
-        135.0,
+        135,
         128.94736842105263
       ],
       "pixelSize": [
@@ -20476,7 +20476,7 @@
           "rect": [
             464.7368421052631,
             845.0526315789475,
-            135.0,
+            135,
             128.94736842105263
           ],
           "pixelSize": [
@@ -20505,7 +20505,7 @@
           "rect": [
             464.7368421052631,
             845.0526315789475,
-            135.0,
+            135,
             128.94736842105263
           ],
           "pixelSize": [
@@ -20539,7 +20539,7 @@
           "rect": [
             464.7368421052631,
             845.0526315789475,
-            135.0,
+            135,
             128.94736842105263
           ],
           "pixelSize": [
@@ -20912,7 +20912,7 @@
       "id": "shoe_18_female",
       "path": "03_hd_assets/wardrobe/rasters/82fe459db74aae9744219df2c096d9339f17160e3018cf88c084b28ca955450d.png",
       "rect": [
-        465.0,
+        465,
         845.0526315789473,
         135.78947368421052,
         128.94736842105263
@@ -20930,7 +20930,7 @@
         "paint": {
           "path": "03_hd_assets/wardrobe/rasters/82fe459db74aae9744219df2c096d9339f17160e3018cf88c084b28ca955450d.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789473,
             135.78947368421052,
             128.94736842105263
@@ -20959,7 +20959,7 @@
         "guideSkinMask": {
           "path": "03_hd_assets/wardrobe/rasters/d939b1b7eefa2f6307541a5c04499ad63416398b95dfead9c0c7dc49c616610f.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789473,
             135.78947368421052,
             128.94736842105263
@@ -20993,7 +20993,7 @@
         {
           "path": "03_hd_assets/wardrobe/rasters/d939b1b7eefa2f6307541a5c04499ad63416398b95dfead9c0c7dc49c616610f.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789473,
             135.78947368421052,
             128.94736842105263
@@ -21140,7 +21140,7 @@
       "id": "shoe_19_female",
       "path": "03_hd_assets/wardrobe/rasters/c549660a660408cbfd54eba2791b5cbf23d720d296f1d8133797d978de3fe1f3.png",
       "rect": [
-        465.0,
+        465,
         845.0526315789474,
         136.05263157894737,
         128.94736842105263
@@ -21158,7 +21158,7 @@
         "paint": {
           "path": "03_hd_assets/wardrobe/rasters/c549660a660408cbfd54eba2791b5cbf23d720d296f1d8133797d978de3fe1f3.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789474,
             136.05263157894737,
             128.94736842105263
@@ -21187,7 +21187,7 @@
         "guideSkinMask": {
           "path": "03_hd_assets/wardrobe/rasters/cbd9b46729be4fe2eb8f78a3ee19079eae211057a447d73eed793b938588f660.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789474,
             136.05263157894737,
             128.94736842105263
@@ -21221,7 +21221,7 @@
         {
           "path": "03_hd_assets/wardrobe/rasters/cbd9b46729be4fe2eb8f78a3ee19079eae211057a447d73eed793b938588f660.png",
           "rect": [
-            465.0,
+            465,
             845.0526315789474,
             136.05263157894737,
             128.94736842105263
@@ -21765,9 +21765,9 @@
             "path": "03_hd_assets/wardrobe/rasters/6b5a615d14125ac40262f090949d1e021b3dcb335bc12a0f929f5b8b3307daf0.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -21780,7 +21780,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9778554439544678
             },
@@ -21844,9 +21844,9 @@
           "path": "03_hd_assets/wardrobe/rasters/6b5a615d14125ac40262f090949d1e021b3dcb335bc12a0f929f5b8b3307daf0.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -21859,7 +21859,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9778554439544678
           },
@@ -21969,7 +21969,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9778554439544678
         },
@@ -22067,9 +22067,9 @@
             "path": "03_hd_assets/wardrobe/rasters/76b056bac4fd05db38e18e4454d0d50453904bcf2c94b01fdb664e155a7c5b08.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -22082,7 +22082,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9679255485534668
             },
@@ -22146,9 +22146,9 @@
           "path": "03_hd_assets/wardrobe/rasters/76b056bac4fd05db38e18e4454d0d50453904bcf2c94b01fdb664e155a7c5b08.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -22161,7 +22161,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9679255485534668
           },
@@ -22271,7 +22271,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9679255485534668
         },
@@ -22369,9 +22369,9 @@
             "path": "03_hd_assets/wardrobe/rasters/e20bffaaeff569e2c67470b91e15e335bc194338c2448f40899d2bc01eb6a488.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -22384,7 +22384,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9773492813110352
             },
@@ -22448,9 +22448,9 @@
           "path": "03_hd_assets/wardrobe/rasters/e20bffaaeff569e2c67470b91e15e335bc194338c2448f40899d2bc01eb6a488.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -22463,7 +22463,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9773492813110352
           },
@@ -22573,7 +22573,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9773492813110352
         },
@@ -22671,9 +22671,9 @@
             "path": "03_hd_assets/wardrobe/rasters/b3abfbe8d0f6523db2e324ab5b2ee5a1d7bc450074859e17538b030dc4b33eb4.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -22686,7 +22686,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9746745228767395
             },
@@ -22750,9 +22750,9 @@
           "path": "03_hd_assets/wardrobe/rasters/b3abfbe8d0f6523db2e324ab5b2ee5a1d7bc450074859e17538b030dc4b33eb4.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -22765,7 +22765,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9746745228767395
           },
@@ -22875,7 +22875,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9746745228767395
         },
@@ -22973,9 +22973,9 @@
             "path": "03_hd_assets/wardrobe/rasters/1101d3b202a2d48ba409478cd7083539825530b9c1a498526c733b734b9a091d.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -22988,7 +22988,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9796790480613708
             },
@@ -23052,9 +23052,9 @@
           "path": "03_hd_assets/wardrobe/rasters/1101d3b202a2d48ba409478cd7083539825530b9c1a498526c733b734b9a091d.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -23067,7 +23067,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9796790480613708
           },
@@ -23177,7 +23177,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9796790480613708
         },
@@ -23577,9 +23577,9 @@
             "path": "03_hd_assets/wardrobe/rasters/33faf3734165ab593df111e87633d5b7ef77942f2cc6a228127868672f9a004d.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -23592,7 +23592,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9805640578269958
             },
@@ -23656,9 +23656,9 @@
           "path": "03_hd_assets/wardrobe/rasters/33faf3734165ab593df111e87633d5b7ef77942f2cc6a228127868672f9a004d.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -23671,7 +23671,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9805640578269958
           },
@@ -23781,7 +23781,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9805640578269958
         },
@@ -23879,9 +23879,9 @@
             "path": "03_hd_assets/wardrobe/rasters/4832e59005108dadfd792c91f05fa388640bbaa4fd754455c855dc2047e91073.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -23894,7 +23894,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9560090899467468
             },
@@ -23958,9 +23958,9 @@
           "path": "03_hd_assets/wardrobe/rasters/4832e59005108dadfd792c91f05fa388640bbaa4fd754455c855dc2047e91073.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -23973,7 +23973,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9560090899467468
           },
@@ -24083,7 +24083,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9560090899467468
         },
@@ -24181,9 +24181,9 @@
             "path": "03_hd_assets/wardrobe/rasters/b0783150f9ea0cee1bc6c540653a507a07e3dd8700b2a2ee5e60bb45d856f46f.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -24196,7 +24196,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9815181493759155
             },
@@ -24260,9 +24260,9 @@
           "path": "03_hd_assets/wardrobe/rasters/b0783150f9ea0cee1bc6c540653a507a07e3dd8700b2a2ee5e60bb45d856f46f.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -24275,7 +24275,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9815181493759155
           },
@@ -24385,7 +24385,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9815181493759155
         },
@@ -24483,9 +24483,9 @@
             "path": "03_hd_assets/wardrobe/rasters/acb1bd3b23f7dc25c210db8c88b9a32f67a81039231594988672ca3f89b57c81.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -24498,7 +24498,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9718099236488342
             },
@@ -24562,9 +24562,9 @@
           "path": "03_hd_assets/wardrobe/rasters/acb1bd3b23f7dc25c210db8c88b9a32f67a81039231594988672ca3f89b57c81.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -24577,7 +24577,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9718099236488342
           },
@@ -24687,7 +24687,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9718099236488342
         },
@@ -24785,9 +24785,9 @@
             "path": "03_hd_assets/wardrobe/rasters/67736079baa69f0bf3e7ac9473d83bf392da7e5065fbe1af7d0208f0b23b71e7.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -24800,7 +24800,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9799776077270508
             },
@@ -24864,9 +24864,9 @@
           "path": "03_hd_assets/wardrobe/rasters/67736079baa69f0bf3e7ac9473d83bf392da7e5065fbe1af7d0208f0b23b71e7.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -24879,7 +24879,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9799776077270508
           },
@@ -24989,7 +24989,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9799776077270508
         },
@@ -25087,9 +25087,9 @@
             "path": "03_hd_assets/wardrobe/rasters/18be1eb25bf0f53805ee268533dcdd96dd872b16fcdb723ae82bae344e969295.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -25102,7 +25102,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9830002188682556
             },
@@ -25166,9 +25166,9 @@
           "path": "03_hd_assets/wardrobe/rasters/18be1eb25bf0f53805ee268533dcdd96dd872b16fcdb723ae82bae344e969295.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -25181,7 +25181,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9830002188682556
           },
@@ -25291,7 +25291,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9830002188682556
         },
@@ -25384,9 +25384,9 @@
             "path": "03_hd_assets/wardrobe/rasters/06da02e67ff33a8f03bbb8e3f299c98a494ec33f1bccdc183f290b5cb681304a.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -25399,7 +25399,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9807992577552795
             },
@@ -25460,9 +25460,9 @@
           "path": "03_hd_assets/wardrobe/rasters/06da02e67ff33a8f03bbb8e3f299c98a494ec33f1bccdc183f290b5cb681304a.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -25475,7 +25475,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9807992577552795
           },
@@ -25566,7 +25566,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9807992577552795
         },
@@ -25659,9 +25659,9 @@
             "path": "03_hd_assets/wardrobe/rasters/e5faa550c9e6e1306c30ce65b8c2e8b6ac03845f9fff0cb9c6de6248510e1eab.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -25735,9 +25735,9 @@
           "path": "03_hd_assets/wardrobe/rasters/e5faa550c9e6e1306c30ce65b8c2e8b6ac03845f9fff0cb9c6de6248510e1eab.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -25939,9 +25939,9 @@
             "path": "03_hd_assets/wardrobe/rasters/19cdf9b1865543780b2b049f8dc66d8bfe29d0a7aff775ca448cfadab15d949e.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -25954,7 +25954,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9743878245353699
             },
@@ -26018,9 +26018,9 @@
           "path": "03_hd_assets/wardrobe/rasters/19cdf9b1865543780b2b049f8dc66d8bfe29d0a7aff775ca448cfadab15d949e.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -26033,7 +26033,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9743878245353699
           },
@@ -26143,7 +26143,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9743878245353699
         },
@@ -26538,9 +26538,9 @@
             "path": "03_hd_assets/wardrobe/rasters/a8452665456f54e2bd5e8448aab7e97d250a4af400cccf98b32ee5717eb498e0.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -26553,7 +26553,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9785993695259094
             },
@@ -26614,9 +26614,9 @@
           "path": "03_hd_assets/wardrobe/rasters/a8452665456f54e2bd5e8448aab7e97d250a4af400cccf98b32ee5717eb498e0.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -26629,7 +26629,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9785993695259094
           },
@@ -26720,7 +26720,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9785993695259094
         },
@@ -26813,9 +26813,9 @@
             "path": "03_hd_assets/wardrobe/rasters/7f30f6b8ea16be2c5540cd0b3122164750e713499fb230f3672c19cfdbc39430.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -26828,7 +26828,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9677844047546387
             },
@@ -26889,9 +26889,9 @@
           "path": "03_hd_assets/wardrobe/rasters/7f30f6b8ea16be2c5540cd0b3122164750e713499fb230f3672c19cfdbc39430.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -26904,7 +26904,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9677844047546387
           },
@@ -26995,7 +26995,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9677844047546387
         },
@@ -27088,9 +27088,9 @@
             "path": "03_hd_assets/wardrobe/rasters/a66cff648e8e738d413888be49fb987c2bf8902dee1887a17b98506443908da5.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -27103,7 +27103,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9770389199256897
             },
@@ -27164,9 +27164,9 @@
           "path": "03_hd_assets/wardrobe/rasters/a66cff648e8e738d413888be49fb987c2bf8902dee1887a17b98506443908da5.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -27179,7 +27179,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9770389199256897
           },
@@ -27270,7 +27270,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9770389199256897
         },
@@ -27363,9 +27363,9 @@
             "path": "03_hd_assets/wardrobe/rasters/aae404173be22068b4ca9f19246925d17a59563bbbbe7c9b01f96c0709c9dbde.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -27378,7 +27378,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.964781641960144
             },
@@ -27439,9 +27439,9 @@
           "path": "03_hd_assets/wardrobe/rasters/aae404173be22068b4ca9f19246925d17a59563bbbbe7c9b01f96c0709c9dbde.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -27454,7 +27454,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.964781641960144
           },
@@ -27545,7 +27545,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.964781641960144
         },
@@ -27638,9 +27638,9 @@
             "path": "03_hd_assets/wardrobe/rasters/7f4c78c385d35223f5764e32568e26db95ced2b54a8123335aedddb63caffe0f.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -27653,7 +27653,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.979562520980835
             },
@@ -27714,9 +27714,9 @@
           "path": "03_hd_assets/wardrobe/rasters/7f4c78c385d35223f5764e32568e26db95ced2b54a8123335aedddb63caffe0f.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -27729,7 +27729,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.979562520980835
           },
@@ -27820,7 +27820,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.979562520980835
         },
@@ -27913,9 +27913,9 @@
             "path": "03_hd_assets/wardrobe/rasters/47a36077aa5f374c1db1ba9e3245e05ac18420abac2c48d95e38487f656cda22.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -27928,7 +27928,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9531736373901367
             },
@@ -27989,9 +27989,9 @@
           "path": "03_hd_assets/wardrobe/rasters/47a36077aa5f374c1db1ba9e3245e05ac18420abac2c48d95e38487f656cda22.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -28004,7 +28004,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9531736373901367
           },
@@ -28095,7 +28095,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9531736373901367
         },
@@ -28188,9 +28188,9 @@
             "path": "03_hd_assets/wardrobe/rasters/97d8413f3533d73abddde08db2fd7d447cd99ad673308d12a3718dfc9feedaf1.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -28203,7 +28203,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9778634905815125
             },
@@ -28264,9 +28264,9 @@
           "path": "03_hd_assets/wardrobe/rasters/97d8413f3533d73abddde08db2fd7d447cd99ad673308d12a3718dfc9feedaf1.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -28279,7 +28279,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9778634905815125
           },
@@ -28370,7 +28370,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9778634905815125
         },
@@ -28463,9 +28463,9 @@
             "path": "03_hd_assets/wardrobe/rasters/6758597dbbd58e7de9c8186329bc62cfa9ec3e0176205971f290e6facabde9c2.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -28478,7 +28478,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 420.1212121212121,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9575302600860596
             },
@@ -28539,9 +28539,9 @@
           "path": "03_hd_assets/wardrobe/rasters/6758597dbbd58e7de9c8186329bc62cfa9ec3e0176205971f290e6facabde9c2.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -28554,7 +28554,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               420.1212121212121,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9575302600860596
           },
@@ -28645,7 +28645,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             420.1212121212121,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9575302600860596
         },
@@ -28738,9 +28738,9 @@
             "path": "03_hd_assets/wardrobe/rasters/21fde66d1210d2e7563c3620adb39a8e7cae9a6dd4afdb5266d8fc01f3b834e3.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -28753,7 +28753,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9810402989387512
             },
@@ -28814,9 +28814,9 @@
           "path": "03_hd_assets/wardrobe/rasters/21fde66d1210d2e7563c3620adb39a8e7cae9a6dd4afdb5266d8fc01f3b834e3.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -28829,7 +28829,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9810402989387512
           },
@@ -28920,7 +28920,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9810402989387512
         },
@@ -29013,9 +29013,9 @@
             "path": "03_hd_assets/wardrobe/rasters/8af48a2ed98c6e6b84ae575e9f2ca7aa0f653094f61d36bb23ffdce2097c96ce.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -29028,7 +29028,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9787982702255249
             },
@@ -29089,9 +29089,9 @@
           "path": "03_hd_assets/wardrobe/rasters/8af48a2ed98c6e6b84ae575e9f2ca7aa0f653094f61d36bb23ffdce2097c96ce.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -29104,7 +29104,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9787982702255249
           },
@@ -29195,7 +29195,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9787982702255249
         },
@@ -29288,9 +29288,9 @@
             "path": "03_hd_assets/wardrobe/rasters/5f46bc589eb49f8abbe33c0bce339809e03688c2c900216f2bc58ab9631385b7.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -29303,7 +29303,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.971552312374115
             },
@@ -29364,9 +29364,9 @@
           "path": "03_hd_assets/wardrobe/rasters/5f46bc589eb49f8abbe33c0bce339809e03688c2c900216f2bc58ab9631385b7.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -29379,7 +29379,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.971552312374115
           },
@@ -29470,7 +29470,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.971552312374115
         },
@@ -29563,9 +29563,9 @@
             "path": "03_hd_assets/wardrobe/rasters/8028469ebe25c359f84d5a8ac411f6dbfb4b058786313aab3ede0876c3583a65.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -29578,7 +29578,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9636508822441101
             },
@@ -29639,9 +29639,9 @@
           "path": "03_hd_assets/wardrobe/rasters/8028469ebe25c359f84d5a8ac411f6dbfb4b058786313aab3ede0876c3583a65.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -29654,7 +29654,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9636508822441101
           },
@@ -29745,7 +29745,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9636508822441101
         },
@@ -29843,9 +29843,9 @@
             "path": "03_hd_assets/wardrobe/rasters/5a4388d4720533d252fe80c1105f4e2199fc1599ee462d0570fd0205287c0473.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -29858,7 +29858,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.975435733795166
             },
@@ -29922,9 +29922,9 @@
           "path": "03_hd_assets/wardrobe/rasters/5a4388d4720533d252fe80c1105f4e2199fc1599ee462d0570fd0205287c0473.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -29937,7 +29937,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.975435733795166
           },
@@ -30047,7 +30047,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.975435733795166
         },
@@ -30145,9 +30145,9 @@
             "path": "03_hd_assets/wardrobe/rasters/003c30cce57ce6dfa742727e5e9c3d4aa1d0ec5e2909d9618023e751a7cc5d1c.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -30224,9 +30224,9 @@
           "path": "03_hd_assets/wardrobe/rasters/003c30cce57ce6dfa742727e5e9c3d4aa1d0ec5e2909d9618023e751a7cc5d1c.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -30442,7 +30442,7 @@
             "path": "03_hd_assets/wardrobe/rasters/8fbd9e4c8eed3ac64fd7360bd2982cbf7b44b722807c7c41a884efeb26b62d15.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
               41.06060606060606
             ],
@@ -30457,7 +30457,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9786162376403809
             },
@@ -30518,7 +30518,7 @@
           "path": "03_hd_assets/wardrobe/rasters/8fbd9e4c8eed3ac64fd7360bd2982cbf7b44b722807c7c41a884efeb26b62d15.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
             41.06060606060606
           ],
@@ -30533,7 +30533,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9786162376403809
           },
@@ -30624,7 +30624,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9786162376403809
         },
@@ -30717,7 +30717,7 @@
             "path": "03_hd_assets/wardrobe/rasters/dd3716b9ed829299eeb1f0506662e174c46b9156ef5c394352386115eb550187.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
               41.06060606060606
             ],
@@ -30793,7 +30793,7 @@
           "path": "03_hd_assets/wardrobe/rasters/dd3716b9ed829299eeb1f0506662e174c46b9156ef5c394352386115eb550187.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
             41.06060606060606
           ],
@@ -30992,9 +30992,9 @@
             "path": "03_hd_assets/wardrobe/rasters/871000079ab9e61d355536e506e35976b6da4d43e596a4e0f9d6ed89b6404dd9.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -31007,7 +31007,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 420.1212121212121,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9704071283340454
             },
@@ -31068,9 +31068,9 @@
           "path": "03_hd_assets/wardrobe/rasters/871000079ab9e61d355536e506e35976b6da4d43e596a4e0f9d6ed89b6404dd9.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -31083,7 +31083,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               420.1212121212121,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9704071283340454
           },
@@ -31174,7 +31174,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             420.1212121212121,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9704071283340454
         },
@@ -31267,9 +31267,9 @@
             "path": "03_hd_assets/wardrobe/rasters/1bcb187f6d007c6e963d982b42d3153bed8e8bcfea395f16290643b2c437804e.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -31282,7 +31282,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 420.1212121212121,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.964686930179596
             },
@@ -31343,9 +31343,9 @@
           "path": "03_hd_assets/wardrobe/rasters/1bcb187f6d007c6e963d982b42d3153bed8e8bcfea395f16290643b2c437804e.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -31358,7 +31358,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               420.1212121212121,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.964686930179596
           },
@@ -31449,7 +31449,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             420.1212121212121,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.964686930179596
         },
@@ -31542,9 +31542,9 @@
             "path": "03_hd_assets/wardrobe/rasters/37898bf123b4ddb6251006325ebd1b57980bef85d3e4bcd78e5886dfcf4bee7a.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -31557,7 +31557,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9728573560714722
             },
@@ -31618,9 +31618,9 @@
           "path": "03_hd_assets/wardrobe/rasters/37898bf123b4ddb6251006325ebd1b57980bef85d3e4bcd78e5886dfcf4bee7a.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -31633,7 +31633,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9728573560714722
           },
@@ -31724,7 +31724,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9728573560714722
         },
@@ -31817,9 +31817,9 @@
             "path": "03_hd_assets/wardrobe/rasters/e6762d9009151d55e386bf6e5c3a4c140169f074409f59e9ad1fd1262afda6c5.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -31832,7 +31832,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9709212183952332
             },
@@ -31893,9 +31893,9 @@
           "path": "03_hd_assets/wardrobe/rasters/e6762d9009151d55e386bf6e5c3a4c140169f074409f59e9ad1fd1262afda6c5.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -31908,7 +31908,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9709212183952332
           },
@@ -31999,7 +31999,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9709212183952332
         },
@@ -32092,9 +32092,9 @@
             "path": "03_hd_assets/wardrobe/rasters/8a9b631bbb0ca786736bf7da2cca726e26d11086d93504bef3147864e80933a4.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -32107,7 +32107,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9759860634803772
             },
@@ -32168,9 +32168,9 @@
           "path": "03_hd_assets/wardrobe/rasters/8a9b631bbb0ca786736bf7da2cca726e26d11086d93504bef3147864e80933a4.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -32183,7 +32183,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9759860634803772
           },
@@ -32274,7 +32274,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9759860634803772
         },
@@ -32367,9 +32367,9 @@
             "path": "03_hd_assets/wardrobe/rasters/bf3fd9891e8522fe802f0139c9ba07a475b95f8d260c31a0cbbbcfc174295c04.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -32382,7 +32382,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9723069071769714
             },
@@ -32443,9 +32443,9 @@
           "path": "03_hd_assets/wardrobe/rasters/bf3fd9891e8522fe802f0139c9ba07a475b95f8d260c31a0cbbbcfc174295c04.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -32458,7 +32458,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9723069071769714
           },
@@ -32549,7 +32549,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9723069071769714
         },
@@ -32642,9 +32642,9 @@
             "path": "03_hd_assets/wardrobe/rasters/a6cd7087a20aff0042e00c8b11fcf740b9544874c647ef77f551afbf45ab7953.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -32657,7 +32657,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9726268649101257
             },
@@ -32718,9 +32718,9 @@
           "path": "03_hd_assets/wardrobe/rasters/a6cd7087a20aff0042e00c8b11fcf740b9544874c647ef77f551afbf45ab7953.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -32733,7 +32733,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9726268649101257
           },
@@ -32824,7 +32824,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9726268649101257
         },
@@ -32917,9 +32917,9 @@
             "path": "03_hd_assets/wardrobe/rasters/3062870762fd0b427c326ad6a050365d02ea91c20a6f46025aa01626b8c1c82a.png",
             "rect": [
               459.969696969697,
-              185.0,
+              185,
               105.15151515151516,
-              55.0
+              55
             ],
             "pixelSize": [
               694,
@@ -32932,7 +32932,7 @@
               "uniformScale": 0.15151515151515152,
               "offset": [
                 419.969696969697,
-                65.0
+                65
               ],
               "completeFaceTemplateScore": 0.9602895975112915
             },
@@ -32993,9 +32993,9 @@
           "path": "03_hd_assets/wardrobe/rasters/3062870762fd0b427c326ad6a050365d02ea91c20a6f46025aa01626b8c1c82a.png",
           "rect": [
             459.969696969697,
-            185.0,
+            185,
             105.15151515151516,
-            55.0
+            55
           ],
           "pixelSize": [
             694,
@@ -33008,7 +33008,7 @@
             "uniformScale": 0.15151515151515152,
             "offset": [
               419.969696969697,
-              65.0
+              65
             ],
             "completeFaceTemplateScore": 0.9602895975112915
           },
@@ -33099,7 +33099,7 @@
           "uniformScale": 0.15151515151515152,
           "offset": [
             419.969696969697,
-            65.0
+            65
           ],
           "completeFaceTemplateScore": 0.9602895975112915
         },

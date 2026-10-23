@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261019_R9_FIX1",
+  "packageId": "DJ_STYLE_20261023_R9_FIX1_C1",
   "assets": {
     "female": {
       "paint": {
@@ -23,8 +23,8 @@
         "upperPatchWholeImageRegistration": {
           "uniformScale": 0.998,
           "offset": [
-            1.0,
-            2.0
+            1,
+            2
           ],
           "bothKneeTemplateScore": 0.9959293603897095
         }
@@ -74,8 +74,8 @@
         "upperPatchWholeImageRegistration": {
           "uniformScale": 0.996,
           "offset": [
-            2.0,
-            3.0
+            2,
+            3
           ],
           "bothKneeTemplateScore": 0.990999698638916
         }

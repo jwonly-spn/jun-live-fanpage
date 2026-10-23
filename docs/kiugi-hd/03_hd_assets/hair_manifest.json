@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261019_R9_FIX1",
+  "packageId": "DJ_STYLE_20261023_R9_FIX1_C1",
   "logicalCanvas": [
     1024,
     1024
@@ -126,7 +126,7 @@
         996,
         1346
       ],
-      "sha256": "485ab9d469317dfeba79fdcd7af11c2753ad6fc9efe8835951ffb80d4b6ba744",
+      "sha256": "cee7e688c241639964df30a0f8edc1887add966be3949f1ceae84a9e4235fdc6",
       "density": 3.3897187500000014,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9_fix1/female_hair_02_outpaint_v1.png",
@@ -145,9 +145,9 @@
     "female_hair_03_front": {
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_03_front.png",
       "rect": [
-        445.0,
+        445,
         70.5,
-        137.0,
+        137,
         115.5
       ],
       "pixelSize": [
@@ -166,7 +166,7 @@
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_03_back.png",
       "rect": [
         445.5,
-        89.0,
+        89,
         135.75,
         120.25
       ],
@@ -222,10 +222,10 @@
     "female_hair_04_back": {
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_04_back.png",
       "rect": [
-        379.0,
+        379,
         79.5,
-        271.0,
-        303.0
+        271,
+        303
       ],
       "pixelSize": [
         1084,
@@ -336,7 +336,7 @@
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_06_front.png",
       "rect": [
         463.25,
-        68.0,
+        68,
         97.5,
         105.79990215264188
       ],
@@ -393,9 +393,9 @@
     "female_hair_07_front": {
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_07_front_repaired_cap.png",
       "rect": [
-        455.0,
-        83.0,
-        113.0,
+        455,
+        83,
+        113,
         92.32640332640334
       ],
       "pixelSize": [
@@ -426,8 +426,8 @@
       },
       "wholeCapRegistration": {
         "uniformScale": 0.11746361746361747,
-        "left": 455.0,
-        "top": 83.0,
+        "left": 455,
+        "top": 83,
         "sourceRatioPreserved": true
       },
       "actualFourColorReviewPending": true
@@ -436,7 +436,7 @@
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_07_back_complete_crown.png",
       "rect": [
         461.25,
-        64.0,
+        64,
         166.25,
         254.25
       ],
@@ -444,7 +444,7 @@
         665,
         1017
       ],
-      "sha256": "f1228fbc96fc6621644e1b053764b86508bf467b42ea941284997a58d48c390e",
+      "sha256": "070db04c9cb8323c278cb34a4529501736999d1c249c9ee971f6573190ef976d",
       "density": 4,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9/generated/female_hair_07_v2.png",
@@ -459,9 +459,9 @@
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_08_front_matted.png",
       "rect": [
         457.5,
-        80.0,
-        109.0,
-        81.0
+        80,
+        109,
+        81
       ],
       "pixelSize": [
         436,
@@ -486,9 +486,9 @@
     "female_hair_08_back": {
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_08_back.png",
       "rect": [
-        461.0,
-        80.0,
-        103.0,
+        461,
+        80,
+        103,
         81.25
       ],
       "pixelSize": [
@@ -526,10 +526,10 @@
     "female_hair_09_back": {
       "path": "03_제작기록/r9_fix1/hair_native/female_hair_09_back.png",
       "rect": [
-        466.0,
-        89.0,
-        95.0,
-        63.0
+        466,
+        89,
+        95,
+        63
       ],
       "pixelSize": [
         380,
@@ -608,7 +608,7 @@
         1010,
         1349
       ],
-      "sha256": "64006b74a8272bf245e9f90b1f88cb892bfa0252ac98a381e450e015c83fc74a",
+      "sha256": "b36df7cd806ae2de72f2db4f1f1eb063f9071f6c7b42868086c96faa14df86b6",
       "density": 3.3897187500000014,
       "nativeDetail": "entire_hair",
       "source": "03_제작기록/r9_fix1/female_hair_10_outpaint_v1.png",
@@ -650,10 +650,10 @@
     "male_hair_01_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_01_back.png",
       "rect": [
-        472.0,
-        96.0,
-        80.0,
-        56.0
+        472,
+        96,
+        80,
+        56
       ],
       "pixelSize": [
         320,
@@ -670,7 +670,7 @@
     "male_hair_02_front": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_02_front.png",
       "rect": [
-        460.0,
+        460,
         86.5,
         105.5,
         86.75
@@ -690,10 +690,10 @@
     "male_hair_02_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_02_back.png",
       "rect": [
-        472.0,
-        96.0,
-        80.0,
-        56.0
+        472,
+        96,
+        80,
+        56
       ],
       "pixelSize": [
         320,
@@ -711,7 +711,7 @@
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_03_front_matted.png",
       "rect": [
         458.75,
-        82.0,
+        82,
         105.75,
         83.25
       ],
@@ -738,10 +738,10 @@
     "male_hair_03_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_03_back.png",
       "rect": [
-        460.0,
-        82.0,
-        103.0,
-        59.0
+        460,
+        82,
+        103,
+        59
       ],
       "pixelSize": [
         412,
@@ -759,7 +759,7 @@
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_04_front.png",
       "rect": [
         462.5,
-        82.0,
+        82,
         99.75,
         87.25
       ],
@@ -778,10 +778,10 @@
     "male_hair_04_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_04_back.png",
       "rect": [
-        464.0,
-        84.0,
-        97.0,
-        57.0
+        464,
+        84,
+        97,
+        57
       ],
       "pixelSize": [
         388,
@@ -818,10 +818,10 @@
     "male_hair_05_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_05_back.png",
       "rect": [
-        472.0,
-        96.0,
-        80.0,
-        56.0
+        472,
+        96,
+        80,
+        56
       ],
       "pixelSize": [
         320,
@@ -841,7 +841,7 @@
         465.5,
         85.25,
         93.5,
-        71.0
+        71
       ],
       "pixelSize": [
         374,
@@ -866,10 +866,10 @@
     "male_hair_06_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_06_back.png",
       "rect": [
-        466.0,
-        87.0,
-        92.0,
-        54.0
+        466,
+        87,
+        92,
+        54
       ],
       "pixelSize": [
         368,
@@ -888,7 +888,7 @@
       "rect": [
         464.5,
         82.75,
-        95.0,
+        95,
         80.25
       ],
       "pixelSize": [
@@ -906,10 +906,10 @@
     "male_hair_07_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_07_back.png",
       "rect": [
-        467.0,
-        84.0,
-        90.0,
-        57.0
+        467,
+        84,
+        90,
+        57
       ],
       "pixelSize": [
         360,
@@ -946,10 +946,10 @@
     "male_hair_08_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_08_back.png",
       "rect": [
-        472.0,
-        96.0,
-        80.0,
-        56.0
+        472,
+        96,
+        80,
+        56
       ],
       "pixelSize": [
         320,
@@ -1054,10 +1054,10 @@
     "male_hair_10_back": {
       "path": "03_제작기록/r9_fix1/hair_native/male_hair_10_back.png",
       "rect": [
-        463.0,
-        81.0,
-        99.0,
-        60.0
+        463,
+        81,
+        99,
+        60
       ],
       "pixelSize": [
         396,

@@ -24,7 +24,7 @@ const DIR = ART.dir.replace(/^\/kiugi\/|\/$/g, '');
 
 test('새 그림체 R9 그림 목록(2026-10-18 Codex DJ_STYLE_20261018_REDO_R9 — R7 과 같은 파일 이름·id 규칙, 코·입 1~7): 몸 2·머리 40·눈 12·코 14·입 28·옷 240 + 공통 배경 10, 주소 ?v= 는 해시 앞 12자, 그림·마스크가 모두 사이트에 있다', async () => {
   const manifest = await read('manifest.json');
-  assert.equal(ART.packageId, 'DJ_STYLE_20261019_R9_FIX1'); assert.equal(ART.version, 'r9'); assert.equal(ART.dir, '/kiugi/r9/'); assert.equal(ART.size, 1024);
+  assert.equal(ART.packageId, 'DJ_STYLE_20261023_R9_FIX1_C1'); assert.equal(ART.version, 'r9'); assert.equal(ART.dir, '/kiugi/r9/'); assert.equal(ART.size, 1024);
   const count = {};
   for (const a of ART.assets) count[a.category] = (count[a.category] || 0) + 1;
   assert.deepEqual(count, { body: 2, eyes: 12, nose: 14, mouth: 28, hair: 40, top: 40, bottom: 40, shoe: 40, accessory: 40, hat: 40, outfit: 40, background: 10 });

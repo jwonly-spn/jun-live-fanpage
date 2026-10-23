@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261019_R9_FIX1",
+  "packageId": "DJ_STYLE_20261023_R9_FIX1_C1",
   "expectedGamePngCount": 336,
   "assets": [
     {
@@ -251,7 +251,7 @@
       "id": "female_hair_02_back",
       "category": "hair",
       "path": "03_png_assets/hair/female_hair_02_back.png",
-      "sha256": "1045cbcce41262c6f02dd391ee606108aecad480408bdad9632c7896be699fd7",
+      "sha256": "5bdbfa07ffba6c7674fed7c76acd578c08740d96ec4d0ba1793638edd6726513",
       "gender": "female",
       "body": "female",
       "number": 2,
@@ -9912,7 +9912,7 @@
       "file": "03_png_assets/hair/female_hair_07_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "1473e3f73989a8e640f5087272ba369f65d7cc342762271f6e7a0c75dcf8e3c6",
+      "sha256": "a16254c23936fe8877ffa188a5727d031c1edaba7cfa215ceae4dd9560c04332",
       "box": [
         462,
         64,
@@ -10352,7 +10352,7 @@
       "file": "03_png_assets/hair/female_hair_10_back.png",
       "width": 1024,
       "height": 1024,
-      "sha256": "dd5f397ad2a11932eed8659273c1097008239982989b195189664c83b858ea44",
+      "sha256": "fd6fd2d3d3907e36b21c3ca4016a686d1a56e5d1bd3df127b42f0eb71a5eb0eb",
       "box": [
         368,
         79,
