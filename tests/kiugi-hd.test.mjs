@@ -1,4 +1,4 @@
-// 고해상도 그림(2026-10-18 R9 — Codex 패키지 DJ_STYLE_20261018_REDO_R9 · 클로드_고해상도_작업지시.txt): docs/kiugi-hd/ 사본 · 큰 무대·저장하기 연결(lib/kiugi-hd.js).
+﻿// 고해상도 그림(2026-10-18 R9 — Codex 패키지 DJ_STYLE_20261018_REDO_R9 · 클로드_고해상도_작업지시.txt): docs/kiugi-hd/ 사본 · 큰 무대·저장하기 연결(lib/kiugi-hd.js).
 //  ① 그리는 코드(renderer.js · hair-color.js · renderer-hd.js)는 패키지와 바이트가 같다(해시) ② 등록부·원본 그림은 패키지 상대 경로 그대로, 해시가 같고 빠진 것이 없다
 //  ③ 호환 그림·마스크(03_png_assets·04_masks)는 사이트 사본(docs/kiugi/<판>/)이 패키지와 바이트가 같고, renderer 의 bundle 표가 그것을 가리킨다
 //  ④ renderer 상태·칸 셈·저장 그림 자리(노드 — DOM 없이). 실제 그리기(브라우저)는 시험 밖(숨은 Electron)에서 본다.
@@ -43,7 +43,7 @@ test('그리는 코드(renderer.js · hair-color.js · renderer-hd.js)는 패키
     assert.equal(sha(await readFile(hdRoot + rel)), want, rel + ' 은 패키지 그대로(고치지 않는다)');
     assert.equal(files[rel], want, rel);
   }
-  assert.equal(index.packageId, 'DJ_STYLE_20261023_R9_FIX1_C1'); // 2026-10-23 R9 FIX1(머리 2·10 잘림·흰 테두리·웃는 눈 등 8가지 고침)
+  assert.equal(index.packageId, 'DJ_STYLE_20261028_R9_FIX1_C2'); // 2026-10-28 웃는 눈 이마 점(C2) · 2026-10-23 R9 FIX1(머리 2·10 잘림·흰 테두리·웃는 눈 등 8가지 고침)
   assert.equal(index.packageId, ART.packageId, '고해상도와 호환 그림은 같은 패키지');
   for (const e of [...Object.values(index.code), ...Object.values(index.manifests)]) assert.equal(e.v, files[e.path].slice(0, 12), e.path);
   assert.deepEqual(Object.keys(index.code).sort(), ['assets', 'hairColor', 'renderer', 'rendererHd']);

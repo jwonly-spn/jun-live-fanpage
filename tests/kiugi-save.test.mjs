@@ -1,4 +1,4 @@
-// 캐릭터 이미지로 저장(lib/kiugi-save.js): 캔버스에 그릴 차례가 화면 그림(kiugi-art.js characterSvg·layersOf)과 같은지, 배치·글·파일 이름·저장 방법.
+﻿// 캐릭터 이미지로 저장(lib/kiugi-save.js): 캔버스에 그릴 차례가 화면 그림(kiugi-art.js characterSvg·layersOf)과 같은지, 배치·글·파일 이름·저장 방법.
 // 새 그림체 R7 → R9(2026-10-18): 그리는 규칙은 패키지 renderer.js(캔버스) 그대로 — 실제 브라우저에서 renderer.js 와 픽셀로 견준 것은 시험 밖(숨은 Electron)에서 한다.
 //  고해상도(R9 renderer-hd.js)로 저장하는 길은 hd 함수를 넘길 때만(캐릭터 페이지) — 여기서는 hd 를 흉내 내 자리·크기만 본다.
 // 아이디는 모두 지어낸 것(밤톨·사탕요정·달무리, 캐릭터 이름 먼치·쿠키).
@@ -247,7 +247,7 @@ test('머리 물들이기(tintedHair): 1024 캔버스에 그려 픽셀을 읽고
   assert.deepEqual(out.slice(8, 12), [0, 0, 0, 0], '투명은 그대로'); assert.equal(out[15], 128);
   assert.equal(tintedHair(doc, 'IMG', asset, 'blond', cache), c, '같은 머리·같은 색은 다시 만들지 않는다');
   assert.equal(tintKey(asset, 'blond'), `${ART.packageId}:tone-map-v1:female_hair_09_back:0123456789ab:blond`); assert.equal(hairColor.VERSION, 'tone-map-v1');
-  assert.match(ART.packageId, /^DJ_STYLE_20261023_R9_FIX1_C1$/); // 2026-10-23 R9 FIX1(같은 파일·id 규칙 — 그림만 고침) // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
+  assert.match(ART.packageId, /^DJ_STYLE_20261028_R9_FIX1_C2$/); // 2026-10-28 웃는 눈 이마 점(C2) · 2026-10-23 R9 FIX1(같은 파일·id 규칙 — 그림만 고침) // 2026-10-18 R9(머리 새로 · 코·입 1~7) — 파일·id 규칙·renderer.js 는 R7 그대로
   for (const k of ['black', 'pink', 'sky', 'silver']) tintedHair(doc, 'IMG', asset, k, cache);
   assert.equal(cache.size, TINT_CACHE_MAX); assert.equal(c.width, 0, '오래된 것부터 비운다(캔버스 메모리 돌려주기)');
   assert.deepEqual(Object.keys(PALETTE), ['black', 'brown', 'light', 'blond', 'pink', 'purple', 'sky', 'silver']);

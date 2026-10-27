@@ -1,6 +1,6 @@
 {
  "v": 1,
- "packageId": "DJ_STYLE_20261023_R9_FIX1_C1",
+ "packageId": "DJ_STYLE_20261028_R9_FIX1_C2",
  "publishedAt": null,
  "code": {
   "hairColor": {
@@ -17,37 +17,37 @@
   },
   "assets": {
    "path": "02_클로드인계/assets.json",
-   "v": "6699331ef8ee"
+   "v": "00f03b0a764a"
   }
  },
  "manifests": {
   "hair": {
    "path": "03_hd_assets/hair_manifest.json",
-   "v": "ee44cc134173"
+   "v": "556f3dce5c62"
   },
   "face": {
    "path": "03_hd_assets/face_manifest.json",
-   "v": "87cd8055a952"
+   "v": "e530df4376e4"
   },
   "features": {
    "path": "03_hd_assets/feature_manifest.json",
-   "v": "4fe5c2104a66"
+   "v": "d5fe07909647"
   },
   "lowerLeg": {
    "path": "03_hd_assets/lowerleg_manifest.json",
-   "v": "6ef2d2bce101"
+   "v": "f4e1bb701077"
   },
   "lowerBody": {
    "path": "03_hd_assets/lower_body_manifest.json",
-   "v": "2cfa57ea87ab"
+   "v": "fc796fdd2978"
   },
   "wardrobe": {
    "path": "03_hd_assets/wardrobe_manifest.json",
-   "v": "4af5651c4f30"
+   "v": "b1953f76d87b"
   },
   "defaultBody": {
    "path": "03_hd_assets/default_body_manifest.json",
-   "v": "9f68bae67350"
+   "v": "30ec91671199"
   }
  }
 }
