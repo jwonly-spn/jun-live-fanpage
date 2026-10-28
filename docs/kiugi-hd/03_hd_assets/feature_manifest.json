@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261028_R9_FIX1_C2",
+  "packageId": "DJ_STYLE_20261028_R9_FIX1_C3",
   "logicalCanvas": [
     1024,
     1024
@@ -690,7 +690,7 @@
         209
       ],
       "density": 6.529999999999978,
-      "sha256": "5456a6ec659fc4b9f76dab43c2f608662cdb98dea3f726f02051d170075d3e16",
+      "sha256": "95f4ed621ae9fdcbb6bfa1b29345ea33932c53b9bb589de95fb107163e8d43b1",
       "source": "03_제작기록/r9_fix1/female_eyes_01_closed_smile_v1.png",
       "sourceSha256": "2f58c2ca259dcc55518eb0fa436bc84aa22297cefb81a293f5b2e5a2eac9dfee",
       "wholePortraitTransform": {
@@ -728,7 +728,7 @@
         226
       ],
       "density": 7.069999999999975,
-      "sha256": "48ec1d935278aa04edf6f5d545600f6890434432c678f65517385edf8b7c6503",
+      "sha256": "0b2dc24d5a2c5311526568a852e80fb3b388a9cc8dfe5cab99a2017f86b0dc5e",
       "source": "03_제작기록/r9_fix1/male_eyes_01_closed_smile_v1.png",
       "sourceSha256": "1873b96641a0c4279773f785c86dc23f62f72c64ebc59d876dad70e9b7d442e3",
       "wholePortraitTransform": {
@@ -1074,7 +1074,7 @@
         203
       ],
       "density": 6.34999999999998,
-      "sha256": "2109b03c47fabf43ca60d5bd74e58ea21a7e7cbfe52d608d952227052c0ca381",
+      "sha256": "61fb00a74ec9d2ae1e7ef12c90ae7305afb1357bcf8e6c6d9f37d42452ca27c3",
       "source": "03_제작기록/r9_fix1/female_eyes_02_closed_smile_v1.png",
       "sourceSha256": "232b35612a5b1f362e4e0f1e142023cfe357128bc03180ffa3daaf55ec11a7bf",
       "wholePortraitTransform": {
@@ -1280,7 +1280,7 @@
         203
       ],
       "density": 6.34999999999998,
-      "sha256": "4276b7d586c2c304b0b225d9539bf273ab3817175ab183b696c6092bafcaee76",
+      "sha256": "f41a207f97d5bcbdb078049dcad9980e6fc3ab825e66141a1fd3a952d05746ca",
       "source": "03_제작기록/r9_fix1/male_eyes_02_closed_smile_v1.png",
       "sourceSha256": "fb652997e69cf4a4097a2877ff66aff771588d4ca663f81663d87dc936731d90",
       "wholePortraitTransform": {

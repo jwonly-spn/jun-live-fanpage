@@ -1,5 +1,5 @@
 {
-  "packageId": "DJ_STYLE_20261028_R9_FIX1_C2",
+  "packageId": "DJ_STYLE_20261028_R9_FIX1_C3",
   "expectedGamePngCount": 336,
   "assets": [
     {
@@ -718,7 +718,7 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_01_smile.png",
-      "sha256": "6d6fb23ffa641ec4d2fcdd1830957653aec6836e5beb0d6975b761a0cbbca3fa",
+      "sha256": "7f587491eff1702db8514cb137707ef1e60d753c2f242ab2b32e1d898ea55b9a",
       "expression": "smile",
       "file": "03_png_assets/eyes/female_eyes_01_smile.png",
       "width": 1024,
@@ -892,7 +892,7 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_01_smile.png",
-      "sha256": "57ff1fb73498240941da5c5df98c7349aaaa48cffaef2c376fa75e6f94b2e420",
+      "sha256": "215a997c0566e6bc068dc7283267d1a494b56502b93486534e143afcb19ac5fd",
       "expression": "smile",
       "file": "03_png_assets/eyes/male_eyes_01_smile.png",
       "width": 1024,
@@ -1473,7 +1473,7 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/female_eyes_02_smile.png",
-      "sha256": "b1e26b4253415e8b436c0655951389f23f1e0a177d9e6dcefdaed1da11bcfb6c",
+      "sha256": "ab0dd4eaea25e2e8a99b6ae8746428e87dbc3ea7e654cb71579d263c61e02c4e",
       "expression": "smile",
       "file": "03_png_assets/eyes/female_eyes_02_smile.png",
       "width": 1024,
@@ -1560,7 +1560,7 @@
       "tintable": false,
       "slot": "eyes",
       "path": "03_png_assets/eyes/male_eyes_02_smile.png",
-      "sha256": "816cdb2dd7b342e9bbb08e29003857aa17b293856dbb34afdd80c90357ce1e8e",
+      "sha256": "a03a85ea6b4afa1c0d9bd24f7c68b02949f7668e164dfbf241616a23ef5f415a",
       "expression": "smile",
       "file": "03_png_assets/eyes/male_eyes_02_smile.png",
       "width": 1024,
