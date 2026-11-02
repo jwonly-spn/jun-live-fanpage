@@ -7,7 +7,8 @@
 const fs = require('node:fs'), path = require('node:path'), {spawnSync} = require('node:child_process');
 const OWNER = 'jwonly-spn', NAME = 'jun-live-fanpage', ROOT = path.join(__dirname, '..');
 // 2026-10-08부터 키우기.com(영문 표기 xn--ok0bp87bn6g.com). docs/CNAME 과 GitHub Pages 의 사용자 도메인을 같게 둔다.
-const DOMAIN = 'xn--ok0bp87bn6g.com';
+// 2026-11-03: 인증서가 한 달 가까이 "new" 에 멈춰 주 주소를 www 로 바꿔 다시 신청(사용자 허락) — 키우기.com 은 GitHub 이 www 로 넘긴다.
+const DOMAIN = 'www.xn--ok0bp87bn6g.com';
 const SITE = `https://${DOMAIN}/`;
 // 인증서가 아직 없을 때(2026-10-08~ GitHub Pages 인증서 "new") 마지막 확인은 http 로 한다
 const SITE_HTTP = `http://${DOMAIN}/`;
