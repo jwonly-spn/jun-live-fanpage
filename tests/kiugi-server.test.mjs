@@ -269,9 +269,9 @@ test('예전 판(v1)으로 저장된 줄이 남아 있어도 공개 페이지·�
   assert.deepEqual((await body(await find(w, slug, '옛이름'))).json.results, []);
 });
 
-test('사이트 주소는 인증서가 나올 때까지 임시로 http(2026-10-20) — 올리기 답의 url 이 경고 페이지로 가지 않게 · 사이트 안 자기 주소는 연 주소(location.origin) 그대로', async () => {
+test('사이트 주소는 https(2026-11-09 — Cloudflare 로 https 가 열림, 그 전 10/20~11/8 은 임시 http) · 사이트 안 자기 주소는 연 주소(location.origin) 그대로', async () => {
   const { SITE: DEFAULT_SITE } = await import('../supabase/functions/kiugi/handler.ts');
-  assert.equal(DEFAULT_SITE, 'http://xn--ok0bp87bn6g.com/', '키우기.com 인증서가 나오면 https 로 되돌리고 이 시험도 고친다');
+  assert.equal(DEFAULT_SITE, 'https://xn--ok0bp87bn6g.com/');
   const { readFile, readdir } = await import('node:fs/promises');
   const docs = new URL('../docs/', import.meta.url);
   const files = ['app.js', 'api.js', 'spoon.js', ...(await readdir(new URL('lib/', docs))).map((f) => 'lib/' + f), ...(await readdir(new URL('views/', docs))).map((f) => 'views/' + f)].filter((f) => f.endsWith('.js'));

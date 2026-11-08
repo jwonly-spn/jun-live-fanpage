@@ -113,7 +113,7 @@ test('공유·검색용 머리 정보(2026-10-20): 파비콘(작은 ICO) · 테�
   assert.equal(meta('property', 'og:locale'), 'ko_KR');
   assert.equal(meta('name', 'twitter:card'), 'summary_large_image');
   assert.deepEqual([meta('property', 'og:image:width'), meta('property', 'og:image:height')], ['1200', '630']);
-  // 미리보기 그림 주소 = 서버가 주는 사이트 주소(handler.ts SITE) + og.png — 인증서가 나와 SITE 를 https 로 바꾸면 이것도 같이(지금은 임시 http)
+  // 미리보기 그림 주소 = 서버가 주는 사이트 주소(handler.ts SITE) + og.png — 2026-11-09 부터 https
   const { SITE } = await import('../supabase/functions/kiugi/handler.ts');
   assert.equal(meta('property', 'og:image'), SITE + 'og.png');
   const png = await readFile(docs + 'og.png');
