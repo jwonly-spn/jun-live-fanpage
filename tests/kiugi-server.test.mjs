@@ -248,7 +248,8 @@ test('공개 페이지·찾기: 1~3등(아이디)과 DJ 캐릭터, 전체 목록
   assert.equal((await w.get('page?slug=nope')).status, 404);
   assert.equal((await w.get('page?slug=abcdefgh')).status, 404);
   r = await body(await w.get('health'));
-  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 2, hearts: true, pets: true, motions: true, exp: true, snaps: true });
+  // 시즌 2(2026-11-15): 올리기 판 3 · s2 · 시즌 1 v2 를 받는 마지막 때(이 시험 세계는 끝 없음 — null)
+  assert.deepEqual(r.json, { service: 'jun-live-kiugi', v: 3, s2: true, v2Until: null, hearts: true, pets: true, motions: true, exp: true, snaps: true });
   assert.equal((await w.handle(new Request(BASE + 'page', { method: 'OPTIONS' }))).status, 204);
   // 주소마다 찾기는 1분에 30번
   for (let i = 0; i < 29; i++) await find(w, slug, '밤', '9.9.9.9');
@@ -276,8 +277,8 @@ test('사이트 주소는 https(2026-11-09 — Cloudflare 로 https 가 열림, 
   const docs = new URL('../docs/', import.meta.url);
   const files = ['app.js', 'api.js', 'spoon.js', ...(await readdir(new URL('lib/', docs))).map((f) => 'lib/' + f), ...(await readdir(new URL('views/', docs))).map((f) => 'views/' + f)].filter((f) => f.endsWith('.js'));
   for (const f of files) assert.doesNotMatch(await readFile(new URL(f, docs), 'utf8'), /https?:\/\/(xn--ok0bp87bn6g\.com|키우기\.com)/, f + ': 사이트 주소를 글자로 박아 두지 않는다');
-  assert.match(await readFile(new URL('views/kiugi.js', docs), 'utf8'), /location\.origin \+ app\.link\(\{ name: 'kiugi'/);
-  assert.match(await readFile(new URL('views/character.js', docs), 'utf8'), /location\.origin \+ app\.link\(\{ name: 'character'/);
+  // 시즌 2(2026-11-15): 시즌 1 DJ 페이지·캐릭터 페이지(공유 주소를 location.origin 으로 만들던 화면)는 걷어냈다 — 사이트 안 주소는 app.link(맨 앞 BASE 기준)로만
+  assert.match(await readFile(new URL('app.js', docs), 'utf8'), /link: \(route\) => buildPath\(BASE, route\)/);
 });
 
 test('60일 동안 올리지 않은 페이지는 가끔 한 번씩 내용을 지운다', async () => {

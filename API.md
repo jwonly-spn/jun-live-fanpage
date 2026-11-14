@@ -2,6 +2,34 @@
 
 ## 바뀐 것
 
+### 시즌 2 "몬스터 영토전" (2026-11-15 — 2026-12-01 0시 공개용, 기록 `notes/20261115-s2-site.md`)
+약속 문서: `기획\시즌2-몬스터영토전\spec.md`(5·7절). 시즌 1 화면(캐릭터 페이지·DJ 페이지·옷 도감·입혀 보기·저장하기)과 시즌 1 그림(`docs/kiugi*`, `docs/pets`)은 걷어냈다. 예전 주소(`k/…`, `items`, `p/…`, `studio`, `app`)는 첫 화면으로(캐릭터 주소면 그 아이디로 찾기).
+- **사이트 화면**: 첫 화면 `/` = 영토 지도(화면 가득) → 아이디로 몬스터 찾기(`/?id=밤톨`) → 땅 순위·지도 소식 → 땅을 넓히는 법 · 몬스터 도감 `/dex`(`/dex?id=밤톨%23먼치` 면 그 청취자가 데려간 몬스터는 색, 못 만난 것은 그림자).
+- **지도 파일(영토 서버 → 사이트)**: 공개 저장소 버킷 `tr-snap` 의 `map.json` — `https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/tr-snap/map.json`(사이트는 함수를 부르지 않고 이 파일만 읽는다. index.html 이 처음부터 미리 받고, 3분마다 다시 읽는다 — 화면이 숨어 있으면 쉰다. 없으면(400/404) 시즌 시작 전 화면).
+  ```
+  {season:"s2", updatedAt:ISO|ms, endsAt:"2026-12-31T23:59:59+09:00", startsAt?:ISO, final?:true,
+   grid:{w:120, h:75},
+   owner:"-2*240,-1*12,3*4,…",   // 칸마다(왼쪽 위부터 줄마다) 값 하나를 "값*개수"로(개수 1이면 값만). -2 바다 · -1 숲(아무도 없는 땅) · 그 밖 = DJ(djs[].id)
+   col:"-1*5000,7*12,…",         // 식민지: -1 아님 · 그 밖 = 원래 주인 DJ(djs[].id). 칸의 지금 주인은 owner.
+   djs:[{id:정수, name:"별사탕", color?:"#e34948", cap?:칸 번호|[x,y], pct, colPct, ruledPct, dayDelta}],
+   feed:["별사탕 · 보스 토벌 성공 · 땅 +0.4%" | {text, at}],   // 최근 20줄
+   prize:{text}}                  // 없으면 "1등 DJ에게 먼치킨 한 달 무료 이용권 + 상금 486스푼"
+  ```
+  · **owner 에는 바다를 -2 로 꼭 넣는다**(Codex 대륙 그림의 땅 모양을 사이트가 서버와 같게 보려고). 바다가 하나도 없으면 사이트는 자기 땅 칸(`docs/s2/land-grid.json`, 없으면 report.html MapCore 절차 대륙)을 쓴다.
+  · `djs[].id` 는 owner·col 에 쓰는 정수(모두 정수가 아니면 사이트는 값을 djs 차례 번호로 읽는다). `color` 는 있으면 쓰고, 없거나 파랑 계열(바다와 헷갈림)이면 사이트가 id 로 고정 색을 고른다(`lib/map-core.js MAP_PALETTE` — 16색 뒤로는 파랑을 뺀 색상 고리). `pct`·`colPct`·`ruledPct` 가 없으면 사이트가 칸으로 센다. 청취자 정보는 넣지 않는다.
+  · 문서 예시 줄인 글은 값 쌍 배열(`[[값,개수],…]`)·풀어 쓴 배열(`[값,…]`)도 받는다.
+- **그림 지도**: Codex 대륙 그림(시안 `기획\시즌2-몬스터영토전\시안\02_지도\continent_s2.png` 2400×1500 · `land_mask.png`)을 `tools/make-map-art.cjs`(Electron)로 → `docs/s2/continent.webp`(1600×1000, 약 120KB — 바탕) · `docs/s2/land.png`(땅 모양 알파 — DJ 물감을 해안선으로 자른다) · `docs/s2/land-grid.json`(120×75 땅 칸, **칸 하나 = 원본 20×20 픽셀, 땅 픽셀(마스크 128 이상)이 절반 이상이면 땅** — 영토 서버도 이 파일·규칙을 쓰면 지도와 %가 맞는다). 그림을 못 받으면 예전처럼 컴퓨터가 그린 대륙·산·나무.
+- **몬스터 그림·이름**: 먼치킨 저장소 `app/public/kiugi/s2/monster_<속성>_<nn>_<단계>.png`·`boss_<속성>.png` 와 `season-s2.json` 이 `tools/sync-kiugi-site.mjs`(먼치킨 저장소)로 `docs/kiugi/` 에 오면 그것을 쓴다(그림 목록 = `docs/kiugi/manifest.json files.s2`). 없으면 속성 색 동그라미, 이름은 자리 이름("불 몬스터 1"). 이름은 `season-s2.json` 의 `monsters:[{id,name,stages:[…]}]`·`bosses:[{type|id,name}]`(객체 모양도 받음 — `lib/monsters.js readCatalog`).
+- **kiugi 함수 올리기 v3**(먼치킨 → 서버, 서명·주소는 그대로 `POST app`, 머리말 `JUN-LIVE-KIUGI/1`):
+  ```
+  {enabled:true, v:3, at?, paused?, main?, season:"s2" | {id:"s2",name,endsAt},
+   character:{name:"먼치"} | name:"먼치",            // 아이디 뒤 이름(사이트 전체에서 하나만 — 예전과 같은 규칙)
+   people:[{id:"밤톨#먼치", lead:"water_01"|null, monsters:[{sp:"water_01", stage:1~3, lv:1~9999}]}]}
+  ```
+  서버는 아이디·대표·몬스터만 담고 다른 칸(닉네임·냥·경험치)은 버린다. 몬스터 종류는 `<영문 소문자>_<두 자리>`(같은 종류는 하나, 24마리까지), 대표는 가진 몬스터일 때만(아니면 null). 순서는 보낸 그대로. 대표·몬스터가 바뀌면 "새로 꾸민 때"(ch)도 바뀐다.
+  **시즌 1 v2(옷)는 2026-12-01 0시(한국)부터 400 `시즌 1이 끝났어요. 먼치킨을 새 버전으로 업데이트하면 시즌 2 몬스터가 올라가요.`**(끄기 `{enabled:false}` 는 그대로). `GET health` = `{v:3, s2:true, v2Until:"2026-11-30T15:00:00.000Z", …}`.
+- **kiugi 함수 남긴 길**: 시즌 2 사이트가 부르는 것은 `GET search?q=`(카드 `{slug, djName, id, level, worn:{}, lead, monsters, hearts}` — 시즌 1 사람은 lead·monsters 칸이 없다) 하나. `person` 도 lead·monsters 를 준다. `page`·`find`·`home`·`heart`·미리 만든 답(kg-snap)은 시즌 1 사이트용 — 그대로 두지만 시즌 2 사이트는 부르지 않는다(지울지는 시즌 1 기록을 지울 때 함께 정할 것). 표·SQL 은 바뀐 것 없음.
+
 ### 1.0.0 준비 (2026-10-20, 함수 판 12 — 배포 순서는 저장소 맨 위 `CHANGES-20261020-w6.md`)
 - **캐릭터 이름 넘겨받기**: 같은 이름으로 올린 다른 기기가 이름을 넘겨받는 경우는 둘 — ①이름 주인 기기가 승인 상태가 아님(관리 화면에서 차단·대기, 심사용, 기록 없음) ②이름 주인 페이지가 60일 동안 아무것도 올리지 않음. "같은 DJ 면 바로"는 없다: 승인 서버의 고유닉(`junlive_devices.tag`)은 기기가 스스로 신고한 값이라 쓰지 않고, 스푼이 확인한 DJ 계정 값은 저장된 곳이 없다(스푼 연결 표 `sp_links`는 기기 번호·잠긴 토큰·권한·때뿐). 끄기(내용 없음)·시즌 준비 중만으로는 넘겨주지 않는다("끄기는 이름을 지킨다"). 옛 페이지는 내용·이름 열쇠·하트를 비우고(주소 묶음 줄은 남음) 미리 만든 답을 `{closed:true}`로 덮는다. 그사이 옛 페이지가 다시 올렸으면(`updated`가 바뀜) 넘겨받지 않고 409.
   PC 를 바꾼 DJ(새 기기 번호): 운영자가 DJ 본인인지 확인하고 관리 화면에서 옛 PC 를 차단하면 새 PC 의 다음 올리기에서 같은 이름을 쓴다(주소는 새로). 운영 절차 `supabase/ops.md`.

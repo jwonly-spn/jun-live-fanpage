@@ -1,58 +1,45 @@
 <!doctype html>
-<html lang="ko" class="album-preview halloween-season">
+<html lang="ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-0/XENMiCX2HsCPYXwzpmBuNgJ1zxDIpRU+oQXU0NZsU='; style-src 'self' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://aksegkhhugqvvaidgvro.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'sha256-YvXW4PZZ6wY4IlYyrfxCsWjES8V1DzhSOLUUoqb+PLw='; style-src 'self' https://cdn.jsdelivr.net; font-src https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self' https://aksegkhhugqvvaidgvro.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="description" content="스푼 DJ 키우기 — 청취자들이 방송에서 키운 DJ 캐릭터를 구경하고 하트를 보내는 비공식 팬 사이트(스푼 공식 서비스가 아니에요)">
-<meta name="theme-color" content="#f4efe8">
+<meta name="description" content="스푼 DJ 키우기 — 몬스터 영토전: 먼치킨을 쓰는 DJ 방송들이 보스 토벌과 영지전으로 땅을 넓히는 지도와 청취자가 키운 몬스터를 보는 비공식 팬 사이트(스푼 공식 서비스가 아니에요)">
+<meta name="theme-color" content="#f1ebdf">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="스푼 DJ 키우기">
-<meta property="og:title" content="스푼 DJ 키우기">
-<meta property="og:description" content="청취자들이 방송에서 함께 키운 DJ 캐릭터를 구경하고 하트를 보내는 비공식 팬 사이트예요. 스푼 공식 서비스가 아니에요.">
+<meta property="og:title" content="스푼 DJ 키우기 · 몬스터 영토전">
+<meta property="og:description" content="DJ 방송들이 보스 토벌과 영지전으로 땅을 넓히는 몬스터 영토전 지도를 보는 비공식 팬 사이트예요. 스푼 공식 서비스가 아니에요.">
 <meta property="og:image" content="https://xn--ok0bp87bn6g.com/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="스푼 DJ 키우기 — 예시 캐릭터 다섯 명과 비공식 팬 사이트 안내">
+<meta property="og:image:alt" content="스푼 DJ 키우기 몬스터 영토전 — DJ 땅을 물감으로 칠한 그림 지도와 비공식 팬 사이트 안내">
 <meta property="og:locale" content="ko_KR">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.ico">
 <title>스푼 DJ 키우기</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preconnect" href="https://aksegkhhugqvvaidgvro.supabase.co" crossorigin>
-  <link rel="preload" href="https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/kg-snap/home.json" as="fetch" crossorigin>
+<link rel="preconnect" href="https://aksegkhhugqvvaidgvro.supabase.co" crossorigin>
+<link rel="preload" href="https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/tr-snap/map.json" as="fetch" crossorigin>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pretendard@1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css" integrity="sha384-uR1wgObmx89ZQ4VVXHdzjbDJZ1PvBK01K+E3GebmaBKdZ87qRJvBWPoPbzWeEd5T" crossorigin="anonymous">
-<link rel="stylesheet" href="/styles.css?v=87bbcaa5ef">
+<link rel="stylesheet" href="/styles.css?v=e65af928c1">
 <!--kg-stamp-->
-<script type="importmap">{"imports":{"/app.js":"/app.js?v=3d7e498961","/api.js":"/api.js?v=17af9fabc3","/mock.js":"/mock.js?v=138761fc00","/lib/dom.js":"/lib/dom.js?v=89ae892b0f","/lib/hearts.js":"/lib/hearts.js?v=cbcd492cf5","/lib/kiugi-draw.js":"/lib/kiugi-draw.js?v=2ac11b1fb0","/lib/kiugi-hd.js":"/lib/kiugi-hd.js?v=7bcd941000","/lib/kiugi-save.js":"/lib/kiugi-save.js?v=58ce780cbc","/lib/me.js":"/lib/me.js?v=8b6d7badb0","/lib/raster.js":"/lib/raster.js?v=88cd169cf4","/lib/route.js":"/lib/route.js?v=87a6568741","/lib/swr.js":"/lib/swr.js?v=7a56537f79","/lib/text.js":"/lib/text.js?v=08b77729d9","/lib/try-on.js":"/lib/try-on.js?v=a04996a8d6","/views/album.js":"/views/album.js?v=d18a6a0f31","/views/cards.js":"/views/cards.js?v=346ce658d5","/views/character.js":"/views/character.js?v=d3de3772f6","/views/common.js":"/views/common.js?v=1c89d7f182","/views/feed.js":"/views/feed.js?v=c9d62db294","/views/intro.js":"/views/intro.js?v=d4caa7df35","/views/items.js":"/views/items.js?v=828f4a9976","/views/kiugi.js":"/views/kiugi.js?v=fd4e62cde9","/kiugi/kiugi-art.js":"/kiugi/kiugi-art.js?v=20507233f3","/kiugi/kiugi-hair-color.js":"/kiugi/kiugi-hair-color.js?v=5ebc44b320","/kiugi/kiugi-look.js":"/kiugi/kiugi-look.js?v=4854399281","/kiugi/kiugi-r9-data.js":"/kiugi/kiugi-r9-data.js?v=da59c4062f"}}</script>
-<link rel="modulepreload" href="/app.js?v=3d7e498961">
-<link rel="modulepreload" href="/api.js?v=17af9fabc3">
-<link rel="modulepreload" href="/lib/dom.js?v=89ae892b0f">
-<link rel="modulepreload" href="/lib/hearts.js?v=cbcd492cf5">
-<link rel="modulepreload" href="/lib/kiugi-draw.js?v=2ac11b1fb0">
-<link rel="modulepreload" href="/lib/kiugi-hd.js?v=7bcd941000">
-<link rel="modulepreload" href="/lib/kiugi-save.js?v=58ce780cbc">
-<link rel="modulepreload" href="/lib/me.js?v=8b6d7badb0">
-<link rel="modulepreload" href="/lib/raster.js?v=88cd169cf4">
-<link rel="modulepreload" href="/lib/route.js?v=87a6568741">
-<link rel="modulepreload" href="/lib/swr.js?v=7a56537f79">
-<link rel="modulepreload" href="/lib/text.js?v=08b77729d9">
-<link rel="modulepreload" href="/lib/try-on.js?v=a04996a8d6">
-<link rel="modulepreload" href="/views/album.js?v=d18a6a0f31">
-<link rel="modulepreload" href="/views/cards.js?v=346ce658d5">
-<link rel="modulepreload" href="/views/character.js?v=d3de3772f6">
-<link rel="modulepreload" href="/views/common.js?v=1c89d7f182">
-<link rel="modulepreload" href="/views/feed.js?v=c9d62db294">
-<link rel="modulepreload" href="/views/intro.js?v=d4caa7df35">
-<link rel="modulepreload" href="/views/items.js?v=828f4a9976">
-<link rel="modulepreload" href="/views/kiugi.js?v=fd4e62cde9">
-<link rel="modulepreload" href="/kiugi/kiugi-art.js?v=20507233f3">
-<link rel="modulepreload" href="/kiugi/kiugi-hair-color.js?v=5ebc44b320">
-<link rel="modulepreload" href="/kiugi/kiugi-look.js?v=4854399281">
-<link rel="modulepreload" href="/kiugi/kiugi-r9-data.js?v=da59c4062f">
+<script type="importmap">{"imports":{"/app.js":"/app.js?v=7a4b5caf8b","/api.js":"/api.js?v=696d27de59","/mock.js":"/mock.js?v=e8f179b1cb","/lib/dom.js":"/lib/dom.js?v=492c47db2b","/lib/map-core.js":"/lib/map-core.js?v=44606506c7","/lib/map-draw.js":"/lib/map-draw.js?v=d01edccce4","/lib/monsters.js":"/lib/monsters.js?v=a531d61cf3","/lib/route.js":"/lib/route.js?v=0d4c71e78e","/lib/text.js":"/lib/text.js?v=20b7475846","/views/common.js":"/views/common.js?v=80aa55f7dd","/views/dex.js":"/views/dex.js?v=6d322f3010","/views/home.js":"/views/home.js?v=7460cb2af0","/views/monster-ui.js":"/views/monster-ui.js?v=e7e57cf67b"}}</script>
+<link rel="modulepreload" href="/app.js?v=7a4b5caf8b">
+<link rel="modulepreload" href="/api.js?v=696d27de59">
+<link rel="modulepreload" href="/lib/dom.js?v=492c47db2b">
+<link rel="modulepreload" href="/lib/map-core.js?v=44606506c7">
+<link rel="modulepreload" href="/lib/map-draw.js?v=d01edccce4">
+<link rel="modulepreload" href="/lib/monsters.js?v=a531d61cf3">
+<link rel="modulepreload" href="/lib/route.js?v=0d4c71e78e">
+<link rel="modulepreload" href="/lib/text.js?v=20b7475846">
+<link rel="modulepreload" href="/views/common.js?v=80aa55f7dd">
+<link rel="modulepreload" href="/views/dex.js?v=6d322f3010">
+<link rel="modulepreload" href="/views/home.js?v=7460cb2af0">
+<link rel="modulepreload" href="/views/monster-ui.js?v=e7e57cf67b">
 <!--/kg-stamp-->
-<script type="module" src="/app.js?v=3d7e498961"></script>
+<script type="module" src="/app.js?v=7a4b5caf8b"></script>
 </head>
 <body>
 <a class="skip" href="#main">본문으로 건너뛰기</a>

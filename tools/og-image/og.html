@@ -2,36 +2,34 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<!-- 공유 미리보기 그림(docs/og.png, 1200x630)의 원본. tools/og-image/render.cjs 가 숨은 창에서 그대로 찍는다.
-     캐릭터 다섯 명 = chars/1~5.webp(먼치킨 다운로드 페이지 예시 캐릭터 — 지어낸 조합, 새 그림체 R9 고해상도로 합성해 둔 것). 아이디 예시 밤톨#먼치도 지어낸 것. -->
+<!-- 공유 미리보기 그림(docs/og.png, 1200x630)의 원본 — 시즌 2 "몬스터 영토전"(2026-11-15). tools/og-image/render.cjs 가 숨은 창에서 그대로 찍는다.
+     map.jpg = 사이트 체험 모드 지도(이 PC 미리 보기 http://127.0.0.1:<포트>/?still=1&day=20 — 지어낸 DJ 다섯 명, Codex 대륙 그림 위 물감)를 지도 칸만 찍은 것.
+     대륙 그림이나 지도 모양이 바뀌면 다시 찍어 바꾼다. -->
 <style>
 html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
-body { position: relative; background: #f4efe8; color: #1f1b24; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
-.glow { position: absolute; right: -120px; top: -90px; width: 820px; height: 820px; border-radius: 50%; background: radial-gradient(closest-side, rgba(195, 61, 96, .17), rgba(195, 61, 96, 0)); }
-.floor { position: absolute; right: 30px; bottom: 34px; width: 600px; height: 44px; border-radius: 50%; background: radial-gradient(closest-side, rgba(70, 35, 50, .2), rgba(70, 35, 50, 0)); }
-.stage { position: absolute; right: 44px; bottom: 52px; height: 404px; display: flex; align-items: flex-end; }
-.stage img { height: 404px; margin-left: -30px; filter: drop-shadow(0 14px 14px rgba(70, 35, 50, .16)); }
-.stage img:first-child { margin-left: 0; }
-.text { position: absolute; left: 76px; top: 0; bottom: 0; width: 520px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 20px; box-sizing: border-box; }
-.pill { align-self: flex-start; font-size: 20px; font-weight: 700; color: #c33d60; border: 2px solid rgba(195, 61, 96, .42); border-radius: 999px; padding: 5px 16px 6px; margin-bottom: 24px; background: rgba(255, 255, 255, .55); letter-spacing: -.01em; }
-h1 { font-size: 80px; line-height: 1.06; font-weight: 900; letter-spacing: -.05em; margin: 0 0 22px; }
-.sub { font-size: 27px; line-height: 1.5; font-weight: 500; color: #4b4451; margin: 0 0 28px; letter-spacing: -.025em; }
-.chip { align-self: flex-start; display: flex; align-items: center; gap: 10px; background: #fff; border-radius: 16px; padding: 11px 18px 12px; box-shadow: 0 12px 30px -16px rgba(70, 35, 50, .45); font-size: 24px; font-weight: 700; letter-spacing: -.02em; }
-.chip .heart { color: #c33d60; font-size: 22px; }
-.chip .lv { color: #8b8390; font-weight: 600; font-size: 20px; }
-.site { position: absolute; left: 76px; bottom: 38px; font-size: 26px; font-weight: 800; color: #c33d60; letter-spacing: -.01em; }
-.note { position: absolute; right: 44px; bottom: 14px; font-size: 16px; color: #8b8390; letter-spacing: -.01em; }
+body { position: relative; background: #c9e3f2; color: #2a2219; font-family: "Noto Sans KR", "Malgun Gothic", sans-serif; -webkit-font-smoothing: antialiased; }
+.map { position: absolute; right: -40px; top: -12px; width: 1020px; height: 626px; object-fit: cover; object-position: 60% 50%; }
+.fade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(241, 235, 223, 1) 0, rgba(241, 235, 223, .97) 330px, rgba(241, 235, 223, .55) 470px, rgba(241, 235, 223, 0) 600px); }
+.text { position: absolute; left: 64px; top: 0; bottom: 0; width: 470px; display: flex; flex-direction: column; justify-content: center; padding-bottom: 24px; box-sizing: border-box; }
+.pill { align-self: flex-start; font-size: 19px; font-weight: 700; color: #9a3a27; border: 2px solid rgba(168, 64, 44, .4); border-radius: 999px; padding: 5px 16px 6px; margin-bottom: 20px; background: rgba(255, 255, 255, .6); }
+.brand { font-size: 28px; font-weight: 800; letter-spacing: -.03em; margin: 0 0 4px; color: #5e5243; }
+h1 { font-size: 78px; line-height: 1.04; font-weight: 900; letter-spacing: -.06em; margin: 0 0 18px; }
+.sub { font-size: 25px; line-height: 1.5; font-weight: 500; color: #4b4136; margin: 0 0 22px; letter-spacing: -.025em; }
+.prize { align-self: flex-start; display: flex; align-items: center; gap: 10px; background: #fffcf6; border-radius: 16px; padding: 10px 16px 11px; box-shadow: 0 12px 30px -16px rgba(42, 34, 25, .5); font-size: 20px; font-weight: 700; letter-spacing: -.02em; }
+.prize b { color: #b8860b; }
+.site { position: absolute; left: 64px; bottom: 34px; font-size: 26px; font-weight: 800; color: #a8402c; }
+.note { position: absolute; right: 26px; bottom: 14px; font-size: 16px; font-weight: 600; color: #2a2219; background: rgba(251, 247, 238, .85); padding: 3px 10px; border-radius: 8px; }
 </style>
 </head>
 <body>
-<div class="glow"></div>
-<div class="floor"></div>
-<div class="stage"><img src="chars/1.webp" alt=""><img src="chars/2.webp" alt=""><img src="chars/3.webp" alt=""><img src="chars/4.webp" alt=""><img src="chars/5.webp" alt=""></div>
+<img class="map" src="map.jpg" alt="">
+<div class="fade"></div>
 <div class="text">
-  <span class="pill">비공식 팬 사이트</span>
-  <h1>스푼 DJ<br>키우기</h1>
-  <p class="sub">방송에서 함께 키운 캐릭터를 구경하고<br>마음에 들면 하트를 보내요</p>
-  <div class="chip"><span class="heart">♥</span>밤톨#먼치<span class="lv">Lv.7</span></div>
+  <span class="pill">비공식 팬 사이트 · 키우기 시즌 2</span>
+  <p class="brand">스푼 DJ 키우기</p>
+  <h1>몬스터<br>영토전</h1>
+  <p class="sub">DJ 방송들이 보스 토벌과 영지전으로<br>땅을 넓히는 지도를 함께 봐요</p>
+  <div class="prize"><b>1등</b>먼치킨 한 달 무료 이용권 + 상금 486스푼</div>
 </div>
 <div class="site">키우기.com</div>
 <div class="note">스푼 공식 서비스가 아니에요</div>

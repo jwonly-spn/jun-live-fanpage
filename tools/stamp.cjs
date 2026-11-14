@@ -12,9 +12,9 @@ const fs = require('node:fs'), path = require('node:path'), crypto = require('no
 const DOCS = path.join(__dirname, '..', 'docs');
 const START = '<!--kg-stamp-->', END = '<!--/kg-stamp-->';
 const hash = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slice(0, 10);
+// 처음부터 받지 않는 것: 체험용 mock.js(이 PC 미리 보기만). 시즌 2(2026-11-15)부터 docs/kiugi/ 에는 화면 모듈이 없다(먼치킨 sync 가 넣는 시즌 목록·그림만) —
+//  예전 R9 고해상도 모듈 이름(kiugi-hd.js · kiugi-r9-renderer*.js 등)이 다시 생겨도 처음부터 받지 않게 그 규칙은 남겨 둔다. 표(import map)에는 그대로 둔다.
 const NO_PRELOAD = new Set(['/mock.js']);
-// 고해상도 그림 쪽 파일(2026-10-18 R9)은 큰 화면에서만 필요해 처음부터 받지 않는다 — 먼치킨 sync 가 docs/kiugi/ 에 넣는 고해상도 모듈·패키지 그리는 코드 사본·고해상도 목록
-//  (kiugi-hd.js · kiugi-r9-renderer.js · kiugi-r9-renderer-hd.js · kiugi-r9-hair-color.js · kiugi-r9-hd-data.js 같은 이름). 표(import map)에는 그대로 둔다.
 const NO_PRELOAD_RE = /^\/kiugi\/kiugi-(?:hd|r\d+-(?:hd-data|renderer|renderer-hd|hair-color))\.js$/;
 const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m);
 

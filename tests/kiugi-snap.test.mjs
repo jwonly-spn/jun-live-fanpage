@@ -69,16 +69,18 @@ test('빠르게: 페이지·캐릭터·찾기는 한도·페이지·하트를 �
   assert.match(index, /cacheControl: '60'/, '2026-10-20: 저장소 CDN·브라우저 캐시 60초(예전 5초)');
 });
 
-test('미리 만든 답 캐시와 사이트의 "오래된 파일" 기준이 맞는다: CDN 캐시 + 다시 쓰는 간격(15초)보다 길어야 캐시가 내준 파일 때문에 보는 사람마다 함수를 부르지 않는다', async () => {
+test('미리 만든 답 캐시는 그대로(CDN 60초 · 다시 쓰는 간격 15초) · 시즌 2 사이트는 kg-snap(메인·DJ 페이지 답)을 읽지 않는다(지도는 tr-snap/map.json)', async () => {
   const index = await readFile(new URL('../supabase/functions/kiugi/index.ts', import.meta.url), 'utf8');
   const cdnSeconds = Number(/cacheControl: '(\d+)'/.exec(index)?.[1]);
   const handler = await readFile(new URL('../supabase/functions/kiugi/handler.ts', import.meta.url), 'utf8');
   const gapMs = Number(/snapGapMs \?\? (\d+)/.exec(handler)?.[1]);
-  const { SNAP_STALE_MS, SNAP_USE_MS } = await import('../docs/api.js');
   assert.equal(cdnSeconds, 60); assert.equal(gapMs, 15000);
-  assert.ok(SNAP_STALE_MS > cdnSeconds * 1000 + gapMs, `오래된 파일 기준 ${SNAP_STALE_MS}ms > 캐시 ${cdnSeconds}s + 간격 ${gapMs}ms`);
-  assert.equal(SNAP_STALE_MS, 3 * 60e3);
-  assert.ok(SNAP_STALE_MS < SNAP_USE_MS, '10분 넘은 파일은 쓰지 않는다(그대로)');
+  // 2026-11-15 시즌 2: 첫 화면은 영토 지도 — 예전 메인 답(home.json)을 미리 받지 않는다
+  const api = await readFile(new URL('../docs/api.js', import.meta.url), 'utf8'), html = await readFile(new URL('../docs/index.html', import.meta.url), 'utf8');
+  for (const [f, src] of [['api.js', api], ['index.html', html]]) assert.doesNotMatch(src, /kg-snap/, f);
+  assert.match(html, /<link rel="preload" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co\/storage\/v1\/object\/public\/tr-snap\/map\.json" as="fetch" crossorigin>/);
+  const { MAP_URL } = await import('../docs/api.js');
+  assert.ok(html.includes(`href="${MAP_URL}"`), '미리 받는 주소 = 처음 읽는 지도 주소(같아야 미리 받은 답을 쓴다)');
 });
 
 test('한도는 그대로: 1분에 60번 넘게 페이지를 열면 429', async () => {

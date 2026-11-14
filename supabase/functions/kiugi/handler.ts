@@ -1,7 +1,9 @@
 // DJ 키우기 페이지 — 요청 처리(데이터베이스는 store 로 받는다: index.ts 가 Supabase 로, 노드 시험은 메모리로 넣는다).
 // 길(모든 답에 CORS — 사이트가 부른다):
 //  GET health · GET page?slug= · GET find?slug=&q= · GET person?slug=&id= · GET home · GET search?q=
-//  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v2)
+//  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v3 시즌 2 몬스터 — v2 시즌 1 옷은 2026-12-01 0시(한국)까지만)
+//  시즌 2 사이트(키우기.com — 지도 첫 화면·아이디 찾기·도감)가 부르는 것은 search(카드에 lead·monsters) 하나뿐이다. person 도 몬스터를 준다.
+//  page·find·home·heart 는 시즌 1 사이트가 쓰던 길 — 그대로 두지만 시즌 2 사이트는 부르지 않는다(API.md "시즌 2").
 import * as v from './lib.ts';
 
 // 사이트 주소(올리기 답의 url). 2026-10-20 ~ 11-08 은 임시로 http 였다(GitHub Pages 인증서가 "new" 에서 멈춤).
@@ -37,6 +39,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   const chance: () => number = opts.chance || Math.random;
   const later: (p: Promise<unknown>) => void = opts.later || ((p: Promise<unknown>) => { p.catch((e) => console.error(e)); });
   const site: string = opts.site || SITE;
+  // 시즌 1 올리기(v2)를 받는 마지막 때 — 실제 서버는 2026-12-01 0시(한국). 시험은 바꿔 넣을 수 있다(예전 시험은 시계를 몇 달 넘겨도 v2 로 올린다).
+  const v2Until: number = opts.v2Until ?? v.S2_START;
   // 메인 페이지·전체 찾기 목록은 이 함수 안에서 잠깐(기본 30초) 기억해 둔다(보는 사람이 많아도 데이터베이스를 덜 부르게).
   const cacheMs: number = opts.cacheMs ?? 30000;
   const urlOf = (slug: string) => site + 'k/' + slug;
@@ -147,7 +151,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const hit = row.season ? v.findOne(row.people, key) : null;
     if (!hit) throw v.fail(404, NO_PERSON);
     const hearts = heartsOf.get(hit.p.k) || 0;
-    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), ...v.expField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
+    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), ...v.expField(hit.p), ...v.monsterField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
   }
 
   // 메인 페이지: 지금 시즌 · 인기(하트) 12 · 새로 꾸민 8 · 옷마다 입은 수 · DJ 목록 · 합계
@@ -275,7 +279,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     if (!await store.nonce('kg:' + device + ':' + b.nonce, at + v.NONCE_MS)) throw v.fail(409, '이미 처리한 요청이에요.');
     if (chance() < 0.05) later(store.cleanNonces(at));
     if (v.bytes(JSON.stringify(b.payload ?? null)) > v.MAX_PAYLOAD_BYTES) throw v.fail(413, '올릴 내용이 너무 커요.');
-    const snap = v.snapshot(b.payload);
+    // 시즌 2(2026-11-15): v3(몬스터) 를 받고, 시즌 1 v2(옷)는 2026-12-01 0시(한국)부터 받지 않는다(lib.ts snapshot)
+    const snap = v.snapshot(b.payload, at, v2Until);
     if (chance() < 0.02) later(store.expire(at - v.KEEP_MS));
     let found = await store.pageByDevice(device);
     // 끄면(또는 키우기를 끄면) 내용만 지운다. 주소·캐릭터 이름은 이 기기에 그대로 묶어 둔다(다시 켜면 같은 주소).
@@ -323,7 +328,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       const url = new URL(req.url);
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
-        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
+        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, s2: true, v2Until: Number.isFinite(v2Until) ? new Date(v2Until).toISOString() : null, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);
         if (route === 'person') return await person(url, req);

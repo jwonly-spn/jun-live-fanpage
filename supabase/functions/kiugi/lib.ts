@@ -13,7 +13,12 @@ export const fail = (status: number, message: string, extra?: Record<string, unk
 
 export const PREFIX = 'JUN-LIVE-KIUGI/1';
 export const ACTIONS = ['upload'];
-export const PAYLOAD_VERSION = 2;
+// 올리기 판(2026-11-15 시즌 2): v3 = 시즌 2 몬스터(아이디·대표·몬스터 종류·단계·레벨만 — 닉네임 없음) · v2 = 시즌 1 옷(2026-12-01 0시(한국)부터 받지 않음)
+export const PAYLOAD_VERSION = 3, V2 = 2;
+export const S2_START = Date.parse('2026-12-01T00:00:00+09:00');
+export const S2_SEASON = { id: 's2', name: '몬스터 영토전', endsAt: '2026-12-31T14:59:59.000Z' };
+// 몬스터: 종류 "<속성>_<두 자리>"(예 fire_01 — 속성 이름표는 먼치킨 season-s2.json 이 정한다), 단계 1~3, 레벨 1 이상 정수. 한 사람 몬스터는 24마리까지(같은 종류는 하나).
+export const MONSTER_SP = /^[a-z]{1,12}_[0-9]{2}$/, MONSTERS_MAX = 24, MONSTER_STAGE_MAX = 3, MONSTER_LV_MAX = 9999;
 // 주소(slug): 헷갈리는 글자(i·l·o·0·1)를 뺀 소문자·숫자 8자. 서버가 처음 올릴 때 만들어 그 기기에 묶는다.
 export const SLUG_ALPHABET = 'abcdefghjkmnpqrstuvwxyz23456789';
 export const SLUG = /^[a-hjkmnp-z2-9]{8}$/;
@@ -131,8 +136,30 @@ export function expField(value: unknown): { exp?: number } {
   const x = isObject(value) ? value.exp : undefined;
   return Number.isSafeInteger(x) && (x as number) >= 1 && (x as number) <= EXP_MAX ? { exp: x as number } : {};
 }
+// 시즌 2 몬스터(v3): [{sp, stage, lv}] — 모양이 틀린 줄은 그 줄만 뺀다, 같은 종류는 처음 것만.
+export type Monster = { sp: string; stage: number; lv: number };
+export function monsters(value: unknown): Monster[] {
+  const out: Monster[] = [], seen = new Set<string>();
+  for (const m of Array.isArray(value) ? value : []) {
+    if (out.length >= MONSTERS_MAX) break;
+    if (!isObject(m) || typeof m.sp !== 'string' || !MONSTER_SP.test(m.sp) || seen.has(m.sp)) continue;
+    const stage = m.stage, lv = m.lv;
+    if (!Number.isSafeInteger(stage) || (stage as number) < 1 || (stage as number) > MONSTER_STAGE_MAX) continue;
+    if (!Number.isSafeInteger(lv) || (lv as number) < 1 || (lv as number) > MONSTER_LV_MAX) continue;
+    seen.add(m.sp); out.push({ sp: m.sp, stage: stage as number, lv: lv as number });
+  }
+  return out;
+}
+// 밖으로 내보낼 몬스터 칸: v3 사람이면 {lead(대표 — 가진 몬스터일 때만, 아니면 null), monsters}, 시즌 1 사람이면 칸이 없다
+export function monsterField(value: unknown): { lead?: string | null; monsters?: Monster[] } {
+  if (!isObject(value) || !Array.isArray(value.monsters)) return {};
+  const list = monsters(value.monsters);
+  const lead = typeof value.lead === 'string' && list.some((m) => m.sp === value.lead) ? value.lead : null;
+  return { lead, monsters: list };
+}
 // ch = 이 사람이 마지막으로 새로 나타나거나 옷을 바꾼 때(서버 시각). "새로 꾸민 캐릭터" 순서에만 쓰고 밖으로 내보내지 않는다.
-export type Person = { id: string; level: number; love: number; worn: Record<string, string>; titles?: string[]; pets?: Record<string, number>; pet?: { id: string; stage: number }; motion?: string; exp?: number; k: string; ch?: number };
+// 시즌 2(v3) 사람은 worn {} · love 0 · level = 가장 높은 몬스터 레벨(찾기 순서용) + lead·monsters.
+export type Person = { id: string; level: number; love: number; worn: Record<string, string>; titles?: string[]; pets?: Record<string, number>; pet?: { id: string; stage: number }; motion?: string; exp?: number; lead?: string | null; monsters?: Monster[]; k: string; ch?: number };
 // 청취자 한 줄 → {id, level, love, worn, titles?, k}. 이 칸만 새로 만들어 담는다(보낸 줄의 다른 칸은 버린다). 칭호가 없으면 titles 칸도 없다.
 // 모양이 이상한 줄(아이디 모양이 아니거나 뒤 이름이 이 캐릭터가 아님 등)은 그 줄만 뺀다(한 사람 때문에 전체가 막히지 않게).
 export function person(value: unknown, characterName: string): Person | null {
@@ -144,18 +171,28 @@ export function person(value: unknown, characterName: string): Person | null {
   const t = titles(value.titles);
   return { id, level: level as number, love: love as number, worn: worn(value.worn), ...(t.length ? { titles: t } : {}), ...petsField(value), ...motionField(value), ...expField(value), k: searchKey(id) };
 }
+// 시즌 2 청취자 한 줄(v3) → {id, level, love:0, worn:{}, lead, monsters, k}. 아이디·대표·몬스터만 담는다(닉네임 등 다른 칸은 버린다). 아이디 모양이 틀리면 null.
+export function personV3(value: unknown, characterName: string): Person | null {
+  if (!isObject(value)) return null;
+  const id = listenerId(value.id, characterName);
+  if (!id) return null;
+  const f = monsterField({ lead: value.lead, monsters: Array.isArray(value.monsters) ? value.monsters : [] });
+  const level = Math.max(1, ...(f.monsters || []).map((m) => m.lv));
+  return { id, level, love: 0, worn: {}, lead: f.lead ?? null, monsters: f.monsters || [], k: searchKey(id) };
+}
 const titlesOf = (p: { titles?: unknown }) => { const t = titles(p.titles); return t.length ? { titles: t } : {}; };
 // 밖으로 내보내는 한 사람: {rank, id, level, worn, titles?, pets?, pet?, motion?, exp?, hearts?}. 애정도 숫자는 SHOW_LOVE 가 true 일 때만(스푼 답을 기다리는 동안 숨김 — 순서는 그대로 애정도 순).
-export function publicPerson(p: Pick<Person, 'id' | 'level' | 'love' | 'worn' | 'titles' | 'pets' | 'pet' | 'motion' | 'exp'>, rank: number, hearts?: number) {
-  const out: Record<string, unknown> = { rank, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p) };
+export function publicPerson(p: Pick<Person, 'id' | 'level' | 'love' | 'worn' | 'titles' | 'pets' | 'pet' | 'motion' | 'exp' | 'lead' | 'monsters'>, rank: number, hearts?: number) {
+  const out: Record<string, unknown> = { rank, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p), ...monsterField(p) };
   if (SHOW_LOVE) out.love = p.love;
   if (hearts !== undefined) out.hearts = hearts;
   return out;
 }
 // 메인 페이지·전체 찾기의 카드 한 장: {slug, djName, id, level, worn, titles?, pet?, motion?, exp?, hearts} — 카드에는 함께하는 펫만
 const petOf = (p: { pets?: unknown; pet?: unknown }) => { const f = petsField(p); return f.pet ? { pet: f.pet } : {}; };
-export const card = (p: Pick<Person, 'id' | 'level' | 'worn' | 'titles' | 'pets' | 'pet' | 'motion' | 'exp'>, slug: string, djName: string, hearts: number) =>
-  ({ slug, djName, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petOf(p), ...motionField(p), ...expField(p), hearts });
+//  시즌 2(2026-11-15): 몬스터를 가진 사람(v3)은 카드에 대표·몬스터도(lead · monsters) — 사이트 아이디 찾기가 카드만으로 몬스터를 그린다
+export const card = (p: Pick<Person, 'id' | 'level' | 'worn' | 'titles' | 'pets' | 'pet' | 'motion' | 'exp' | 'lead' | 'monsters'>, slug: string, djName: string, hearts: number) =>
+  ({ slug, djName, id: p.id, level: p.level, worn: isObject(p.worn) ? p.worn : {}, ...titlesOf(p), ...petOf(p), ...motionField(p), ...expField(p), ...monsterField(p), hearts });
 
 // 캐릭터 이름 열쇠(사이트 전체에서 하나만): NFC + 영문 소문자
 export const nameKeyOf = (name: string) => String(name ?? '').normalize('NFC').toLowerCase();
@@ -164,15 +201,27 @@ export const nameKeyOf = (name: string) => String(name ?? '').normalize('NFC').t
 // v2 = {enabled:true, v:2, at, paused, main?, season:{id,name,endsAt}|null, character:{name,...}, people:[{id:"밤톨#먼치", level, love, worn, titles?}]}
 //  titles(0.15.63~): 지금 효과가 있는 칭호 id. 예전 판은 보내지 않는다(없으면 칭호 없음).
 // main: 메인 페이지(인기·새로 꾸민·DJ 목록·전체 찾기)에 보일지. 없으면 true. false 여도 DJ 페이지·캐릭터 페이지는 그대로 열린다.
-export function snapshot(value: unknown) {
+// v3(시즌 2, 2026-11-15) = {enabled:true, v:3, at?, paused?, main?, season:'s2' | {id,name,endsAt}, character:{name} | name:"먼치"(아이디 뒤 이름),
+//   people:[{id:"밤톨#먼치", lead:"water_01"|null, monsters:[{sp:"water_01", stage:1~3, lv}]}]} — 청취자 닉네임·냥·경험치는 받지 않는다(줄의 다른 칸은 버린다).
+//  character 는 이름만 남긴다(시즌 2 에는 DJ 캐릭터 모양이 없다). 순서는 보낸 그대로(먼치킨이 정한 순서).
+// now(밀리초)를 주면 시즌 1 v2 는 2026-12-01 0시(한국)부터 받지 않는다(끄기 {enabled:false} 는 그대로 받는다).
+export const V2_CLOSED = '시즌 1이 끝났어요. 먼치킨을 새 버전으로 업데이트하면 시즌 2 몬스터가 올라가요.';
+function seasonV3(value: unknown) {
+  if (value === 's2') return { ...S2_SEASON };
+  if (typeof value === 'string') throw fail(400, '시즌 정보를 확인해 주세요.');
+  return season(value);
+}
+export function snapshot(value: unknown, now?: number, v2Until: number = S2_START) {
   if (!isObject(value)) throw fail(400, '올릴 내용을 확인해 주세요.');
   if (value.enabled === false) return { enabled: false as const };
   // v1(0.15.49~0.15.50)은 스푼에서 받은 청취자 이름을 올렸다 → 2026-10-08 스푼 답변(Open API 정보 서버 저장 불가)으로 받지 않는다.
-  if (value.enabled !== true || value.v !== PAYLOAD_VERSION) throw fail(400, '먼치킨을 새 버전으로 업데이트한 뒤 다시 올려 주세요.');
-  const ch = character(value.character);
-  const se = value.paused === true ? null : season(value.season);
+  if (value.enabled !== true || (value.v !== PAYLOAD_VERSION && value.v !== V2)) throw fail(400, '먼치킨을 새 버전으로 업데이트한 뒤 다시 올려 주세요.');
+  const v3 = value.v === PAYLOAD_VERSION;
+  if (!v3 && typeof now === 'number' && now >= v2Until) throw fail(400, V2_CLOSED);
+  const ch = v3 ? { name: character(isObject(value.character) ? value.character : { name: value.name }).name } : character(value.character);
+  const se = value.paused === true ? null : v3 ? seasonV3(value.season) : season(value.season);
   const list = Array.isArray(value.people) ? value.people : [];
-  const people = se ? list.map((x) => person(x, ch.name)).filter((x): x is Person => x !== null) : [];
+  const people = se ? list.map((x) => (v3 ? personV3(x, ch.name) : person(x, ch.name))).filter((x): x is Person => x !== null) : [];
   // 애정도 높은 순(같으면 보낸 순서 그대로 — 먼저 모은 사람이 앞)
   people.sort((a, b) => b.love - a.love);
   // 같은 아이디가 두 번 오면 애정도 높은(먼저 온) 줄만 남긴다
@@ -180,7 +229,7 @@ export function snapshot(value: unknown) {
   const unique = people.filter((p) => (seen.has(p.k) ? false : (seen.add(p.k), true)));
   const kept = unique.slice(0, MAX_PEOPLE);
   // top 은 서버 안에 저장하는 모양(애정도 포함). 밖으로는 pageOut 이 SHOW_LOVE 에 맞춰 내보낸다.
-  const top = kept.slice(0, TOP).map((p, i) => ({ rank: i + 1, id: p.id, level: p.level, love: p.love, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p) }));
+  const top = kept.slice(0, TOP).map((p, i) => ({ rank: i + 1, id: p.id, level: p.level, love: p.love, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p), ...monsterField(p) }));
   return { enabled: true as const, name: ch.name, nameKey: nameKeyOf(ch.name), main: value.main !== false, character: ch, season: se, people: kept, top, count: kept.length };
 }
 
@@ -192,7 +241,8 @@ export function withChanges(people: Person[], previous: unknown, now: number): P
   for (const p of Array.isArray(previous) ? previous : []) if (p && typeof p.k === 'string') before.set(p.k, p);
   return people.map((p) => {
     const old = before.get(p.k);
-    const same = old && wornKey(old.worn) === wornKey(p.worn) && (expField(old).exp ?? 0) === (p.exp ?? 0) && Number.isSafeInteger(old.ch);
+    // 시즌 2: 대표·몬스터(종류·단계·레벨)가 바뀌어도 새 시각
+    const same = old && wornKey(old.worn) === wornKey(p.worn) && (expField(old).exp ?? 0) === (p.exp ?? 0) && JSON.stringify(monsterField(old)) === JSON.stringify(monsterField(p)) && Number.isSafeInteger(old.ch);
     return { ...p, ch: same ? old.ch : now };
   });
 }
@@ -217,7 +267,7 @@ export function summarize(people: Person[], hearts: Map<string, number> = new Ma
     .filter(({ p }) => heartsOf(p) > 0)
     .sort((a, b) => heartsOf(b.p) - heartsOf(a.p) || a.i - b.i)
     .slice(0, HOME_HOT)
-    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p) }));
+    .map(({ p }) => ({ k: p.k, id: p.id, level: p.level, worn: p.worn, ...titlesOf(p), ...petsField(p), ...motionField(p), ...expField(p), ...monsterField(p) }));
   return { recent, items, hot };
 }
 
