@@ -3,3 +3,7 @@ node_modules/
 .DS_Store
 .claude/
 확인/
+_teaser-assets/
+_teaser-shots/
+TEASER_READY.json
+DESIGN_READY.json

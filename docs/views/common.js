@@ -7,7 +7,7 @@ import { listMine } from '../lib/me.js';
 // 사이트 이름(2026-10-08 사용자: "스푼 DJ 키우기" + 맨 위·아래에 비공식 표시)
 export const BRAND = '스푼 DJ 키우기';
 export const UNOFFICIAL = '스푼 공식 서비스가 아니에요';
-export const DISCLAIMER = '스푼 DJ 키우기는 청취자들이 방송에서 키운 DJ 캐릭터를 모아 보는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
+export const DISCLAIMER = '키우기.com은 먼치킨과 함께하는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
 
 // 앨범·할로윈 디자인(2026-10-18 Codex 시안 → 사용자 "이대로 반영"): 이제 기본 화면이다.
 //  예전 밝은 화면은 주소에 ?design=classic 을 붙이면 그 창에서만 볼 수 있다(비교용). index.html·404.html 의 <html> 에도 처음부터 클래스를 달아 둔다(자료가 오기 전 예전 색이 잠깐 보이지 않게).

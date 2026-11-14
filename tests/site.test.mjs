@@ -51,9 +51,9 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
     assert.equal(r.status, 0, r.stderr);
   }
   // 2026-10-18 새 구조: views/feed.js(큰 사진 카드·DJ 동그라미·내 캐릭터) · lib/me.js(내 캐릭터·연속 방문) · lib/raster.js(캐릭터 사진) · lib/swr.js(서버 답 기억)
-  assert.deepEqual((await readdir(docs + 'views')).sort(), ['album.js', 'cards.js', 'character.js', 'common.js', 'feed.js', 'intro.js', 'items.js', 'kiugi.js']);
+  assert.deepEqual((await readdir(docs + 'views')).sort(), ['album.js', 'cards.js', 'character.js', 'common.js', 'feed.js', 'intro.js', 'items.js', 'kiugi.js', 'teaser.js']);
   // 2026-10-18 R9: lib/kiugi-hd.js(큰 무대·저장하기 고해상도 — 패키지 renderer-hd.js 를 docs/kiugi-hd/ 에서 불러 쓴다)
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-hd.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'text.js', 'try-on.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-hd.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'teaser-map.js', 'teaser-mapcore.js', 'teaser-time.js', 'text.js', 'try-on.js']);
   for (const f of await siteScripts()) {
     const src = await text(f);
     assert.doesNotMatch(src, /views\/(fan|studio|mobile|story|forms|photos)|lib\/(config|days|device|image|photo|samples)\.js/, f);
@@ -65,7 +65,7 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
 test('index.html = 404.html(SPA), 화면 보안 규칙, 첫 화면 글 · 사이트 이름 "스푼 DJ 키우기"와 비공식 표시(맨 위·아래)', async () => {
   const index = await text('index.html');
   assert.equal(await text('404.html'), index);
-  assert.match(index, /<title>스푼 DJ 키우기<\/title>/);
+  assert.match(index, /<title>키우기 시즌 2 · 몬스터 영토전 \| 스푼 DJ 키우기<\/title>/);
   assert.match(index, /스푼 공식 서비스가 아니에요/, '검색 설명에도 비공식');
   assert.match(index, /script-src 'self'/); assert.match(index, /connect-src 'self' https:\/\/aksegkhhugqvvaidgvro\.supabase\.co/);
   // 글꼴(2026-10-09 두 번째 새 디자인): Pretendard — 고정 판(1.3.9)·무결성 해시(SRI), 보안 규칙은 그 CDN 만 더 허용
@@ -105,8 +105,8 @@ test('공유·검색용 머리 정보(2026-10-20): 파비콘(작은 ICO) · 테�
   assert.equal(await text('404.html'), index);
   const meta = (attr, name) => new RegExp(`<meta ${attr}="${name.replace(/[.:]/g, '\\$&')}" content="([^"]*)">`).exec(index)?.[1];
   assert.match(index, /<link rel="icon" href="\/favicon\.ico">/);
-  assert.equal(meta('name', 'theme-color'), '#f4efe8');
-  assert.equal(meta('property', 'og:title'), '스푼 DJ 키우기');
+  assert.equal(meta('name', 'theme-color'), '#f7f5eb');
+  assert.equal(meta('property', 'og:title'), '키우기 시즌 2 · 몬스터 영토전');
   assert.equal(meta('property', 'og:site_name'), '스푼 DJ 키우기');
   assert.match(meta('property', 'og:description'), /비공식 팬 사이트.*스푼 공식 서비스가 아니에요/, '미리보기 글에도 비공식');
   assert.equal(meta('property', 'og:type'), 'website');
@@ -115,8 +115,8 @@ test('공유·검색용 머리 정보(2026-10-20): 파비콘(작은 ICO) · 테�
   assert.deepEqual([meta('property', 'og:image:width'), meta('property', 'og:image:height')], ['1200', '630']);
   // 미리보기 그림 주소 = 서버가 주는 사이트 주소(handler.ts SITE) + og.png — 2026-11-09 부터 https
   const { SITE } = await import('../supabase/functions/kiugi/handler.ts');
-  assert.equal(meta('property', 'og:image'), SITE + 'og.png');
-  const png = await readFile(docs + 'og.png');
+  assert.equal(meta('property', 'og:image'), SITE + 'teaser/og.png');
+  const png = await readFile(docs + 'teaser/og.png');
   assert.equal(png.toString('ascii', 1, 4), 'PNG');
   assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630]);
   assert.ok(png.length < 1024 * 1024, 'og.png 는 1MB 보다 작다');
@@ -184,11 +184,11 @@ test('스푼 연결 페이지(spoon.html)는 그대로 있다', async () => {
   assert.match(html, /스푼이 만든 공식 서비스가 아니에요/, '비공식 표시');
 });
 
-test('앨범·할로윈 디자인이 실제 사이트 기본 화면(2026-10-18 사용자 "이대로 반영"): 미리 보기 포트·design=album 조건 없음 · 처음부터 클래스', async () => {
-  const common = await text('views/common.js');
-  assert.doesNotMatch(common, /5184|design'\) === 'album'/, '미리 보기 조건이 남아 있으면 실제 사이트에는 예전 화면이 나온다');
-  assert.match(common, /design'\) === 'classic'/, '예전 화면은 ?design=classic 으로만');
-  for (const f of ['index.html', '404.html']) assert.match(await text(f), /<html lang="ko" class="album-preview halloween-season">/, f + ': 자료가 오기 전에도 새 디자인 색');
+test('시즌 2 예고가 모든 주소의 기본 화면: 시즌 1 화면과 서버 요청은 진입점에서 제거', async () => {
+  for (const f of ['index.html', '404.html']) assert.match(await text(f), /<html lang="ko" class="s2-teaser">/);
+  const app = await text('app.js');
+  assert.match(app, /renderTeaser/);
+  assert.doesNotMatch(app, /renderIntro|renderKiugi|renderCharacter|renderItems|warmup|api\.js|parseRoute/);
 });
 
 test('공지(docs/notice.json): 모든 화면 맨 위(비공식 한 줄보다 먼저) · 글자로만 · until 지나면·빈 글이면 안 보임 · ×로 닫으면 그 공지는 이 브라우저에서 안 보임', async () => {

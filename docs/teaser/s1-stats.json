@@ -1,0 +1,11 @@
+{
+  "stats": [
+    { "label": "함께한 DJ 방송", "value": 12, "unit": "곳" },
+    { "label": "아이디를 만든 청취자", "value": 59, "unit": "명" },
+    { "label": "지금 입고 있는 옷", "value": 80, "unit": "벌" },
+    { "label": "만난 할로윈 펫", "value": 181, "unit": "마리" },
+    { "label": "키우기.com 에서 받은 하트", "value": 130, "unit": "개" },
+    { "label": "가장 높은 레벨", "value": 10, "prefix": "Lv.", "unit": "" },
+    { "label": "시즌 칭호를 단 청취자", "value": 3, "unit": "명" }
+  ]
+}

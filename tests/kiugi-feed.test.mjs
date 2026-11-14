@@ -422,12 +422,14 @@ test('api.js: 함수 읽기(GET)는 머리글 없이 공개 키를 주소 쿼리
   assert.deepEqual(JSON.parse(calls[3].init.body), { slug: 'abcdefgh', id: '밤톨', token: 'A'.repeat(32) });
 });
 
-test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 오래된 파일(3분 — 2026-10-20 예전 1분)이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 사이트가 서버에 미리 연결(preconnect)', async () => {
+test('api.js: 메인·DJ 페이지 새 답은 미리 만든 답 → 없으면 함수 · 오래된 파일(3분 — 2026-10-20 예전 1분)이면 뒤에서 함수로 이 브라우저 기억만 새로 · 체험 모드는 쓰지 않는다 · 시즌 2 예고는 시즌 1 서버 자료를 미리 받지 않음', async () => {
   const src = await readFile(docs + 'api.js', 'utf8');
   assert.match(src, /viaSnap\(key, 'home\.json', validHome, \(\) => kiugiApi\.home\(\)\)/);
   assert.match(src, /viaSnap\(key, SLUG_RE\.test\(String\(slug\)\) \? `page\/\$\{slug\}\.json` : '', validPage\(slug\), \(\) => kiugiApi\.page\(slug\)\)/);
   assert.match(src, /if \(s\.age > SNAP_STALE_MS\) void live\(\)\.then\(\(v\) => remember\(key, v\)/);
   assert.match(src, /if \(demoNow\(\) \|\| !path\) return live\(\);/);
-  for (const f of ['index.html', '404.html']) assert.match(await readFile(docs + f, 'utf8'), /<link rel="preconnect" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co" crossorigin>/, f);
-  assert.match(await readFile(docs + 'index.html', 'utf8'), /<link rel="preload" href="https:\/\/aksegkhhugqvvaidgvro\.supabase\.co\/storage\/v1\/object\/public\/kg-snap\/home\.json" as="fetch" crossorigin>/, '첫 화면은 메인 미리 만든 답을 HTML 을 읽자마자 받기 시작');
+  for (const f of ['index.html', '404.html']) {
+    const html = await readFile(docs + f, 'utf8');
+    assert.doesNotMatch(html, /<link rel="(?:preconnect|preload)" href="https:\/\/akseg/);
+  }
 });
