@@ -53,7 +53,7 @@ test('모든 화면 모듈을 문법 오류 없이 읽고, 지운 팬페이지 �
   // 2026-10-18 새 구조: views/feed.js(큰 사진 카드·DJ 동그라미·내 캐릭터) · lib/me.js(내 캐릭터·연속 방문) · lib/raster.js(캐릭터 사진) · lib/swr.js(서버 답 기억)
   assert.deepEqual((await readdir(docs + 'views')).sort(), ['album.js', 'cards.js', 'character.js', 'common.js', 'feed.js', 'intro.js', 'items.js', 'kiugi.js', 'teaser.js']);
   // 2026-10-18 R9: lib/kiugi-hd.js(큰 무대·저장하기 고해상도 — 패키지 renderer-hd.js 를 docs/kiugi-hd/ 에서 불러 쓴다)
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-hd.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'teaser-map.js', 'teaser-mapcore.js', 'teaser-time.js', 'text.js', 'try-on.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'hearts.js', 'kiugi-draw.js', 'kiugi-hd.js', 'kiugi-save.js', 'me.js', 'raster.js', 'route.js', 'swr.js', 'teaser-map.js', 'teaser-time.js', 'teaser-war-core.js', 'teaser-war-draw.js', 'teaser-war-sim.js', 'text.js', 'try-on.js']);
   for (const f of await siteScripts()) {
     const src = await text(f);
     assert.doesNotMatch(src, /views\/(fan|studio|mobile|story|forms|photos)|lib\/(config|days|device|image|photo|samples)\.js/, f);
@@ -105,7 +105,7 @@ test('공유·검색용 머리 정보(2026-10-20): 파비콘(작은 ICO) · 테�
   assert.equal(await text('404.html'), index);
   const meta = (attr, name) => new RegExp(`<meta ${attr}="${name.replace(/[.:]/g, '\\$&')}" content="([^"]*)">`).exec(index)?.[1];
   assert.match(index, /<link rel="icon" href="\/favicon\.ico">/);
-  assert.equal(meta('name', 'theme-color'), '#f7f5eb');
+  assert.equal(meta('name', 'theme-color'), '#07080f'); // 2026-11-15 어두운 시즌 2 예고
   assert.equal(meta('property', 'og:title'), '키우기 시즌 2 · 몬스터 영토전');
   assert.equal(meta('property', 'og:site_name'), '스푼 DJ 키우기');
   assert.match(meta('property', 'og:description'), /비공식 팬 사이트.*스푼 공식 서비스가 아니에요/, '미리보기 글에도 비공식');
