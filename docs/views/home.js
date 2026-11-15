@@ -10,7 +10,7 @@ import { MapStage, loadMapArt } from '../lib/map-draw.js';
 import { ID_QUERY, cleanId } from '../lib/route.js';
 import { RING, TYPE, sortMonsters } from '../lib/monsters.js';
 import { nightTop, siteFoot, secHead, ilink, errorBox, loading, SEASON_TITLE } from './common.js';
-import { monsterCtx, monsterArtEl, stageName, typeChip, statLine, soonNote } from './monster-ui.js';
+import { monsterCtx, monsterArtEl, stageName, typeChip, rareChip, statLine, soonNote } from './monster-ui.js';
 
 // 차례: 지도(화면 가득) → 바로 아래 아이디 찾기 → 땅 순위·지도 소식 → 땅을 넓히는 법
 export const HOME_SECTIONS = ['mapHero', 'findSection', 'boardSection', 'howSection'];
@@ -156,7 +156,7 @@ export function personCard(app, ctx, p) {
       h('span', { class: 's2-badge' }, '대표 몬스터'),
       h('p', { class: 's2-mon-name' }, stageName(ctx, lead.sp, lead.stage)),
       h('p', { class: 's2-mon-stat' }, statLine(lead)),
-      typeChip(lead.sp.split('_')[0]), soonNote(ctx, lead.sp, lead.stage))) : h('p', { class: 'note' }, '대표 몬스터를 아직 정하지 않았어요. 방송에서 !대표 이름 으로 정해요.');
+      h('p', { class: 's2-chips' }, typeChip(lead.sp.split('_')[0]), rareChip(ctx, lead.sp)), soonNote(ctx, lead.sp, lead.stage))) : h('p', { class: 'note' }, '대표 몬스터를 아직 정하지 않았어요. 방송에서 !대표 이름 으로 정해요.');
   return h('article', { class: 's2-person' }, head, leadBox,
     rest.length ? h('ul', { class: 's2-mon-list', 'aria-label': '그 밖의 몬스터' }, ...rest.map((m) => h('li', { class: 's2-mon-row' },
       monsterArtEl(ctx, m.sp, m.stage, { size: 's' }),

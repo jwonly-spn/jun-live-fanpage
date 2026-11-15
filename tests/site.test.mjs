@@ -105,12 +105,13 @@ test('첫 화면(spec.md 7절): 지도 → 바로 아래 아이디 찾기 → �
   assert.match(draw, /destination-in/, '물감은 땅 모양으로 잘라 바다 위로 넘치지 않는다');
 });
 
-test('도감: 12종 × 3단계 + 보스 6 · 속성별 · 상성 · 산책 길 · ?id= 면 만난 것은 색, 못 만난 것은 그림자', async () => {
+test('도감: 18종 × 3단계 + 보스 6 · 속성별 · 상성 · 산책 길 · 대륙 이야기 · 드문 몬스터 · 설화(접어 둔 칸) · ?id= 면 만난 것은 색, 못 만난 것은 그림자(설화도 잠금)', async () => {
   const dex = await text('views/dex.js');
-  for (const s of ['속성 상성', '자주 만나는 산책 길', '아직 못 만난 몬스터', '약점', 'shadow: Boolean(met)']) assert.ok(dex.includes(s), s);
+  for (const s of ['속성 상성', '자주 만나는 산책 길', '아직 못 만난 몬스터', '약점', 'shadow: Boolean(met)', '대륙 이야기', '설화 읽기', "h('details'", "h('summary'", '만나면 설화를 볼 수 있어요', "'???'"]) assert.ok(dex.includes(s), s);
+  assert.doesNotMatch(dex, /12월 7일|12월 14일|곧 정해져요/, '그림·이름이 모두 나와 예전 안내는 뺐다');
   const ui = await text('views/monster-ui.js');
   assert.match(ui, /loading: 'lazy'/, '몬스터 그림은 화면 가까이 올 때 받는다');
-  assert.match(ui, /곧 진화 모습이 나와요/);
+  assert.match(ui, /곧 진화 모습이 나와요/); assert.match(ui, /드문 몬스터/);
   assert.match(ui, /'manifest\.json'/); assert.match(ui, /'season-s2\.json'/);
 });
 
@@ -143,7 +144,8 @@ test('모양: 보안 규칙상 style 속성을 쓰지 않고(위치·색은 CSSO
   for (const cls of ['kg-unofficial', 'kg-topnote', 'kg-topnote-text', 'kg-topnote-x', 'fp-top', 'fp-logo', 'fp-foot-legal', 'kg-cmd', 'toast',
     's2-map-hero', 's2-map-head', 's2-map-scroll', 's2-map-stage', 's2-canvas', 's2-labels', 's2-label', 's2-col', 's2-map-overlay', 's2-legend', 's2-clock', 's2-prize',
     's2-board', 's2-rank', 's2-rank-row', 's2-feed', 's2-find', 's2-find-form', 's2-input', 's2-person', 's2-lead', 's2-mon-row', 's2-how-card', 's2-cmds', 's2-ring-line',
-    'mon-art', 'mon-ph-ball', 'mon-ph-pips', 'mon-type', 'mon-soon', 's2-dex-banner', 's2-type', 's2-species', 's2-sp', 's2-stages', 's2-growth-list'])
+    'mon-art', 'mon-ph-ball', 'mon-ph-pips', 'mon-type', 'mon-soon', 's2-dex-banner', 's2-type', 's2-species', 's2-sp', 's2-stages', 's2-growth-list',
+    's2-intro', 's2-intro-text', 's2-sp-head', 's2-rare', 's2-chips', 's2-lore', 's2-lore-in', 's2-lore-text', 's2-lore-stages', 's2-lore-stage', 's2-lore-dex', 's2-lore-locked'])
     assert.match(css, new RegExp(`\\.${cls}[\\s{.:,\\[]`), cls);
   assert.match(css, /@media \(prefers-color-scheme: dark\)/);
   for (const f of await siteScripts()) assert.doesNotMatch(await text(f), /\bstyle:\s*['"`]|setAttribute\(\s*['"]style|\.innerHTML\s*=|insertAdjacentHTML/, f + ': style 속성·HTML 글 넣기 없음');

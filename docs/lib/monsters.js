@@ -1,9 +1,11 @@
 // 시즌 2 몬스터 목록·속성·상성·그림 주소 — DOM 없이 동작(노드 시험이 그대로 부른다). 약속 문서 spec.md 2절.
 //  · 속성 6: fire 불 · water 물 · grass 풀 · earth 땅 · wind 바람 · electric 전기
 //  · 상성 고리(왼쪽이 오른쪽에 강함): 물 › 불 › 풀 › 땅 › 전기 › 바람 › 물 — 강하면 ×1.5, 약하면 ×0.75
-//  · 12종(속성마다 2종: fire_01, fire_02 …) × 3단계 + 보스 6(boss_fire …). 이름은 Codex 시안 뒤에 정한다 —
-//    먼치킨 저장소의 season-s2.json 이 사이트로 복사되면(docs/kiugi/season-s2.json) 그 이름을 쓰고, 없으면 자리 이름("불 몬스터 1").
-//  · 그림: docs/kiugi/s2/monster_<속성>_<nn>_<단계>.png · boss_<속성>.png(먼치킨 저장소 app/public/kiugi/s2/ 를 sync-kiugi-site 가 복사,
+//  · 몬스터 목록은 먼치킨 저장소의 season-s2.json(사이트로 복사된 docs/kiugi/season-s2.json)이 정한다 — 2026-11-15 확정: 18종
+//    (속성마다 3종 fire_01 · fire_02 · fire_03, _03 은 "드문 몬스터" rare) × 3단계 + 보스 6(boss_fire …, 이름·그림은 아직 자리).
+//    종마다 이름 · 단계 이름(stageNames) · 동물(animal) · 계열 설화(lore) · 단계마다 도감 글(dex[3]), 맨 위에 대륙 이야기(intro).
+//    파일이 없으면(또는 읽을 몬스터가 하나도 없으면) 자리 목록: 속성마다 3종, 이름 "불 몬스터 1".
+//  · 그림: docs/kiugi/s2/monster_<속성>_<nn>_<단계>.webp(256px 투명) · boss_<속성>.png(먼치킨 저장소 app/public/kiugi/s2/ 를 sync-kiugi-site 가 복사,
 //    어떤 그림이 있는지는 docs/kiugi/manifest.json 의 files.s2). 그림이 없는 단계는 앞 단계 그림 + "곧 진화 모습이 나와요", 하나도 없으면 속성 색 동그라미.
 
 export const TYPES = [
@@ -39,38 +41,56 @@ export function speciesOf(sp) {
   const m = SP.exec(String(sp ?? ''));
   return m ? { sp: m[0], type: m[1], nn: m[2], known: Boolean(TYPE[m[1]]) } : null;
 }
-// 기본 목록(자리 이름)
+// 한 종(자리 이름) — 설화·도감 글은 비어 있다
+export const SPECIES_PER_TYPE = 3;
+function blankSpecies(type, nn) {
+  const name = `${TYPE[type].name} 몬스터 ${Number(nn)}`;
+  return { sp: `${type}_${nn}`, type, nn, name, stages: [name, name, name], walk: type, rare: false, animal: '', lore: '', dex: ['', '', ''] };
+}
+// 기본 목록(season-s2.json 이 없을 때): 속성마다 3종 × 3단계 + 보스 6, 자리 이름
 export function defaultCatalog() {
   const species = [], bosses = [];
   for (const t of TYPES) {
-    for (const nn of ['01', '02']) {
-      const name = `${t.name} 몬스터 ${Number(nn)}`;
-      species.push({ sp: `${t.id}_${nn}`, type: t.id, nn, name, stages: [name, name, name], walk: t.id });
-    }
+    for (let i = 1; i <= SPECIES_PER_TYPE; i++) species.push(blankSpecies(t.id, String(i).padStart(2, '0')));
     bosses.push({ id: `boss_${t.id}`, type: t.id, name: `${t.name} 보스` });
   }
-  return { species, bosses, named: false };
+  return { species, bosses, named: false, intro: '' };
 }
 const HIDDEN = new RegExp('[' + [[0x00, 0x1f], [0x7f, 0x9f], [0xad, 0xad], [0x200b, 0x200f], [0x2028, 0x202e], [0x2060, 0x206f], [0xfeff, 0xfeff]].map(([a, b]) => String.fromCharCode(a) + '-' + String.fromCharCode(b)).join('') + ']', 'g');
 const clean = (v, max = 16) => (typeof v === 'string' ? [...v.replace(HIDDEN, '').replace(/\s+/g, ' ').trim()].slice(0, max).join('') : '');
+// 설화·도감 글·대륙 이야기(긴 글 한 문단 — 지금 120~500자)
+export const LORE_MAX = 1200;
+const story = (v) => { const t = typeof v === 'string' ? v : v && typeof v === 'object' ? v.text ?? v.dex : ''; return typeof t === 'string' ? clean(t.replace(/[\r\n\t]+/g, ' '), LORE_MAX) : ''; };
 const entries = (v) => (Array.isArray(v) ? v.map((x) => (x && typeof x === 'object' ? x : null)).filter(Boolean)
   : v && typeof v === 'object' ? Object.entries(v).map(([id, x]) => (typeof x === 'string' ? { id, name: x } : x && typeof x === 'object' ? { id, ...x } : null)).filter(Boolean) : []);
-// season-s2.json(먼치킨 저장소 — 봇 묶음이 만든다)에서 이름을 읽는다. 모양을 넉넉히 받는다:
-//  monsters: [{id|sp:'fire_01', name, stages:['1단계 이름','2단계 이름','3단계 이름'] | names:[…] | stages:[{name}]}] 또는 {fire_01: '이름' | {name, stages}}
-//  bosses: [{id:'boss_fire' | type:'fire', name}] 또는 {boss_fire: '이름'}. 모르는 칸·모르는 몬스터는 버린다.
+// season-s2.json(먼치킨 저장소 — 봇 묶음이 만든다)에서 목록을 읽는다. 모양을 넉넉히 받는다:
+//  monsters: [{id|sp:'fire_01', name, stageNames:['1단계 이름','2단계 이름','3단계 이름'] | stages:[…] | names:[…] | stages:[{name}],
+//             rare?:true, animal?, lore?, dex?:['1단계 도감 글', …]}] 또는 {fire_01: '이름' | {name, stages}}
+//  intro: '대륙 이야기' · bosses: [{id:'boss_fire' | type:'fire', name}] 또는 {boss_fire: '이름'}. 모르는 칸·모르는 속성·같은 id 두 번은 버린다.
+//  목록 = 파일에 있는 몬스터(파일 차례 그대로). 읽을 몬스터가 하나도 없으면 자리 목록(defaultCatalog).
+export const SPECIES_MAX = 60;
 export function readCatalog(json) {
   const out = defaultCatalog();
   if (!json || typeof json !== 'object') return out;
-  const bySp = new Map(out.species.map((s) => [s.sp, s]));
+  const species = [], seen = new Set();
   for (const m of entries(json.monsters)) {
-    const s = bySp.get(m.id ?? m.sp);
-    if (!s) continue;
+    const info = speciesOf(m.id ?? m.sp);
+    if (!info?.known || seen.has(info.sp) || species.length >= SPECIES_MAX) continue;
+    seen.add(info.sp);
+    const s = blankSpecies(info.type, info.nn);
     const name = clean(m.name);
     if (name) { s.name = name; s.stages = [name, name, name]; out.named = true; }
-    const list = Array.isArray(m.stages) ? m.stages : Array.isArray(m.names) ? m.names : [];
+    const list = Array.isArray(m.stageNames) ? m.stageNames : Array.isArray(m.stages) ? m.stages : Array.isArray(m.names) ? m.names : [];
     list.slice(0, STAGES).forEach((x, i) => { const n = clean(typeof x === 'string' ? x : x?.name); if (n) { s.stages[i] = n; out.named = true; } });
     if (!name && s.stages[0]) s.name = s.stages[0];
+    s.rare = m.rare === true;
+    s.animal = clean(m.animal);
+    s.lore = story(m.lore);
+    if (Array.isArray(m.dex)) s.dex = [0, 1, 2].map((i) => story(m.dex[i]));
+    species.push(s);
   }
+  if (species.length) out.species = species;
+  out.intro = story(json.intro);
   for (const b of entries(json.bosses)) {
     const type = TYPE[b.type] ? b.type : String(b.id ?? '').replace(/^boss_/, '');
     const boss = out.bosses.find((x) => x.type === type);
@@ -81,7 +101,7 @@ export function readCatalog(json) {
 }
 
 // 그림 이름(spec.md 2절)
-export const monsterFile = (sp, stage) => { const s = speciesOf(sp); return s ? `monster_${s.type}_${s.nn}_${stage}.png` : ''; };
+export const monsterFile = (sp, stage) => { const s = speciesOf(sp); return s ? `monster_${s.type}_${s.nn}_${stage}.webp` : ''; };
 export const bossFile = (type) => `boss_${type}.png`;
 // 있는 그림 이름 모음: docs/kiugi/manifest.json 의 files.s2(없으면 빈 모음 — 모두 동그라미 자리 그림)
 export function artFiles(manifest) {

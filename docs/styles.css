@@ -16,6 +16,7 @@
   --wrap: 1180px; --gutter: 16px; --head-h: 56px;
   --shadow: 0 1px 2px rgba(42, 34, 25, .06), 0 18px 40px -22px rgba(42, 34, 25, .45);
   --ease: cubic-bezier(.2, .7, .2, 1);
+  --rare: #7a5806; --rare-soft: rgba(184, 134, 11, .15); --rare-line: rgba(184, 134, 11, .38);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
@@ -27,6 +28,7 @@
     --accent: #e0805f; --accent-2: #f0957a; --accent-text: #f0957a; --accent-soft: rgba(224, 128, 95, .14);
     --good: #8fd39a; --bad: #f19a86;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -22px rgba(0, 0, 0, .8);
+    --rare: #ecc75d; --rare-soft: rgba(214, 165, 29, .16); --rare-line: rgba(214, 165, 29, .4);
   }
 }
 *, *::before, *::after { box-sizing: border-box; }
@@ -257,7 +259,7 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-type-head { display: grid; gap: 2px; margin: 10px 0 12px; }
 .s2-type-head p { margin: 0; font-size: 14px; color: var(--text-2); }
 .s2-walk { display: inline-flex; align-items: center; gap: 6px; }
-.s2-species { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); }
+.s2-species { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 330px), 1fr)); align-items: start; }
 .s2-sp { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-xl); padding: 14px; min-width: 0; display: grid; gap: 8px; align-content: start; }
 .s2-sp h3 { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.03em; }
 .s2-sp.is-unmet h3 { color: var(--text-3); }
@@ -276,8 +278,34 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-growth-list li { display: grid; gap: 1px; padding: 10px 12px; border-radius: var(--r-md); background: var(--bg-2); font-size: 14px; }
 .s2-growth-list b { font-weight: 800; }
 .s2-growth-list span { color: var(--text-2); font-size: 13px; }
+/* 대륙 이야기 · 드문 몬스터 · 설화(2026-11-15 몬스터 이름·그림·설화 확정) */
+.s2-intro-wrap { margin-top: 16px; }
+.s2-intro { padding: 14px 18px 15px; border-radius: var(--r-xl); border: 1px solid var(--line); background: var(--paper); }
+.s2-intro-title { margin: 0 0 4px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--accent-text); }
+.s2-intro-text { margin: 0; max-width: 68ch; font-size: 14.5px; line-height: 1.75; color: var(--text-2); }
+.s2-sp-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
+.s2-sp.is-rare { border-color: var(--rare-line); }
+.s2-rare { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; white-space: nowrap; background: var(--rare-soft); color: var(--rare); }
+.s2-chips { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.s2-lore { border-top: 1px solid var(--line); }
+.s2-lore > summary { display: flex; align-items: center; gap: 6px; min-height: 42px; cursor: pointer; list-style: none; font-size: 14px; font-weight: 800; color: var(--accent-text); border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
+.s2-lore > summary::-webkit-details-marker { display: none; }
+.s2-lore > summary::after { content: ""; margin-left: auto; margin-right: 4px; width: 7px; height: 7px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); transition: transform .2s var(--ease); }
+.s2-lore[open] > summary::after { transform: translateY(2px) rotate(-135deg); }
+.s2-lore > summary:hover { color: var(--accent-2); }
+.s2-lore-mark { font-size: 15px; line-height: 1; }
+.s2-lore-in { display: grid; gap: 10px; padding: 0 0 4px; }
+.s2-lore-text { margin: 0; font-size: 14px; line-height: 1.75; color: var(--text); }
+.s2-lore-stages { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.s2-lore-stages li { padding: 9px 12px; border-radius: var(--r-md); background: var(--bg-2); }
+.s2-lore-stage { margin: 0 0 2px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
+.s2-lore-stage b { font-size: 13.5px; font-weight: 800; }
+.s2-lore-stage small { font-size: 11.5px; color: var(--text-3); }
+.s2-lore-dex { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
+.s2-lore-stages li.is-off b, .s2-lore-stages li.is-off .s2-lore-dex { color: var(--text-3); }
+.s2-lore-locked { margin: 0; padding-top: 8px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); }
 
 @media (prefers-reduced-motion: reduce) {
-  .s2-canvas, .s2-label, .toast, .btn { transition: none; }
+  .s2-canvas, .s2-label, .toast, .btn, .s2-lore > summary::after { transition: none; }
   .s2-label.flash, .spinner { animation: none; }
 }

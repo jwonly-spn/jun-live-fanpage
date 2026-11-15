@@ -123,12 +123,13 @@ export async function demoMap() {
 
 // ---- 몬스터(아이디 찾기) ----
 const M = (sp, stage, lv) => ({ sp, stage, lv });
+// 레벨은 단계와 맞춘다(2단계 = 경험치 4,500 → Lv.17 이상 · 3단계 = 14,000 → Lv.30 이상). _03 은 드문 몬스터.
 export const DEMO_PEOPLE = [
-  { slug: 'nyangdj7', djName: '먼치', id: '밤톨#먼치', lead: 'water_01', monsters: [M('water_01', 2, 14), M('fire_02', 1, 6), M('grass_01', 1, 3)] },
-  { slug: 'nyangdj7', djName: '먼치', id: '사탕요정#먼치', lead: 'electric_01', monsters: [M('electric_01', 3, 22), M('wind_02', 2, 11), M('earth_01', 1, 8), M('water_02', 1, 4)] },
-  { slug: 'nyangdj7', djName: '먼치', id: '구름이#먼치', lead: 'grass_02', monsters: [M('grass_02', 1, 2)] },
-  { slug: 'cookie88', djName: '쿠키', id: '밤톨#쿠키', lead: 'fire_01', monsters: [M('fire_01', 1, 5), M('earth_02', 1, 2)] },
-  { slug: 'cookie88', djName: '쿠키', id: '별빛#쿠키', lead: 'wind_01', monsters: [M('wind_01', 2, 16), M('fire_01', 2, 13), M('water_01', 1, 9), M('grass_01', 1, 7), M('electric_02', 1, 5), M('earth_01', 1, 3)] },
+  { slug: 'nyangdj7', djName: '먼치', id: '밤톨#먼치', lead: 'water_01', monsters: [M('water_01', 2, 18), M('fire_02', 1, 9), M('grass_01', 1, 6), M('grass_03', 1, 4)] },
+  { slug: 'nyangdj7', djName: '먼치', id: '사탕요정#먼치', lead: 'electric_03', monsters: [M('electric_03', 3, 31), M('fire_01', 3, 30), M('wind_02', 2, 19), M('earth_01', 1, 11), M('water_02', 1, 7)] },
+  { slug: 'nyangdj7', djName: '먼치', id: '구름이#먼치', lead: 'grass_02', monsters: [M('grass_02', 1, 3)] },
+  { slug: 'cookie88', djName: '쿠키', id: '밤톨#쿠키', lead: 'fire_01', monsters: [M('fire_01', 1, 8), M('earth_02', 1, 4)] },
+  { slug: 'cookie88', djName: '쿠키', id: '별빛#쿠키', lead: 'wind_01', monsters: [M('wind_01', 2, 21), M('fire_01', 2, 17), M('water_03', 1, 12), M('grass_01', 1, 9), M('electric_02', 1, 6), M('earth_03', 1, 5)] },
 ];
 const key = (s) => String(s ?? '').normalize('NFC').toLowerCase().replace(/\s+/g, '');
 export async function handle(method, path, query = {}) {
