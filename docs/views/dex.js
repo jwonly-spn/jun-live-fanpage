@@ -112,16 +112,19 @@ function speciesCard(ctx, s, met) {
 function loreBox(ctx, s, got, unmet) {
   if (!s.lore && !s.dex.some(Boolean)) return null;
   if (unmet) return h('p', { class: 's2-lore-locked' }, icon('lock', { size: 14 }), '만나면 설화를 볼 수 있어요');
+  // 아직 닿지 않은 단계 이름은 설화·도감 글 속에서도 ???(2026-11-15 — 설화가 마지막 단계 이름을 부르는 글이 많아서). 긴 이름부터 바꾼다.
+  const hide = [1, 2, 3].filter((st) => st > got).map((st) => stageName(ctx, s.sp, st)).filter(Boolean).sort((a, b) => b.length - a.length);
+  const mask = (text) => hide.reduce((t, name) => t.split(name).join('???'), String(text || ''));
   const stages = [1, 2, 3].filter((st) => s.dex[st - 1]).map((st) => {
     const open = st <= got;
     return h('li', { class: open ? '' : 'is-off' },
       h('p', { class: 's2-lore-stage' }, h('b', null, open ? stageName(ctx, s.sp, st) : '???'), h('small', null, `${st}단계`)),
-      h('p', { class: 's2-lore-dex' }, open ? s.dex[st - 1] : '???'));
+      h('p', { class: 's2-lore-dex' }, open ? mask(s.dex[st - 1]) : '???'));
   });
   return h('details', { class: 's2-lore' },
     h('summary', null, h('span', { class: 's2-lore-mark', 'aria-hidden': 'true' }, '📜'), '설화 읽기'),
     h('div', { class: 's2-lore-in' },
-      s.lore ? h('p', { class: 's2-lore-text' }, s.lore) : null,
+      s.lore ? h('p', { class: 's2-lore-text' }, mask(s.lore)) : null,
       stages.length ? h('ol', { class: 's2-lore-stages', 'aria-label': '단계마다 도감 글' }, ...stages) : null));
 }
 

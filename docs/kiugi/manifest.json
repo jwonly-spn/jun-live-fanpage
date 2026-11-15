@@ -1,12 +1,10 @@
 {
   "v": 1,
   "seasons": [
-    "season-s1.json",
     "season-s2.json"
   ],
   "files": {
     "s2": [
-      "continent.webp",
       "monster_earth_01_1.webp",
       "monster_earth_01_2.webp",
       "monster_earth_01_3.webp",
