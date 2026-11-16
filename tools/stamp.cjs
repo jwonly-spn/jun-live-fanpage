@@ -19,9 +19,10 @@ const NO_PRELOAD = new Set(['/mock.js']);
 const NO_PRELOAD_RE = /^\/kiugi\/kiugi-(?:hd|r\d+-(?:hd-data|renderer|renderer-hd|hair-color))\.js$/;
 const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m);
 
-// 미리 받기는 app.js 에서 정적 import 로 실제로 닿는 모듈만(2026-11-16 점검 S9 — 시즌 2 예고 화면이 쓰지 않는 시즌 1 화면 코드 21개를 처음부터 받던 것).
-//  import('./x.js') 처럼 그때그때 부르는 것은 따라가지 않는다(그때 받는다). 표(import map)에는 모든 모듈이 그대로 있다.
-const STATIC_IMPORT = /(?:^|[;\n])\s*(?:import|export)\s+(?:[^'"`;]*?\sfrom\s*)?['"](\.{1,2}\/[^'"]+|\/[^'"]+)['"]/g;
+// 미리 받기는 app.js 에서 import 로 실제로 닿는 모듈만(2026-11-16 점검 S9 — 시즌 2 예고 화면이 쓰지 않는 시즌 1 화면 코드 21개를 처음부터 받던 것).
+//  정적 import · export from 과, 글자로 적은 import('./x.js')(화면을 그때 부르는 사이트 — 시즌 2 사이트 app.js 의 home·dex)를 따라간다.
+//  표(import map)에는 모든 모듈이 그대로 있다.
+const STATIC_IMPORT = /(?:(?:^|[;\n])\s*(?:import|export)\s+(?:[^'"`;]*?\sfrom\s*)?|\bimport\(\s*)['"](\.{1,2}\/[^'"]+|\/[^'"]+)['"]/g;
 function reachable(docs = DOCS, entry = '/app.js') {
   const seen = new Set(), todo = [entry];
   while (todo.length) {
