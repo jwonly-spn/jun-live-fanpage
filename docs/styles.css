@@ -1930,48 +1930,53 @@ html.s2-teaser {
 .s2-teaser p, .s2-teaser h1, .s2-teaser h2, .s2-teaser h3, .s2-teaser figure, .s2-teaser ol, .s2-teaser ul { margin: 0; }
 .s2-teaser ol, .s2-teaser ul { padding: 0; list-style: none; }
 .s2-teaser main { outline: none; }
-.s2-teaser a { color: inherit; }
+/* 링크 글색은 맨 위 기본(a { color: inherit })을 그대로 쓴다 — 예전 .s2-teaser a { color: inherit } 는 금색 단추(.tz-btn-gold)·건너뛰기 링크(.skip)의 글색까지 덮어써 글이 바탕에 묻혔다(2026-11-16 점검 S1). */
 .s2-teaser ::selection { background: var(--tz-gold); color: #120d05; }
 
 /* 맨 위 비공식 줄 · 머리줄 */
-.tz-unofficial { padding: 6px 16px; text-align: center; font-size: 11px; font-weight: 600; letter-spacing: .04em; background: #020205; color: #8d8778; border-bottom: 1px solid var(--tz-line-2); }
+.tz-unofficial { padding: 6px 16px; text-align: center; font-size: 12px; font-weight: 600; background: #020205; color: #8d8778; border-bottom: 1px solid var(--tz-line-2); }
 .tz-top { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 56px; padding: 0 max(20px, env(safe-area-inset-left)); transition: background .3s ease, border-color .3s ease; border-bottom: 1px solid transparent; }
 .tz-top.is-solid { background: rgba(7, 8, 15, .78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom-color: var(--tz-line-2); }
 .tz-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 21px; font-weight: 900; letter-spacing: -.05em; }
 .tz-brand i { width: 14px; height: 14px; rotate: 45deg; border-radius: 3px; background: linear-gradient(135deg, var(--tz-gold-2), var(--tz-gold-3)); box-shadow: 0 0 14px rgba(242, 196, 106, .7); }
 .tz-brand small { font-size: 13px; font-weight: 700; color: var(--tz-dim); letter-spacing: 0; margin-left: -6px; }
 .tz-edition { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #d9d1bd; }
-.tz-edition b { font-size: 10px; letter-spacing: .18em; padding: 4px 8px; border-radius: 999px; color: #160f04; background: linear-gradient(135deg, var(--tz-gold-2), var(--tz-gold)); }
+/* 시즌 표시는 단추처럼 보이지 않게 얇은 테두리만(누르는 곳이 아니다 — S10) */
+.tz-edition b { font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; color: var(--tz-gold-2); border: 1px solid rgba(242, 196, 106, .45); }
+
+/* 예전 주소(시즌 1 캐릭터·DJ 페이지 k/…, 옷 도감 items)로 왔을 때 맨 위 안내(views/teaser.js oldNote — S2) */
+.tz-oldnote { padding: 12px 18px 0; }
+.tz-oldnote-in { max-width: 760px; margin: 0 auto; display: grid; gap: 6px; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255, 214, 140, .4); border-left-width: 4px; background: rgba(255, 196, 90, .08); }
+.tz-oldnote strong { font-size: 16px; font-weight: 900; color: var(--tz-gold-2); }
+.tz-oldnote p { font-size: 14px; line-height: 1.7; color: #e8dfc8; }
+.tz-oldnote-me { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; padding-top: 6px; border-top: 1px solid var(--tz-line-2); }
+.tz-oldnote-me b { padding: 1px 8px; border-radius: 6px; background: rgba(242, 196, 106, .16); color: #fff3d4; font-weight: 800; }
 
 /* ---------- 첫 화면 ---------- */
 .tz-hero { position: relative; overflow: hidden; padding: 28px 18px 84px; min-height: calc(100svh - 84px); isolation: isolate; }
 .tz-sky { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.tz-sky i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .55; }
-.tz-glow-a { width: 70vmax; height: 50vmax; left: 30%; top: -20%; background: radial-gradient(circle, rgba(255, 120, 40, .55), transparent 65%); animation: tz-drift 18s ease-in-out infinite alternate; }
-.tz-glow-b { width: 50vmax; height: 40vmax; left: -20%; bottom: -10%; background: radial-gradient(circle, rgba(70, 90, 255, .35), transparent 65%); animation: tz-drift 22s ease-in-out infinite alternate-reverse; }
-.tz-glow-c { width: 40vmax; height: 30vmax; right: -15%; bottom: 0; background: radial-gradient(circle, rgba(200, 40, 60, .35), transparent 65%); animation: tz-drift 26s ease-in-out infinite alternate; }
-@keyframes tz-drift { to { translate: 6vw 4vh; scale: 1.15; } }
+/* 큰 빛 셋: 흐림 필터·끝없는 움직임 없이 그라데이션만(휴대폰 부담 — S9) */
+.tz-sky i { position: absolute; border-radius: 50%; opacity: .55; }
+.tz-glow-a { width: 70vmax; height: 50vmax; left: 30%; top: -20%; background: radial-gradient(circle, rgba(255, 120, 40, .55), transparent 65%); }
+.tz-glow-b { width: 50vmax; height: 40vmax; left: -20%; bottom: -10%; background: radial-gradient(circle, rgba(70, 90, 255, .35), transparent 65%); }
+.tz-glow-c { width: 40vmax; height: 30vmax; right: -15%; bottom: 0; background: radial-gradient(circle, rgba(200, 40, 60, .35), transparent 65%); }
 .tz-hero::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .5;
   background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 3px); }
 
 .tz-embers { position: absolute; inset: 0; z-index: 1; pointer-events: none; overflow: hidden; }
 .tz-embers i { position: absolute; bottom: -12px; width: 4px; height: 4px; border-radius: 50%; background: #ffc46b; box-shadow: 0 0 10px 2px rgba(255, 140, 40, .75); opacity: 0; animation: tz-rise 9s linear infinite; }
-.tz-embers i:nth-child(1) { left: 4%; animation-delay: 0s; } .tz-embers i:nth-child(2) { left: 11%; animation-delay: 2.4s; animation-duration: 11s; }
-.tz-embers i:nth-child(3) { left: 18%; animation-delay: 5.1s; width: 3px; height: 3px; } .tz-embers i:nth-child(4) { left: 25%; animation-delay: 1.2s; animation-duration: 12s; }
-.tz-embers i:nth-child(5) { left: 31%; animation-delay: 6.6s; } .tz-embers i:nth-child(6) { left: 38%; animation-delay: 3.3s; width: 5px; height: 5px; animation-duration: 10s; }
-.tz-embers i:nth-child(7) { left: 44%; animation-delay: 7.8s; } .tz-embers i:nth-child(8) { left: 50%; animation-delay: .7s; animation-duration: 13s; width: 3px; height: 3px; }
-.tz-embers i:nth-child(9) { left: 57%; animation-delay: 4.2s; } .tz-embers i:nth-child(10) { left: 63%; animation-delay: 8.4s; animation-duration: 11s; }
-.tz-embers i:nth-child(11) { left: 69%; animation-delay: 2s; width: 5px; height: 5px; } .tz-embers i:nth-child(12) { left: 75%; animation-delay: 5.7s; animation-duration: 12s; }
-.tz-embers i:nth-child(13) { left: 81%; animation-delay: 1.6s; } .tz-embers i:nth-child(14) { left: 86%; animation-delay: 6.9s; width: 3px; height: 3px; }
-.tz-embers i:nth-child(15) { left: 91%; animation-delay: 3.8s; animation-duration: 10s; } .tz-embers i:nth-child(16) { left: 96%; animation-delay: 7.2s; }
-.tz-embers i:nth-child(17) { left: 47%; animation-delay: 9.5s; animation-duration: 14s; } .tz-embers i:nth-child(18) { left: 22%; animation-delay: 10.4s; animation-duration: 13s; }
+/* 불씨 10개(예전 18 — S9) */
+.tz-embers i:nth-child(1) { left: 5%; animation-delay: 0s; } .tz-embers i:nth-child(2) { left: 14%; animation-delay: 2.4s; animation-duration: 11s; }
+.tz-embers i:nth-child(3) { left: 24%; animation-delay: 5.1s; width: 3px; height: 3px; } .tz-embers i:nth-child(4) { left: 33%; animation-delay: 1.2s; animation-duration: 12s; }
+.tz-embers i:nth-child(5) { left: 43%; animation-delay: 6.6s; } .tz-embers i:nth-child(6) { left: 52%; animation-delay: 3.3s; width: 5px; height: 5px; animation-duration: 10s; }
+.tz-embers i:nth-child(7) { left: 62%; animation-delay: 7.8s; } .tz-embers i:nth-child(8) { left: 72%; animation-delay: .7s; animation-duration: 13s; width: 3px; height: 3px; }
+.tz-embers i:nth-child(9) { left: 82%; animation-delay: 4.2s; } .tz-embers i:nth-child(10) { left: 92%; animation-delay: 8.4s; animation-duration: 11s; }
 @keyframes tz-rise { 0% { opacity: 0; transform: translate(0, 0) scale(1); } 10% { opacity: .9; } 70% { opacity: .55; } 100% { opacity: 0; transform: translate(40px, -100vh) scale(.4); } }
 
 .tz-hero-in { position: relative; z-index: 2; max-width: 1440px; margin: 0 auto; display: grid; gap: 34px; }
 .tz-hero-copy { display: grid; justify-items: center; text-align: center; gap: 0; }
-.tz-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; letter-spacing: .32em; color: var(--tz-gold); }
-.tz-eyebrow i { width: 26px; height: 1px; background: linear-gradient(90deg, transparent, var(--tz-gold)); }
-.tz-hero h1 { display: grid; margin-top: 14px; }
+/* 제목 위 영어 머리글(KIUGI · SEASON 2)은 바로 아래 「키우기 시즌 2」와 같은 말이라 뺐다(영어 꾸밈은 COMING SOON 한 곳만 — S8) */
+.tz-hero h1 { display: grid; }
 .tz-h1-pre { font-size: clamp(17px, 4.6vw, 24px); font-weight: 800; letter-spacing: -.02em; color: #e7dcc2; }
 .tz-h1-main { margin-top: 6px; font-size: clamp(66px, 19vw, 132px); line-height: .9; font-weight: 900; letter-spacing: -.075em;
   background: linear-gradient(180deg, #fff6dd 0%, #ffd98a 38%, #e09a35 72%, #8a4d14 100%); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent;
@@ -1983,10 +1988,13 @@ html.s2-teaser {
 .tz-countdown[hidden] { display: none; }
 .tz-time { position: relative; display: grid; justify-items: center; padding: 12px 4px 9px; border-radius: 14px; background: linear-gradient(180deg, rgba(255, 255, 255, .07), rgba(255, 255, 255, .02)); border: 1px solid var(--tz-line); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 14px 30px -18px rgba(0, 0, 0, .9); }
 .tz-time strong { font-size: clamp(32px, 9.5vw, 50px); line-height: 1; font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; color: #fff; text-shadow: 0 0 22px rgba(255, 200, 120, .35); }
-.tz-time span { margin-top: 6px; font-size: 11px; font-weight: 800; letter-spacing: .2em; color: var(--tz-gold); }
+.tz-time span { margin-top: 6px; font-size: 13px; font-weight: 700; color: var(--tz-gold); }
 .tz-time + .tz-time::before { content: ':'; position: absolute; left: -7px; top: 13px; font-size: 22px; font-weight: 800; color: rgba(255, 214, 140, .45); }
 .tz-open { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 4px 10px; margin-top: 14px; font-size: 13px; color: var(--tz-dim); }
 .tz-open time { font-weight: 800; color: #efe5cd; letter-spacing: .04em; }
+/* 청취자가 할 일 한 줄(S3) */
+.tz-how { max-width: 30em; margin-top: 16px; padding: 10px 14px; border-radius: 12px; background: rgba(255, 214, 140, .06); border: 1px solid var(--tz-line); font-size: 15px; line-height: 1.6; font-weight: 600; color: #ece3cc; }
+.tz-how code { padding: 1px 7px; border-radius: 6px; background: rgba(242, 196, 106, .16); color: var(--tz-gold-2); font-weight: 800; font-family: inherit; white-space: nowrap; }
 .tz-started { margin-top: 24px; padding: 14px 26px; border-radius: 999px; font-size: 22px; font-weight: 900; color: #160f04; background: linear-gradient(135deg, var(--tz-gold-2), var(--tz-gold)); }
 .tz-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 24px; }
 .tz-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: 12px; text-decoration: none; font-size: 15px; font-weight: 800; letter-spacing: -.02em; transition: transform .2s var(--ease), box-shadow .2s ease, background .2s ease; }
@@ -2004,18 +2012,16 @@ html.s2-teaser {
 @keyframes tz-sheen { from { background-position: 150% 0; } to { background-position: -150% 0; } }
 .tz-war-stage { position: relative; container-type: inline-size; aspect-ratio: 1600 / 1000; border-radius: 10px; overflow: hidden; background: #c9e3f2; }
 .tz-war-vignette { position: absolute; inset: 7px; border-radius: 10px; pointer-events: none; box-shadow: inset 0 0 60px rgba(40, 20, 0, .45); background: radial-gradient(ellipse at 50% 45%, transparent 58%, rgba(30, 14, 0, .32)); }
-.tz-war-hud { position: absolute; top: 16px; left: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; padding: 5px 12px 5px 10px; border-radius: 999px; background: rgba(8, 8, 14, .78); color: #fff; font-size: 12px; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: 0 6px 20px -8px rgba(0, 0, 0, .8); }
-.tz-live { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 900; letter-spacing: .14em; color: #ff8a80; }
-.tz-live i { width: 7px; height: 7px; border-radius: 50%; background: var(--tz-red); box-shadow: 0 0 0 0 rgba(255, 75, 62, .7); animation: tz-ping 1.6s ease-out infinite; }
-.tz-live.is-paused i { animation: none; background: #8a8a8a; }
-@keyframes tz-ping { 70% { box-shadow: 0 0 0 8px rgba(255, 75, 62, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 75, 62, 0); } }
-.tz-war-day { font-size: 14px; font-weight: 900; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
-.tz-war-sample { font-size: 11px; color: #b9b2a2; }
-.tz-war-news { position: absolute; left: 16px; right: 16px; bottom: 16px; z-index: 3; display: grid; gap: 4px; justify-items: start; pointer-events: none; }
-.tz-war-news li { max-width: 100%; padding: 4px 10px; border-radius: 8px; background: rgba(8, 8, 14, .8); color: #f4ead2; font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: tz-news .5s var(--ease); }
+/* 「예시 화면」 표시: 지도 그림 위(밖) 한 줄 — 진짜 방송처럼 보이던 「LIVE」·빨간 깜빡임 대신(S7) */
+.tz-war-hud { display: flex; align-items: center; gap: 10px; margin: 0 0 10px 2px; color: #ece3cc; }
+.tz-live { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--tz-line); background: rgba(255, 255, 255, .04); font-size: 12px; font-weight: 700; color: #d9d1bd; }
+.tz-war-day { font-size: 15px; font-weight: 900; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+/* 지도 소식 줄: 지도 그림 바로 아래(DJ 땅·이름표를 가리지 않게). 줄 수만큼 자리를 미리 잡아 두어 소식이 바뀌어도 아래가 들썩이지 않는다 */
+.tz-war-news { display: grid; gap: 4px; justify-items: start; min-height: calc(2 * 26px + 4px); margin-top: 10px; pointer-events: none; }
+.tz-war-news li { max-width: 100%; padding: 3px 10px; border-radius: 8px; background: rgba(255, 255, 255, .05); border: 1px solid var(--tz-line-2); color: #ece3cc; font-size: 13px; line-height: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: tz-news .5s var(--ease); }
 .tz-war-news li:nth-child(2) { opacity: .75; }
 @keyframes tz-news { from { opacity: 0; transform: translateY(6px); } }
-.tz-war figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 12px; font-size: 12px; color: var(--tz-dim); }
+.tz-war figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 8px; font-size: 12px; color: var(--tz-dim); }
 .tz-war-toggle { min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--tz-line-2); background: rgba(255, 255, 255, .04); color: #d9d1bd; font: inherit; font-weight: 700; cursor: pointer; }
 .tz-war-toggle:disabled { opacity: .55; cursor: default; }
 /* 지도 그리기(MapStage — 시즌 2 사이트와 같은 이름표) */
@@ -2025,22 +2031,23 @@ html.s2-teaser {
 .s2-label { position: absolute; transform: translate(-50%, -50%); text-align: center; color: var(--map-ink); font-weight: 900; line-height: 1.05; letter-spacing: -.02em; white-space: nowrap;
   text-shadow: 0 0 2px var(--map-glow), 0 0 5px rgba(247, 240, 222, .95), 0 0 9px rgba(247, 240, 222, .7); transition: left .6s var(--ease), top .6s var(--ease), translate .3s ease; }
 .s2-label b { display: block; font-weight: 900; }
-.s2-label small { display: block; margin-top: 2px; font-size: max(10px, 1.45cqi); font-weight: 800; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.s2-label small { display: block; margin-top: 2px; font-size: max(12px, 1.45cqi); font-weight: 800; letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .s2-label.up small { color: #2f6b34; }
 .s2-label.down small { color: #9a3a2a; }
 .s2-label.is-tight small { display: none; }
-.s2-col { position: absolute; transform: translate(-50%, -50%); font-size: max(9px, 1.2cqi); font-weight: 700; line-height: 1.25; color: #3a2f22; background: rgba(247, 240, 222, .86); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
+.s2-col { position: absolute; transform: translate(-50%, -50%); font-size: max(12px, 1.2cqi); font-weight: 700; line-height: 1.25; color: #3a2f22; background: rgba(247, 240, 222, .86); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
 .s2-col.is-hidden { visibility: hidden; }
 
-.tz-scroll { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; display: grid; justify-items: center; gap: 6px; text-decoration: none; font-size: 10px; font-weight: 800; letter-spacing: .3em; color: #b8b09c; text-indent: .3em; }
-.tz-scroll i { width: 1px; height: 30px; background: linear-gradient(var(--tz-gold), transparent); animation: tz-drop 1.8s ease-in-out infinite; transform-origin: top; }
+.tz-scroll { position: absolute; left: 50%; bottom: 18px; z-index: 3; translate: -50% 0; display: grid; justify-items: center; gap: 6px; min-width: 48px; text-decoration: none; font-size: 12px; font-weight: 700; color: #b8b09c; }
+/* 아래로 내려가는 선: 처음 세 번만(끝없이 돌지 않게 — S9) */
+.tz-scroll i { width: 1px; height: 30px; background: linear-gradient(var(--tz-gold), transparent); animation: tz-drop 1.8s ease-in-out 3; transform-origin: top; }
 @keyframes tz-drop { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
 /* ---------- 칸 공통 ---------- */
-.tz-sec { position: relative; max-width: 1200px; margin: 0 auto; padding: 96px 18px; }
+.tz-sec { position: relative; max-width: 1200px; margin: 0 auto; padding: 64px 18px; }
 .tz-head { display: grid; justify-items: center; text-align: center; gap: 14px; margin-bottom: 44px; }
-.tz-chapter { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; font-weight: 800; letter-spacing: .28em; color: var(--tz-gold); }
-.tz-chapter b { position: relative; display: grid; place-items: center; width: 32px; height: 32px; font-size: 11px; letter-spacing: 0; color: var(--tz-gold-2); }
+.tz-chapter { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 800; color: var(--tz-gold); }
+.tz-chapter b { position: relative; display: grid; place-items: center; width: 32px; height: 32px; font-size: 12px; letter-spacing: 0; color: var(--tz-gold-2); }
 .tz-chapter b::before { content: ''; position: absolute; inset: 5px; rotate: 45deg; border: 1px solid var(--tz-gold); }
 .tz-head h2 { font-size: clamp(30px, 7.4vw, 56px); line-height: 1.15; font-weight: 900; letter-spacing: -.055em; color: #fff; }
 .tz-head-sub { max-width: 560px; font-size: 15px; line-height: 1.75; color: var(--text-2); }
@@ -2057,23 +2064,26 @@ html.s2-teaser {
 .tz-stat-value span, .tz-stat-prefix { font-size: 16px; font-weight: 800; color: var(--tz-gold); }
 .tz-stat-label { font-size: 13px; font-weight: 600; color: #cfc6b1; }
 .tz-stat-0 { grid-column: 1 / -1; }
-.tz-stamp { position: absolute; right: 18px; top: 72px; rotate: -12deg; padding: 6px 12px; border: 2px solid rgba(255, 110, 80, .55); border-radius: 8px; color: rgba(255, 130, 100, .7); font-size: 12px; font-weight: 900; letter-spacing: .2em; }
+/* 도장: 휴대폰에서는 칸 머리 위 빈 곳(머리글과 겹치지 않게 — S11), 넓은 화면은 아래 @media */
+.tz-stamp { position: absolute; right: 18px; top: 12px; rotate: -12deg; padding: 6px 12px; border: 2px solid rgba(255, 110, 80, .55); border-radius: 8px; color: rgba(255, 130, 100, .7); font-size: 12px; font-weight: 900; }
 .tz-retry { margin-top: 10px; min-height: 40px; padding: 0 16px; border-radius: 10px; border: 1px solid var(--tz-line); background: transparent; color: var(--text); font: inherit; font-weight: 700; cursor: pointer; }
 
-/* 대격변 */
+/* 시즌 2 미리 보기 */
 .tz-shift { padding-top: 40px; }
 .tz-manifesto { display: grid; gap: 10px; }
-.tz-manifesto span { font-size: clamp(20px, 5vw, 30px); font-weight: 700; color: #8b8576; letter-spacing: -.04em; text-decoration: line-through; text-decoration-color: rgba(255, 90, 70, .7); text-decoration-thickness: 2px; }
+/* 시즌 1을 지우는 취소선 대신 이어지는 말(S12) */
+.tz-manifesto span { font-size: clamp(20px, 5vw, 30px); font-weight: 700; color: #c9c0aa; letter-spacing: -.04em; }
 .tz-manifesto strong { font-size: clamp(36px, 9.6vw, 72px); line-height: 1.08; font-weight: 900; letter-spacing: -.065em;
   background: linear-gradient(180deg, #fff, #ffd98a 70%, #e7a64a); -webkit-background-clip: text; background-clip: text; color: transparent; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 24px rgba(255, 170, 70, .28)); }
-.tz-feature, .tz-types, .tz-dex { position: relative; margin-top: 26px; padding: 30px 20px; border-radius: 24px; border: 1px solid var(--tz-line-2); background: linear-gradient(170deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .012)); overflow: hidden; isolation: isolate; }
+/* overflow: clip — 넘친 빛은 자르되 스크롤 칸을 만들지 않아, 넓은 화면에서 글 칸이 화면에 붙어(sticky) 따라온다(S13). clip 을 모르는 브라우저는 hidden */
+.tz-feature, .tz-types, .tz-dex { position: relative; margin-top: 26px; padding: 30px 20px; border-radius: 24px; border: 1px solid var(--tz-line-2); background: linear-gradient(170deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .012)); overflow: hidden; overflow: clip; isolation: isolate; }
 .tz-feature { display: grid; gap: 28px; }
 .tz-feature::before, .tz-types::before { content: ''; position: absolute; z-index: -1; width: 520px; height: 520px; border-radius: 50%; filter: blur(40px); opacity: .5; pointer-events: none; }
 .tz-f-war::before { right: -200px; top: -160px; background: radial-gradient(circle, rgba(255, 110, 50, .45), transparent 65%); }
 .tz-f-boss::before { left: -200px; bottom: -200px; background: radial-gradient(circle, rgba(220, 30, 50, .5), transparent 65%); }
 .tz-f-walk::before { right: -180px; bottom: -220px; background: radial-gradient(circle, rgba(60, 200, 130, .35), transparent 65%); }
 .tz-types::before { left: 30%; top: -260px; background: radial-gradient(circle, rgba(100, 140, 255, .35), transparent 65%); }
-.tz-f-no { font-size: 11px; font-weight: 800; letter-spacing: .26em; color: var(--tz-gold); }
+.tz-f-no { font-size: 13px; font-weight: 800; color: var(--tz-gold); }
 .tz-f-copy { display: grid; align-content: center; gap: 14px; }
 .tz-feature h3, .tz-types h3, .tz-dex h3 { font-size: clamp(25px, 6.4vw, 40px); line-height: 1.2; font-weight: 900; letter-spacing: -.055em; color: #fff; }
 .tz-f-copy > p:not(.tz-f-no), .tz-types-copy > p:last-child, .tz-dex-head > p:last-child { font-size: 15px; line-height: 1.8; color: #c9c0aa; }
@@ -2103,7 +2113,7 @@ html.s2-teaser {
 .tz-msg p { margin-top: 3px; font-size: 14px; line-height: 1.55; white-space: pre-line; color: #e9e4d6; }
 .tz-msg.is-bot { padding: 10px 12px; border-radius: 12px; background: linear-gradient(135deg, rgba(242, 196, 106, .12), rgba(242, 196, 106, .04)); border: 1px solid rgba(242, 196, 106, .22); }
 .tz-msg.is-bot b { color: var(--tz-gold); }
-.tz-msg.is-bot em { font-style: normal; font-size: 9px; letter-spacing: .1em; padding: 1px 5px; border-radius: 4px; background: var(--tz-gold); color: #1a1205; }
+.tz-msg.is-bot em { font-style: normal; font-size: 12px; line-height: 1.4; padding: 0 6px; border-radius: 4px; background: var(--tz-gold); color: #1a1205; }
 .tz-msg.is-user { padding: 0 4px; }
 .tz-msg.is-user p { font-weight: 700; color: #fff; }
 
@@ -2119,11 +2129,11 @@ html.s2-teaser {
 .tz-boss-bar { position: absolute; left: 14px; right: 14px; top: 14px; display: grid; gap: 6px; }
 .tz-boss-bar span { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .tz-boss-bar b { font-size: 14px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255, 60, 40, .9); }
-.tz-boss-bar em { font-style: normal; font-size: 11px; color: #e7a99e; }
+.tz-boss-bar em { font-style: normal; font-size: 12px; color: #e7a99e; }
 .tz-hp { height: 10px; border-radius: 999px; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 120, 100, .4); overflow: hidden; }
 .tz-hp i { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, #ff2d2d, #ff8a3d); box-shadow: 0 0 12px rgba(255, 70, 40, .8); animation: tz-hp 7s ease-in-out infinite; transform-origin: left; }
 @keyframes tz-hp { 0% { transform: scaleX(1); } 18% { transform: scaleX(.86); } 34% { transform: scaleX(.71); } 52% { transform: scaleX(.55); } 70% { transform: scaleX(.3); } 86%, 92% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-.tz-boss-clock { position: absolute; left: 14px; right: 14px; bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 11px; font-weight: 700; color: #e9c7b9; }
+.tz-boss-clock { position: absolute; left: 14px; right: 14px; bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 700; color: #e9c7b9; }
 .tz-boss-clock i { flex: 1; max-width: 40px; height: 1px; background: rgba(255, 150, 120, .5); }
 .tz-boss-clock strong { padding: 3px 10px; border-radius: 8px; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 110, 80, .5); font-size: 15px; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
 
@@ -2137,6 +2147,7 @@ html.s2-teaser {
 .tz-types { display: grid; gap: 22px; }
 .tz-types-copy { display: grid; gap: 12px; }
 .tz-element-list { font-size: 17px; font-weight: 800; letter-spacing: .02em; color: #fff; }
+.tz-el-arrow { margin: 0 .4em; color: var(--tz-gold); }
 .tz-ring { width: min(100%, 380px); height: auto; justify-self: center; overflow: visible; }
 .tz-ring-track { fill: none; stroke: rgba(255, 255, 255, .07); stroke-width: 18; }
 .tz-ring-arc { fill: none; stroke: var(--tz-gold); stroke-width: 2.5; opacity: .8; stroke-dasharray: 6 5; animation: tz-flow 1.6s linear infinite; }
@@ -2144,9 +2155,10 @@ html.s2-teaser {
 .tz-ring-head { fill: var(--tz-gold); }
 .tz-ring-dot { fill: #0e1019; stroke: currentColor; stroke-width: 2.5; filter: drop-shadow(0 0 10px currentColor); }
 .tz-ring-icon { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
-.tz-ring-name { fill: #fff; font-size: 14px; font-weight: 800; font-family: inherit; }
+/* 휴대폰에서 고리가 300px 쯤으로 줄어도 이름이 12px 넘게(그림 단위 18 — S6) */
+.tz-ring-name { fill: #fff; font-size: 18px; font-weight: 800; font-family: inherit; }
 .tz-ring-mid { fill: var(--tz-gold-2); font-size: 40px; font-weight: 900; font-family: inherit; letter-spacing: -.04em; }
-.tz-ring-mid-sub { fill: #a49e8f; font-size: 14px; font-weight: 700; font-family: inherit; }
+.tz-ring-mid-sub { fill: #a49e8f; font-size: 18px; font-weight: 700; font-family: inherit; }
 .tz-fire { color: var(--fire); } .tz-water { color: var(--water); } .tz-grass { color: var(--grass); } .tz-earth { color: var(--earth); } .tz-wind { color: var(--wind); } .tz-electric { color: var(--electric); }
 
 /* 도감 봉인 카드 */
@@ -2163,8 +2175,8 @@ html.s2-teaser {
 .tz-card:nth-child(3n) .tz-card-shadow i { animation-delay: -4s; }
 @keyframes tz-morph { 50% { border-radius: 58% 42% 50% 50% / 46% 54% 46% 54%; transform: translateY(-4px) scale(1.03); } }
 .tz-card-shadow b { position: relative; font-size: 42px; font-weight: 900; color: color-mix(in srgb, currentColor 80%, #fff); text-shadow: 0 0 18px currentColor; }
-.tz-card p { position: relative; display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: #bdb4a0; }
-.tz-card p strong { font-size: 11px; font-weight: 900; letter-spacing: .2em; color: currentColor; }
+.tz-card p { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 6px; font-size: 12px; color: #bdb4a0; }
+.tz-card p strong { font-size: 12px; font-weight: 900; color: currentColor; }
 
 /* 1등 보상 */
 .tz-prize { padding: 40px 18px 90px; }
@@ -2189,23 +2201,28 @@ html.s2-teaser {
 .tz-schedule b { font-size: 13px; font-weight: 900; color: var(--tz-gold-2); font-variant-numeric: tabular-nums; }
 
 /* 냥 안내 · 바닥 */
-.tz-reset { max-width: 900px; margin: 0 auto 70px; padding: 0 18px; display: flex; gap: 14px; align-items: flex-start; }
+/* 냥 삭제 안내: 시즌 1 기록 칸 맨 앞(머리 바로 아래 — S4) */
+.tz-reset { max-width: 760px; margin: 0 auto 28px; display: flex; gap: 14px; align-items: flex-start; }
 .tz-reset > b { flex: none; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: #ff9f2e; color: #1c0f00; font-size: 19px; font-weight: 900; box-shadow: 0 0 20px rgba(255, 150, 40, .5); }
 .tz-reset > div { flex: 1; padding: 16px 18px; border-radius: 14px; border: 1px solid rgba(255, 160, 60, .45); background: rgba(255, 140, 30, .08); }
-.tz-reset strong { display: block; font-size: 13px; letter-spacing: .04em; color: #ffb45e; }
+.tz-reset strong { display: block; font-size: 14px; color: #ffb45e; }
 .tz-reset p { margin-top: 4px; font-size: 15px; line-height: 1.7; font-weight: 700; color: #fff; }
 .tz-footer { display: grid; gap: 6px; justify-items: center; text-align: center; padding: 36px 20px calc(36px + env(safe-area-inset-bottom)); border-top: 1px solid var(--tz-line-2); background: #030306; font-size: 12px; color: #7f7a6d; }
 .tz-footer strong { font-size: 15px; color: #d4cbb5; }
 .tz-footer p { max-width: 560px; line-height: 1.6; }
+.tz-footer small { font-size: 12px; }
 
 /* 나타나기 */
 .tz-anim .tz-head, .tz-anim .tz-feature, .tz-anim .tz-types, .tz-anim .tz-dex, .tz-anim .tz-prize-in, .tz-anim .tz-reset { opacity: 0; transform: translateY(36px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
 .tz-anim .is-in { opacity: 1; transform: none; }
 .tz-anim .tz-msg { opacity: 0; transform: translateY(10px); }
 .tz-anim .is-in .tz-msg { animation: tz-msg .5s var(--ease) forwards; }
-.tz-anim .is-in .tz-msg:nth-child(2) { animation-delay: .7s; } .tz-anim .is-in .tz-msg:nth-child(3) { animation-delay: 1.4s; }
-.tz-anim .is-in .tz-msg:nth-child(4) { animation-delay: 2.1s; } .tz-anim .is-in .tz-msg:nth-child(5) { animation-delay: 2.8s; }
-.tz-anim .is-in .tz-msg:nth-child(6) { animation-delay: 3.5s; }
+/* 채팅은 0.3초씩(예전 0.7초 — 마지막 줄이 2.8초 뒤에야 보였다, S5) */
+.tz-anim .is-in .tz-msg:nth-child(2) { animation-delay: .3s; } .tz-anim .is-in .tz-msg:nth-child(3) { animation-delay: .6s; }
+.tz-anim .is-in .tz-msg:nth-child(4) { animation-delay: .9s; } .tz-anim .is-in .tz-msg:nth-child(5) { animation-delay: 1.2s; }
+.tz-anim .is-in .tz-msg:nth-child(6) { animation-delay: 1.5s; }
+/* 화면 밖 칸의 끝없는 꾸밈 움직임은 멈춘다(views/teaser.js stillOffscreen — S9) */
+.tz-still, .tz-still::before, .tz-still::after, .tz-still *, .tz-still *::before, .tz-still *::after { animation-play-state: paused !important; }
 @keyframes tz-msg { to { opacity: 1; transform: none; } }
 
 /* 넓은 화면 */
@@ -2216,7 +2233,9 @@ html.s2-teaser {
 }
 @media (min-width: 960px) {
   .tz-hero { padding: 36px 40px 96px; }
-  .tz-feature { grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; padding: 56px; }
+  /* 글 칸은 위에서 시작해 화면에 붙어 따라온다(가운데로 내려가 위가 비던 것 — S13) */
+  .tz-feature { grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; padding: 56px; }
+  .tz-f-copy { position: sticky; top: 96px; align-content: start; }
   .tz-f-boss .tz-f-copy { order: 2; }
   .tz-types { grid-template-columns: 1fr 1fr; align-items: center; padding: 56px; }
   .tz-dex { padding: 56px; }
@@ -2225,20 +2244,17 @@ html.s2-teaser {
   .tz-stat-0 { grid-column: span 2; }
   .tz-sec { padding: 130px 40px; }
   .tz-stamp { right: 60px; top: 110px; font-size: 14px; }
-  .tz-war-news li { font-size: 12px; }
 }
 @media (min-width: 1180px) {
   .tz-hero-in { grid-template-columns: minmax(400px, .82fr) 1.4fr; align-items: center; min-height: calc(100svh - 180px); gap: 56px; }
   .tz-hero-copy { justify-items: start; text-align: left; }
   .tz-countdown { width: 100%; max-width: 460px; }
   .tz-open, .tz-cta { justify-content: flex-start; }
-  .tz-war-frame { transform: perspective(1800px) rotateY(-9deg) rotateX(3deg); transition: transform .8s var(--ease); }
-  .tz-war:hover .tz-war-frame { transform: perspective(1800px) rotateY(-3deg) rotateX(1deg); }
+  /* 지도는 기울이지 않는다(지도 글씨가 비뚤어 보이던 것 — S13) */
 }
 @media (max-width: 420px) {
-  .tz-edition { font-size: 0; } .tz-edition b { font-size: 10px; }
-  .tz-war-hud { top: 10px; left: 10px; padding: 4px 10px 4px 8px; }
-  .tz-war-news { left: 10px; right: 10px; bottom: 10px; }
+  .tz-edition { font-size: 0; } .tz-edition b { font-size: 12px; }
+  .tz-war-news { min-height: 26px; }
   .tz-war-news li:nth-child(2) { display: none; }
   .tz-banner { width: 92px; }
 }

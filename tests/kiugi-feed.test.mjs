@@ -331,7 +331,10 @@ test('새로 올린 파일이 바로 보이게(tools/stamp.cjs): 파일 내용 �
   assert.ok(!('/spoon.js' in imports), '스푼 연결 페이지는 따로');
   assert.match(index, /<script type="module" src="\/app\.js\?v=[0-9a-f]{10}"><\/script>/);
   assert.match(index, /<link rel="stylesheet" href="\/styles\.css\?v=[0-9a-f]{10}">/);
-  assert.match(index, /<link rel="modulepreload" href="\/lib\/raster\.js\?v=[0-9a-f]{10}">/);
+  // 미리 받기는 app.js 에서 정적 import 로 닿는 모듈만(2026-11-16 — 시즌 2 예고 화면은 시즌 1 화면 코드를 쓰지 않는다) — 닿는 모듈은 모두 미리 받는다
+  const { reachable, preloadable } = require('../tools/stamp.cjs');
+  const preloaded = [...index.matchAll(/<link rel="modulepreload" href="([^"?]+)\?v=[0-9a-f]{10}">/g)].map((m) => m[1]);
+  assert.deepEqual(preloaded.sort(), [...reachable()].filter(preloadable).sort());
   assert.doesNotMatch(index, /modulepreload" href="\/mock\.js/, '체험용 mock.js 는 미리 받지 않는다');
   // 찍기는 같은 내용이면 그대로(두 번 찍어도 같다) · 지금 파일과 맞게 찍으면 표가 모든 모듈을 담는다
   const p = plan();

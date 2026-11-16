@@ -3,7 +3,8 @@
 //   · <link rel="stylesheet" href="/styles.css?v=<해시>"> · <script type="module" src="/app.js?v=<해시>">
 //   · import map(<script type="importmap">): 화면 모듈마다 "/lib/dom.js" → "/lib/dom.js?v=<해시>" — 모듈끼리 부르는 import('./x.js') 도 이 표를 따른다.
 //     (import map 을 모르는 예전 브라우저는 표를 건너뛰고 예전처럼 받는다.) 보안 규칙(CSP)은 이 표 글 하나만 sha256 으로 허용한다(script-src 'self' 'sha256-…').
-//   · <link rel="modulepreload">: 화면 모듈을 처음부터 한꺼번에 받기 시작한다(모듈이 모듈을 부르는 차례를 기다리지 않게 — 체험용 mock.js 는 빼고).
+//   · <link rel="modulepreload">: 화면 모듈을 처음부터 한꺼번에 받기 시작한다(모듈이 모듈을 부르는 차례를 기다리지 않게 — 체험용 mock.js 는 빼고,
+//     app.js 에서 정적 import 로 닿지 않는 모듈도 빼고 — reachable).
 //  같은 내용이면 다시 써도 그대로(두 번 돌려도 같다). tools/deploy-site.cjs 가 올리기 전에 저절로 부른다.
 // 쓰는 법: node tools/stamp.cjs [--check]   (--check: 바꾸지 않고, 다시 찍어야 하면 1 로 끝난다)
 'use strict';
@@ -17,6 +18,26 @@ const NO_PRELOAD = new Set(['/mock.js']);
 //  (kiugi-hd.js · kiugi-r9-renderer.js · kiugi-r9-renderer-hd.js · kiugi-r9-hair-color.js · kiugi-r9-hd-data.js 같은 이름). 표(import map)에는 그대로 둔다.
 const NO_PRELOAD_RE = /^\/kiugi\/kiugi-(?:hd|r\d+-(?:hd-data|renderer|renderer-hd|hair-color))\.js$/;
 const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m);
+
+// 미리 받기는 app.js 에서 정적 import 로 실제로 닿는 모듈만(2026-11-16 점검 S9 — 시즌 2 예고 화면이 쓰지 않는 시즌 1 화면 코드 21개를 처음부터 받던 것).
+//  import('./x.js') 처럼 그때그때 부르는 것은 따라가지 않는다(그때 받는다). 표(import map)에는 모든 모듈이 그대로 있다.
+const STATIC_IMPORT = /(?:^|[;\n])\s*(?:import|export)\s+(?:[^'"`;]*?\sfrom\s*)?['"](\.{1,2}\/[^'"]+|\/[^'"]+)['"]/g;
+function reachable(docs = DOCS, entry = '/app.js') {
+  const seen = new Set(), todo = [entry];
+  while (todo.length) {
+    const m = todo.pop();
+    if (seen.has(m)) continue;
+    const file = path.join(docs, m.replace(/^\//, ''));
+    if (!fs.existsSync(file)) continue;
+    seen.add(m);
+    const src = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
+    for (const [, spec] of src.matchAll(STATIC_IMPORT)) {
+      const next = spec.startsWith('/') ? spec.split('?')[0] : path.posix.join(path.posix.dirname(m), spec).split('?')[0];
+      if (!seen.has(next)) todo.push(next);
+    }
+  }
+  return seen;
+}
 
 // 화면 모듈(사이트 맨 앞 기준 주소): 맨 위 app.js·api.js·mock.js + lib/ · views/ · kiugi/ 의 .js (spoon.js 는 따로 있는 페이지라 뺀다)
 function modules(docs = DOCS) {
@@ -32,14 +53,14 @@ function modules(docs = DOCS) {
 // 찍을 내용: {css, app, map(import map 글), preload[주소], cspHash}
 function plan(docs = DOCS) {
   const read = (p) => fs.readFileSync(path.join(docs, p.replace(/^\//, '')));
-  const list = modules(docs), imports = {};
+  const list = modules(docs), imports = {}, used = reachable(docs);
   for (const m of list) imports[m] = `${m}?v=${hash(read(m))}`;
   const map = JSON.stringify({ imports });
   return {
     css: `/styles.css?v=${hash(read('/styles.css'))}`,
     app: imports['/app.js'],
     map,
-    preload: list.filter(preloadable).map((m) => imports[m]),
+    preload: list.filter((m) => preloadable(m) && used.has(m)).map((m) => imports[m]),
     cspHash: `'sha256-${crypto.createHash('sha256').update(map).digest('base64')}'`,
   };
 }
@@ -63,7 +84,7 @@ function stamp({ docs = DOCS, check = false, log = console.log } = {}) {
   log(stale ? (check ? '다시 찍어야 해요: node tools/stamp.cjs' : `찍었어요: 모듈 ${p.preload.length + 1}개 · ${p.css}`) : '그대로예요(이미 찍혀 있음).');
   return { stale, plan: p };
 }
-module.exports = { stamp, plan, stampHtml, modules, preloadable };
+module.exports = { stamp, plan, stampHtml, modules, preloadable, reachable };
 
 if (require.main === module) {
   const { stale } = stamp({ check: process.argv.includes('--check') });
