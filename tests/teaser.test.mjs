@@ -132,6 +132,8 @@ test('화면 점검 고침: 나타나기 문턱(2%·화면 아래 10% 미리) ·
   const src = await text('views/teaser.js'), css = await text('styles.css');
   assert.match(src, /classList\.toggle\('tz-still', !e\.isIntersecting\)/);
   assert.match(css, /\.tz-still \*[^{]*\{ animation-play-state: paused !important; \}/);
+  assert.match(css, /\.tz-still \*:not\(\.tz-msg\)/, '채팅 줄 나타나기는 멈춤에서 뺀다(나타나기가 화면에 닿기 전에 시작해도 멈춰 있지 않게)');
+  assert.doesNotMatch(await text('lib/teaser-map.js'), /is-paused|'\.tz-live'/, '빨간 점을 없앴으니 is-paused 바꾸기도 없다');
   const frame = src.slice(src.indexOf("h('div', { class: 'tz-war-frame' }"), src.indexOf("h('figcaption'"));
   assert.ok(!frame.slice(0, frame.indexOf("h('ol'")).includes('tz-war-news') && !frame.includes("'tz-war-hud'"), '소식 줄·예시 표시는 지도 틀 밖(S7)');
   assert.doesNotMatch(css, /animation: tz-ping|animation: tz-drift|rotateY\(-9deg\)/, '빨간 깜빡임·큰 빛 떠다님·지도 기울임 없음');

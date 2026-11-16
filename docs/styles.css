@@ -2221,8 +2221,9 @@ html.s2-teaser {
 .tz-anim .is-in .tz-msg:nth-child(2) { animation-delay: .3s; } .tz-anim .is-in .tz-msg:nth-child(3) { animation-delay: .6s; }
 .tz-anim .is-in .tz-msg:nth-child(4) { animation-delay: .9s; } .tz-anim .is-in .tz-msg:nth-child(5) { animation-delay: 1.2s; }
 .tz-anim .is-in .tz-msg:nth-child(6) { animation-delay: 1.5s; }
-/* 화면 밖 칸의 끝없는 꾸밈 움직임은 멈춘다(views/teaser.js stillOffscreen — S9) */
-.tz-still, .tz-still::before, .tz-still::after, .tz-still *, .tz-still *::before, .tz-still *::after { animation-play-state: paused !important; }
+/* 화면 밖 칸의 끝없는 꾸밈 움직임은 멈춘다(views/teaser.js stillOffscreen — S9).
+   채팅 줄 나타나기(.tz-msg — 한 번만 도는 움직임)는 빼서, 칸이 화면에 닿기 조금 전(REVEAL 아래 10%)에 시작해도 멈춰 있지 않게 */
+.tz-still, .tz-still::before, .tz-still::after, .tz-still *:not(.tz-msg), .tz-still *::before, .tz-still *::after { animation-play-state: paused !important; }
 @keyframes tz-msg { to { opacity: 1; transform: none; } }
 
 /* 넓은 화면 */

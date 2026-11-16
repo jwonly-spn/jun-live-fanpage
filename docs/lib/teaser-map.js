@@ -13,7 +13,6 @@ export async function startMap(root, motion) {
   const stage = new MapStage(host, { art });
   const war = createWar({ land: art?.grid?.land || null });
   const toggle = root.querySelector('.tz-war-toggle'), dayEl = root.querySelector('.tz-war-day'), newsEl = root.querySelector('.tz-war-news');
-  const dot = root.querySelector('.tz-live');
   let timeout = 0, paused = false, visible = true;
 
   function show(animate) {
@@ -39,7 +38,6 @@ export async function startMap(root, motion) {
     toggle.disabled = motion.matches;
     toggle.textContent = motion.matches ? '움직임 줄임' : paused ? '움직임 재생' : '움직임 멈추기';
     toggle.setAttribute('aria-pressed', String(paused || motion.matches));
-    dot.classList.toggle('is-paused', paused || motion.matches);
     schedule();
   }
   show(false);
