@@ -20,7 +20,7 @@ export const NO_MONSTER = '아직 몬스터가 없어요. 방송에서 !산책 �
 export async function renderHome(root, app, route) {
   const main = h('main', { id: 'main', class: 's2-home', tabindex: '-1' });
   const hero = mapHero(app);
-  main.append(hero.el, findSection(app, route.id), hero.board, howSection(app));
+  main.append(hero.el, findSection(app, route.id, route.moved === 'old' ? oldNote(app) : null), hero.board, howSection(app));
   root.replaceChildren(...nightTop(app), main, siteFoot(app, '지도에는 참가한 방송의 이름과 땅 비율·경계·식민지만 보여요. 청취자 정보는 올라가지 않아요.'));
   document.title = `${SEASON_TITLE} · 스푼 DJ 키우기`;
   hero.start();
@@ -113,8 +113,30 @@ function mapHero(app) {
   };
 }
 
+// ---- 시즌 1 주소로 왔을 때(2026-11-16 화면 점검 S2) ----
+// 이 브라우저에 시즌 1 사이트가 저장해 둔 내 캐릭터(kg_mine 목록 · 예전 kg_me 하나)의 아이디만 읽는다 — 고치거나 서버로 보내지 않는다.
+export const OLD_NOTE_TEXT = '시즌 1의 캐릭터 페이지와 옷 도감은 11월 15일에 닫혔어요. 아이디는 시즌 2로 그대로 이어져요. 아래에서 아이디로 내 몬스터를 찾아보세요.';
+export function savedIds(storage) {
+  const out = [];
+  const add = (v) => { const id = cleanId(v && typeof v === 'object' ? v.id : ''); if (ID_QUERY.test(id) && !out.includes(id)) out.push(id); };
+  const read = (k) => { try { return JSON.parse(storage?.getItem?.(k) ?? 'null'); } catch { return null; } };
+  const mine = read('kg_mine');
+  if (Array.isArray(mine)) mine.forEach(add);
+  add(read('kg_me'));
+  return out.slice(0, 12);
+}
+function oldNote(app) {
+  let ids = [];
+  try { ids = savedIds(window.localStorage); } catch { ids = []; }
+  return h('div', { class: 's2-oldnote', role: 'note' },
+    h('p', { class: 's2-oldnote-title' }, '시즌 1 페이지는 닫혔어요'),
+    h('p', null, OLD_NOTE_TEXT),
+    ids.length ? h('p', { class: 's2-oldnote-me' }, h('span', null, '이 브라우저에 저장한 내 아이디'),
+      ...ids.slice(0, 3).map((id) => ilink(app.link({ name: 'home', id }) + '#find', { class: 's2-oldnote-id' }, id))) : null);
+}
+
 // ---- 아이디로 몬스터 찾기 ----
-function findSection(app, startId) {
+function findSection(app, startId, note = null) {
   const input = h('input', { type: 'search', name: 'id', class: 's2-input', placeholder: '아이디 예: 밤톨 또는 밤톨#먼치', autocomplete: 'off', autocapitalize: 'off', spellcheck: 'false', enterkeyhint: 'search', maxlength: '20', 'aria-label': '아이디' });
   const out = h('div', { class: 's2-find-out', 'aria-live': 'polite' });
   let job = 0;
@@ -140,7 +162,7 @@ function findSection(app, startId) {
     h('span', { class: 's2-input-wrap' }, icon('search', { size: 18 }), input),
     h('button', { type: 'submit', class: 'btn btn-accent' }, '찾기'));
   if (startId) { input.value = startId; queueMicrotask(() => run(startId)); }
-  return h('section', { id: 'find', class: 's2-find', 'aria-labelledby': 's2-find-h' },
+  return h('section', { id: 'find', class: 's2-find', 'aria-labelledby': 's2-find-h' }, note,
     secHead('아이디로 몬스터 찾기', '방송에서 !아이디 로 만든 아이디를 넣으면 그 청취자의 몬스터가 나와요.', null, { id: 's2-find-h' }),
     form, out);
 }

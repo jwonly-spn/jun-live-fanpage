@@ -15,20 +15,21 @@ const app = {
   },
 };
 
+// 없는 주소는 잠깐 알림(toast). 시즌 1 주소(old)는 2026-11-16 화면 점검(S2)부터 알림 대신 찾기 칸 맨 위에 남는 안내 + 이 브라우저에 저장한 내 아이디(views/home.js oldNote).
 const MOVED = {
-  old: '시즌 1 화면은 끝났어요. 시즌 2 몬스터 영토전 지도로 왔어요.',
   notfound: '찾는 페이지가 없어서 첫 화면으로 왔어요.',
 };
 
 let token = 0, lastPath = location.pathname + location.search;
 async function render({ scroll = false } = {}) {
   const my = ++token;
-  let route = parseRoute(location.pathname, BASE, location.search);
+  let route = parseRoute(location.pathname, BASE, location.search), moved = null;
   if (route.name === 'old' || route.name === 'notfound') {
-    const why = MOVED[route.name];
-    history.replaceState(null, '', app.link({ name: 'home', id: route.id }) + (route.id ? '#find' : ''));
+    moved = route.name;
+    // 시즌 1 주소는 찾기 칸(#find)으로 — 안내와 아이디 찾기가 거기 있다
+    history.replaceState(null, '', app.link({ name: 'home', id: route.id }) + (route.id || moved === 'old' ? '#find' : ''));
     route = parseRoute(location.pathname, BASE, location.search);
-    import('./lib/dom.js').then(({ toast }) => toast(why)).catch(() => {});
+    if (moved === 'notfound') import('./lib/dom.js').then(({ toast }) => toast(MOVED.notfound)).catch(() => {});
   }
   lastPath = location.pathname + location.search;
   document.body.dataset.route = route.name;
@@ -38,7 +39,7 @@ async function render({ scroll = false } = {}) {
       if (my === token) await renderDex(root, app, route);
     } else {
       const { renderHome } = await import('./views/home.js');
-      if (my === token) await renderHome(root, app, route);
+      if (my === token) await renderHome(root, app, { ...route, moved });
     }
   } catch (e) {
     console.error(e);

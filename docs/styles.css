@@ -6,9 +6,10 @@
   color-scheme: light;
   --bg: #f1ebdf; --bg-2: #e8dfcf; --paper: #fbf7ee; --panel: #fffcf6;
   --line: rgba(60, 45, 25, .13); --line-2: rgba(60, 45, 25, .22);
-  --text: #2a2219; --text-2: #5e5243; --text-3: #776a59;
+  --text: #2a2219; --text-2: #5e5243; --text-3: #6b5f4f; /* 2026-11-16: #776a59 은 종이 바탕(--bg-2)에서 4.0:1 → 4.7:1 */
   --ink: #2a2219; --ink-2: #3d3226; --on-ink: #fbf7ee;
   --accent: #a8402c; --accent-2: #8e3322; --accent-text: #9a3a27; --accent-soft: rgba(168, 64, 44, .1);
+  --on-accent: #fff; /* 강조색 칸(단추·배지) 위 글색 — 어두운 화면에서는 진한 글(아래) */
   --good: #2f6b34; --bad: #9a3a2a;
   --sea: #9fc0d0; --map-ink: #2a2219; --map-glow: rgb(247, 240, 222);
   --r-xl: 22px; --r-lg: 16px; --r-md: 12px; --r-sm: 9px;
@@ -26,6 +27,7 @@
     --text: #efe6d6; --text-2: #c4b6a2; --text-3: #a39580;
     --ink: #efe6d6; --ink-2: #ffffff; --on-ink: #1a1611;
     --accent: #e0805f; --accent-2: #f0957a; --accent-text: #f0957a; --accent-soft: rgba(224, 128, 95, .14);
+    --on-accent: #1a1611; /* 밝은 강조색 위 흰 글은 2.3~2.8:1 이라 진한 글(6.4~8:1) — 2026-11-16 점검 */
     --good: #8fd39a; --bad: #f19a86;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 18px 40px -22px rgba(0, 0, 0, .8);
     --rare: #ecc75d; --rare-soft: rgba(214, 165, 29, .16); --rare-line: rgba(214, 165, 29, .4);
@@ -53,7 +55,7 @@ main { display: block; outline: none; }
 .kg-cmd { font-family: inherit; font-weight: 700; font-size: .92em; padding: 1px 7px; border-radius: 7px; background: rgba(120, 95, 60, .12); color: var(--text); white-space: nowrap; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 46px; padding: 0 20px; border: 1px solid transparent; border-radius: 999px; font-weight: 700; font-size: 15px; line-height: 1; text-decoration: none; white-space: nowrap; transition: background-color .2s ease, border-color .2s ease, transform .15s ease; }
 .btn:active:not(:disabled) { transform: scale(.98); }
-.btn-accent { background: var(--accent); color: #fff; }
+.btn-accent { background: var(--accent); color: var(--on-accent); }
 .btn-accent:hover { background: var(--accent-2); }
 .btn-line { background: var(--panel); border-color: var(--line-2); }
 .btn-line:hover { border-color: var(--accent); }
@@ -65,12 +67,12 @@ main { display: block; outline: none; }
 .error-box p { margin: 0; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 1000; transform: translate(-50%, 16px); max-width: calc(100vw - 32px); padding: 12px 18px; border-radius: var(--r-md); background: var(--ink); color: var(--on-ink); font-weight: 600; font-size: 14px; box-shadow: var(--shadow); opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
-.toast[data-kind="error"] { background: var(--bad); color: #fff; }
+.toast[data-kind="error"] { background: var(--bad); color: var(--on-accent); }
 
 /* ---------- 맨 위: 공지 · 비공식 한 줄 · 머리줄 ---------- */
 .kg-topnote { background: var(--ink); color: var(--on-ink); }
 .kg-topnote-in { max-width: var(--wrap); margin: 0 auto; padding: 8px var(--gutter); display: flex; align-items: center; gap: 10px; }
-.kg-topnote-tag { flex: none; font-size: 12px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #fff; }
+.kg-topnote-tag { flex: none; font-size: 12px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); }
 .kg-topnote-text { margin: 0; flex: 1; font-size: 14px; font-weight: 600; }
 .kg-topnote-x { flex: none; display: grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: inherit; }
 .kg-unofficial { margin: 0; padding: 5px var(--gutter); text-align: center; font-size: 12px; font-weight: 600; color: var(--text-2); background: var(--bg-2); border-bottom: 1px solid var(--line); }
@@ -78,7 +80,7 @@ main { display: block; outline: none; }
 .fp-top-in { max-width: var(--wrap); margin: 0 auto; height: var(--head-h); padding: 0 var(--gutter); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .fp-brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; font-weight: 800; font-size: 16px; letter-spacing: -.03em; min-width: 0; }
 .fp-brand-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.fp-logo { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: #fff; flex: none; }
+.fp-logo { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 10px; background: var(--accent); color: var(--on-accent); flex: none; }
 .fp-logo.small { width: 24px; height: 24px; border-radius: 7px; }
 .fp-actions { display: flex; align-items: center; gap: 4px; }
 .fp-nav { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border-radius: 999px; text-decoration: none; font-weight: 700; font-size: 14px; color: var(--text-2); white-space: nowrap; }
@@ -125,13 +127,13 @@ main { display: block; outline: none; }
 .s2-label { position: absolute; transform: translate(-50%, -50%); text-align: center; color: var(--map-ink); font-weight: 900; line-height: 1.05; letter-spacing: -.02em; white-space: nowrap;
   text-shadow: 0 0 2px var(--map-glow), 0 0 5px rgba(247, 240, 222, .95), 0 0 9px rgba(247, 240, 222, .7); transition: left .6s var(--ease), top .6s var(--ease), translate .3s ease; }
 .s2-label b { display: block; font-weight: 900; }
-.s2-label small { display: block; margin-top: 2px; font-size: max(10px, 1.45cqi); font-weight: 800; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.s2-label small { display: block; margin-top: 2px; font-size: max(12px, 1.45cqi); font-weight: 800; letter-spacing: 0; font-variant-numeric: tabular-nums; }
 .s2-label.up small { color: #2f6b34; }
 .s2-label.down small { color: #9a3a2a; }
 .s2-label.is-tight small { display: none; }
 .s2-label.flash { animation: flash 1.4s ease; }
 @keyframes flash { 0%, 100% { scale: 1; } 30% { scale: 1.35; } 60% { scale: 1.1; } }
-.s2-col { position: absolute; transform: translate(-50%, -50%); font-size: max(9px, 1.2cqi); font-weight: 700; line-height: 1.25; color: #3a2f22; background: rgba(247, 240, 222, .86); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
+.s2-col { position: absolute; transform: translate(-50%, -50%); font-size: max(12px, 1.2cqi); font-weight: 700; line-height: 1.25; color: #3a2f22; background: rgba(247, 240, 222, .86); border-radius: 6px; padding: 1px 6px; white-space: nowrap; }
 .s2-col.is-hidden { visibility: hidden; }
 .s2-map-overlay { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; padding: 16px; pointer-events: none; }
 .s2-map-overlay-in { max-width: 420px; display: grid; gap: 6px; text-align: center; padding: 16px 20px; border-radius: var(--r-lg); background: rgba(251, 247, 238, .9); color: #2a2219; box-shadow: 0 10px 30px -18px rgba(42, 34, 25, .6); }
@@ -168,7 +170,7 @@ main { display: block; outline: none; }
 button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-rank-row.is-top { background: rgba(184, 134, 11, .1); }
 .s2-rank-n { font-weight: 800; color: var(--text-3); text-align: center; }
-.is-top .s2-rank-n { color: #b8860b; }
+.is-top .s2-rank-n { color: var(--rare); } /* 1등 번호: #b8860b 은 밝은 화면에서 3.2:1 */
 .s2-rank-name { min-width: 0; display: grid; }
 .s2-rank-name b { font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .s2-rank-name small { font-size: 12px; color: var(--text-2); }
@@ -181,6 +183,13 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-feed .is-empty { color: var(--text-2); }
 
 /* 아이디 찾기 */
+/* 시즌 1 주소로 왔을 때 찾기 칸 맨 위 안내 + 이 브라우저에 저장한 내 아이디(views/home.js oldNote — 2026-11-16 점검 S2) */
+.s2-oldnote { display: grid; gap: 6px; margin-bottom: 18px; padding: 14px 16px; border-radius: var(--r-lg); border: 1px solid var(--line-2); border-left: 4px solid var(--accent); background: var(--panel); }
+.s2-oldnote p { margin: 0; font-size: 14px; color: var(--text-2); }
+.s2-oldnote .s2-oldnote-title { font-size: 16px; font-weight: 800; color: var(--text); }
+.s2-oldnote-me { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding-top: 6px; border-top: 1px solid var(--line); }
+.s2-oldnote-id { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-text); font-weight: 800; text-decoration: none; }
+.s2-oldnote-id:hover { text-decoration: underline; }
 .s2-find { margin-top: 40px; scroll-margin-top: calc(var(--head-h) + 12px); }
 .s2-find-form { display: flex; flex-wrap: wrap; gap: 8px; }
 .s2-input-wrap { flex: 1 1 240px; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--panel); color: var(--text-2); }
@@ -196,7 +205,7 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-person-dj { margin: 0; font-size: 13px; color: var(--text-2); }
 .s2-lead { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: var(--r-lg); background: var(--bg-2); }
 .s2-lead-text { min-width: 0; display: grid; gap: 3px; justify-items: start; }
-.s2-badge { display: inline-block; font-size: 11px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: #fff; }
+.s2-badge { display: inline-block; font-size: 12px; font-weight: 800; padding: 1px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); }
 .s2-mon-name { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -.035em; }
 .s2-mon-stat { margin: 0; font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums; }
 .s2-mon-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
@@ -266,7 +275,7 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-stages { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .s2-stages li { display: grid; justify-items: center; gap: 2px; text-align: center; min-width: 0; }
 .s2-stages b { font-size: 13px; font-weight: 800; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
-.s2-stages small { font-size: 11px; color: var(--text-3); }
+.s2-stages small { font-size: 12px; color: var(--text-3); }
 .s2-stages li.is-off b { color: var(--text-3); }
 .s2-sp-me { margin: 0; font-size: 12px; font-weight: 800; color: var(--good); }
 .s2-sp.is-boss { background: linear-gradient(160deg, rgba(184, 134, 11, .1), transparent 60%), var(--panel); }
@@ -285,7 +294,7 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-intro-text { margin: 0; max-width: 68ch; font-size: 14.5px; line-height: 1.75; color: var(--text-2); }
 .s2-sp-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 8px; }
 .s2-sp.is-rare { border-color: var(--rare-line); }
-.s2-rare { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 800; white-space: nowrap; background: var(--rare-soft); color: var(--rare); }
+.s2-rare { display: inline-flex; align-items: center; gap: 3px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 800; white-space: nowrap; background: var(--rare-soft); color: var(--rare); }
 .s2-chips { margin: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .s2-lore { border-top: 1px solid var(--line); }
 .s2-lore > summary { display: flex; align-items: center; gap: 6px; min-height: 42px; cursor: pointer; list-style: none; font-size: 14px; font-weight: 800; color: var(--accent-text); border-radius: var(--r-sm); -webkit-tap-highlight-color: transparent; }
@@ -300,7 +309,7 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
 .s2-lore-stages li { padding: 9px 12px; border-radius: var(--r-md); background: var(--bg-2); }
 .s2-lore-stage { margin: 0 0 2px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 6px; }
 .s2-lore-stage b { font-size: 13.5px; font-weight: 800; }
-.s2-lore-stage small { font-size: 11.5px; color: var(--text-3); }
+.s2-lore-stage small { font-size: 12px; color: var(--text-3); }
 .s2-lore-dex { margin: 0; font-size: 13.5px; line-height: 1.65; color: var(--text-2); }
 .s2-lore-stages li.is-off b, .s2-lore-stages li.is-off .s2-lore-dex { color: var(--text-3); }
 .s2-lore-locked { margin: 0; padding-top: 8px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-3); }

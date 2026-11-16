@@ -91,7 +91,7 @@ test('첫 화면(spec.md 7절): 지도 → 바로 아래 아이디 찾기 → �
   const { HOME_SECTIONS } = await import('../docs/views/home.js');
   assert.deepEqual(HOME_SECTIONS, ['mapHero', 'findSection', 'boardSection', 'howSection']);
   const home = await text('views/home.js');
-  assert.match(home, /main\.append\(hero\.el, findSection\(app, route\.id\), hero\.board, howSection\(app\)\)/);
+  assert.match(home, /main\.append\(hero\.el, findSection\(app, route\.id, [^)]*\)[^,]*\), hero\.board, howSection\(app\)\)/, '차례는 그대로(찾기 칸에 시즌 1 주소 안내만 더함 — 2026-11-16)');
   assert.match(home, /readMapFile\(\{ fresh \}\)/); assert.match(home, /visibilitychange/, '화면이 숨으면 쉬고 다시 보이면 읽는다');
   const api = await import('../docs/api.js');
   assert.equal(api.MAP_URL, 'https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/tr-snap/map.json');
@@ -178,4 +178,34 @@ test('공지(docs/notice.json): 모든 화면 맨 위(비공식 한 줄보다 �
   const common = await text('views/common.js');
   assert.match(common, /return \[\s*noticeBar\(app\),\s*h\('p', \{ class: 'kg-unofficial' \}/);
   assert.match(common, /h\('p', \{ class: 'kg-topnote-text' \}, n\.text\)/);
+});
+
+// 2026-11-16 화면 점검(예고 화면 S2·S6 와 같은 고침)
+test('시즌 1 주소로 오면 잠깐 뜨는 알림 대신 찾기 칸 맨 위에 남는 안내 + 이 브라우저에 저장한 내 아이디(읽기만 — 고치거나 보내지 않음)', async () => {
+  const app = await text('app.js');
+  assert.match(app, /moved = route\.name/);
+  assert.match(app, /moved === 'old' \? '#find' : ''/, '시즌 1 주소는 찾기 칸으로');
+  assert.match(app, /renderHome\(root, app, \{ \.\.\.route, moved \}\)/);
+  assert.match(app, /if \(moved === 'notfound'\) import\('\.\/lib\/dom\.js'\)\.then\(\(\{ toast \}\) => toast\(MOVED\.notfound\)\)/, '없는 주소는 예전처럼 알림');
+  const home = await text('views/home.js');
+  assert.match(home, /findSection\(app, route\.id, route\.moved === 'old' \? oldNote\(app\) : null\)/);
+  const { savedIds, OLD_NOTE_TEXT } = await import('../docs/views/home.js');
+  assert.match(OLD_NOTE_TEXT, /11월 15일/);
+  const writes = [];
+  const store = (data) => ({ getItem: (k) => (k in data ? data[k] : null), setItem: (k) => writes.push(k), removeItem: (k) => writes.push(k) });
+  const mine = JSON.stringify([{ slug: 'abcdefgh', id: '밤톨#먼치' }, { slug: 'abcdefgh', id: '<b>' }, { slug: 'bcdefghj', id: '사탕요정#쿠키' }, { slug: 'x', id: '밤톨#먼치' }]);
+  assert.deepEqual(savedIds(store({ kg_mine: mine })), ['밤톨#먼치', '사탕요정#쿠키'], '모양이 맞는 아이디만, 한 번씩');
+  assert.deepEqual(savedIds(store({ kg_me: JSON.stringify({ slug: 'abcdefgh', id: '달무리#먼치' }) })), ['달무리#먼치'], '예전 하나만 기억하던 kg_me 도');
+  assert.deepEqual(savedIds(store({ kg_mine: '{깨진 글' })), []);
+  assert.deepEqual(savedIds(null), []);
+  assert.deepEqual(writes, [], '저장소는 읽기만');
+  const fn = home.slice(home.indexOf('export function savedIds'), home.indexOf('// ---- 아이디로 몬스터 찾기'));
+  assert.doesNotMatch(fn, /fetch|kiugiApi|setItem|removeItem/, '서버에 묻지 않고 저장소를 고치지 않는다');
+  assert.match(await text('styles.css'), /\.s2-oldnote \{/);
+});
+
+test('읽는 글 12px 이상(지도 숫자·식민지 글·배지·단계 글·드문 표시)', async () => {
+  const css = await text('styles.css');
+  const tiny = [...css.matchAll(/font-size: (?:max\()?(\d+(?:\.\d+)?)px/g)].map((m) => Number(m[1])).filter((n) => n > 0 && n < 12);
+  assert.deepEqual(tiny, []);
 });
