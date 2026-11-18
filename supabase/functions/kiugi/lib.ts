@@ -12,7 +12,9 @@ export class Fail extends Error {
 export const fail = (status: number, message: string, extra?: Record<string, unknown>) => new Fail(status, message, extra);
 
 export const PREFIX = 'JUN-LIVE-KIUGI/1';
-export const ACTIONS = ['upload'];
+// 서명한 요청의 action: upload(키우기 페이지) · 보스전 보기(함수 v4, 2026-11-18 — 아래 "보스전 보기")
+export const FIGHT_ACTIONS = ['fight-appear', 'fight-join', 'fight', 'fight-land', 'fight-drop'];
+export const ACTIONS = ['upload', ...FIGHT_ACTIONS];
 // 올리기 판(2026-11-15 시즌 2): v3 = 시즌 2 몬스터(아이디·대표·몬스터 종류·단계·레벨만 — 닉네임 없음) · v2 = 시즌 1 옷(2026-12-01 0시(한국)부터 받지 않음)
 export const PAYLOAD_VERSION = 3, V2 = 2;
 export const S2_START = Date.parse('2026-12-01T00:00:00+09:00');
@@ -364,8 +366,117 @@ export function makeSlug(random: (n: number) => Uint8Array) {
   return out;
 }
 
+// ---- 보스전 보기(함수 v4, 2026-11-18 — 봇 저장소 docs/superpowers/specs/2026-11-18-bossview-design.md "서버") ----
+// 먼치킨 본체(app/desktop/kiugi-fight.cjs)가 보스가 나올 때·참전 수가 바뀔 때·마감에 계산한 싸움 대본·땅 결과를 서명해 올리고, 사이트(키우기.com)가 생중계로 튼다.
+//  한 판 = (기기, 방송 열쇠, 칸 k) 하나. 방송 열쇠 = 봇이 sha256('kg-fight:' + 방송 번호) 16진 앞 32자로 보낸 것(방송 번호 원문은 받지 않는다 — 밖으로도 내보내지 않는다).
+//  대본(FightScript v1 — 봇 app/src/bot/kiugi/fight-script.mjs): 이름은 키우기 아이디("한글 1~6자#캐릭터 이름") 또는 null 만. 아는 칸만 새로 담고 다른 칸(닉네임 같은 것)은 버린다.
+//   사건은 짧은 배열: h[round,i,dmg,e,before,after] · b[round,i,dmg,e,ko,oneShot,hp] · c[round,hp] · a[round,hp,[[i,dmg,e,ko],…]] — e 0·1·2, ko·oneShot 0·1.
+// 크기: 대본 JSON 의 UTF-8 바이트 수(봇 FIGHT_MAX_BYTES·scriptBytes 와 같은 셈) 256KB 까지.
+export const FIGHT_MAX_BYTES = 256 * 1024;
+// 화면 길이 상한(시작 + 90초 = 끝) · 끝난 판은 끝 + 10분까지 대본을 읽을 수 있다(늦게 온 사람에게 결과 한 장면) · 대본이 오지 않은 모집 판은 등장 + 15분에 사라진다
+export const FIGHT_VIEW_MS = 90000, FIGHT_KEEP_MS = 10 * 60000, FIGHT_JOIN_KEEP_MS = 15 * 60000;
+// 모집 마감은 서버 시계로 고쳐 적는다(봇 시계 + 서명 시각과의 차이). 받은 때부터 이만큼 뒤까지만(봇은 60초 + 유예).
+export const FIGHT_JOIN_MAX_MS = 5 * 60000;
+// 기기당 한 시간 쓰기 수
+export const FIGHT_HOURLY = 60;
+// 판 번호: 헷갈리는 글자를 뺀 소문자·숫자 12자(주소 slug 와 같은 글자)
+export const FIGHT_ID = /^[a-hjkmnp-z2-9]{12}$/;
+export const LIVE_KEY = /^[0-9a-f]{32}$/;
+export const FIGHT_NAME_MAX = 20;
+const INT4_MAX = 2147483647;
+// 몬스터·보스 속성(봇 TYPE_IDS — water·fire·grass·earth·electric·wind): 이름표 모양만 본다(새 속성이 생겨도 서버를 고치지 않아도 되게)
+const TYPE_ID = /^[a-z]{1,12}$/;
+const nat = (x: unknown, max = Number.MAX_SAFE_INTEGER): x is number => Number.isSafeInteger(x) && (x as number) >= 0 && (x as number) <= max;
+const BAD_FIGHT = '보스전 내용을 확인해 주세요.', BAD_BOSS = '보스 정보를 확인해 주세요.', BAD_SCRIPT = '보스전 대본을 확인해 주세요.';
+export const BAD_LABEL = '보스전에 올리는 이름은 키우기 아이디만 쓸 수 있어요.', BAD_LAND = '땅 결과를 확인해 주세요.';
+export function makeFightId(random: (n: number) => Uint8Array) {
+  let out = '';
+  while (out.length < 12) for (const b of random(16)) { if (b < 248 && out.length < 12) out += SLUG_ALPHABET[b % 31]; }
+  return out;
+}
+
+// 판 열쇠 {liveKey, k}
+export function fightKey(value: unknown) {
+  if (!isObject(value) || typeof value.liveKey !== 'string' || !LIVE_KEY.test(value.liveKey) || !nat(value.k, INT4_MAX)) throw fail(400, BAD_FIGHT);
+  return { liveKey: value.liveKey, k: value.k as number };
+}
+export function fightJoined(value: unknown) {
+  if (!nat(value, INT4_MAX)) throw fail(400, BAD_FIGHT);
+  return value as number;
+}
+// 보스 {type, name, aoe(광역기 이름), stage(1~)}
+export function fightBoss(value: unknown) {
+  if (!isObject(value)) throw fail(400, BAD_BOSS);
+  const name = clean(value.name, FIGHT_NAME_MAX), aoe = clean(value.aoe, FIGHT_NAME_MAX);
+  if (typeof value.type !== 'string' || !TYPE_ID.test(value.type) || !name || !aoe || !nat(value.stage) || (value.stage as number) < 1) throw fail(400, BAD_BOSS);
+  return { type: value.type, name, aoe, stage: value.stage as number };
+}
+// 땅 결과: {addedPct, pct} | {lostPct, pct} | {capped:true} | {} — % 는 0~100(pct 칸은 꼭 있어야 하고 null 도 된다 — 영토 서버가 내 땅을 주지 않으면 봇의 NaN 이 JSON 에서 null). 다른 칸은 버린다.
+const pctOf = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= 100;
+export function fightLand(value: unknown): Record<string, unknown> {
+  if (!isObject(value)) throw fail(400, BAD_LAND);
+  const now = value.pct === null ? null : pctOf(value.pct) ? value.pct : undefined;
+  if ('capped' in value) { if (value.capped === true) return { capped: true }; throw fail(400, BAD_LAND); }
+  if ('addedPct' in value) { if (pctOf(value.addedPct) && now !== undefined) return { addedPct: value.addedPct, pct: now }; throw fail(400, BAD_LAND); }
+  if ('lostPct' in value) { if (pctOf(value.lostPct) && now !== undefined) return { lostPct: value.lostPct, pct: now }; throw fail(400, BAD_LAND); }
+  return {};
+}
+// 참전 한 줄 {label(키우기 아이디 | null), sp, type, name(몬스터 이름), stage 1~3, lv}
+function fightMember(value: unknown) {
+  if (!isObject(value)) throw fail(400, BAD_SCRIPT);
+  let label: string | null = null;
+  if (value.label !== null && value.label !== undefined) {
+    const s = typeof value.label === 'string' ? value.label.normalize('NFC') : '';
+    if (!FULL_ID.test(s)) throw fail(400, BAD_LABEL);
+    label = s;
+  }
+  const name = clean(value.name, FIGHT_NAME_MAX);
+  if (typeof value.sp !== 'string' || !MONSTER_SP.test(value.sp) || typeof value.type !== 'string' || !TYPE_ID.test(value.type) || !name
+    || !nat(value.stage, MONSTER_STAGE_MAX) || (value.stage as number) < 1 || !nat(value.lv, MONSTER_LV_MAX) || (value.lv as number) < 1) throw fail(400, BAD_SCRIPT);
+  return { label, sp: value.sp, type: value.type, name, stage: value.stage as number, lv: value.lv as number };
+}
+const eff = (x: unknown) => x === 0 || x === 1 || x === 2;
+const bit = (x: unknown) => x === 0 || x === 1;
+function fightEvent(r: unknown, n: number, maxRounds: number): unknown[] {
+  const who = (i: unknown) => nat(i, n - 1);
+  if (Array.isArray(r) && nat(r[1], maxRounds) && (r[1] as number) >= 1) {
+    if (r[0] === 'h' && r.length === 7 && who(r[2]) && nat(r[3]) && eff(r[4]) && nat(r[5]) && nat(r[6])) return r.slice();
+    if (r[0] === 'b' && r.length === 8 && who(r[2]) && nat(r[3]) && eff(r[4]) && bit(r[5]) && bit(r[6]) && nat(r[7])) return r.slice();
+    if (r[0] === 'c' && r.length === 3 && nat(r[2])) return r.slice();
+    if (r[0] === 'a' && r.length === 4 && nat(r[2]) && Array.isArray(r[3]) && r[3].every((h) => Array.isArray(h) && h.length === 4 && who(h[0]) && nat(h[1]) && eff(h[2]) && bit(h[3]))) {
+      return ['a', r[1], r[2], r[3].map((h: unknown[]) => h.slice())];
+    }
+  }
+  throw fail(400, BAD_SCRIPT);
+}
+const posNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x > 0 && x <= 100;
+// 대본 → 저장할 모양 {v:1, boss, team, buff, hp, left, win, rounds, maxRounds, mvp, events, land}.
+//  판 번호·DJ(dj)·칸·시각(appearAt·joinUntil·startAt)은 받지 않는다 — 서버가 채운다(봇이 보낸 DJ 이름을 믿지 않음 · 시각은 서버 시계).
+export function fightScript(value: unknown) {
+  if (!isObject(value) || value.v !== 1 || !Array.isArray(value.team) || !Array.isArray(value.events)) throw fail(400, BAD_SCRIPT);
+  const boss = fightBoss(value.boss);
+  const team = value.team.map(fightMember), n = team.length;
+  const maxRounds = value.maxRounds, rounds = value.rounds;
+  if (!nat(maxRounds, 100) || (maxRounds as number) < 1 || !nat(rounds, maxRounds as number) || !nat(value.hp) || !nat(value.left) || typeof value.win !== 'boolean') throw fail(400, BAD_SCRIPT);
+  let buff = null;
+  if (value.buff !== null && value.buff !== undefined) {
+    const b = value.buff, name = isObject(b) ? clean(b.name, FIGHT_NAME_MAX) : null;
+    if (!isObject(b) || !nat(b.b, 99) || (b.b as number) < 1 || !name || !posNum(b.a) || !posNum(b.h)) throw fail(400, BAD_SCRIPT);
+    buff = { b: b.b as number, name, a: b.a, h: b.h, hero: b.hero === true };
+  }
+  let mvp = null;
+  if (value.mvp !== null && value.mvp !== undefined) {
+    const m = value.mvp;
+    if (!isObject(m) || !nat(m.i, n - 1) || !nat(m.dealt)) throw fail(400, BAD_SCRIPT);
+    mvp = { i: m.i as number, dealt: m.dealt as number };
+  }
+  const events = value.events.map((r) => fightEvent(r, n, maxRounds as number));
+  const land = value.land === null || value.land === undefined ? null : fightLand(value.land);
+  return { v: 1, boss, team, buff, hp: value.hp as number, left: value.left as number, win: value.win, rounds: rounds as number, maxRounds: maxRounds as number, mvp, events, land };
+}
+
 // ---- 서명 ----
-const hex = (b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+const hex =(b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
 export const sha256hex = async (s: string | Uint8Array) => hex(await crypto.subtle.digest('SHA-256', typeof s === 'string' ? enc.encode(s) : s));
 export const decode64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 export const bytes = (s: string) => enc.encode(s).length;

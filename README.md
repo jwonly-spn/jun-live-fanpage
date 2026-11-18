@@ -8,7 +8,7 @@
 - 지도 = 영토 서버(먼치킨 저장소 `server/territory-supabase`)가 올리는 공개 파일 `tr-snap/map.json`(모양은 `API.md` "시즌 2"). 그리기 `docs/lib/map-core.js`(계산 — DOM 없음) · `docs/lib/map-draw.js`(캔버스·이름표·번지듯 바뀌기)
 - 그림 지도: `docs/s2/continent.webp`·`land.png`·`land-grid.json` = `<electron.exe> tools/make-map-art.cjs [continent_s2.png] [land_mask.png]`(Codex 대륙 그림이 바뀌면 다시)
 - 몬스터 그림·시즌 2 목록: `docs/kiugi/`(먼치킨 저장소 `tools/sync-kiugi-site.mjs`로 복사 — 직접 고치지 않기). 없으면 속성 색 동그라미·자리 이름(`docs/lib/monsters.js`)
-- DJ 키우기 서버: Supabase Edge Function `kiugi` (`supabase/functions/kiugi/`) — 올리기 v3(시즌 2 몬스터), 시즌 1 v2 는 2026-12-01 0시(한국)까지만. 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`(이름 하나만·메인 노출·하트)
+- DJ 키우기 서버: Supabase Edge Function `kiugi` (`supabase/functions/kiugi/`) — 올리기 v3(시즌 2 몬스터), 시즌 1 v2 는 2026-12-01 0시(한국)까지만. 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`(이름 하나만·메인 노출·하트) + `supabase/migrations/`(보스전 보기 `kg_fights` — 함수 v4, API.md "보스전 보기")
 - 팬페이지 서비스는 2026-10-08에 마쳤어요. 함수 `fanpage`는 health 말고 모두 410을 돌려줘요(`supabase/functions/fanpage/`). 예전 표 정의 `supabase/schema.sql`·`storage.sql`은 기록으로 남겨 둠(`fp_hit`·`junlive_secrets`는 `kiugi`가 씀)
 - 설계서: `API.md`(맨 위 "바뀐 것", 올리는 순서)
 - 검사: `node --test tests/*.test.mjs` (서버 SQL 검사 `server-schema.test.mjs`는 `PGLITE_ENTRY` 환경 변수로 PGlite 위치 지정). 서버 시험 도우미는 `tests/kiugi-world.mjs`

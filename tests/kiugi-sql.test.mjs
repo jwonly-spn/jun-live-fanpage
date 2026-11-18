@@ -2,6 +2,7 @@
 //  없으면 건너뛴다(server-schema.test.mjs 와 달리 멈추지 않는다). 실제 서버에는 닿지 않는다.
 //  · 7칸 kg_heart(supabase/migrations/20261020_kiugi_heart_ip.sql): 같은 접속 주소 칸이 다 차면 세지 않는다 · 예전 6칸도 그대로 · anon 은 못 부른다
 //  · 옛 함수 권한 거두기(supabase/migrations/20261020_revoke_legacy_definer.sql): 이름 목록의 함수(같은 이름 여럿 포함)만 anon·authenticated·public 에서 거둔다
+//  · 보스전 보기 표(supabase/migrations/20261118_kg_fights.sql): (기기, 방송 열쇠, 칸)마다 한 줄 · phase 모양 · 페이지가 있어야 · RLS · anon 은 못 읽는다
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -62,4 +63,27 @@ test('옛 함수 권한 거두기: 이름 목록의 함수(같은 이름 여럿�
   }
   assert.equal(await can('anon', 'public.keep_me()'), true, '목록에 없는 함수는 그대로');
   assert.equal(await can('service_role', 'public.kg_heart(text, bigint, text, text, text, bigint, text[])'), true, '지금 쓰는 kg_heart 는 그대로');
+});
+
+test('보스전 표 kg_fights: (기기, 방송 열쇠, 칸)마다 한 줄 · phase 는 join·fight·drop · 키우기 페이지(slug)가 있어야 · RLS 켜짐 · anon·authenticated 는 못 읽고 service_role 만 · 두 번 돌려도 된다', { skip }, async () => {
+  const db = await fresh();
+  for (let i = 0; i < 2; i++) await db.exec(sql('migrations/20261118_kg_fights.sql'));
+  const dev = 'a'.repeat(64), lk = 'b'.repeat(32);
+  const ins = (id, k, { slug = 'abcdefgh', phase = 'join', liveKey = lk } = {}) => db.query(
+    `insert into kg_fights(id, device_id, slug, live_key, k, phase, boss, join_until, appear_at, updated, expires)
+     values ($1, $2, $3, $4, $5, $6, '{"type":"fire","name":"불꽃 대왕","aoe":"분화","stage":1}'::jsonb, 1, 1, 1, 2)`, [id, dev, slug, liveKey, k, phase]);
+  await ins('abcdefghjkmn', 3);
+  await assert.rejects(() => ins('abcdefghjkmp', 3), '같은 (기기, 방송 열쇠, 칸)은 한 줄');
+  await ins('abcdefghjkmp', 4);
+  await ins('abcdefghjkmq', 3, { liveKey: 'c'.repeat(32), phase: 'fight' });
+  await assert.rejects(() => ins('abcdefghjkmr', 5, { phase: 'done' }), 'phase 모양');
+  await assert.rejects(() => ins('abcdefghjkms', 5, { slug: 'zzzzzzzz' }), '키우기 페이지가 없는 주소');
+  await assert.rejects(() => ins('ABCDEFGHJKMN', 5), 'id 모양');
+  await assert.rejects(() => ins('abcdefghjkmt', 5, { liveKey: 'B'.repeat(32) }), '방송 열쇠 모양');
+  const row = (await db.query(`select joined, script, land, start_at, end_at from kg_fights where id = 'abcdefghjkmn'`)).rows[0];
+  assert.deepEqual(row, { joined: 0, script: null, land: null, start_at: null, end_at: null });
+  assert.equal((await db.query(`select relrowsecurity r from pg_class where oid = 'public.kg_fights'::regclass`)).rows[0].r, true);
+  const can = async (role, priv) => (await db.query('select has_table_privilege($1, $2, $3) ok', [role, 'public.kg_fights', priv])).rows[0].ok;
+  for (const role of ['anon', 'authenticated']) for (const priv of ['select', 'insert', 'update', 'delete']) assert.equal(await can(role, priv), false, `${role} ${priv}`);
+  for (const priv of ['select', 'insert', 'update', 'delete']) assert.equal(await can('service_role', priv), true, `service_role ${priv}`);
 });
