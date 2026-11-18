@@ -327,38 +327,38 @@
     {
       "id": "boss_fire",
       "type": "fire",
-      "name": "불 보스",
-      "attack": "불꽃 주먹"
+      "name": "화산 두꺼비",
+      "attack": "화구분출"
     },
     {
       "id": "boss_water",
       "type": "water",
-      "name": "물 보스",
-      "attack": "물대포"
+      "name": "심해 크라켄",
+      "attack": "산호해일"
     },
     {
       "id": "boss_grass",
       "type": "grass",
-      "name": "풀 보스",
-      "attack": "덩굴 채찍"
+      "name": "그루각",
+      "attack": "꽃뿔쇄도"
     },
     {
       "id": "boss_earth",
       "type": "earth",
-      "name": "땅 보스",
-      "attack": "바위 던지기"
+      "name": "협곡 들소",
+      "attack": "사암폭풍"
     },
     {
       "id": "boss_wind",
       "type": "wind",
-      "name": "바람 보스",
-      "attack": "회오리"
+      "name": "천해신 벨",
+      "attack": "구름대진군"
     },
     {
       "id": "boss_electric",
       "type": "electric",
-      "name": "전기 보스",
-      "attack": "번개"
+      "name": "뇌우라",
+      "attack": "천둥그물"
     }
   ],
   "walk": {
