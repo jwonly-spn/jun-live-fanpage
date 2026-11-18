@@ -4,16 +4,18 @@
 //   script  = 싸움 대본(FightScript v1 — 봇 fight-script.mjs. events 는 짧은 배열 그대로)
 //             모집 중이면 events 없이 { boss:{type,name,aoe,stage}, joinUntil, joined } 만 → 보스 등장 + 남은 시간 + 참전 수
 //   nameOf  = (member, i) => 이름표 글. 없으면 member.label(사이트: 키우기 아이디 · 봇 탭: 닉네임), 그것도 없으면 몬스터 이름
+//             기본 이름표(nameOf 없음)는 label 의 # 앞만 보인다("솜사탕#먼치" → "솜사탕"). nameOf 가 준 글은 그대로(비면 몬스터 이름)
 //   live    = { startAt(싸움 시작 — 서버 ms), now(서버 시계 ms 를 주는 함수) } → 지금−시작만큼 건너뛰어 그 장면부터. 끝났으면 결과 장면만
 //   land    = 땅 변화(영토 서버 답 — 대본에는 null 로 오고 나중에 따로 온다). 늦게 오면 ctl.setLand(land)
 //   ctl     = { stop, pause, seek, layout, setSound, toggleSound, setMusicVolume, setLand, updateJoin, destroy, duration, marks, time, done, scene, audioState, usingReal, portrait, canvas }
-//   opts 더(11/19 — 휴대폰·스푼 앱 안 창): maxDpr(화면 배율 상한 — 캔버스가 너무 커지지 않게) · particles(0~1, 입자 양 — 약한 기기는 줄임)
+//   opts 더(11/19 — 휴대폰·스푼 앱 안 창. 키우기.com 이 쓴다, 안 주면 예전과 같다): maxDpr(화면 배율 상한 — 캔버스가 너무 커지지 않게) · particles(0~1, 입자 양 — 약한 기기는 줄임)
 //             · audio(makeAudio 로 만든 소리를 밖에서 넘김 — 모집 중 → 싸움으로 장면을 바꿔도 같은 소리 길을 이어 씀. 넘긴 소리는 destroy 가 닫지 않는다)
 //   다시 보기는 없다(사용자 결정 11/18). 모집 중 → 싸움으로 넘어갈 때는 ctl.destroy() 뒤 대본 전체로 playFight 를 다시 부른다.
 // 그림: battle/manifest.json(tools/battle-manifest.mjs 가 만듦)에 있는 도트만 받고, 없는 것은 대신 그림으로:
 //   보스 → ../boss_<속성>.png 를 도트처럼 줄임 · 몬스터 → ../monster_<종>_<단계>.webp 를 도트처럼 줄임 · 배경·발판 → 속성별로 그려 냄
+//   (11/19 본그림 1묶음: 보스 6 · 배경 6 + 발판 pad_<쪽>_<배경>(화산은 pad_<쪽>) · 효과 6 은 진짜 도트가 들어 있다 — 넣기: node tools/kiugi-battle-art-check.mjs <묶음> --넣기)
 // 음악: music/ 의 8bit Action Boss Battle (MintoDog, CC0 — music/source.txt). 소리를 켤 때 비로소 받는다.
-import { TIMING, buildTimeline, liveOffset, sceneAt, landLine } from './timeline.js';
+import { TIMING, buildTimeline, liveOffset, sceneAt, landLine, labelFor } from './timeline.js';
 export { TIMING, buildTimeline, liveOffset, sceneAt } from './timeline.js';
 
 // ── 소리 크기 · 음악 (소리는 처음엔 꺼져 있고, 켤 때 비로소 음악 파일을 받아요) ──
@@ -47,7 +49,8 @@ export const FLIP = {
   front: {},                   // 앞모습(<이름>_front, 들어올 때)
   placeholder: { '*': true },  // 대신 그림을 뒷모습 자리에 쓸 때: 원래 그림이 왼쪽 앞을 봐서 뒤집음
   placeholderFront: {},        // 대신 그림을 앞모습으로 쓸 때(원래 앞모습이라 그대로)
-  boss: {},                    // 보스(왼쪽 = 우리 편을 봐야 함)
+  // 보스(왼쪽 = 우리 편을 봐야 함). 본그림 1묶음(11/19) 여섯 마리는 모두 왼쪽을 보거나(두꺼비·그루각·들소·고래) 정면(크라켄·뇌우라)이라 뒤집지 않는다
+  boss: { boss_fire: false, boss_water: false, boss_grass: false, boss_earth: false, boss_wind: false, boss_electric: false },
 };
 const flipOf = (map, id) => !!(map[id] ?? map['*']);
 
@@ -74,6 +77,18 @@ const rampOf = t => TYPE_RAMP[t] || TYPE_RAMP.fire;
 
 // ── 보스 속성마다: 배경 · 광역기 연출 ──
 const BG_OF = { fire: 'volcano', water: 'sea', grass: 'forest', earth: 'canyon', wind: 'sky', electric: 'storm' };
+// 배경 그림(bg/<이름>.png)에서 땅이 시작하는 높이 — 세로 화면은 여기서 잘라 하늘은 그대로·땅은 2배로 늘린다(그림마다 달라서 재어 둠)
+export const BG_HORIZON = { volcano: 112, sea: 116, forest: 102, canyon: 116, sky: 122, storm: 117 };
+// 세로 화면에서 그림 위쪽의 남는 자리: 보통은 맨 윗줄 색으로 칠한다(하늘). 숲은 맨 위까지 나무라서 띠가 생기므로 그림 윗부분을 거울처럼 뒤집어 잇는다
+const BG_TOP_MIRROR = { forest: true };
+// 세로 화면에서 보스가 서는 높이(발 y). hz = 배경에서 땅이 시작하는 높이 · bodyH = 보스 몸 높이 · art = 배경 그림이 있는지
+//  · 땅 선(2·hz − 40)보다 14 아래에 서되, 땅이 낮게 시작하는 그림(바다·협곡·하늘·뇌운)에서도 198 을 넘지 않는다
+//    — 그 아래는 여럿일 때 무리 뒷줄(y 233, 머리 ≈ 213)이 서는 자리라 보스 발판(아래 끝 = y + 15)이 덮게 된다. 198 = 화산 견본의 자리
+//  · 키 큰 보스가 위 글과 겹치지 않게 몸 + 62 는 지킨다. 숲 그림만(땅이 높게 시작해 보스가 올라감) 등장 글(이름·단계)까지 피하게 몸 + 92
+const BOSS_Y_MAX = 198, BOSS_HEAD_ROOM = 62, BG_BOSS_HEAD_ROOM = { forest: 92 };
+export function portraitBossY({ hz, bodyH, bg, art }) {
+  return Math.max(Math.min(2 * hz - 40 + 14, BOSS_Y_MAX), bodyH + ((art && BG_BOSS_HEAD_ROOM[bg]) || BOSS_HEAD_ROOM));
+}
 //  icon = 광역기 이름 앞 그림 · strike = 몬스터마다 떨어지는 것 · lead = 맞기 얼마 전에 보이기 시작하는지(ms) · order = 맞는 차례
 const AOE = {
   fire:     { title: '분화',       icon: '🌋', strike: 'rock', lead: 420, sfx: 'erupt',  hitSfx: 'rock',  flash: '#ffb060' }, // 등에서 용암이 솟고 바위가 쏟아짐
@@ -96,6 +111,10 @@ const ease = {
   back: p => { const c = 1.9; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); },
 };
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+// 장면 옵션(11/19): 화면 배율(상한 maxDpr 가 0 보다 클 때만 그 아래로) · 입자 양(0~1, 안 주면 1) · 입자 하나를 넣을지(양이 1 이면 늘 넣는다)
+export const sceneDpr = (deviceDpr, maxDpr) => Math.min(deviceDpr || 1, maxDpr > 0 ? maxDpr : Infinity);
+export const particleShare = (v) => (v == null ? 1 : clamp(+v || 0, 0, 1));
+export const keepParticle = (k, rnd = Math.random) => !(k < 1 && rnd() >= k);
 function rng(seed) { // 늘 같은 모양이 나오게 하는 난수
   let s = seed >>> 0;
   return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
@@ -655,9 +674,9 @@ export async function playFight(container, script, opts = {}) {
       };
     }
     // 세로: 위쪽 절반에 보스, 아래쪽 절반에 우리 편. 배경은 하늘은 그대로·땅은 2배로 늘려 채움
-    const hz = bgImg ? (opts.bgHorizon ?? 112) : HZ, top = 320 - hz - (180 - hz) * 2, hp = top + hz;
+    const hz = bgImg ? (opts.bgHorizon ?? BG_HORIZON[bgName] ?? 112) : HZ, top = 320 - hz - (180 - hz) * 2, hp = top + hz;
     const rows = [[246, 0.36, 0.14], [239, 0.31, 0.24], [254, 0.4, 0.07], [233, 0.28, 0.32], [263, 0.45, 0]];
-    const by = Math.max(hp + 14, bossSpr.bodyH + 62);
+    const by = portraitBossY({ hz, bodyH: bossSpr.bodyH, bg: bgName, art: !!bgImg });
     return {
       portrait: true, W: 180, H: 320, hz, top, bgOff: { x: -70, y: top },
       boss: { x: 98, y: by },
@@ -675,6 +694,7 @@ export async function playFight(container, script, opts = {}) {
     let col = theme.void;
     try { const tc = mkCanvas(1, 1).getContext('2d'); tc.drawImage(bgSrc, -160, 0); const d = tc.getImageData(0, 0, 1, 1).data; col = `rgb(${d[0]},${d[1]},${d[2]})`; } catch { /* 기본 색 */ }
     cg.fillStyle = col; cg.fillRect(0, 0, W, L.top + 1);
+    if (bgImg && BG_TOP_MIRROR[bgName]) { cg.save(); cg.translate(0, L.top); cg.scale(1, -1); cg.drawImage(bgSrc, 70, 0, 180, L.top, 0, 0, 180, L.top); cg.restore(); }
     cg.drawImage(bgSrc, 70, 0, 180, hz, 0, L.top, 180, hz);          // 하늘: 가운데를 잘라 그대로
     cg.drawImage(bgSrc, 115, hz, 90, gr, 0, L.top + hz, 180, gr * 2); // 땅: 2배(정수배)로
     return c;
@@ -691,7 +711,7 @@ export async function playFight(container, script, opts = {}) {
   function layout() {
     if (!alive) return;
     applyLayout();
-    const cw = container.clientWidth || W, dpr = Math.min(window.devicePixelRatio || 1, opts.maxDpr > 0 ? opts.maxDpr : Infinity);
+    const cw = container.clientWidth || W, dpr = sceneDpr(window.devicePixelRatio, opts.maxDpr);
     const maxH = typeof opts.maxHeight === 'function' ? opts.maxHeight() : opts.maxHeight; // 높이 한도(px) — 주면 그 안에 들게
     const fitW = maxH > 0 ? Math.min(cw, maxH * W / H) : cw, dev = fitW * dpr;
     const k = Math.floor(dev / W);
@@ -736,7 +756,7 @@ export async function playFight(container, script, opts = {}) {
   };
 
   // 이름표: 부르는 쪽이 정한 이름(nameOf) → 대본의 label → 몬스터 이름
-  const labelOf = (m, i) => { let v = null; try { v = opts.nameOf ? opts.nameOf(m, i) : null; } catch { /* 기본 이름으로 */ } return String(v || m.label || m.name || '몬스터'); };
+  const labelOf = (m, i) => labelFor(m, i, opts.nameOf);
   const labels = team.map(labelOf);
   const djName = fight.dj && typeof fight.dj === 'object' ? fight.dj.name : null;
   // 글꼴이 준비될 때까지 잠깐만 기다림(안 오면 기본 글꼴로)
@@ -759,7 +779,7 @@ export async function playFight(container, script, opts = {}) {
   let raf = 0, lastNow = 0, alive = true, total = 0, paused = false, muted = false, endFired = false;
   const amb = { t: 0, embers: [] }; // 판과 상관없이 늘 흐르는 것(불티·물방울·반딧불 …)
   const er = rng(99);
-  const partK = opts.particles == null ? 1 : clamp(+opts.particles || 0, 0, 1); // 입자 양(약한 기기는 줄임)
+  const partK = particleShare(opts.particles); // 입자 양(약한 기기는 줄임)
   for (let i = 0, n = Math.round(46 * partK); i < n; i++) { const rx = er(), ry = er(); amb.embers.push({ rx, ry, x: rx * W, y: ry * H, v: 5 + er() * 14, ph: er() * 6.28, big: er() < 0.25, hot: er() }); }
 
   function newActor(spr, pos, dir, type) {
@@ -1228,7 +1248,7 @@ export async function playFight(container, script, opts = {}) {
   }
 
   // ── 작은 조각들 ──
-  function addPart(p) { if (partK < 1 && Math.random() >= partK) return; if (S.parts.length < 5000) S.parts.push(p); }
+  function addPart(p) { if (!keepParticle(partK)) return; if (S.parts.length < 5000) S.parts.push(p); }
   function burst(x, y, n, ramp, speed) {
     if (calm()) n = Math.ceil(n / 3);
     for (let i = 0; i < n; i++) {

@@ -63,6 +63,17 @@ export function unpackEvents(rows) {
 }
 
 // 모집 중(봇이 appear 만 올린 때 — 보스 · 참전 마감 시각 · 참전 수): 싸움 사건이 아직 없다
+// 이름표 글: 키우기 아이디 "솜사탕#먼치" 는 # 앞("솜사탕")만 보인다. # 이 없으면 그대로, 비면 ''(부른 쪽이 몬스터 이름으로)
+export const labelText = v => String(v ?? '').split('#')[0].trim();
+// 이름표: nameOf(member, i) 를 주면 그 글 그대로(부른 쪽이 정한 것 — 봇 탭의 스푼 닉네임은 # 이 있어도 온전히). 안 주면 대본 label 의 # 앞.
+//  어느 쪽이든 비면 몬스터 이름
+export function labelFor(m, i, nameOf) {
+  const name = String(m?.name || '몬스터');
+  if (typeof nameOf !== 'function') return labelText(m?.label) || name;
+  let v = null; try { v = nameOf(m, i); } catch { /* 몬스터 이름으로 */ }
+  return String(v ?? '').trim() || name;
+}
+
 export const isJoinOnly = script => !Array.isArray(script?.events);
 
 // 생중계: 지금(서버 시계) − 싸움 시작 = 건너뛸 ms. live = {startAt, now(함수 또는 수 — 없으면 이 기기 시계)}. 모르면 null
