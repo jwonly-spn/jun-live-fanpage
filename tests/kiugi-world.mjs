@@ -57,8 +57,8 @@ export function memoryStore(clock) {
       s.fights.delete(id); s.fights.set(next.id, next); return true;
     },
     // 목록: expires 전이고 · 싸우는 중(끝이 아직) 또는 모집 중(마감이 joinFrom 뒤 — handler 가 now − 90초를 준다), 나온 때 최근 순 100개
-    liveFights: async (now, joinFrom) => [...s.fights.values()]
-      .filter((f) => f.expires > now && ((f.phase === 'fight' && f.end_at >= now) || (f.phase === 'join' && f.join_until >= joinFrom)))
+    liveFights: async (now, joinFrom, slug = null) => [...s.fights.values()]
+      .filter((f) => (!slug || f.slug === slug) && f.expires > now && ((f.phase === 'fight' && f.end_at >= now) || (f.phase === 'join' && f.join_until >= joinFrom)))
       .sort((a, b) => b.appear_at - a.appear_at).slice(0, 100).map((f) => pick(f, FIGHT_LIST_COLUMNS)),
     cleanFights: async (now) => { for (const [id, f] of s.fights) if (f.expires < now) s.fights.delete(id); s.calls.push('cleanFights'); },
     pagesOf: async (slugs) => [...s.pages.values()].filter((p) => slugs.includes(p.slug)).map((p) => pick(p, ['slug', 'device_id', 'updated', 'name', 'main'])),

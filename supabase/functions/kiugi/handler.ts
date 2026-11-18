@@ -4,7 +4,7 @@
 //  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v3 시즌 2 몬스터 — v2 시즌 1 옷은 2026-12-01 0시(한국)까지만)
 //  시즌 2 사이트(키우기.com — 지도 첫 화면·아이디 찾기·도감)가 부르는 것은 search(카드에 lead·monsters) 하나뿐이다. person 도 몬스터를 준다.
 //  page·find·home·heart 는 시즌 1 사이트가 쓰던 길 — 그대로 두지만 시즌 2 사이트는 부르지 않는다(API.md "시즌 2").
-//  함수 v4(2026-11-18 보스전 보기): POST app 의 action fight-appear·fight-join·fight·fight-land·fight-drop(먼치킨이 서명) · GET fights · GET fights/<id>(API.md "보스전 보기")
+//  함수 v4(2026-11-18 보스전 보기): POST app 의 action fight-appear·fight-join·fight·fight-land·fight-drop(먼치킨이 서명) · GET fights(?slug= 그 DJ 것만) · GET fights/<id>(API.md "보스전 보기")
 import * as v from './lib.ts';
 
 // 사이트 주소(올리기 답의 url). 2026-10-20 ~ 11-08 은 임시로 http 였다(GitHub Pages 인증서가 "new" 에서 멈춤).
@@ -35,7 +35,7 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 //  expire(before)(seen 이 before 보다 오래된 페이지: 내용·이름 열쇠·하트 지우기) · cleanNonces(now)
 //  putSnap(path, text)(있으면) — 공개 저장소 kg-snap 에 미리 만든 답(home.json · page/<slug>.json)을 덮어쓴다
 //  보스전 보기(kg_fights): fight(device, liveKey, k) / fightById(id) → 줄 | null · insertFight(row) → 'ok' | 'exists'(같은 판·같은 id 가 이미 있음)
-//   updateFight(id, {phase, updated}, patch) → 줄이 본 그대로일 때만 바꾸고 true | false · liveFights(now, joinFrom) → 목록 칸 줄(expires 전 · 싸우는 중은 끝 전 · 모집 중은 마감 ≥ joinFrom)
+//   updateFight(id, {phase, updated}, patch) → 줄이 본 그대로일 때만 바꾸고 true | false · liveFights(now, joinFrom, slug?) → 목록 칸 줄(slug 를 주면 그 주소의 판만 · expires 전 · 싸우는 중은 끝 전 · 모집 중은 마감 ≥ joinFrom)
 //   cleanFights(now)(expires 지난 줄 지우기) · pagesOf(slugs) → [{slug, device_id, updated, name, main}]
 export function createHandler(store: Record<string, any>, opts: Record<string, any> = {}) {
   const now: () => number = opts.now || Date.now;
@@ -414,12 +414,14 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   });
   // 지금 판 목록: 싸우는 중(끝 = now > end_at 이면 뺌) · 모집 중은 마감 + 90초까지(봇이 멈춰 대본이 안 온 판이 목록에 남지 않게 — 보기는 expires 까지)
   //  지운 것·지난 것(expires)은 빼고, 메인에 보이기를 끈 DJ(main=false)의 판도 뺀다(메인 목록·전체 찾기와 같게 — 보기 fights/<id> 는 page?slug= 처럼 열린다)
-  async function fights() {
+  //  ?slug=<DJ 주소>(채팅 생중계 링크 키우기.com/b/<주소> 가 쓴다): 그 DJ 의 판만 — 메인에 보이기를 꺼도 자기 주소로는 나온다(page?slug= 처럼). 모양은 같다.
+  async function fights(url: URL) {
+    const slug = url.searchParams.has('slug') ? v.slugOf(url.searchParams.get('slug')) : null;
     const at = now(), joinFrom = at - v.FIGHT_JOIN_GRACE_MS;
     fightClean(at);
-    const rows = (((await store.liveFights(at, joinFrom)) || []) as Record<string, any>[])
-      .filter((r) => r.expires > at && (r.phase === 'fight' ? r.end_at >= at : r.phase === 'join' && r.join_until >= joinFrom));
-    const shown = (await shownFights(rows)).filter(({ page }) => page.main !== false);
+    const rows = (((await store.liveFights(at, joinFrom, slug)) || []) as Record<string, any>[])
+      .filter((r) => r.expires > at && (r.phase === 'fight' ? r.end_at >= at : r.phase === 'join' && r.join_until >= joinFrom) && (!slug || r.slug === slug));
+    const shown = (await shownFights(rows)).filter(({ page }) => (slug ? page.slug === slug : page.main !== false));
     return json({ now: at, fights: shown.map(({ row, page }) => fightOut(row, page)) }, 200, 'public, max-age=5');
   }
   // 한 판(대본까지): 끝난 판도 expires 까지(늦게 온 사람에게 결과 한 장면). 대본의 판 번호·DJ·칸·시각은 서버 값으로, 땅은 fight-land 로 받은 것(없으면 대본의 것).
@@ -443,7 +445,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
         if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, s2: true, v2Until: Number.isFinite(v2Until) ? new Date(v2Until).toISOString() : null, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
-        if (route === 'fights') return await fights();
+        if (route === 'fights') return await fights(url);
         if (route.startsWith('fights/')) return await fight(route.slice('fights/'.length));
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);

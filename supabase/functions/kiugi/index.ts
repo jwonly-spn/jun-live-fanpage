@@ -110,7 +110,8 @@ const store = {
   updateFight: async (id: string, expect: { phase: string; updated: number }, patch: Record<string, unknown>) =>
     ((await q(db.from('kg_fights').update(patch).eq('id', id).eq('phase', expect.phase).eq('updated', expect.updated).select('id'))) || []).length > 0,
   // 지금 판: expires 전이고 · 싸우는 중(끝 end_at 이 아직) 또는 모집 중(마감 join_until 이 joinFrom = now − 90초 뒤) — 나온 때 최근 순 100개
-  liveFights: (now: number, joinFrom: number) => q(db.from('kg_fights').select(FIGHT_LIST).gt('expires', now)
+  //  slug 를 주면 그 DJ 주소의 판만(GET fights?slug= — 채팅 생중계 링크)
+  liveFights: (now: number, joinFrom: number, slug: string | null = null) => q((slug ? db.from('kg_fights').select(FIGHT_LIST).eq('slug', slug) : db.from('kg_fights').select(FIGHT_LIST)).gt('expires', now)
     .or(`and(phase.eq.fight,end_at.gte.${now}),and(phase.eq.join,join_until.gte.${joinFrom})`).order('appear_at', { ascending: false }).limit(100)),
   cleanFights: (now: number) => q(db.from('kg_fights').delete().lt('expires', now)),
   // 판의 DJ 이름(키우기 페이지 이름)·열림(updated)·기기·메인에 보이기(main — false 면 목록에서 뺀다)

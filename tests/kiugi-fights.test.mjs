@@ -433,3 +433,42 @@ test('같은 판 대본을 다시 받아도 끝(end_at)·expires 는 처음 그�
   s.w.clock.now = start + 90000 + 600000 + 1;
   assert.equal((await s.one(id)).status, 404, '처음 끝 + 10분이 지나면 없다');
 });
+
+test('GET fights?slug=<DJ 주소>(채팅 생중계 링크 /b/<주소> 용): 그 DJ 의 판만 · "메인에 보이기"를 꺼도(main=false) 나온다 · 목록과 같은 모양 · 끝나면 빠진다 · 이상한 주소는 404', async () => {
+  const s = await setup();
+  // 같은 세계에 DJ 한 명 더(지어낸 이름)
+  const key2 = s.w.approve();
+  const up2 = await s.w.upload(key2, { enabled: true, v: 3, season: 's2', character: { name: '쿠키' }, people: [{ id: '밤톨#쿠키', lead: 'fire_01', monsters: [{ sp: 'fire_01', stage: 1, lv: 3 }] }] });
+  assert.equal(up2.status, 200);
+  const slug2 = up2.json.slug;
+  const start = s.w.clock.now;
+  const { json: { id } } = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT() });
+  const { json: { id: id2 } } = await s.send('fight-appear', { liveKey: LK2, k: 1, boss: BOSS, joinUntil: s.w.clock.now + 65000 }, { k: key2 });
+  const of = async (slug) => body(await s.w.get('fights?slug=' + slug));
+  assert.equal((await s.list()).json.fights.length, 2);
+  const a = await of(s.slug);
+  assert.equal(a.status, 200);
+  assert.deepEqual(a.json.fights.map((f) => f.id), [id], '그 DJ 의 판만');
+  assert.equal(a.json.now, s.w.clock.now);
+  assert.deepEqual(a.json.fights[0], (await s.list()).json.fights.find((f) => f.id === id), '목록 한 칸과 같은 모양');
+  assert.deepEqual(Object.keys(a.json.fights[0]).sort(), ['appearAt', 'boss', 'dj', 'id', 'joinUntil', 'joined', 'phase', 'startAt']);
+  assert.match(a.headers.get('cache-control') || '', /max-age=5/);
+  const b = await of(slug2);
+  assert.deepEqual(b.json.fights.map((f) => [f.id, f.phase, f.dj.slug, f.dj.name]), [[id2, 'join', slug2, '쿠키']]);
+  // 메인에 보이기를 끈 DJ: 전체 목록에서는 빠지고, 자기 주소로는 나온다
+  assert.equal((await s.w.upload(s.key, { ...V3(), main: false })).status, 200);
+  s.w.clock.now = start;
+  assert.deepEqual((await s.list()).json.fights.map((f) => f.id), [id2], '전체 목록에서는 빠진다');
+  assert.deepEqual((await of(s.slug)).json.fights.map((f) => f.id), [id], '자기 주소로는 나온다');
+  // 판이 없는 DJ · 끝난 판
+  s.w.clock.now = start + 90001;
+  assert.deepEqual((await of(s.slug)).json.fights, [], '끝나면(시작 + 90초) 빠진다');
+  // 페이지를 닫으면(올리기 끔) 안 보인다
+  s.w.clock.now = start;
+  s.w.store.pages.get(s.slug).updated = null;
+  assert.deepEqual((await of(s.slug)).json.fights, []);
+  // 이상한 주소
+  for (const bad of ['', 'ABC', 'aaaaaaa1', '../x']) assert.equal((await s.w.get('fights?slug=' + encodeURIComponent(bad))).status, 404, bad);
+  // 기기 번호·방송 열쇠는 내보내지 않는다
+  assert.doesNotMatch(JSON.stringify(b.json), new RegExp(`${key2.id}|${LK2}`));
+});
