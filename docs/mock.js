@@ -18,7 +18,7 @@ function rng(seed) {
 const f1 = (v) => (Math.round(v * 10) / 10).toFixed(1);
 const won = (v) => (v >= 10000 ? `${Math.round(v / 1000) / 10}만` : v.toLocaleString('ko-KR'));
 
-// 한 달 흉내(report.html MapCore 의 step 과 같은 규칙: 보스는 방송마다 1번 → 남은 숲 × 3% ÷ 참가 수, 영지전은 진 DJ 땅 10%+판돈 1만 냥마다 5%(25%까지) → 식민지, 되갚으면 독립)
+// 한 달 흉내(2026-11-18 보스 규칙에 맞춤: 2시간 방송에 보스 3번 · 이기면 남은 숲 × 2% ÷ 참가 수 — 흉내라 실패한 땅은 줄이지 않고 소식만, 영지전은 진 DJ 땅 10%+판돈 1만 냥마다 5%(25%까지) → 식민지, 되갚으면 독립)
 //  land: 땅 칸(Codex 그림의 docs/s2/land-grid.json — 없으면 절차 대륙)
 export function simulate({ djs = 5, day = 12, land: given = null } = {}) {
   const w = GW, h = GH, N = w * h, ND = Math.max(2, Math.min(DEMO_DJS.length, djs));
@@ -76,12 +76,12 @@ export function simulate({ djs = 5, day = 12, land: given = null } = {}) {
   const target = Math.max(1, Math.min(31, day));
   for (let d = 2; d <= target; d++) {
     yesterday = Array.from({ length: ND }, (_, k) => pct(k));
-    const news = [], on = [], G = 0.03 / ND;
+    const news = [], on = [], G = 0.02 / ND;
     for (let k = 0; k < ND; k++) {
       if (rnd() > ACT[k]) continue;
       on.push(k);
       const casts = rnd() < 0.4 ? 2 : 1, before = pct(k); let ok = 0, miss = 0;
-      for (let z = 0; z < casts; z++) { if (rnd() < 0.1) continue; if (rnd() < 0.8) { grow(k, Math.max(1, Math.round(LAND * G * wildPct() / 100))); ok++; } else miss++; }
+      for (let z = 0; z < casts * 3; z++) { if (rnd() < 0.1) continue; if (rnd() < 0.7) { grow(k, Math.max(1, Math.round(LAND * G * wildPct() / 100))); ok++; } else miss++; }
       if (ok) news.push(`${DEMO_DJS[k]} · 보스 토벌 성공 · 땅 +${f1(pct(k) - before)}%`);
       else if (miss) news.push(`${DEMO_DJS[k]} · 보스 토벌 실패`);
     }

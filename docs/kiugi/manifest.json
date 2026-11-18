@@ -5,6 +5,12 @@
   ],
   "files": {
     "s2": [
+      "boss_earth.png",
+      "boss_electric.png",
+      "boss_fire.png",
+      "boss_grass.png",
+      "boss_water.png",
+      "boss_wind.png",
       "monster_earth_01_1.webp",
       "monster_earth_01_2.webp",
       "monster_earth_01_3.webp",
