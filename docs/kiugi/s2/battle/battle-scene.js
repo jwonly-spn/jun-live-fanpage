@@ -120,6 +120,8 @@ export const keepParticle = (k, rnd = Math.random) => !(k < 1 && rnd() >= k);
 // 결과 장면 쉬기(2026-11-19): 끝나고 afterMs 가 지났고 움직이는 것(busy — 뜨는 글·입자·흔들림)이 없으면 frameMs 마다 한 장만(0 = 쉬지 않고 모두 그림).
 //  새 상태가 오면(wake — 땅 결과·크기·건너뛰기·멈춤) wakeMs 동안은 다시 모두 그린다. 싸우는 중·모집 중(done 아님)은 늘 모두.
 export const IDLE = Object.freeze({ afterMs: 20000, frameMs: 125, wakeMs: 2000 });
+// 모집 화면 제목 크기: 두 배로 그린 너비(그림 글자까지)가 화면 너비에서 양옆 4씩 뺀 것에 들어가면 2, 넘치면 1(세로 화면 180 에서 "결과를 기다리는 중"이 잘리지 않게)
+export const joinTitleScale = (wideAt2, W) => (wideAt2 <= W - 8 ? 2 : 1);
 export const idleFrameMs = ({ done, busy, sinceDone, sinceWake }) => (done && !busy && sinceDone >= IDLE.afterMs && sinceWake >= IDLE.wakeMs ? IDLE.frameMs : 0);
 function rng(seed) { // 늘 같은 모양이 나오게 하는 난수
   let s = seed >>> 0;
@@ -1787,7 +1789,8 @@ export async function playFight(container, script, opts = {}) {
       const until = Number(fight.joinUntil), leftS = Number.isFinite(until) ? Math.ceil((until - nowMs()) / 1000) : null, a = S.joinA, jx = L.joinBox.x, jy = L.joinBox.y;
       const blink = cm || Math.floor(amb.t / 500) % 2 === 0;
       const jw = joinWords(leftS); // 마감이 지나면 "결과를 기다리는 중" 만(모집 중·!참전 안내를 내림)
-      line(jw.icon, jw.title, jx, jy, { align: 'center', scale: 2, color: C.gold, alpha: a });
+      const ts = joinTitleScale(15 * 2 + textW(jw.title, 'l', 2), W);
+      line(jw.icon, jw.title, jx, jy + (ts === 2 ? 0 : 10), { align: 'center', scale: ts, color: C.gold, alpha: a });
       if (jw.sub) text(jw.sub, jx, jy + 30, { align: 'center', color: leftS > 10 || blink ? C.cream : C.red, alpha: a });
       line('👥', `참전 ${joinN}명`, jx, jy + 46, { align: 'center', color: C.teal, alpha: a });
       if (jw.hint) text(jw.hint, jx, jy + 62, { font: 's', align: 'center', color: C.dim, alpha: a * 0.9 });
