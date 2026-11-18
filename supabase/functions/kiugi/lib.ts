@@ -377,6 +377,9 @@ export const FIGHT_MAX_BYTES = 256 * 1024;
 export const FIGHT_VIEW_MS = 90000, FIGHT_KEEP_MS = 10 * 60000, FIGHT_JOIN_KEEP_MS = 15 * 60000;
 // 모집 마감은 서버 시계로 고쳐 적는다(봇 시계 + 서명 시각과의 차이). 받은 때부터 이만큼 뒤까지만(봇은 60초 + 유예).
 export const FIGHT_JOIN_MAX_MS = 5 * 60000;
+// 목록(GET fights)에 모집 중 판을 두는 때: 마감(join_until) + 90초까지(봇의 2초 읽기 + 5/10/30초 다시 하기를 덮는 만큼).
+//  봇이 멈춰 대본이 오지 않으면 그 뒤로 목록에서 빠진다(줄은 expires 까지 남아 늦은 대본이 오면 다시 목록에 — 보기 fights/<id> 는 expires 까지 열린다).
+export const FIGHT_JOIN_GRACE_MS = 90000;
 // 기기당 한 시간 쓰기 수
 export const FIGHT_HOURLY = 60;
 // 판 번호: 헷갈리는 글자를 뺀 소문자·숫자 12자(주소 slug 와 같은 글자)
@@ -429,7 +432,7 @@ function fightMember(value: unknown) {
   let label: string | null = null;
   if (value.label !== null && value.label !== undefined) {
     if (typeof value.label !== 'string') throw fail(400, BAD_LABEL);
-    const s = value.label.normalize('NFC');
+    const s = value.label.normalize('NFC').trim(); // 키우기 페이지 아이디(listenerId)와 같은 정리: NFC 뒤 앞뒤 공백만 뗀다
     label = FULL_ID.test(s) ? s : null;
   }
   const name = clean(value.name, FIGHT_NAME_MAX);
@@ -478,7 +481,7 @@ export function fightScript(value: unknown) {
 }
 
 // ---- 서명 ----
-const hex =(b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
+const hex = (b: ArrayBuffer) => [...new Uint8Array(b)].map((x) => x.toString(16).padStart(2, '0')).join('');
 export const sha256hex = async (s: string | Uint8Array) => hex(await crypto.subtle.digest('SHA-256', typeof s === 'string' ? enc.encode(s) : s));
 export const decode64url = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
 export const bytes = (s: string) => enc.encode(s).length;

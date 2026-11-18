@@ -152,6 +152,10 @@ test('이름(label): 사이트 아이디 규칙(FULL_ID)에 맞지 않는 글은
   const r = await s.send('fight', { liveKey: LK2, k: 1, script: SCRIPT([MEMBER(0, '밤톨#먼치'.normalize('NFD')), MEMBER(1, null)]) });
   assert.equal(r.status, 200);
   assert.deepEqual((await s.one(r.json.id)).json.fight.script.team.map((m) => m.label), ['밤톨#먼치', null], '풀어 쓴 한글은 NFC 로');
+  // 앞뒤 공백은 뗀다(키우기 페이지 아이디 listenerId 와 같은 정리 — NFC 뒤 trim)
+  const t = await s.send('fight', { liveKey: LK2, k: 2, script: SCRIPT([MEMBER(0, ' 밤톨#먼치 '), MEMBER(1, '\t사탕요정#먼치'.normalize('NFD'))]) });
+  assert.equal(t.status, 200);
+  assert.deepEqual((await s.one(t.json.id)).json.fight.script.team.map((m) => m.label), ['밤톨#먼치', '사탕요정#먼치'], '앞뒤 공백을 떼고 아이디로');
 });
 
 test('모양 검사: 글이 아닌 label 은 400 · 방송 열쇠(16진 32자)·칸·보스·참전 수·대본 모양이 틀리면 400 · 대본이 256KB 를 넘으면 413', async () => {
@@ -289,11 +293,13 @@ test('끝난 판(now > end_at = 시작 + 90초)은 목록에 없고, 대본 읽�
   assert.equal((await s.one(id)).status, 200);
   s.w.clock.now = startAt + 90000 + 600000 + 1;
   assert.equal((await s.one(id)).status, 404, 'expires 가 지나면 없다(지우기 전이어도)');
-  // 대본이 끝내 오지 않은 모집 판(봇이 꺼짐): 등장 + 15분
+  // 대본이 끝내 오지 않은 모집 판(봇이 꺼짐): 목록은 마감 + 90초까지(아래 따로 시험), 보기·줄은 등장 + 15분까지
   const at = s.w.clock.now;
   const { json: { id: id2 } } = await appear(s, { liveKey: LK2 });
+  s.w.clock.now = at + 65000 + v.FIGHT_JOIN_GRACE_MS + 1;
+  assert.deepEqual((await s.list()).json.fights, [], '마감 + 90초가 지나면 목록에 없다');
   s.w.clock.now = at + 15 * 60000 - 1;
-  assert.equal((await s.list()).json.fights.length, 1);
+  assert.equal((await s.one(id2)).status, 200, '보기는 등장 + 15분 직전까지');
   s.w.clock.now = at + 15 * 60000 + 1;
   assert.deepEqual((await s.list()).json.fights, []);
   assert.equal((await s.one(id2)).status, 404);
@@ -369,4 +375,61 @@ test('그사이 다른 요청이 줄을 바꾸면(동시에) 다시 읽고 정�
   assert.equal(r.status, 200); assert.equal(r.json.ignored, true, '다시 읽으니 싸우는 중 — 참전 수는 무시');
   const row = s.w.store.fights.get(id);
   assert.equal(row.phase, 'fight'); assert.equal(row.joined, 2); assert.equal(row.script.marker, '먼저 온 대본');
+});
+
+test('모집 중 판은 마감(join_until) + 90초까지만 목록에 — 봇이 멈춰 대본이 안 와도 목록에 14분 남지 않는다 · 보기는 expires 까지 · 늦은 대본이 오면 다시 목록에', async () => {
+  const s = await setup();
+  const at = s.w.clock.now;
+  const { json: { id } } = await appear(s, { joinUntil: at + 65000 });
+  assert.equal(v.FIGHT_JOIN_GRACE_MS, 90000);
+  s.w.clock.now = at + 65000 + 90000;
+  assert.equal((await s.list()).json.fights.length, 1, '마감 + 90초까지는 목록에');
+  s.w.clock.now = at + 65000 + 90001;
+  assert.deepEqual((await s.list()).json.fights, [], '그 뒤로는 목록에서 빠진다');
+  let r = await s.one(id);
+  assert.equal(r.status, 200, '보기는 expires(등장 + 15분)까지 — 오래된 모집을 어떻게 보일지는 사이트가 정한다');
+  assert.equal(r.json.fight.phase, 'join');
+  // 줄은 남아 있어 늦게 온 대본이 그 판에 들어가고 다시 목록에
+  const late = s.w.clock.now;
+  r = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT() });
+  assert.equal(r.status, 200); assert.equal(r.json.id, id, '같은 판');
+  const list = (await s.list()).json.fights;
+  assert.equal(list.length, 1); assert.equal(list[0].phase, 'fight'); assert.equal(list[0].startAt, late);
+  // 등장 + 15분이 지나면 보기도 없다
+  const s2 = await setup();
+  const { json: { id: id2 } } = await appear(s2, { joinUntil: s2.w.clock.now + 65000 });
+  s2.w.clock.now += 15 * 60000 + 1;
+  assert.equal((await s2.one(id2)).status, 404);
+});
+
+test('"메인에 보이기"를 끈 DJ(main=false)의 판은 목록에서 빠진다 · 보기(fights/<id>)는 page?slug= 처럼 열린다', async () => {
+  const s = await setup();
+  const { json: { id } } = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT() });
+  assert.equal((await s.list()).json.fights.length, 1);
+  const back = s.w.clock.now;
+  assert.equal((await s.w.upload(s.key, { ...V3(), main: false })).status, 200);
+  s.w.clock.now = back; // upload 가 넘긴 시계를 되돌린다(아직 싸우는 중)
+  assert.equal(s.w.store.pages.get(s.slug).main, false);
+  assert.deepEqual((await s.list()).json.fights, [], '목록에서 빠진다');
+  const r = await s.one(id);
+  assert.equal(r.status, 200, '보기는 열린다'); assert.equal(r.json.fight.dj.slug, s.slug);
+  assert.equal((await s.w.upload(s.key, V3())).status, 200);
+  s.w.clock.now = back;
+  assert.equal((await s.list()).json.fights.length, 1, '다시 켜면 목록에');
+});
+
+test('같은 판 대본을 다시 받아도 끝(end_at)·expires 는 처음 그대로 — 목록은 처음 시작 + 90001 에 빠지고 보기는 처음 끝 + 10분까지', async () => {
+  const s = await setup();
+  const start = s.w.clock.now;
+  const { json: { id } } = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT() });
+  s.w.clock.now = start + 60000;
+  assert.equal((await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT([MEMBER(0)], { mvp: { i: 0, dealt: 5 }, events: [] }) })).status, 200);
+  s.w.clock.now = start + 90000;
+  assert.equal((await s.list()).json.fights.length, 1);
+  s.w.clock.now = start + 90001;
+  assert.deepEqual((await s.list()).json.fights, [], '처음 시작 + 90초 뒤 빠진다(다시 받은 때 + 90초가 아님)');
+  s.w.clock.now = start + 90000 + 600000 - 1;
+  assert.equal((await s.one(id)).status, 200);
+  s.w.clock.now = start + 90000 + 600000 + 1;
+  assert.equal((await s.one(id)).status, 404, '처음 끝 + 10분이 지나면 없다');
 });

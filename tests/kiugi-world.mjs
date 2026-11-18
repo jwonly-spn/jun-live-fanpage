@@ -56,12 +56,12 @@ export function memoryStore(clock) {
       const next = { ...row, ...structuredClone(patch) };
       s.fights.delete(id); s.fights.set(next.id, next); return true;
     },
-    // 목록: 모집 중이거나 싸우는 중(지운 것·지난 것·끝난 것 빼고), 나온 때 최근 순 100개
-    liveFights: async (now) => [...s.fights.values()]
-      .filter((f) => (f.phase === 'join' || f.phase === 'fight') && f.expires > now && (f.end_at === null || f.end_at >= now))
+    // 목록: expires 전이고 · 싸우는 중(끝이 아직) 또는 모집 중(마감이 joinFrom 뒤 — handler 가 now − 90초를 준다), 나온 때 최근 순 100개
+    liveFights: async (now, joinFrom) => [...s.fights.values()]
+      .filter((f) => f.expires > now && ((f.phase === 'fight' && f.end_at >= now) || (f.phase === 'join' && f.join_until >= joinFrom)))
       .sort((a, b) => b.appear_at - a.appear_at).slice(0, 100).map((f) => pick(f, FIGHT_LIST_COLUMNS)),
     cleanFights: async (now) => { for (const [id, f] of s.fights) if (f.expires < now) s.fights.delete(id); s.calls.push('cleanFights'); },
-    pagesOf: async (slugs) => [...s.pages.values()].filter((p) => slugs.includes(p.slug)).map((p) => pick(p, ['slug', 'device_id', 'updated', 'name'])),
+    pagesOf: async (slugs) => [...s.pages.values()].filter((p) => slugs.includes(p.slug)).map((p) => pick(p, ['slug', 'device_id', 'updated', 'name', 'main'])),
     ipSalt: async () => 'salt',
     hit: async (key, seconds, max) => { const k = key + ':' + Math.floor(clock.now / 1000 / seconds); const n = (s.hits.get(k) || 0) + 1; s.hits.set(k, n); return n <= max; },
     nonce: async (id) => { if (s.nonces.has(id)) return false; s.nonces.add(id); return true; },

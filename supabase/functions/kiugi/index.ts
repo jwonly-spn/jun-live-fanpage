@@ -109,13 +109,14 @@ const store = {
   },
   updateFight: async (id: string, expect: { phase: string; updated: number }, patch: Record<string, unknown>) =>
     ((await q(db.from('kg_fights').update(patch).eq('id', id).eq('phase', expect.phase).eq('updated', expect.updated).select('id'))) || []).length > 0,
-  // 지금 판: 모집 중이거나 싸우는 중 · expires 전 · 끝(end_at)이 없거나 아직 — 나온 때 최근 순 100개
-  liveFights: (now: number) => q(db.from('kg_fights').select(FIGHT_LIST).in('phase', ['join', 'fight']).gt('expires', now).or(`end_at.is.null,end_at.gte.${now}`).order('appear_at', { ascending: false }).limit(100)),
+  // 지금 판: expires 전이고 · 싸우는 중(끝 end_at 이 아직) 또는 모집 중(마감 join_until 이 joinFrom = now − 90초 뒤) — 나온 때 최근 순 100개
+  liveFights: (now: number, joinFrom: number) => q(db.from('kg_fights').select(FIGHT_LIST).gt('expires', now)
+    .or(`and(phase.eq.fight,end_at.gte.${now}),and(phase.eq.join,join_until.gte.${joinFrom})`).order('appear_at', { ascending: false }).limit(100)),
   cleanFights: (now: number) => q(db.from('kg_fights').delete().lt('expires', now)),
-  // 판의 DJ 이름(키우기 페이지 이름)·열림(updated)·기기
+  // 판의 DJ 이름(키우기 페이지 이름)·열림(updated)·기기·메인에 보이기(main — false 면 목록에서 뺀다)
   pagesOf: async (slugs: string[]) => {
     const out: any[] = [];
-    for (const part of chunks(slugs, 100)) out.push(...await q(db.from('kg_pages').select('slug,device_id,updated,name').in('slug', part)));
+    for (const part of chunks(slugs, 100)) out.push(...await q(db.from('kg_pages').select('slug,device_id,updated,name,main').in('slug', part)));
     return out;
   },
   // 미리 만든 답(2026-10-18 — 사이트가 먼저 읽는 공개 파일, 버킷 kg-snap · supabase/kiugi-snap.sql). 실패해도 답에는 영향 없음(기록만).
