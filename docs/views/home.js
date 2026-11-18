@@ -1,6 +1,7 @@
 // 첫 화면(시즌 2 "몬스터 영토전" — spec.md 7절): 영토 지도를 화면 가득 → 바로 아래 아이디로 몬스터 찾기 → 땅 순위 · 지도 소식 → 땅을 넓히는 법.
 //  · 지도 = 영토 서버의 tr-snap/map.json(api.js readMapFile). 3분마다 다시 읽고(화면이 숨어 있으면 쉼) 바뀌면 경계가 번지듯 바뀐다(lib/map-draw.js).
 //  · 지도 파일이 아직 없으면(시즌 시작 전) 아무도 없는 대륙 + "12월 1일 0시에 시작해요".
+//  · 맨 위 "지금 보스전" 띠(판이 있을 때만 — kiugi 함수 fights, 15초마다) → 보스전 보기(views/boss.js).
 //  · 아이디 찾기 = kiugi 함수 search(아이디와 몬스터만 — 스푼 계정 정보는 없음). 주소 ?id= 로 와도 바로 찾는다.
 import { h, icon } from '../lib/dom.js';
 import { relativeTime, formatDate } from '../lib/text.js';
@@ -8,6 +9,7 @@ import { kiugiApi, readMapFile, pollMs, isDemo, MAP_WAKE_MS } from '../api.js';
 import { parseMap, emptyMap, sameMap, ranking, seasonClock, clockText, pctText, deltaText, cssColor, f1 } from '../lib/map-core.js';
 import { MapStage, loadMapArt } from '../lib/map-draw.js';
 import { ID_QUERY, cleanId } from '../lib/route.js';
+import { LIST_POLL_MS, listOf, stripItems, phaseText, djText } from '../lib/boss-core.js';
 import { RING, TYPE, sortMonsters } from '../lib/monsters.js';
 import { nightTop, siteFoot, secHead, ilink, errorBox, loading, SEASON_TITLE } from './common.js';
 import { monsterCtx, monsterArtEl, stageName, typeChip, rareChip, statLine, soonNote } from './monster-ui.js';
@@ -23,7 +25,35 @@ export async function renderHome(root, app, route) {
   main.append(hero.el, findSection(app, route.id), hero.board, howSection(app));
   root.replaceChildren(...nightTop(app), main, siteFoot(app, '지도에는 참가한 방송의 이름과 땅 비율·경계·식민지만 보여요. 청취자 정보는 올라가지 않아요.'));
   document.title = `${SEASON_TITLE} · 스푼 DJ 키우기`;
+  // 맨 위 "지금 보스전" 띠(판이 있을 때만 — 없으면 자리도 차지하지 않는다)
+  const strip = bossStrip(app);
+  main.prepend(strip.el);
+  strip.start();
   hero.start();
+}
+
+// ---- 지금 보스전 띠(2026-11-19 보스전 보기): 판이 있을 때만 · 3개까지 · 틀 없이 한 줄씩 → 누르면 보기. 15초마다(화면이 숨으면 쉼) ----
+function bossStrip(app) {
+  const list = h('ul', { class: 's2-boss-list' });
+  const all = ilink(app.link({ name: 'boss' }), { class: 's2-boss-item is-more' }, '모두 보기');
+  const el = h('section', { class: 's2-boss-strip', 'aria-label': '지금 보스전', hidden: true }, h('h2', { class: 's2-boss-h' }, h('span', { 'aria-hidden': 'true' }, '👹 '), '지금 보스전'), list, all); // 👹 지금 보스전
+  let timer = 0;
+  async function read() {
+    clearTimeout(timer);
+    if (!el.isConnected) return;
+    if (document.visibilityState !== 'hidden') {
+      try {
+        const { items, more } = stripItems(listOf(await kiugiApi.fights()));
+        list.replaceChildren(...items.map((f) => h('li', null, ilink(app.link({ name: 'watch', fight: f.id }), { class: 's2-boss-item' },
+          h('i', { class: 's2-boss-dot' + (f.phase === 'fight' ? ' is-fight' : ''), 'aria-hidden': 'true' }),
+          h('b', null, djText(f)), h('span', null, f.boss.name), h('em', null, phaseText(f))))));
+        all.textContent = more ? `${more}개 더 보기` : '모두 보기';
+        el.hidden = !items.length;
+      } catch { /* 띠는 없어도 되는 것 — 다음에 다시 */ }
+    }
+    if (el.isConnected) timer = setTimeout(read, LIST_POLL_MS);
+  }
+  return { el, start: read };
 }
 
 // ---- 지도 ----

@@ -70,6 +70,7 @@ export function nightTop(app) {
         h('nav', { class: 'fp-actions', 'aria-label': '바로 가기' },
           ilink(home + '#find', { class: 'fp-nav icon-only', 'aria-label': '아이디로 몬스터 찾기' }, icon('search', { size: 19 })),
           ilink(home, { class: 'fp-nav', 'aria-current': route === 'home' ? 'page' : null }, icon('map', { size: 19 }), h('span', null, '지도')),
+          ilink(app.link({ name: 'boss' }), { class: 'fp-nav', 'aria-label': '지금 보스전', 'aria-current': route === 'boss' ? 'page' : null }, icon('swords', { size: 19 }), h('span', null, '보스전')),
           ilink(app.link({ name: 'dex' }), { class: 'fp-nav', 'aria-current': route === 'dex' ? 'page' : null }, icon('book', { size: 19 }), h('span', null, '몬스터 도감'))))),
   ];
 }
@@ -82,6 +83,7 @@ export function siteFoot(app, ...lines) {
         ilink(app.link({ name: 'home' }), { class: 'fp-foot-brand' }, h('span', { class: 'fp-logo small', 'aria-hidden': 'true' }, icon('flag', { size: 14 })), BRAND),
         h('nav', { class: 'fp-foot-links', 'aria-label': '바닥 바로 가기' },
           ilink(app.link({ name: 'home' }), null, '영토 지도'),
+          ilink(app.link({ name: 'boss' }), null, '지금 보스전'),
           ilink(app.link({ name: 'dex' }), null, '몬스터 도감'))),
       ...lines.filter(Boolean).map((t) => h('p', { class: 'fp-foot-note' }, t)),
       h('p', { class: 'fp-foot-legal' }, DISCLAIMER)));

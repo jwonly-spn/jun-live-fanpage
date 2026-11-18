@@ -59,6 +59,11 @@ export const kiugiApi = {
   search: (q) => request('search', { q }),
   // → {id, lead, monsters, season, dj:{slug, name}}
   person: (slug, id) => request('person', { slug, id }),
+  // 보스전 보기(2026-11-19 — 함수 v4): 지금 판 목록. slug 를 주면 그 DJ 의 판만(메인에 보이기를 꺼도 나온다 — 채팅 링크 /b/<주소>)
+  //  → {now(서버 시계 ms), fights:[{id, dj:{slug,name}, boss:{type,name,stage}, phase:'join'|'fight', joined, appearAt, joinUntil, startAt|null}]}
+  fights: (slug) => request('fights', slug ? { slug } : {}, { timeout: 10000 }),
+  // 한 판(대본까지) → {now, fight:{…목록 칸(boss 에 aoe 도), script|null(모집 중), land}} · 없으면 404 "끝났거나 없는 보스전이에요."
+  fight: (id) => request('fights/' + encodeURIComponent(id), {}, { timeout: 10000 }),
 };
 
 // 지도 파일 읽기 → json | null(아직 없음 — 시즌 시작 전) · 실패는 ApiError. fresh 면 브라우저 기억을 건너뛴다(1분마다 다른 주소).

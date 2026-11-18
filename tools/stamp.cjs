@@ -16,13 +16,17 @@ const hash = (buf) => crypto.createHash('sha256').update(buf).digest('hex').slic
 //  예전 R9 고해상도 모듈 이름(kiugi-hd.js · kiugi-r9-renderer*.js 등)이 다시 생겨도 처음부터 받지 않게 그 규칙은 남겨 둔다. 표(import map)에는 그대로 둔다.
 const NO_PRELOAD = new Set(['/mock.js']);
 const NO_PRELOAD_RE = /^\/kiugi\/kiugi-(?:hd|r\d+-(?:hd-data|renderer|renderer-hd|hair-color))\.js$/;
-const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m);
+// 보스전 보기(2026-11-19): 보는 화면(views/boss.js)·무음 오디오·장면 모듈(kiugi/s2/battle/ — 먼치킨 저장소에서 옮김)은 그 화면에 갔을 때만 받는다.
+//  표(import map)에는 넣는다 — 장면 모듈끼리 부르는 './timeline.js' 도 새 파일로 받게.
+const LAZY = new Set(['/views/boss.js', '/lib/sound-unlock.js']);
+const LAZY_RE = /^\/kiugi\/s2\/battle\//;
+const preloadable = (m) => !NO_PRELOAD.has(m) && !NO_PRELOAD_RE.test(m) && !LAZY.has(m) && !LAZY_RE.test(m);
 
 // 화면 모듈(사이트 맨 앞 기준 주소): 맨 위 app.js·api.js·mock.js + lib/ · views/ · kiugi/ 의 .js (spoon.js 는 따로 있는 페이지라 뺀다)
 function modules(docs = DOCS) {
   const out = [];
   for (const f of ['app.js', 'api.js', 'mock.js']) if (fs.existsSync(path.join(docs, f))) out.push('/' + f);
-  for (const dir of ['lib', 'views', 'kiugi']) {
+  for (const dir of ['lib', 'views', 'kiugi', 'kiugi/s2/battle']) {
     const full = path.join(docs, dir);
     if (!fs.existsSync(full)) continue;
     for (const f of fs.readdirSync(full).filter((x) => x.endsWith('.js')).sort()) out.push(`/${dir}/${f}`);

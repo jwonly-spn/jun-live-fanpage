@@ -1,5 +1,6 @@
 // 시작점: 주소를 읽고 알맞은 화면을 그린다(history.pushState 방식, 새로고침 없이 이동).
 // 시즌 2(2026-12-01~) 화면: 첫 화면(영토 지도 · 아이디로 몬스터 찾기 — views/home.js) · 몬스터 도감(views/dex.js).
+//  보스전 보기(2026-11-19): /boss(지금 보스전 목록) · /boss/<판 번호> · /b/<DJ 주소>(채팅 생중계 링크) — views/boss.js(그 화면에 갈 때만 받는다).
 // 시즌 1 주소(k/…, items)·예전 팬페이지 주소(p/…, studio, app)는 첫 화면으로 바꾸고(캐릭터 주소였으면 그 아이디로 찾기) 한 줄 알린다.
 import { computeBase, parseRoute, buildPath } from './lib/route.js';
 
@@ -8,6 +9,7 @@ const root = document.getElementById('app');
 
 const app = {
   base: BASE,
+  onLeave: null,
   link: (route) => buildPath(BASE, route),
   navigate(href, { replace = false } = {}) {
     if (replace) history.replaceState(null, '', href); else history.pushState(null, '', href);
@@ -23,6 +25,9 @@ const MOVED = {
 let token = 0, lastPath = location.pathname + location.search;
 async function render({ scroll = false } = {}) {
   const my = ++token;
+  // 떠나는 화면이 맡긴 뒷정리(보스전 보기: 장면·소리·다시 읽기를 멈춘다)
+  const leave = app.onLeave; app.onLeave = null;
+  try { leave?.(); } catch (e) { console.error(e); }
   let route = parseRoute(location.pathname, BASE, location.search);
   if (route.name === 'old' || route.name === 'notfound') {
     const why = MOVED[route.name];
@@ -33,7 +38,10 @@ async function render({ scroll = false } = {}) {
   lastPath = location.pathname + location.search;
   document.body.dataset.route = route.name;
   try {
-    if (route.name === 'dex') {
+    if (route.name === 'boss' || route.name === 'watch' || route.name === 'live') {
+      const { renderBoss } = await import('./views/boss.js');
+      if (my === token) await renderBoss(root, app, route);
+    } else if (route.name === 'dex') {
       const { renderDex } = await import('./views/dex.js');
       if (my === token) await renderDex(root, app, route);
     } else {

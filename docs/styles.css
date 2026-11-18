@@ -309,3 +309,98 @@ button.s2-rank-row:hover { background: var(--accent-soft); }
   .s2-canvas, .s2-label, .toast, .btn, .s2-lore > summary::after { transition: none; }
   .s2-label.flash, .spinner { animation: none; }
 }
+
+/* ---------- 보스전 보기(2026-11-19): 첫 화면 띠 · 목록(/boss) · 보는 화면(/boss/<번호> · /b/<DJ 주소>) ----------
+   스푼 앱 안 창(아이폰 WKWebView · 갤럭시 WebView, 360~412px 세로)에서 먼저 잘 보이게. 틀·상자 없이 — 줄은 가는 금 하나로만 나눈다.
+   손가락으로 누르는 것은 44px 이상, 마우스를 올려야만 보이는 것은 없다(눌렀을 때 :active 만). */
+/* 첫 화면 띠: 판이 있을 때만(hidden) — 제목 한 줄 + 3개까지 */
+.s2-home > .s2-boss-strip { max-width: 1600px; }
+.s2-boss-strip { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 18px; }
+.s2-boss-h { margin: 0; font-size: 15px; font-weight: 900; letter-spacing: -.03em; white-space: nowrap; }
+.s2-boss-list { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0 18px; min-width: 0; }
+.s2-boss-item { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; max-width: 100%; text-decoration: none; font-size: 14px; color: var(--text-2); }
+.s2-boss-item b { font-weight: 800; color: var(--text); white-space: nowrap; }
+.s2-boss-item span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.s2-boss-item em { font-style: normal; font-weight: 800; color: var(--accent-text); white-space: nowrap; }
+.s2-boss-item.is-more { font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.s2-boss-item:active { opacity: .6; }
+.s2-boss-dot { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--text-3); }
+.s2-boss-dot.is-fight { background: #d8342c; animation: bv-blink 1.2s steps(2, jump-none) infinite; }
+@keyframes bv-blink { 50% { opacity: .25; } }
+@media (max-width: 560px) { .s2-boss-strip { display: grid; grid-template-columns: 1fr auto; } .s2-boss-list { display: grid; grid-column: 1 / -1; grid-row: 2; } }
+
+/* 목록(/boss) — 사이트 종이 바탕 그대로 */
+.bl { max-width: 720px; margin: 0 auto; padding: 22px var(--gutter) 0; padding-left: max(var(--gutter), env(safe-area-inset-left)); padding-right: max(var(--gutter), env(safe-area-inset-right)); }
+.bl-head { margin-bottom: 14px; }
+.bl-title { margin: 0; font-size: clamp(26px, 7vw, 34px); line-height: 1.15; font-weight: 900; letter-spacing: -.05em; }
+.bl-head p { margin: 6px 0 0; font-size: 14px; color: var(--text-2); }
+.bl-list { margin: 0; padding: 0; list-style: none; }
+.bl-list li + li { border-top: 1px solid var(--line); }
+.bl-row { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto 18px; align-items: center; gap: 12px; min-height: 68px; padding: 8px 2px; text-decoration: none; }
+.bl-row:active { opacity: .6; }
+.bl-row > svg { color: var(--text-3); }
+.bl-boss { width: 52px; height: 52px; object-fit: contain; }
+.bl-text { min-width: 0; display: grid; }
+.bl-text b { font-size: 16px; font-weight: 800; letter-spacing: -.03em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bl-text small { display: flex; gap: 10px; font-size: 13px; color: var(--text-2); white-space: nowrap; overflow: hidden; }
+.bl-text small span:first-child { overflow: hidden; text-overflow: ellipsis; }
+.bl-phase { font-size: 13px; font-weight: 800; color: var(--text-2); white-space: nowrap; }
+.bl-phase.is-fight { color: var(--accent-text); }
+.bl-empty { display: grid; gap: 4px; padding: 44px 0 36px; }
+.bl-empty b { font-size: 20px; font-weight: 900; letter-spacing: -.04em; }
+.bl-empty span { font-size: 15px; color: var(--text-2); }
+.bl-note { margin-top: 12px; min-height: 1.6em; }
+
+/* 보는 화면 — 어두운 바탕(장면의 먹보라), 장면이 맨 위에 폭 가득. 바닥글까지 같은 어두운 색 */
+body[data-route="watch"], body[data-route="live"] {
+  color-scheme: dark;
+  --bg: #0d0a10; --bg-2: #0d0a10; --paper: #17111b; --panel: #17111b;
+  --line: rgba(255, 241, 214, .12); --line-2: rgba(255, 241, 214, .26);
+  --text: #fff1d6; --text-2: #d9b8c4; --text-3: #a78d9a; --ink: #fff1d6; --on-ink: #0d0a10;
+  --accent: #ff7a2f; --accent-2: #ff9a5a; --accent-text: #ffb37a; --accent-soft: rgba(255, 122, 47, .16);
+  background: #0d0a10;
+}
+html:has(body[data-route="watch"]), html:has(body[data-route="live"]) { background: #0d0a10; }
+.bv { min-height: 100vh; min-height: 100dvh; padding-top: env(safe-area-inset-top); background: #0d0a10; color: #fff1d6; }
+.bv-stage { position: relative; overflow: hidden; }
+.bv-host { position: relative; min-height: 180px; }
+.bv-scene { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; }
+.bv[data-state="gone"] .bv-host, .bv[data-state="broken"] .bv-host { height: auto !important; min-height: min(46vh, 340px); }
+/* 장면 대신(기다림 · 없는 판) 또는 장면이 뜨기 전의 글 — 가운데 */
+.bv-msg { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 8px; padding: 24px max(20px, env(safe-area-inset-right)) 24px max(20px, env(safe-area-inset-left)); text-align: center; pointer-events: none; }
+.bv-msg:empty { display: none; }
+.bv-msg b { font-size: clamp(19px, 5.6vw, 26px); font-weight: 900; letter-spacing: -.04em; line-height: 1.3; }
+.bv-msg span { font-size: 15px; color: #d9b8c4; }
+.bv-msg small { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #5ef0b4; }
+.bv-msg small::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; animation: bv-blink 1.2s steps(2, jump-none) infinite; }
+.bv[data-state="loading"] .bv-host { background: radial-gradient(120% 60% at 50% 100%, #1d1220 0, #0d0a10 70%); }
+.bv[data-state="wait"] .bv-host { background: radial-gradient(120% 60% at 50% 100%, #24142a 0, #0d0a10 70%); }
+/* 소리를 켰을 때 한 줄(장면 아래쪽에 잠깐) */
+.bv-note { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); margin: 0; max-width: calc(100% - 24px); padding: 7px 14px; border-radius: 999px; background: rgba(13, 10, 16, .86); color: #fff1d6; font-size: 13px; font-weight: 700; white-space: nowrap; pointer-events: none; }
+/* 장면 바로 아래: 보스 이름 · 상태 · 소리 단추(스크롤 없이 보임) */
+.bv-info { display: flex; align-items: center; justify-content: space-between; gap: 12px; max-width: 760px; margin: 0 auto; padding: 10px max(16px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+.bv-text { min-width: 0; display: grid; gap: 1px; }
+.bv-boss { margin: 0; font-weight: 700; font-family: "Galmuri11", var(--font); font-size: 17px; font-weight: 700; line-height: 1.35; letter-spacing: -.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bv-status { margin: 0; display: flex; flex-wrap: wrap; gap: 0 10px; font-size: 13px; line-height: 1.5; color: #d9b8c4; }
+.bv-status b { font-weight: 800; color: #fff1d6; }
+.bv-status em { font-style: normal; font-weight: 800; color: #5ef0b4; }
+.bv[data-state="fight"] .bv-status em { color: #ff8a6a; }
+.bv[data-state="done"] .bv-status em { color: #ffd24a; }
+.bv-sound { flex: none; display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-width: 48px; min-height: 48px; padding: 0 16px; border: 0; border-radius: 999px; background: rgba(255, 241, 214, .1); color: #fff1d6; font-size: 14px; font-weight: 800; white-space: nowrap; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.bv-sound-ic { display: grid; }
+.bv-sound[aria-pressed="true"] { background: #ffd24a; color: #1a0b1e; }
+.bv-sound:active:not(:disabled) { transform: scale(.96); }
+.bv-sound:disabled { opacity: .4; }
+.bv[data-state="gone"] .bv-sound, .bv[data-state="broken"] .bv-sound { display: none; }
+.bv-sound:focus-visible, .bv a:focus-visible { outline: 2px solid #ffd24a; outline-offset: 3px; }
+@media (max-width: 339px) { .bv-sound span:last-child { display: none; } .bv-sound { padding: 0; } }
+/* 아래로 내리면: 지금 다른 보스전 · 바로 가기 */
+.bv-more { max-width: 760px; margin: 0 auto; padding: 18px max(16px, env(safe-area-inset-right)) 8px max(16px, env(safe-area-inset-left)); display: grid; gap: 16px; }
+.bv-h { margin: 0 0 4px; font-size: 16px; font-weight: 900; letter-spacing: -.03em; }
+.bv-list .bl-phase.is-fight { color: #ff8a6a; }
+.bv-links { margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.bv-links .btn { min-height: 44px; background: transparent; color: #fff1d6; border-color: rgba(255, 241, 214, .26); }
+.bv-links .btn:active { opacity: .6; }
+.bv-unofficial { margin: 0; font-size: 12px; color: #a78d9a; }
+body[data-route="watch"] .fp-foot, body[data-route="live"] .fp-foot { margin-top: 24px; }
+@media (prefers-reduced-motion: reduce) { .s2-boss-dot.is-fight, .bv-msg small::before { animation: none; } }

@@ -149,5 +149,99 @@ export async function handle(method, path, query = {}) {
     if (!p) return { status: 404, json: { error: '이 아이디를 찾을 수 없어요. 이번 시즌 아이디가 맞는지 확인해 주세요.' } };
     return { status: 200, json: { id: p.id, lead: p.lead, monsters: structuredClone(p.monsters), season: { id: 's2', name: '몬스터 영토전', endsAt: '2026-12-31T14:59:59.000Z' }, dj: { slug: p.slug, name: p.djName } } };
   }
+  if (method === 'GET' && (path === 'kiugi/fights' || path.startsWith('kiugi/fights/'))) {
+    const skew = Number(param('skew')) || 0;
+    demoWorld ||= demoFights({ t0: Date.now() + skew, none: param('fights') === '0', wait: param('wait') === null ? null : Number(param('wait')) || 0, every: param('every') });
+    const now = Date.now() + skew;
+    return path === 'kiugi/fights' ? demoWorld.list(now, query) : demoWorld.one(now, decodeURIComponent(path.slice('kiugi/fights/'.length)));
+  }
   return { status: 404, json: { error: '찾을 수 없어요.' } };
+}
+
+// ---- 보스전 보기(2026-11-19) — 지어낸 판. 서버(kiugi 함수 v4) GET fights · fights?slug= · fights/<id> 와 같은 모양 ----
+//  주소: ?fights=0(판 없음) · ?wait=<초>(그 뒤에 먼치 방송 판이 생긴다 — /b/<주소> 기다림 화면 확인) · ?every=<초>(먼치 방송 새 판 간격, 기본 200) · ?skew=<ms>(서버 시계가 이 PC 보다 그만큼 빠름)
+//  기본: 먼치 방송(모집 중 → 25초 뒤 싸움 → 땅은 20초 뒤 · 200초마다 새 판) · 쿠키 방송(30명, 싸우는 중) · 달무리 방송(3명) · 솜사탕 방송(모집 중) · 끝난 판 하나
+export const DEMO_BOSS_SLUG = 'nyangdj7', DEMO_ENDED_ID = 'endedfght222';
+const BOSSES = { fire: ['화산 두꺼비', '화구분출'], water: ['심해 크라켄', '산호해일'], grass: ['그루각', '꽃뿔쇄도'], earth: ['협곡 들소', '사암폭풍'], wind: ['천해신 벨', '구름대진군'], electric: ['뇌우라', '천둥그물'] };
+const MON_NAMES = { fire_01: ['홍룡이', '화룡이', '파라곤'], fire_02: ['너굴잉', '화구리', '태구리'], fire_03: ['홍깃', '화깃', '태화깃'], water_01: ['물꼬달', '여울달', '해울달'], water_02: ['개골', '깨골', '큰깨골'], water_03: ['솟나루', '물솟나루', '큰너울'],
+  grass_01: ['새싹곰', '그루곰', '거목곰'], grass_02: ['이끼잠', '덩굴잠', '녹림잠'], grass_03: ['빵빵이', '다람이', '숲지람'], earth_01: ['돌몽이', '황토치', '바위든'], earth_02: ['층모루', '판모루', '성모루'], earth_03: ['어금니', '송곳니', '뿔뿔이'],
+  wind_01: ['삐리링', '회오링', '천풍'], wind_02: ['휘부이', '휘나래', '학도령'], wind_03: ['몽실람', '날래람', '창공람'], electric_01: ['찌릿냥', '자뢰냥', '뇌관묘'], electric_02: ['자릿꼬', '자릿쏜', '자릿섬'], electric_03: ['또르매', '뇌깃솔', '천뢰깃'] };
+const FANS = ['밤톨', '솜사탕', '보리차', '달고나', '호두', '모찌', '단추', '구름빵', '꿀단지', '조약돌', '별사탕', '콩떡', '누룽지', '감귤', '도토리', '찹쌀', '방울', '새벽달', '모래알', '눈꽃'];
+const FAN_MORE = ['', '둘', '셋', '넷'];
+const RING_T = ['water', 'fire', 'grass', 'earth', 'electric', 'wind']; // 왼쪽이 오른쪽에 강함(끝은 처음에)
+const effOf = (att, def) => (RING_T[(RING_T.indexOf(att) + 1) % 6] === def ? 2 : RING_T[(RING_T.indexOf(def) + 1) % 6] === att ? 0 : 1); // 2 강함 · 0 약함 · 1 보통(짧은 사건의 e)
+const E_MUL = [0.75, 1, 1.5];
+// 싸움 대본(FightScript v1 — 봇 fight-script.mjs 와 같은 모양, 사건은 짧은 배열). 같은 씨앗이면 같은 판
+export function demoScript({ n = 10, type = 'water', stage = 4, seed = 1, dj = '먼치', win = true } = {}) {
+  const r = rng(seed * 7919 + n), [name, aoe] = BOSSES[type] || BOSSES.fire;
+  const kinds = Object.keys(MON_NAMES);
+  const team = Array.from({ length: n }, (_, i) => {
+    const sp = kinds[Math.floor(r() * kinds.length)], st = 1 + Math.floor(r() * 3);
+    const fan = FANS[i % FANS.length] + (FAN_MORE[Math.floor(i / FANS.length)] || '');
+    return { label: i % 4 === 3 ? null : `${fan}#${dj}`, sp, type: sp.split('_')[0], name: MON_NAMES[sp][st - 1], stage: st, lv: [6, 18, 31][st - 1] + Math.floor(r() * 6) };
+  });
+  const atk = team.map((m) => 40 + m.lv * 4), full = team.map((m) => 140 + m.lv * 9), mhp = full.slice(), ko = team.map(() => false), dealt = team.map(() => 0);
+  const per = atk.reduce((a, b) => a + b, 0), hp0 = Math.max(100, Math.round(per * (win ? 3.4 : 9)));
+  const events = [], maxRounds = 6;
+  let hp = hp0, charged = false, aoeDone = false, rounds = 0;
+  for (let round = 1; round <= maxRounds && hp > 0 && ko.some((x) => !x); round++) {
+    rounds = round;
+    for (let i = 0; i < n && hp > 0; i++) {
+      if (ko[i]) continue;
+      const e = effOf(team[i].type, type), dmg = Math.min(hp, Math.max(1, Math.round(atk[i] * E_MUL[e] * (0.85 + r() * 0.3))));
+      events.push(['h', round, i, dmg, e, hp, hp - dmg]); hp -= dmg; dealt[i] += dmg;
+      if (!charged && hp > 0 && hp < hp0 / 2) { charged = true; events.push(['c', round, hp]); }
+    }
+    if (hp <= 0) break;
+    const alive = team.map((m, i) => i).filter((i) => !ko[i]);
+    if (charged && !aoeDone) {
+      aoeDone = true;
+      events.push(['a', round, hp, alive.map((i) => { const e = effOf(type, team[i].type), dmg = Math.round((win ? 40 : 150) * E_MUL[e] * (0.8 + r() * 0.4)); mhp[i] -= dmg; if (mhp[i] <= 0) ko[i] = true; return [i, dmg, e, ko[i] ? 1 : 0]; })]);
+    } else {
+      const i = alive[Math.floor(r() * alive.length)], e = effOf(type, team[i].type), dmg = Math.round((win ? 80 : 420) * E_MUL[e] * (0.8 + r() * 0.4)), fresh = mhp[i] === full[i];
+      mhp[i] -= dmg; if (mhp[i] <= 0) ko[i] = true;
+      events.push(['b', round, i, dmg, e, ko[i] ? 1 : 0, ko[i] && fresh ? 1 : 0, hp]);
+    }
+  }
+  const top = dealt.indexOf(Math.max(...dealt));
+  const buffs = { 1: ['영웅 출현', 2.2, 1.8, true], 3: ['삼위일체', 1.34, 1.25, false], 5: ['오성진', 1.2, 1.15, false], 7: ['북두칠성', 1.12, 1.1, false] };
+  const bf = buffs[n] || (n > 7 && n <= 10 ? ['십시일반', 1.06, 1.05, false] : null);
+  return { v: 1, boss: { type, name, aoe, stage }, team, buff: bf ? { b: n, name: bf[0], a: bf[1], h: bf[2], hero: bf[3] } : null, hp: hp0, left: Math.max(0, hp), win: hp <= 0, rounds, maxRounds,
+    mvp: n ? { i: top, dealt: dealt[top] } : null, events, land: null };
+}
+let demoWorld = null;
+export function demoFights({ t0, none = false, wait = null, every = 200 } = {}) {
+  const P = Math.max(30, Number(every) || 200) * 1000; // 먼치 방송은 이만큼마다 새 판(?every=<초>)
+  const mk = (id, slug, dj, type, stage, n, seed, appearAt, joinMs, win, land, landAfter = 0) => ({ id, slug, dj, type, stage, n, seed, appearAt, joinUntil: appearAt + joinMs, startAt: appearAt + joinMs + 2000, win, land, landAfter });
+  const fixed = none || wait !== null ? [] : [
+    mk('cukkyfght222', 'cukky888', '쿠키', 'fire', 6, 30, 3, t0 - 82000, 60000, true, { addedPct: 0.31, pct: 4.7 }),
+    mk('darmuryfght2', 'darmury2', '달무리', 'grass', 2, 3, 5, t0 - 100000, 60000, false, { lostPct: 0.5, pct: 1.6 }),
+    mk('ssatangfght2', 'ssatang2', '솜사탕', 'electric', 3, 5, 9, t0 - 15000, 60000, true, { addedPct: 0.2, pct: 2.2 }, 15000),
+  ];
+  const ended = none ? [] : [mk(DEMO_ENDED_ID, DEMO_BOSS_SLUG, '먼치', 'wind', 3, 7, 11, t0 - 400000, 60000, true, { addedPct: 0.44, pct: 3.9 })];
+  const code = (k) => 'abc'[Math.floor(k / 9) % 3] + 'abc'[Math.floor(k / 3) % 3] + 'abc'[k % 3];
+  // 먼치 방송의 k 번째 판: 처음 판은 열자마자 모집 중(35초 지남 · 25초 남음). ?wait= 이면 그 뒤에 나타나 20초 모집
+  const mine = (k) => mk('munchfght' + code(k), DEMO_BOSS_SLUG, '먼치', ['water', 'fire', 'earth'][k % 3], 9, 10 + k * 8, 7 + k,
+    (wait !== null ? t0 + wait * 1000 : t0 - 35000) + k * P, wait !== null ? 20000 : 60000, k % 2 === 0, k % 2 === 0 ? { addedPct: 0.42, pct: 3.1 } : { lostPct: 0.3, pct: 2.8 }, 20000);
+  const all = (now) => { const out = [...fixed, ...ended]; for (let k = 0; !none && k < 27; k++) { const f = mine(k); if (f.appearAt > now) break; out.push(f); } return out; };
+  const scripts = new Map();
+  const scriptOf = (f) => { if (!scripts.has(f.id)) scripts.set(f.id, demoScript({ n: f.n, type: f.type, stage: f.stage, seed: f.seed, dj: f.dj, win: f.win })); return scripts.get(f.id); };
+  const out = (f, now) => {
+    const fight = now >= f.startAt, sc = scriptOf(f), span = f.joinUntil - f.appearAt;
+    return { id: f.id, dj: { slug: f.slug, name: f.dj }, boss: { type: f.type, name: sc.boss.name, stage: f.stage }, phase: fight ? 'fight' : 'join',
+      joined: fight ? f.n : Math.max(0, Math.min(f.n, Math.round(f.n * (now - f.appearAt) / span))), appearAt: f.appearAt, joinUntil: f.joinUntil, startAt: fight ? f.startAt : null };
+  };
+  return {
+    list(now, query = {}) {
+      const rows = all(now).filter((f) => now <= f.startAt + 90000 && (!query.slug || f.slug === query.slug)).sort((a, b) => b.appearAt - a.appearAt);
+      return { status: 200, json: { now, fights: rows.map((f) => out(f, now)) } };
+    },
+    one(now, id) {
+      const f = all(now).find((x) => x.id === id);
+      if (!f || now > f.startAt + 90000 + 600000) return { status: 404, json: { error: '끝났거나 없는 보스전이에요.' } };
+      const o = out(f, now), sc = scriptOf(f), land = o.phase === 'fight' && now >= f.startAt + f.landAfter ? f.land : null;
+      const script = o.phase === 'fight' ? { ...structuredClone(sc), id: f.id, dj: o.dj, k: 1, appearAt: f.appearAt, joinUntil: f.joinUntil, startAt: f.startAt, land } : null;
+      return { status: 200, json: { now, fight: { ...o, boss: { ...o.boss, aoe: sc.boss.aoe }, script, land } } };
+    },
+  };
 }

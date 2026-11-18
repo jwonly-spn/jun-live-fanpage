@@ -47,8 +47,8 @@ test('모든 화면 모듈을 문법 오류 없이 읽는다 · 시즌 1 화면�
     const r = spawnSync(process.execPath, ['--check', docs + f], { encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
   }
-  assert.deepEqual((await readdir(docs + 'views')).sort(), ['common.js', 'dex.js', 'home.js', 'monster-ui.js']);
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['dom.js', 'map-core.js', 'map-draw.js', 'monsters.js', 'route.js', 'text.js']);
+  assert.deepEqual((await readdir(docs + 'views')).sort(), ['boss.js', 'common.js', 'dex.js', 'home.js', 'monster-ui.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['boss-core.js', 'dom.js', 'map-core.js', 'map-draw.js', 'monsters.js', 'route.js', 'sound-unlock.js', 'text.js']);
   for (const gone of ['kiugi-hd', 'kiugi-lite', 'pets', 'design', 'kiugi/r9', 'kiugi/kiugi-art.js', 'kiugi/season-s1.json']) assert.equal(existsSync(docs + gone), false, gone + ' 는 걷어냈다(시즌 1 그림)');
   for (const gone of ['make-lite-art.cjs', 'sync-kiugi-hd.mjs']) assert.equal(existsSync(fileURLToPath(new URL('../tools/' + gone, import.meta.url))), false, gone);
   for (const f of await siteScripts()) {
@@ -78,7 +78,7 @@ test('index.html = 404.html(SPA) · 보안 규칙 · 사이트 이름 "스푼 DJ
   const commonSrc = await text('views/common.js');
   assert.match(commonSrc, /'kg-unofficial' \}, UNOFFICIAL/, '맨 위 비공식 한 줄');
   assert.match(commonSrc, /'fp-foot-legal' \}, DISCLAIMER/, '맨 아래 비공식 안내');
-  for (const f of ['views/home.js', 'views/dex.js']) {
+  for (const f of ['views/home.js', 'views/dex.js', 'views/boss.js']) {
     const src = await text(f);
     assert.match(src, /nightTop\(app/, f + ': 맨 위 비공식 한 줄이 있는 머리줄');
     assert.match(src, /siteFoot\(app/, f + ': 바닥글');
