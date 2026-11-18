@@ -388,7 +388,7 @@ const INT4_MAX = 2147483647;
 const TYPE_ID = /^[a-z]{1,12}$/;
 const nat = (x: unknown, max = Number.MAX_SAFE_INTEGER): x is number => Number.isSafeInteger(x) && (x as number) >= 0 && (x as number) <= max;
 const BAD_FIGHT = '보스전 내용을 확인해 주세요.', BAD_BOSS = '보스 정보를 확인해 주세요.', BAD_SCRIPT = '보스전 대본을 확인해 주세요.';
-export const BAD_LABEL = '보스전에 올리는 이름은 키우기 아이디만 쓸 수 있어요.', BAD_LAND = '땅 결과를 확인해 주세요.';
+export const BAD_LABEL = '보스전에 올리는 이름은 키우기 아이디(글)나 빈칸만 쓸 수 있어요.', BAD_LAND = '땅 결과를 확인해 주세요.';
 export function makeFightId(random: (n: number) => Uint8Array) {
   let out = '';
   while (out.length < 12) for (const b of random(16)) { if (b < 248 && out.length < 12) out += SLUG_ALPHABET[b % 31]; }
@@ -422,13 +422,15 @@ export function fightLand(value: unknown): Record<string, unknown> {
   return {};
 }
 // 참전 한 줄 {label(키우기 아이디 | null), sp, type, name(몬스터 이름), stage 1~3, lv}
+//  label 이 글이지만 사이트 아이디 규칙(FULL_ID)에 맞지 않으면 그 이름만 null 로 바꾸고 판은 받는다
+//  (먼치킨은 4xx 에 그 판 올리기를 통째로 멈춘다 — 2026-11-18 컨트롤러 결정). 글이 아닌 label(숫자·객체 등)은 모양이 틀린 것 → 400.
 function fightMember(value: unknown) {
   if (!isObject(value)) throw fail(400, BAD_SCRIPT);
   let label: string | null = null;
   if (value.label !== null && value.label !== undefined) {
-    const s = typeof value.label === 'string' ? value.label.normalize('NFC') : '';
-    if (!FULL_ID.test(s)) throw fail(400, BAD_LABEL);
-    label = s;
+    if (typeof value.label !== 'string') throw fail(400, BAD_LABEL);
+    const s = value.label.normalize('NFC');
+    label = FULL_ID.test(s) ? s : null;
   }
   const name = clean(value.name, FIGHT_NAME_MAX);
   if (typeof value.sp !== 'string' || !MONSTER_SP.test(value.sp) || typeof value.type !== 'string' || !TYPE_ID.test(value.type) || !name

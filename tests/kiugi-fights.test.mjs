@@ -136,9 +136,27 @@ test('땅 모양: {addedPct,pct} · {lostPct,pct} · {capped:true} · {} 만 받
   }
 });
 
-test('모양 검사: 아이디 모양이 아닌 label 은 400 · 방송 열쇠(16진 32자)·칸·보스·참전 수·대본 모양이 틀리면 400 · 대본이 256KB 를 넘으면 413', async () => {
+test('이름(label): 사이트 아이디 규칙(FULL_ID)에 맞지 않는 글은 그 이름만 null 로 바꾸고 판은 받는다(200) · 맞는 이름은 NFC 로 그대로', async () => {
   const s = await setup();
-  for (const label of ['달빛소녀', 'moon_01', 'Bam#먼치', '밤톨#', '밤톨 #먼치', '가나다라마바사#먼치', '밤톨#먼치#먼치', '밤톨#가나다라마바사아자', 12, { id: '밤톨#먼치' }]) {
+  // 봇 SITE_LABEL(^[가-힣]{1,6}#.+$)은 통과하지만 FULL_ID(뒤 이름 한글·영문·숫자 1~8자)에는 안 맞는 것 + 아이디 모양이 아닌 글
+  const loose = ['밤톨#먼치#먼치', '밤톨#가나다라마바사아자', '밤톨#먼 치', '밤톨#🎃', '달빛소녀', 'moon_01', 'Bam#먼치', '밤톨#', '밤톨 #먼치', '가나다라마바사#먼치', ''];
+  for (const x of loose.slice(0, 4)) { assert.match(x, /^[가-힣]{1,6}#.+$/, '봇 규칙은 통과'); assert.doesNotMatch(x, v.FULL_ID, '사이트 규칙은 안 맞음'); }
+  for (const [i, label] of loose.entries()) {
+    const r = await s.send('fight', { liveKey: LK, k: 10 + i, script: SCRIPT([MEMBER(0), MEMBER(1, label)]) });
+    assert.equal(r.status, 200, JSON.stringify(label));
+    const team = (await s.one(r.json.id)).json.fight.script.team;
+    assert.equal(team[1].label, null, JSON.stringify(label));
+    assert.equal(team[0].label, MEMBER(0).label, '맞는 이름은 그대로');
+  }
+  assert.equal(s.w.store.fights.size, loose.length);
+  const r = await s.send('fight', { liveKey: LK2, k: 1, script: SCRIPT([MEMBER(0, '밤톨#먼치'.normalize('NFD')), MEMBER(1, null)]) });
+  assert.equal(r.status, 200);
+  assert.deepEqual((await s.one(r.json.id)).json.fight.script.team.map((m) => m.label), ['밤톨#먼치', null], '풀어 쓴 한글은 NFC 로');
+});
+
+test('모양 검사: 글이 아닌 label 은 400 · 방송 열쇠(16진 32자)·칸·보스·참전 수·대본 모양이 틀리면 400 · 대본이 256KB 를 넘으면 413', async () => {
+  const s = await setup();
+  for (const label of [12, true, ['밤톨#먼치'], { id: '밤톨#먼치' }]) {
     const r = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT([MEMBER(0), MEMBER(1, label)]) });
     assert.equal(r.status, 400, JSON.stringify(label)); assert.match(r.json.error, /아이디/);
   }
