@@ -2,20 +2,21 @@
 //  · /boss            지금 보스전 목록(15초마다 — 화면이 숨으면 쉼). 없으면 "지금은 보스전이 없어요 — 방송 시작 30분 뒤부터 30분마다 나와요".
 //  · /boss/<판 번호>   한 판 보기: 모집 중이면 보스 등장 장면 + 참전 수(3초마다) → 대본이 오면 그만 읽고 생중계(서버 시계에 맞춰 그 장면부터)
 //                      → 땅 답이 아직이면 10초마다 → 끝나면 결과 장면 + "지금 다른 보스전". 없는 판은 "끝났거나 없는 보스전이에요". 다시 보는 단추는 없다.
-//  · /b/<DJ 주소>      채팅 생중계 링크: 그 DJ 의 지금 판을 바로. 없으면 기다림 화면(15초마다) — 판이 생기면 저절로 장면이 시작된다.
+//  · /b/<DJ 주소>      채팅 생중계 링크: 그 DJ 의 지금 판을 바로. 없으면 기다림 화면(연 뒤 90초는 3초마다 · 처음 10초는 "보스를 찾는 중" · 그 뒤 15초마다) — 판이 생기면 저절로 장면이 시작된다.
+//  한도에 걸리면(429) 30초 쉬었다 다시 묻는다. 서버 시계는 가장 빨리 온 답으로만 맞춘다. 참전 마감이 지나면 정보 줄은 "결과를 기다리는 중".
 //  스푼 앱 안 창(아이폰 WKWebView · 갤럭시 WebView)에서 먼저 잘 보이게: 장면이 맨 위에 폭 가득(세로 화면은 세로 장면), 바로 아래 보스 이름·상태·소리 단추가
 //  스크롤 없이 한눈에. 틀·상자 없음, 어두운 바탕. 소리는 처음엔 꺼짐 — 켤 때 음악을 받고 "방송 소리와 겹칠 수 있어요" 한 줄.
 //  장면 모듈(kiugi/s2/battle/battle-scene.js — 먼치킨 저장소에서 옮김)과 그림·음악은 이 화면에서만 받는다. 이름표는 키우기 아이디의 # 앞만.
 import { h, icon } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { EMPTY_BOSS, emptyLines, GONE_BOSS, BROKEN_BOSS, SOUND_NOTE, LIST_POLL_MS, OTHERS_POLL_MS, NEXT_MS, waitPollMs, listOf, phaseText, djText, bossText, joinedText, pickFight, watchPlan, clockOffset, sceneQuality, nameOf, playWithSound } from '../lib/boss-core.js';
+import { EMPTY_BOSS, emptyLines, GONE_BOSS, BROKEN_BOSS, SOUND_NOTE, LIST_POLL_MS, OTHERS_POLL_MS, NEXT_MS, FAIL_RETRY_MS, LOAD_RETRY_MAX, waitPollMs, waitWords, failWaitMs, loadRetryPlan, listOf, phaseText, djText, bossText, joinedText, pickFight, watchPlan, bestClock, sceneQuality, nameOf, playWithSound } from '../lib/boss-core.js';
 import { unlockAudio, lockAudio } from '../lib/sound-unlock.js';
 import { nightTop, siteFoot, ilink, BRAND, UNOFFICIAL } from './common.js';
 
 // 그림 글자는 화면 읽기가 읽지 않게(제목은 글만)
 const ogre = () => h('span', { 'aria-hidden': 'true' }, '👹 ');
 const LOAD_FAILED = '장면을 불러오지 못했어요';
-const RETRY_MS = 5000;      // 읽기에 실패했을 때
+const RETRY_MS = FAIL_RETRY_MS; // 읽기에 실패했을 때(5초 — 한도에 걸렸으면 failWaitMs 가 30초)
 const NOTE_MS = 6000;       // 소리 한 줄이 보이는 시간
 const DARK = '#0d0a10';     // 보는 화면 바탕(브라우저 위쪽 막대 색도)
 
@@ -35,7 +36,7 @@ function poller(el, fn) {
     if (document.hidden) { pending = true; return; } // 숨어 있으면 쉬고, 다시 보이면 바로
     busy = true;
     let ms = RETRY_MS;
-    try { ms = await fn(); } catch { ms = RETRY_MS; }
+    try { ms = await fn(); } catch (e) { ms = failWaitMs(e); }
     busy = false;
     if (stopped) return;
     if (again) { again = false; return run(); }
@@ -67,12 +68,13 @@ function listPage(root, app) {
   root.replaceChildren(...nightTop(app), main, siteFoot(app, '보스전에는 방송 이름과 청취자가 만든 키우기 아이디·몬스터만 보여요.'));
   document.title = `지금 보스전 · ${BRAND}`;
   const poll = poller(main, async () => {
+    let wait = LIST_POLL_MS;
     try {
       const fights = listOf(await kiugiApi.fights());
       if (fights.length) { list.replaceChildren(...fights.map((f) => fightRow(app, f))); body.replaceChildren(list); } else body.replaceChildren(emptyBox());
       note.textContent = '';
-    } catch (e) { note.textContent = `${e?.message || '목록을 불러오지 못했어요.'} 잠시 뒤에 다시 읽어요.`; }
-    return LIST_POLL_MS;
+    } catch (e) { note.textContent = `${e?.message || '목록을 불러오지 못했어요.'} 잠시 뒤에 다시 읽어요.`; wait = failWaitMs(e, LIST_POLL_MS); }
+    return wait;
   });
   app.onLeave = poll.stop;
   poll.start();
@@ -85,9 +87,10 @@ function watchPage(root, app, route) {
   let sound = false;        // 소리는 처음엔 꺼짐(보는 사람이 켠다 — 장면이 바뀌어도 고른 대로)
   let mod = null, sharedAudio = null, ctl = null, sceneEl = null;
   let curId = live ? '' : route.fight, cur = null; // cur = 지금 띄운 장면 {id, phase:'join'|'fight', ended, landKnown, win, tries}
-  let offset = 0, dead = false, noteTimer = 0, othersAt = 0, last = null, idleSince = 0;
+  let clock = null, dead = false, noteTimer = 0, othersAt = 0, last = null, idleSince = 0, loadFails = 0, preFails = 0; // clock = 서버 시계 맞춤 {offset, rtt}(가장 빨리 온 답)
+  const openedAt = Date.now();
   const skip = new Set(); // 다 본 판·없는 판·볼 수 없는 판(채팅 링크에서 다시 고르지 않는다)
-  const serverNow = () => Date.now() + offset;
+  const serverNow = () => Date.now() + (clock ? clock.offset : 0);
 
   const host = h('div', { class: 'bv-host' });
   const msg = h('div', { class: 'bv-msg', role: 'status', 'aria-live': 'polite' });
@@ -161,7 +164,7 @@ function watchPage(root, app, route) {
     last = f || last;
     if (!last) return;
     bossEl.replaceChildren(ogre(), bossText(last));
-    const state = cur?.ended ? (cur.win ? '토벌 성공' : '토벌 실패') : phaseText(last);
+    const state = cur?.ended ? (cur.win ? '토벌 성공' : '토벌 실패') : phaseText(last, serverNow());
     if (stateEl.parentNode !== statusEl) statusEl.replaceChildren(djEl, ' ', stateEl, ' ', countEl);
     djEl.textContent = djText(last); countEl.textContent = joinedText(last);
     if (stateEl.textContent !== state) stateEl.textContent = state; // 바뀔 때만(화면 읽기가 한 번만 읽게)
@@ -204,7 +207,7 @@ function watchPage(root, app, route) {
       othersBox.hidden = !rows.length;
     } catch { /* 다음에 다시 */ }
   }
-  const sync = (now, sentAt) => { if (typeof now === 'number') offset = clockOffset(now, sentAt, Date.now()); };
+  const sync = (now, sentAt) => { clock = bestClock(clock, now, sentAt, Date.now()); }; // 가장 빨리 온 답으로만(느린 답에 장면이 튀지 않게)
 
   // 한 번 읽고 정한다 → 다음까지 기다릴 ms
   async function tick() {
@@ -214,11 +217,11 @@ function watchPage(root, app, route) {
       sync(r.now, sent);
       const f = pickFight(listOf(r), slug, skip);
       if (!f) {
-        if (!cur) { const [a, b] = emptyLines(); say('wait', a, b, '보스가 나오면 여기서 바로 시작돼요'); plain('보스를 기다리는 중이에요'); }
+        if (!cur) { const w = waitWords(Date.now() - openedAt); say('wait', w.title, w.sub, w.extra); plain(w.status); } // 막 열었으면 "보스를 찾는 중"
         if (Date.now() - othersAt > OTHERS_POLL_MS - 1000) others(); // 다른 보스전 목록은 1분마다만
-        loadScene().catch(() => {}); // 기다리는 동안 장면 모듈을 미리 받아 둔다(소리 단추도 이때 켜진다)
+        if (preFails < LOAD_RETRY_MAX) loadScene().catch(() => { preFails++; }); // 기다리는 동안 장면 모듈을 미리 받아 둔다(소리 단추도 이때 켜진다) — 두 번 못 받으면 그만
         idleSince ||= Date.now();
-        return waitPollMs(Date.now() - idleSince); // 15초마다 — 10분 넘게 판이 없으면 30초마다(다시 보면 15초로)
+        return waitPollMs(Date.now() - idleSince, Date.now() - openedAt); // 연 뒤 90초는 3초마다 · 그 뒤 15초마다 — 10분 넘게 판이 없으면 30초마다(다시 보면 15초로)
       }
       curId = f.id; idleSince = 0;
     }
@@ -230,7 +233,7 @@ function watchPage(root, app, route) {
     let r = null;
     const sent = Date.now();
     try { r = await kiugiApi.fight(curId); } catch (e) {
-      if (e?.status !== 404) return RETRY_MS; // 잠깐 끊김: 장면은 그대로 두고 다시
+      if (e?.status !== 404) return failWaitMs(e); // 잠깐 끊김: 장면은 그대로 두고 다시(한도에 걸렸으면 30초 뒤)
       r = null;
     }
     if (r) sync(r.now, sent);
@@ -260,8 +263,10 @@ function watchPage(root, app, route) {
       console.error(e);
       if (e?.loadFailed) { // 장면 모듈을 못 받음(인터넷 끊김 등): 판은 그대로 두고 다시 — 대본이 잘못된 것이 아니다
         say('retry', LOAD_FAILED, '인터넷 연결을 확인해 주세요.', '', h('button', { type: 'button', class: 'btn bv-retry', onclick: () => location.reload() }, '다시 시도'));
-        plain('15초 뒤에 다시 해 봐요');
-        return LIST_POLL_MS;
+        // 저절로 다시 해 보는 것은 두 번까지 — 그 뒤로는 멈추고 단추만(브라우저가 실패한 받기를 기억하면 다시 해도 같다 · 새로 고침이 확실)
+        const plan = loadRetryPlan(++loadFails);
+        plain(plan.status);
+        return plan.poll;
       }
       dropScene(); say('broken', BROKEN_BOSS); plain('다른 보스전을 골라 주세요');
       if (live) skip.add(curId);

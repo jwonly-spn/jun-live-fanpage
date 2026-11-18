@@ -94,6 +94,13 @@ export function sceneAt(tl, ms) {
   return name;
 }
 
+// 모집 화면 글(2026-11-19): 남은 초 → 그림 글자·제목·아랫줄·채팅 안내. 마감이 지나면(0 이하) 모집은 끝났으니 "모집 중"·"!참전" 을 내리고 기다린다고만 한다
+//  (봇이 꺼져 대본이 오지 않아도 틀린 말이 되지 않게 — "곧 싸움이 시작돼요" 도 쓰지 않는다). 마감을 모르면(null) 시간 줄만 없다.
+export function joinWords(leftS) {
+  if (leftS != null && leftS <= 0) return { icon: '⏳', title: '결과를 기다리는 중', sub: null, hint: null, open: false };
+  return { icon: '⚔', title: '참전 모집 중', sub: leftS == null ? null : `남은 시간 ${leftS}초`, hint: '방송 채팅에 !참전', open: true };
+}
+
 // 땅 % 글 — 봇 boss.mjs landPct 와 같은 규칙(0.1% 보다 작으면 소수 둘째 자리까지)
 const landPct = v => { const n = Math.abs(Number(v)) || 0, d = n > 0 && n < 0.1 ? 2 : 1; return `${(Math.round(n * 10 ** d) / 10 ** d).toLocaleString('ko-KR', { maximumFractionDigits: d })}%`; };
 // 결과 장면의 땅 한 줄(봇 resultLines 와 같은 뜻). land: {addedPct,pct} | {lostPct,pct} | {capped:true} | {} | null(모름 → 줄 없음)

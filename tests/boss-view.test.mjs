@@ -279,7 +279,88 @@ test('채팅 링크 기다림: 15초마다 · 10분 넘게 판이 없으면 30�
   skip.add('aaaaaaaaaaaa');
   assert.equal(c.pickFight([a, b], SLUG, skip), null, '둘 다 없는 판이면 번갈아 고르지 않는다');
   const view = await text('views/boss.js');
-  assert.match(view, /othersAt > OTHERS_POLL_MS - 1000/); assert.match(view, /return waitPollMs\(Date\.now\(\) - idleSince\)/);
+  assert.match(view, /othersAt > OTHERS_POLL_MS - 1000/); assert.match(view, /return waitPollMs\(Date\.now\(\) - idleSince, Date\.now\(\) - openedAt\)/);
   assert.match(view, /visibilityState === 'visible'\) idleSince = 0/, '다시 보면 15초 간격으로');
   assert.doesNotMatch(view, /return tick\(\)/, '쉬지 않고 되부르지 않는다');
+});
+
+// ---- 2026-11-19 마지막 점검 뒤 ----
+test('채팅 링크를 막 열었을 때(I2): 연 뒤 90초 동안은 3초마다 · 그 뒤 15초 · 10분 넘게 없으면 30초 · 처음 10초는 "보스를 찾는 중" 그 뒤 "지금은 보스전이 없어요"', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  assert.deepEqual([c.FAST_POLL_MS, c.FAST_FOR_MS, c.SEEK_MS], [3000, 90000, 10000]);
+  assert.equal(c.waitPollMs(0, 0), 3000); assert.equal(c.waitPollMs(60000, 89999), 3000);
+  assert.equal(c.waitPollMs(60000, 90000), 15000); assert.equal(c.waitPollMs(600001, 700000), 30000);
+  assert.equal(c.waitPollMs(0), 15000, '연 때를 모르면 예전처럼');
+  const seek = c.waitWords(0), none = c.waitWords(10000);
+  assert.deepEqual(seek, { seeking: true, title: '보스를 찾는 중…', sub: '잠깐만 기다려 주세요', extra: '', status: '보스를 찾는 중이에요' });
+  assert.deepEqual(c.waitWords(9999), seek);
+  assert.deepEqual(none, { seeking: false, title: '지금은 보스전이 없어요', sub: '방송 시작 30분 뒤부터 30분마다 나와요', extra: '보스가 나오면 여기서 바로 시작돼요', status: '보스를 기다리는 중이에요' });
+  const view = await text('views/boss.js');
+  assert.match(view, /const w = waitWords\(Date\.now\(\) - openedAt\); say\('wait', w\.title, w\.sub, w\.extra\); plain\(w\.status\);/);
+  assert.match(view, /return waitPollMs\(Date\.now\(\) - idleSince, Date\.now\(\) - openedAt\)/);
+});
+
+test('한도에 걸리면(429 — I3) 30초 쉬었다 다시 · 다른 실패는 5초 · 화면 셋(보는 화면·목록·첫 화면 띠) 모두', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  assert.deepEqual([c.FAIL_RETRY_MS, c.LIMIT_WAIT_MS], [5000, 30000]);
+  assert.equal(c.failWaitMs({ status: 429 }), 30000);
+  for (const e of [{ status: 0 }, { status: 503 }, {}, null, undefined]) assert.equal(c.failWaitMs(e), 5000);
+  assert.equal(c.failWaitMs({ status: 429 }, 15000), 30000); assert.equal(c.failWaitMs({ status: 503 }, 15000), 15000, '둘째 값 = 보통 때 기다림(목록·띠는 15초)');
+  const view = await text('views/boss.js'), home = await text('views/home.js'), api = await text('api.js');
+  assert.match(view, /try \{ ms = await fn\(\); \} catch \(e\) \{ ms = failWaitMs\(e\); \}/, '되풀이(poller)');
+  assert.match(view, /if \(e\?\.status !== 404\) return failWaitMs\(e\);/, '한 판 읽기');
+  assert.match(view, /wait = failWaitMs\(e, LIST_POLL_MS\);/, '목록');
+  assert.match(home, /wait = failWaitMs\(e, LIST_POLL_MS\);/, '첫 화면 띠');
+  assert.match(home, /timer = setTimeout\(read, wait\)/);
+  assert.match(api, /429: '[^']*[가-힣][^']*'/, '서버 글이 없어도 한국어 글');
+});
+
+test('서버 시계 맞춤(M1): 가장 빨리 온 답으로만 — 느린 답 하나가 와도 그대로 · 더 빠른 답이 오면 바꾼다 · now 가 없거나 시계가 거꾸로 간 답은 버린다', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  const first = c.bestClock(null, T + 5000, T, T + 200);
+  assert.deepEqual(first, { offset: 4900, rtt: 200 });
+  // 느린 답(3초 걸림 — 서버는 받자마자 답했는데 내려오는 길이 막힘): 가운데로 셈하면 1.4초나 틀린다 → 버린다
+  const slow = c.bestClock(first, T + 10000 + 5000 + 100, T + 10000, T + 13000);
+  assert.equal(slow, first, '느린 답은 버린다');
+  assert.equal(c.clockOffset(T + 15100, T + 10000, T + 13000), 3600, '옛 셈이면 1.3초 뒤로 튀었다(장면이 되감김)');
+  const fast = c.bestClock(first, T + 20000 + 4950, T + 20000, T + 20080);
+  assert.deepEqual(fast, { offset: 4910, rtt: 80 });
+  assert.equal(c.bestClock(fast, T + 30000 + 4950, T + 30000, T + 30080), fast, '같은 빠르기면 그대로(자잘하게 흔들리지 않게)');
+  assert.equal(c.bestClock(fast, 'x', T, T + 10), fast); assert.equal(c.bestClock(fast, undefined, T, T + 10), fast);
+  assert.equal(c.bestClock(fast, T + 5000, T + 100, T), fast, '받은 때가 보낸 때보다 앞(기기 시계가 바뀜)');
+  assert.equal(c.bestClock(null, 'x', T, T + 10), null);
+  const view = await text('views/boss.js');
+  assert.match(view, /clock = bestClock\(clock, now, sentAt, Date\.now\(\)\)/);
+  assert.match(view, /const serverNow = \(\) => Date\.now\(\) \+ \(clock \? clock\.offset : 0\);/);
+  assert.doesNotMatch(view, /offset = clockOffset\(/, '답마다 새로 맞추지 않는다');
+});
+
+test('참전 마감 뒤(M2): 정보 줄이 "모집 중" 대신 "결과를 기다리는 중" · 마감 전·싸우는 중·시각을 모를 때는 그대로', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  const j = F({ phase: 'join', startAt: null, joinUntil: T });
+  assert.equal(c.phaseText(j, T), '모집 중'); assert.equal(c.phaseText(j, T - 1), '모집 중');
+  assert.equal(c.phaseText(j, T + 1), '결과를 기다리는 중'); assert.equal(c.phaseText(j, T + 89000), '결과를 기다리는 중');
+  assert.equal(c.phaseText(j), '모집 중', '지금을 안 주면(목록·띠) 예전처럼');
+  assert.equal(c.phaseText(F(), T + 1), '싸우는 중');
+  const view = await text('views/boss.js');
+  assert.match(view, /: phaseText\(last, serverNow\(\)\);/);
+  // 장면도 같은 글(먼치킨 원본에서 옮긴 사본)
+  const { joinWords } = await import('../docs/kiugi/s2/battle/timeline.js');
+  assert.equal(joinWords(0).title, c.phaseText(j, T + 1)); assert.equal(joinWords(0).hint, null); assert.equal(joinWords(5).title, '참전 ' + c.phaseText(j, T));
+});
+
+test('장면 모듈을 못 받을 때(T7): 저절로 다시 해 보는 것은 두 번까지 · 그 뒤로는 멈추고 "다시 시도" 단추만(글도 그렇게)', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  assert.equal(c.LOAD_RETRY_MAX, 2);
+  assert.deepEqual(c.loadRetryPlan(1), { poll: 15000, status: '15초 뒤에 다시 해 봐요' });
+  assert.deepEqual(c.loadRetryPlan(2), { poll: 15000, status: '15초 뒤에 다시 해 봐요' });
+  assert.deepEqual(c.loadRetryPlan(3), { poll: 0, status: '다시 시도를 눌러 주세요' });
+  assert.deepEqual(c.loadRetryPlan(9), { poll: 0, status: '다시 시도를 눌러 주세요' });
+  const view = await text('views/boss.js');
+  assert.match(view, /const plan = loadRetryPlan\(\+\+loadFails\);/);
+  assert.match(view, /plain\(plan\.status\);\s+return plan\.poll;/);
+  assert.equal((view.match(/15초 뒤에 다시 해 봐요/g) || []).length, 0, '글은 한 곳(boss-core)에만');
+  assert.match(view, /onclick: \(\) => location\.reload\(\) \}, '다시 시도'\)/);
+  // 기다리는 동안 미리 받기도 두 번 못 받으면 그만(3초마다 되받지 않는다)
+  assert.match(view, /if \(preFails < LOAD_RETRY_MAX\) loadScene\(\)\.catch\(\(\) => \{ preFails\+\+; \}\);/);
 });

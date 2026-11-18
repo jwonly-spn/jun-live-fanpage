@@ -47,13 +47,20 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   const v2Until: number = opts.v2Until ?? v.S2_START;
   // 메인 페이지·전체 찾기 목록은 이 함수 안에서 잠깐(기본 30초) 기억해 둔다(보는 사람이 많아도 데이터베이스를 덜 부르게).
   const cacheMs: number = opts.cacheMs ?? 30000;
+  // 보스전 목록·한 판 답은 3초(lib.ts FIGHT_READ_MS — 사이트가 3초마다 묻는다). 시험은 0 으로 끈다.
+  const fightCacheMs: number = opts.fightCacheMs ?? v.FIGHT_READ_MS;
   const urlOf = (slug: string) => site + 'k/' + slug;
-  const memo = new Map<string, { at: number; value: Promise<any> }>();
-  function cached<T>(key: string, make: () => Promise<T>): Promise<T> {
+  // 기억(memo): 열쇠마다 ttl. 보스전은 열쇠가 주소·판마다라 많아질 수 있어 MEMO_MAX 를 넘으면 지난 것을 치운다(그래도 많으면 모두).
+  const MEMO_MAX = 500;
+  const memo = new Map<string, { at: number; ttl: number; value: Promise<any> }>();
+  function cached<T>(key: string, make: () => Promise<T>, ttl: number = cacheMs): Promise<T> {
     const t = now(), hit = memo.get(key);
-    if (cacheMs > 0 && hit && t - hit.at < cacheMs) return hit.value;
+    if (ttl > 0 && hit && t - hit.at < ttl) return hit.value;
     const value = make();
-    if (cacheMs > 0) { memo.set(key, { at: t, value }); value.catch(() => memo.delete(key)); }
+    if (ttl > 0) {
+      if (memo.size >= MEMO_MAX) { for (const [k, m] of memo) if (t - m.at >= m.ttl) memo.delete(k); if (memo.size >= MEMO_MAX) memo.clear(); }
+      memo.set(key, { at: t, ttl, value }); value.catch(() => memo.delete(key));
+    }
     return value;
   }
 
@@ -415,18 +422,28 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
   // 지금 판 목록: 싸우는 중(끝 = now > end_at 이면 뺌) · 모집 중은 마감 + 90초까지(봇이 멈춰 대본이 안 온 판이 목록에 남지 않게 — 보기는 expires 까지)
   //  지운 것·지난 것(expires)은 빼고, 메인에 보이기를 끈 DJ(main=false)의 판도 뺀다(메인 목록·전체 찾기와 같게 — 보기 fights/<id> 는 page?slug= 처럼 열린다)
   //  ?slug=<DJ 주소>(채팅 생중계 링크 키우기.com/b/<주소> 가 쓴다): 그 DJ 의 판만 — 메인에 보이기를 꺼도 자기 주소로는 나온다(page?slug= 처럼). 모양은 같다.
-  async function fights(url: URL) {
+  //  읽기 한도·기억(2026-11-19): 한 IP 1분 240번(넘으면 429 — 사이트는 쉬었다 다시 묻는다) · 목록은 주소마다 3초 기억(now 는 기억하지 않고 답마다 지금 — 사이트가 시계를 맞추는 값)
+  async function fights(url: URL, req: Request) {
     const slug = url.searchParams.has('slug') ? v.slugOf(url.searchParams.get('slug')) : null;
+    const [, list] = await Promise.all([limitBy(req, 'fl', v.FIGHT_READ_PER_MIN), cached('fights:' + (slug ?? ''), () => fightList(slug), fightCacheMs)]);
+    return json({ now: now(), fights: list }, 200, 'public, max-age=5');
+  }
+  async function fightList(slug: string | null) {
     const at = now(), joinFrom = at - v.FIGHT_JOIN_GRACE_MS;
     fightClean(at);
     const rows = (((await store.liveFights(at, joinFrom, slug)) || []) as Record<string, any>[])
       .filter((r) => r.expires > at && (r.phase === 'fight' ? r.end_at >= at : r.phase === 'join' && r.join_until >= joinFrom) && (!slug || r.slug === slug));
     const shown = (await shownFights(rows)).filter(({ page }) => (slug ? page.slug === slug : page.main !== false));
-    return json({ now: at, fights: shown.map(({ row, page }) => fightOut(row, page)) }, 200, 'public, max-age=5');
+    return shown.map(({ row, page }) => fightOut(row, page));
   }
   // 한 판(대본까지): 끝난 판도 expires 까지(늦게 온 사람에게 결과 한 장면). 대본의 판 번호·DJ·칸·시각은 서버 값으로, 땅은 fight-land 로 받은 것(없으면 대본의 것).
-  async function fight(id: string) {
+  //  읽기 한도·기억은 목록과 같다(판마다 3초 · 없는 판(404)은 기억하지 않는다 · now 는 답마다 지금)
+  async function fight(id: string, req: Request) {
     if (!v.FIGHT_ID.test(id)) throw v.fail(404, FIGHT_GONE);
+    const [, one] = await Promise.all([limitBy(req, 'fo', v.FIGHT_READ_PER_MIN), cached('fight:' + id, () => fightOne(id), fightCacheMs)]);
+    return json({ now: now(), fight: one }, 200, 'public, max-age=5');
+  }
+  async function fightOne(id: string) {
     const at = now();
     fightClean(at);
     const row = await store.fightById(id);
@@ -435,7 +452,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     if (!hit) throw v.fail(404, FIGHT_GONE);
     const out = fightOut(row, hit.page), land = row.land ?? row.script?.land ?? null;
     const script = row.script ? { ...row.script, v: 1, id: row.id, dj: out.dj, k: row.k, appearAt: row.appear_at, joinUntil: row.join_until, startAt: row.start_at, land } : null;
-    return json({ now: at, fight: { ...out, boss: { ...out.boss, aoe: row.boss?.aoe }, script, land } }, 200, 'public, max-age=5');
+    return { ...out, boss: { ...out.boss, aoe: row.boss?.aoe }, script, land };
   }
 
   return async function handle(req: Request): Promise<Response> {
@@ -445,8 +462,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
         if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, s2: true, v2Until: Number.isFinite(v2Until) ? new Date(v2Until).toISOString() : null, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
-        if (route === 'fights') return await fights(url);
-        if (route.startsWith('fights/')) return await fight(route.slice('fights/'.length));
+        if (route === 'fights') return await fights(url, req);
+        if (route.startsWith('fights/')) return await fight(route.slice('fights/'.length), req);
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);
         if (route === 'person') return await person(url, req);

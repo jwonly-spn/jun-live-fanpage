@@ -130,13 +130,13 @@ export function memoryStore(clock) {
 // 나중에 하는 일(later — 미리 만든 답 올리기)이 끝나게 잠깐 기다린다
 export const settle = () => new Promise((r) => setTimeout(r, 5));
 
-// 시험 세계: 시계·store·handler. cacheMs 0(메인·전체 찾기 목록을 기억하지 않음), chance 0.5(가끔 하는 정리는 안 함)
+// 시험 세계: 시계·store·handler. cacheMs 0(메인·전체 찾기 목록을 기억하지 않음), fightCacheMs 0(보스전 목록·한 판 답도 기억하지 않음 — 실제 서버는 3초), chance 0.5(가끔 하는 정리는 안 함)
 //  v2Until: 시즌 1 올리기(v2)를 받는 마지막 때 — 시즌 1 시험은 시계를 두 달 넘게 넘기며 v2 로 올려서 기본은 끝 없음(Infinity).
 //   시즌 2 시험(kiugi-s2.test.mjs)은 실제 서버와 같은 때(lib.ts S2_START = 2026-12-01 0시 한국)를 넣는다.
-export function world({ chance = () => 0.5, cacheMs = 0, v2Until = Infinity, now = T0 } = {}) {
+export function world({ chance = () => 0.5, cacheMs = 0, fightCacheMs = 0, v2Until = Infinity, now = T0 } = {}) {
   const clock = { now }, store = memoryStore(clock);
   let seed = 1;
-  const handle = createHandler(store, { now: () => clock.now, chance, site: SITE, cacheMs, v2Until, random: (n) => Uint8Array.from({ length: n }, () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 256) });
+  const handle = createHandler(store, { now: () => clock.now, chance, site: SITE, cacheMs, fightCacheMs, v2Until, random: (n) => Uint8Array.from({ length: n }, () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 256) });
   const post = (body, headers = {}, path = 'app') => handle(new Request(BASE + path, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) }));
   const get = (path, ip = '1.1.1.1') => handle(new Request(BASE + path, { headers: { 'cf-connecting-ip': ip } }));
   // 승인된 기기 하나 만들고 올리기(1분에 2번 한도를 피하려고 시계를 61초 넘긴다)

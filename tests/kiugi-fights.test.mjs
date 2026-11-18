@@ -23,8 +23,8 @@ const SCRIPT = (team = [MEMBER(0), MEMBER(1)], extra = {}) => ({
 const V3 = (people = [{ id: '밤톨#먼치', lead: 'water_01', monsters: [{ sp: 'water_01', stage: 1, lv: 5 }] }]) => ({ enabled: true, v: 3, season: 's2', character: { name: '먼치' }, people });
 
 // 시험 세계 + 페이지를 올린 승인 기기 하나. send(action, payload, {skew}) — skew: 먼치킨 PC 시계가 서버보다 그만큼 빠름(서명 시각)
-async function setup({ chance, page = true } = {}) {
-  const w = world({ now: T - 61000, chance }), key = w.approve();
+async function setup({ chance, page = true, fightCacheMs } = {}) {
+  const w = world({ now: T - 61000, chance, fightCacheMs }), key = w.approve();
   let slug = null;
   if (page) { const up = await w.upload(key, V3()); assert.equal(up.status, 200); slug = up.json.slug; }
   const send = async (action, payload, { skew = 0, k = key } = {}) => body(await w.post(signed(k, payload, { at: w.clock.now + skew, action })));
@@ -471,4 +471,55 @@ test('GET fights?slug=<DJ 주소>(채팅 생중계 링크 /b/<주소> 용): 그 
   for (const bad of ['', 'ABC', 'aaaaaaa1', '../x']) assert.equal((await s.w.get('fights?slug=' + encodeURIComponent(bad))).status, 404, bad);
   // 기기 번호·방송 열쇠는 내보내지 않는다
   assert.doesNotMatch(JSON.stringify(b.json), new RegExp(`${key2.id}|${LK2}`));
+});
+
+// 2026-11-19 마지막 점검 I3: 읽기(GET fights · fights/<id>)도 다른 읽기처럼 잠깐 기억하고(함수 안 — 3초) IP 한도를 둔다
+//  (키우기.com 첫 화면 띠가 15초마다 · /b 기다림 화면이 3초마다 묻는다 — 보는 사람이 많아도 데이터베이스는 3초에 한 번)
+test('읽기 기억(3초): 같은 목록·같은 판은 3초 안에 데이터베이스를 다시 묻지 않는다 · now 는 늘 지금 · 주소(slug)·판마다 따로 · 3초가 지나면 새로 · 없는 판(404)은 기억하지 않는다', async () => {
+  assert.equal(v.FIGHT_READ_MS, 3000);
+  const s = await setup({ fightCacheMs: v.FIGHT_READ_MS });
+  const asked = { list: 0, one: 0 }, { liveFights, fightById } = s.w.store;
+  s.w.store.liveFights = (...a) => { asked.list++; return liveFights(...a); };
+  s.w.store.fightById = (...a) => { asked.one++; return fightById(...a); };
+  const of = async (slug) => body(await s.w.get('fights?slug=' + slug));
+  const t0 = s.w.clock.now;
+  assert.deepEqual((await s.list()).json, { now: t0, fights: [] }); assert.equal(asked.list, 1);
+  assert.deepEqual((await of(s.slug)).json, { now: t0, fights: [] }); assert.equal(asked.list, 2, '주소마다 따로 기억');
+  // 보스 등장 → 3초 안에는 예전 답(데이터베이스를 묻지 않는다) · now 는 지금
+  const { json: { id } } = await appear(s);
+  s.w.clock.now = t0 + 2999;
+  let r = await s.list(); assert.deepEqual(r.json, { now: t0 + 2999, fights: [] }); assert.equal(asked.list, 2);
+  r = await of(s.slug); assert.deepEqual(r.json, { now: t0 + 2999, fights: [] }); assert.equal(asked.list, 2);
+  // 3초가 지나면 새로
+  s.w.clock.now = t0 + 3000;
+  r = await s.list(); assert.deepEqual(r.json.fights.map((f) => f.id), [id]); assert.equal(r.json.now, t0 + 3000); assert.equal(asked.list, 3);
+  r = await of(s.slug); assert.deepEqual(r.json.fights.map((f) => f.id), [id]); assert.equal(asked.list, 4);
+  // 한 판: 3초 안에는 참전 수가 예전 그대로 · now 는 지금 · 3초 뒤 새로
+  const t1 = s.w.clock.now;
+  r = await s.one(id); assert.equal(r.status, 200); assert.equal(r.json.fight.joined, 0); assert.equal(r.json.now, t1); assert.equal(asked.one, 1);
+  assert.equal((await s.send('fight-join', { liveKey: LK, k: 3, joined: 4 })).status, 200);
+  s.w.clock.now = t1 + 1500;
+  r = await s.one(id); assert.equal(r.json.fight.joined, 0); assert.equal(r.json.now, t1 + 1500); assert.equal(asked.one, 1);
+  s.w.clock.now = t1 + 3000;
+  r = await s.one(id); assert.equal(r.json.fight.joined, 4); assert.equal(asked.one, 2);
+  // 기억한 답을 고쳐 내보내지 않는다(같은 답을 두 번 받아도 같은 모양)
+  assert.deepEqual((await s.one(id)).json.fight, r.json.fight); assert.equal(asked.one, 2);
+  // 없는 판은 기억하지 않는다(올라오면 바로 보이게)
+  assert.equal((await s.one('abcdefghjkmn')).status, 404); assert.equal((await s.one('abcdefghjkmn')).status, 404); assert.equal(asked.one, 4);
+});
+
+test('읽기 한도: 한 IP 가 1분에 목록 240번 · 한 판 240번까지(따로 센다) · 넘으면 429 와 한국어 글 · 다른 IP 는 따로 · 1분 뒤 다시', async () => {
+  assert.equal(v.FIGHT_READ_PER_MIN, 240);
+  const s = await setup({ fightCacheMs: v.FIGHT_READ_MS });
+  const { json: { id } } = await appear(s);
+  s.w.clock.now = Math.ceil(s.w.clock.now / 60000) * 60000; // 1분 칸의 처음
+  for (let i = 0; i < 240; i++) assert.equal((await s.w.get(i % 2 ? 'fights' : 'fights?slug=' + s.slug)).status, 200, String(i));
+  let r = await s.list(); assert.equal(r.status, 429); assert.equal(r.json.error, '요청이 많아요. 잠시 뒤에 다시 해 주세요.');
+  assert.equal((await body(await s.w.get('fights?slug=' + s.slug))).status, 429);
+  assert.equal((await s.one(id)).status, 200, '한 판 읽기는 따로 센다');
+  assert.equal((await s.w.get('fights', '2.2.2.2')).status, 200, '다른 IP 는 따로');
+  for (let i = 1; i < 240; i++) assert.equal((await s.w.get('fights/' + id)).status, 200, String(i));
+  r = await s.one(id); assert.equal(r.status, 429); assert.match(r.json.error, /[가-힣]/);
+  s.w.clock.now += 60000;
+  assert.equal((await s.list()).status, 200); assert.equal((await s.one(id)).status, 200);
 });

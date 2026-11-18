@@ -382,6 +382,9 @@ export const FIGHT_JOIN_MAX_MS = 5 * 60000;
 export const FIGHT_JOIN_GRACE_MS = 90000;
 // 기기당 한 시간 쓰기 수
 export const FIGHT_HOURLY = 60;
+// 읽기(GET fights · fights/<id> — 2026-11-19): 같은 목록(전체·DJ 주소마다)·같은 판 답은 함수 안에서 3초 기억한다(사이트가 3초마다 묻는다 — 보는 사람이 많아도 데이터베이스는 3초에 한 번).
+//  한 IP 가 1분에 목록 240번 · 한 판 240번까지(한 사람은 3초마다 = 20번 — 같은 통신사 주소를 여럿이 같이 써도 넉넉하게).
+export const FIGHT_READ_MS = 3000, FIGHT_READ_PER_MIN = 240;
 // 판 번호: 헷갈리는 글자를 뺀 소문자·숫자 12자(주소 slug 와 같은 글자)
 export const FIGHT_ID = /^[a-hjkmnp-z2-9]{12}$/;
 export const LIVE_KEY = /^[0-9a-f]{32}$/;

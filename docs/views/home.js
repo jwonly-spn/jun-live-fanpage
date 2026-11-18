@@ -9,7 +9,7 @@ import { kiugiApi, readMapFile, pollMs, isDemo, MAP_WAKE_MS } from '../api.js';
 import { parseMap, emptyMap, sameMap, ranking, seasonClock, clockText, pctText, deltaText, cssColor, f1 } from '../lib/map-core.js';
 import { MapStage, loadMapArt } from '../lib/map-draw.js';
 import { ID_QUERY, cleanId } from '../lib/route.js';
-import { LIST_POLL_MS, listOf, stripItems, phaseText, djText, joinedText } from '../lib/boss-core.js';
+import { LIST_POLL_MS, failWaitMs, listOf, stripItems, phaseText, djText, joinedText } from '../lib/boss-core.js';
 import { RING, TYPE, sortMonsters } from '../lib/monsters.js';
 import { nightTop, siteFoot, secHead, ilink, errorBox, loading, SEASON_TITLE } from './common.js';
 import { monsterCtx, monsterArtEl, stageName, typeChip, rareChip, statLine, soonNote } from './monster-ui.js';
@@ -41,6 +41,7 @@ function bossStrip(app) {
   async function read() {
     clearTimeout(timer);
     if (!el.isConnected) return;
+    let wait = LIST_POLL_MS;
     if (document.visibilityState !== 'hidden') {
       try {
         const { items, more } = stripItems(listOf(await kiugiApi.fights()));
@@ -49,9 +50,9 @@ function bossStrip(app) {
           h('b', null, djText(f)), h('span', { class: 's2-boss-name' }, f.boss.name), h('span', { class: 's2-boss-n' }, joinedText(f)), h('em', null, phaseText(f))))));
         all.textContent = more ? `${more}개 더 보기` : '모두 보기';
         el.hidden = !items.length;
-      } catch { /* 띠는 없어도 되는 것 — 다음에 다시 */ }
+      } catch (e) { wait = failWaitMs(e, LIST_POLL_MS); /* 띠는 없어도 되는 것 — 다음에 다시(한도에 걸렸으면 30초 뒤) */ }
     }
-    if (el.isConnected) timer = setTimeout(read, LIST_POLL_MS);
+    if (el.isConnected) timer = setTimeout(read, wait);
   }
   // 화면이 다시 보이면 바로 새로(숨어 있던 동안은 읽지 않았다)
   const onVis = () => { if (!el.isConnected) { document.removeEventListener('visibilitychange', onVis); return; } if (document.visibilityState === 'visible') read(); };

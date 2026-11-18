@@ -10,12 +10,14 @@
 //   ctl     = { stop, pause, seek, layout, setSound, toggleSound, setMusicVolume, setLand, updateJoin, destroy, duration, marks, time, done, scene, audioState, usingReal, portrait, canvas }
 //   opts 더(11/19 — 휴대폰·스푼 앱 안 창. 키우기.com 이 쓴다, 안 주면 예전과 같다): maxDpr(화면 배율 상한 — 캔버스가 너무 커지지 않게) · particles(0~1, 입자 양 — 약한 기기는 줄임)
 //             · audio(makeAudio 로 만든 소리를 밖에서 넘김 — 모집 중 → 싸움으로 장면을 바꿔도 같은 소리 길을 이어 씀. 넘긴 소리는 destroy 가 닫지 않는다)
+//   끝난 결과 장면은 20초 뒤부터 1초에 8장만 그린다(IDLE — 스푼 앱 안 창에 30분까지 떠 있어도 가볍게). 새 상태(땅 결과·크기·건너뛰기)가 오면 잠깐 다시 모두 그린다.
+//   못 받은 그림은 그 장면에서는 대신 그림으로 두고, 다음 장면(playFight 를 다시 부를 때)에 다시 받아 본다.
 //   다시 보기는 없다(사용자 결정 11/18). 모집 중 → 싸움으로 넘어갈 때는 ctl.destroy() 뒤 대본 전체로 playFight 를 다시 부른다.
 // 그림: battle/manifest.json(tools/battle-manifest.mjs 가 만듦)에 있는 도트만 받고, 없는 것은 대신 그림으로:
 //   보스 → ../boss_<속성>.png 를 도트처럼 줄임 · 몬스터 → ../monster_<종>_<단계>.webp 를 도트처럼 줄임 · 배경·발판 → 속성별로 그려 냄
 //   (11/19 본그림 1묶음: 보스 6 · 배경 6 + 발판 pad_<쪽>_<배경>(화산은 pad_<쪽>) · 효과 6 은 진짜 도트가 들어 있다 — 넣기: node tools/kiugi-battle-art-check.mjs <묶음> --넣기)
 // 음악: music/ 의 8bit Action Boss Battle (MintoDog, CC0 — music/source.txt). 소리를 켤 때 비로소 받는다.
-import { TIMING, buildTimeline, liveOffset, sceneAt, landLine, labelFor } from './timeline.js';
+import { TIMING, buildTimeline, liveOffset, sceneAt, landLine, labelFor, joinWords } from './timeline.js';
 export { TIMING, buildTimeline, liveOffset, sceneAt } from './timeline.js';
 
 // ── 소리 크기 · 음악 (소리는 처음엔 꺼져 있고, 켤 때 비로소 음악 파일을 받아요) ──
@@ -115,16 +117,27 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const sceneDpr = (deviceDpr, maxDpr) => Math.min(deviceDpr || 1, maxDpr > 0 ? maxDpr : Infinity);
 export const particleShare = (v) => (v == null ? 1 : clamp(+v || 0, 0, 1));
 export const keepParticle = (k, rnd = Math.random) => !(k < 1 && rnd() >= k);
+// 결과 장면 쉬기(2026-11-19): 끝나고 afterMs 가 지났고 움직이는 것(busy — 뜨는 글·입자·흔들림)이 없으면 frameMs 마다 한 장만(0 = 쉬지 않고 모두 그림).
+//  새 상태가 오면(wake — 땅 결과·크기·건너뛰기·멈춤) wakeMs 동안은 다시 모두 그린다. 싸우는 중·모집 중(done 아님)은 늘 모두.
+export const IDLE = Object.freeze({ afterMs: 20000, frameMs: 125, wakeMs: 2000 });
+export const idleFrameMs = ({ done, busy, sinceDone, sinceWake }) => (done && !busy && sinceDone >= IDLE.afterMs && sinceWake >= IDLE.wakeMs ? IDLE.frameMs : 0);
 function rng(seed) { // 늘 같은 모양이 나오게 하는 난수
   let s = seed >>> 0;
   return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
 }
 function mkCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
 function ctx2d(c) { const g = c.getContext('2d', { willReadFrequently: false }); g.imageSmoothingEnabled = false; return g; }
-const imgCache = new Map(); // 같은 주소는 한 번만 받음
-function loadImage(url) {
-  if (!imgCache.has(url)) imgCache.set(url, new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => res(null); im.src = url; }));
-  return imgCache.get(url);
+// 같은 주소는 한 번만 받음. 못 받은 그림(휴대폰 데이터가 잠깐 끊김 등)은 그 장면에서는 다시 받지 않고(null → 대신 그림), 다음 장면(nextImageRound)에서 다시 받아 본다
+const imgCache = new Map(); // 주소 → { p(약속), failed, round(받기 시작한 장면 차례) }
+let imgRound = 0;
+export const nextImageRound = () => ++imgRound;
+export function loadImage(url) {
+  const hit = imgCache.get(url);
+  if (hit && !(hit.failed && hit.round !== imgRound)) return hit.p;
+  const e = { p: null, failed: false, round: imgRound };
+  e.p = new Promise(res => { const im = new Image(); im.onload = () => res(im); im.onerror = () => { e.failed = true; res(null); }; im.src = url; });
+  imgCache.set(url, e);
+  return e.p;
 }
 async function loadJson(url) {
   try { const r = await fetch(url); if (!r.ok) return null; return await r.json(); } catch { return null; }
@@ -625,6 +638,7 @@ export function makeAudio(musicDir, tracks) {
 
 // ═════════════ 본체 ═════════════
 export async function playFight(container, script, opts = {}) {
+  nextImageRound();
   const fight = script || {};
   const boss0 = { type: 'fire', name: '보스', aoe: '', stage: 1, ...(fight.boss || {}) };
   const A = assetDirs(opts.assets);
@@ -762,7 +776,7 @@ export async function playFight(container, script, opts = {}) {
   // 글꼴이 준비될 때까지 잠깐만 기다림(안 오면 기본 글꼴로)
   try {
     const sample = [boss0.name, boss0.aoe, fight.buff?.name, djName, ...labels, ...team.map(m => m.name),
-      '보스 출현! 단계 라운드 약점 별로 토벌 성공 실패 땅 생중계 방송 공격 체력 피해 참전 명 연타 위 힘을 모으고 있어요 모두 마리가 쓰러졌어요 마지막 남은 버텼어요 안에 쓰러뜨리지 못했어요 모집 중 시간 초 곧 싸움이 시작돼요 채팅에 아무도 하지 않았어요 오늘은 이미 한 번 져서 그대로예요 MVP Lv./0123456789%+−→…·×'].join('');
+      '보스 출현! 단계 라운드 약점 별로 토벌 성공 실패 땅 생중계 방송 공격 체력 피해 참전 명 연타 위 힘을 모으고 있어요 모두 마리가 쓰러졌어요 마지막 남은 버텼어요 안에 쓰러뜨리지 못했어요 모집 중 결과를 기다리는 시간 초 곧 싸움이 시작돼요 채팅에 아무도 하지 않았어요 오늘은 이미 한 번 져서 그대로예요 MVP Lv./0123456789%+−→…·×'].join('');
     await Promise.race([
       Promise.all([document.fonts.load(`12px "Galmuri11"`, sample), document.fonts.load(`10px "Galmuri9"`, sample)]),
       new Promise(r => setTimeout(r, 2500)),
@@ -1772,10 +1786,11 @@ export async function playFight(container, script, opts = {}) {
     if (S.joinA > 0.02) {
       const until = Number(fight.joinUntil), leftS = Number.isFinite(until) ? Math.ceil((until - nowMs()) / 1000) : null, a = S.joinA, jx = L.joinBox.x, jy = L.joinBox.y;
       const blink = cm || Math.floor(amb.t / 500) % 2 === 0;
-      line('⚔', '참전 모집 중', jx, jy, { align: 'center', scale: 2, color: C.gold, alpha: a });
-      if (leftS != null) text(leftS > 0 ? `남은 시간 ${leftS}초` : '곧 싸움이 시작돼요', jx, jy + 30, { align: 'center', color: leftS > 10 || blink ? C.cream : C.red, alpha: a });
+      const jw = joinWords(leftS); // 마감이 지나면 "결과를 기다리는 중" 만(모집 중·!참전 안내를 내림)
+      line(jw.icon, jw.title, jx, jy, { align: 'center', scale: 2, color: C.gold, alpha: a });
+      if (jw.sub) text(jw.sub, jx, jy + 30, { align: 'center', color: leftS > 10 || blink ? C.cream : C.red, alpha: a });
       line('👥', `참전 ${joinN}명`, jx, jy + 46, { align: 'center', color: C.teal, alpha: a });
-      text('방송 채팅에 !참전', jx, jy + 62, { font: 's', align: 'center', color: C.dim, alpha: a * 0.9 });
+      if (jw.hint) text(jw.hint, jx, jy + 62, { font: 's', align: 'center', color: C.dim, alpha: a * 0.9 });
     }
     // 몬스터 이름표: 이름 + 레벨. 앞줄과 지금 주목받는 한 명만
     for (const m of mons) {
@@ -1800,11 +1815,18 @@ export async function playFight(container, script, opts = {}) {
   }
 
   // ── 한 장씩 ──
-  let waiting = false;
+  let waiting = false, doneAt = 0, wakeAt = 0, wakeAsked = true;
+  const wake = () => { wakeAsked = true; }; // 새 상태가 왔다: 잠깐 다시 모두 그림
   function step(now) {
     if (!alive) return;
     raf = requestAnimationFrame(step);
-    const dt = Math.min(50, now - (lastNow || now)); lastNow = now;
+    // 끝난 결과 장면은 천천히(IDLE): 움직이는 것이 없으면 frameMs 마다 한 장. 건너뛴 시간은 다음 장에 그대로 더한다(흐르는 점·깡충 뛰기 빠르기는 같다)
+    if (wakeAsked) { wakeAsked = false; wakeAt = now; }
+    if (!S || !S.done) doneAt = 0; else if (!doneAt) doneAt = now;
+    const busy = !S || S.tweens.length > 0 || S.parts.length > 0 || S.shake > 0.05 || S.stop > 0 || S.cueIdx < S.cues.length || S.floats.some(f => !f.stay);
+    const gapMs = idleFrameMs({ done: !!doneAt, busy, sinceDone: now - doneAt, sinceWake: now - wakeAt });
+    if (gapMs && lastNow && now - lastNow < gapMs) return;
+    const dt = Math.min(gapMs ? gapMs * 2 : 50, now - (lastNow || now)); lastNow = now;
     amb.t += dt;
     for (const e of amb.embers) {
       e.y += theme.amb.dir * e.v * dt / 1000;
@@ -1878,10 +1900,10 @@ export async function playFight(container, script, opts = {}) {
   // ── 밖에서 쓰는 손잡이 (다시 보기는 없음) ──
   return {
     stop() { alive = false; cancelAnimationFrame(raf); audio.halt(); syncHold(); unwatch(); }, // 장면을 세움: 곡을 내리고 소리·지켜보기를 모두 뗌
-    seek(ms) { jump(ms); render(); }, // 그 시각으로 건너뛰기
-    pause(v = true) { paused = !!v; lastNow = 0; syncHold(); }, // 멈추면 음악도 멈추고, 풀면(소리가 켜져 있을 때) 이어서
-    layout() { layout(); render(); },            // 크기 다시 잡기(칸을 숨긴 채 띄웠다가 보일 때 — 숨은 칸은 너비가 0)
-    setLand(v) { land = v ?? null; },            // 땅 변화가 나중에 오면(결과 장면에 그 자리에 뜸)
+    seek(ms) { wake(); jump(ms); render(); }, // 그 시각으로 건너뛰기
+    pause(v = true) { wake(); paused = !!v; lastNow = 0; syncHold(); }, // 멈추면 음악도 멈추고, 풀면(소리가 켜져 있을 때) 이어서
+    layout() { wake(); layout(); render(); },            // 크기 다시 잡기(칸을 숨긴 채 띄웠다가 보일 때 — 숨은 칸은 너비가 0)
+    setLand(v) { wake(); land = v ?? null; },            // 땅 변화가 나중에 오면(결과 장면에 그 자리에 뜸)
     updateJoin(n) { joinN = Math.max(0, Math.trunc(Number(n) || 0)); return joinN; }, // 모집 중 참전 수
     setSound(v) { audio.set(v); return audio.on; },
     toggleSound() { audio.set(!audio.on); return audio.on; },
