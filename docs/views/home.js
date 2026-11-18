@@ -9,7 +9,7 @@ import { kiugiApi, readMapFile, pollMs, isDemo, MAP_WAKE_MS } from '../api.js';
 import { parseMap, emptyMap, sameMap, ranking, seasonClock, clockText, pctText, deltaText, cssColor, f1 } from '../lib/map-core.js';
 import { MapStage, loadMapArt } from '../lib/map-draw.js';
 import { ID_QUERY, cleanId } from '../lib/route.js';
-import { LIST_POLL_MS, listOf, stripItems, phaseText, djText } from '../lib/boss-core.js';
+import { LIST_POLL_MS, listOf, stripItems, phaseText, djText, joinedText } from '../lib/boss-core.js';
 import { RING, TYPE, sortMonsters } from '../lib/monsters.js';
 import { nightTop, siteFoot, secHead, ilink, errorBox, loading, SEASON_TITLE } from './common.js';
 import { monsterCtx, monsterArtEl, stageName, typeChip, rareChip, statLine, soonNote } from './monster-ui.js';
@@ -32,7 +32,7 @@ export async function renderHome(root, app, route) {
   hero.start();
 }
 
-// ---- 지금 보스전 띠(2026-11-19 보스전 보기): 판이 있을 때만 · 3개까지 · 틀 없이 한 줄씩 → 누르면 보기. 15초마다(화면이 숨으면 쉼) ----
+// ---- 지금 보스전 띠(2026-11-19 보스전 보기): 판이 있을 때만 · 3개까지 · 틀 없이 한 줄씩(방송 · 보스 · 참전 n명 · 상태) → 누르면 보기. 15초마다(화면이 숨으면 쉼) ----
 function bossStrip(app) {
   const list = h('ul', { class: 's2-boss-list' });
   const all = ilink(app.link({ name: 'boss' }), { class: 's2-boss-item is-more' }, '모두 보기');
@@ -46,13 +46,16 @@ function bossStrip(app) {
         const { items, more } = stripItems(listOf(await kiugiApi.fights()));
         list.replaceChildren(...items.map((f) => h('li', null, ilink(app.link({ name: 'watch', fight: f.id }), { class: 's2-boss-item' },
           h('i', { class: 's2-boss-dot' + (f.phase === 'fight' ? ' is-fight' : ''), 'aria-hidden': 'true' }),
-          h('b', null, djText(f)), h('span', null, f.boss.name), h('em', null, phaseText(f))))));
+          h('b', null, djText(f)), h('span', { class: 's2-boss-name' }, f.boss.name), h('span', { class: 's2-boss-n' }, joinedText(f)), h('em', null, phaseText(f))))));
         all.textContent = more ? `${more}개 더 보기` : '모두 보기';
         el.hidden = !items.length;
       } catch { /* 띠는 없어도 되는 것 — 다음에 다시 */ }
     }
     if (el.isConnected) timer = setTimeout(read, LIST_POLL_MS);
   }
+  // 화면이 다시 보이면 바로 새로(숨어 있던 동안은 읽지 않았다)
+  const onVis = () => { if (!el.isConnected) { document.removeEventListener('visibilitychange', onVis); return; } if (document.visibilityState === 'visible') read(); };
+  document.addEventListener('visibilitychange', onVis);
   return { el, start: read };
 }
 

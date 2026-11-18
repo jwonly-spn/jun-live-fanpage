@@ -13,6 +13,11 @@ export const LIST_POLL_MS = 15000, JOIN_POLL_MS = 3000, LAND_POLL_MS = 10000;
 // 모집 마감 뒤 이만큼 지나도 대본이 안 오면 없는 판으로 본다(서버 목록도 마감 + 90초에 뺀다)
 export const JOIN_GRACE_MS = 90000;
 export const STRIP_MAX = 3;
+// 채팅 링크(/b/<주소>)에서 판을 기다릴 때: "지금 다른 보스전"은 1분마다만 · 10분 넘게 판이 없으면 30초마다(화면을 다시 보거나 판이 생기면 15초로)
+export const OTHERS_POLL_MS = 60000, IDLE_AFTER_MS = 600000, IDLE_POLL_MS = 30000;
+export const waitPollMs = (idleMs) => (idleMs > IDLE_AFTER_MS ? IDLE_POLL_MS : LIST_POLL_MS);
+// 없는 판·다 본 판에서 다음으로 넘어갈 때 잠깐 쉰다(바로 되부르지 않는다)
+export const NEXT_MS = 1000;
 
 const TYPES = new Set(['fire', 'water', 'grass', 'electric', 'earth', 'wind']);
 const isObj = (v) => v && typeof v === 'object' && !Array.isArray(v);
@@ -43,9 +48,10 @@ export function stripItems(fights) {
   return { items: all.slice(0, STRIP_MAX), more: Math.max(0, all.length - STRIP_MAX) };
 }
 
-// 채팅 링크(/b/<주소>): 그 DJ 의 지금 판(가장 새 것). skipId = 방금 다 본 판(다시 틀지 않는다)
-export function pickFight(fights, slug, skipId = '') {
-  const mine = (Array.isArray(fights) ? fights : []).filter((f) => f.dj.slug === slug && f.id !== skipId);
+// 채팅 링크(/b/<주소>): 그 DJ 의 지금 판(가장 새 것). skip = 다 본 판·없는 판(번호 하나 또는 Set — 다시 틀지 않는다)
+export function pickFight(fights, slug, skip = '') {
+  const skipped = (id) => (skip instanceof Set ? skip.has(id) : id === skip);
+  const mine = (Array.isArray(fights) ? fights : []).filter((f) => f.dj.slug === slug && !skipped(f.id));
   return mine.sort((a, b) => (Number(b.appearAt) || 0) - (Number(a.appearAt) || 0))[0] || null;
 }
 
@@ -67,9 +73,21 @@ export function clockOffset(serverNow, sentAt, gotAt) {
   return Number.isFinite(n) && typeof serverNow === 'number' ? Math.round(n - (sentAt + gotAt) / 2) : 0;
 }
 
-// 약한 휴대폰: 캔버스 배율 상한을 낮추고 입자를 줄인다(코어 4개 이하 · 메모리 3GB 이하). 모르면 보통으로
+// 장면을 띄운다 — 그림을 받는 동안 보는 사람이 소리 단추를 눌렀으면 그 고름이 이긴다.
+//  장면 모듈(playFight)은 그림·글꼴을 다 받은 뒤에야 opts.sound 를 소리에 넣는다 → 띄우기 시작할 때의 값이 나중 고름을 덮지 않게, 다 뜬 뒤 지금 고름으로 다시 맞춘다.
+//  play(opts) = 장면 띄우기(약속) · audio = 장면들이 같이 쓰는 소리({on, set(v)}) · getSound() = 지금 고름
+export async function playWithSound(play, audio, getSound, opts = {}) {
+  const ctl = await play({ ...opts, sound: !!getSound(), audio });
+  const want = !!getSound();
+  if (audio && audio.on !== want) audio.set(want);
+  return ctl;
+}
+
+// 약한 휴대폰: 캔버스 배율 상한을 낮추고 입자를 줄인다(코어 4개 이하 · 메모리 3GB 이하). 모르면 보통으로.
+//  아이폰·아이패드는 코어 수를 줄여서 알려 줄 수 있어(사파리 엔진이 hardwareConcurrency 를 낮춰 말함) 코어 수로는 약하다고 보지 않는다 — 2026-11-23 실제 기기에서 버벅임 확인.
 export function sceneQuality(nav) {
   const cores = Number(nav?.hardwareConcurrency), mem = Number(nav?.deviceMemory);
-  const weak = (cores > 0 && cores <= 4) || (mem > 0 && mem <= 3);
+  const ios = /iPad|iPhone|iPod/.test(String(nav?.userAgent || '')) || (nav?.platform === 'MacIntel' && nav?.maxTouchPoints > 1);
+  const weak = (!ios && cores > 0 && cores <= 4) || (mem > 0 && mem <= 3);
   return { maxDpr: weak ? 1.5 : 2, particles: weak ? 0.5 : 1, weak };
 }

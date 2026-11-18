@@ -57,7 +57,7 @@ test('이름표: 키우기 아이디의 # 앞만(솜사탕#먼치 → 솜사탕)
   assert.match(await text('views/boss.js'), /nameOf\b/, '장면에 이름표 함수를 넘긴다');
 });
 
-test('첫 화면 띠: 판이 있을 때만 · 3개까지 · 틀 없이 · 한 줄 = 방송 · 보스 · 상태', async () => {
+test('첫 화면 띠: 판이 있을 때만 · 3개까지 · 틀 없이 · 한 줄 = 방송 · 보스 · 참전 n명 · 상태 · 다시 보이면 바로 새로', async () => {
   const { stripItems, STRIP_MAX, phaseText, djText, listOf } = await import('../docs/lib/boss-core.js');
   assert.equal(STRIP_MAX, 3);
   assert.deepEqual(stripItems([]), { items: [], more: 0 });
@@ -76,6 +76,8 @@ test('첫 화면 띠: 판이 있을 때만 · 3개까지 · 틀 없이 · 한 �
   assert.match(home, /el\.hidden = !items\.length/, '판이 없으면 띠가 없다');
   assert.match(home, /👹 지금 보스전/); assert.match(home, /모두 보기/);
   assert.match(home, /kiugiApi\.fights\(\)/);
+  assert.match(home, /djText\(f\)\), h\('span', \{ class: 's2-boss-name' \}, f\.boss\.name\), h\('span', \{ class: 's2-boss-n' \}, joinedText\(f\)\), h\('em', null, phaseText\(f\)\)/, '방송 · 보스 · 참전 n명 · 상태');
+  assert.match(home, /visibilityState === 'visible'\) read\(\)/, '다시 보이면 바로 새로');
   const css = await text('styles.css');
   const strip = /\.s2-boss-strip \{([^}]*)\}/.exec(css)?.[1] || '';
   assert.ok(strip, '.s2-boss-strip 모양');
@@ -107,7 +109,7 @@ test('다시 읽기: 목록 15초 · 모집 중 3초 · 싸움이 오면 그만(
   assert.match(view, /kiugiApi\.fights\(/); assert.match(view, /kiugiApi\.fight\(/);
   assert.match(view, /setLand\(/); assert.match(view, /updateJoin\(/);
   assert.doesNotMatch(view, /다시 보기|replay/i, '다시 보기는 없다');
-  assert.ok(view.includes("if (live) { doneId = curId; curId = ''; return tick(); }"),'채팅 링크: 끝난 뒤 그 DJ 의 다음 판을 기다린다');
+  assert.ok(view.includes("if (live) { skip.add(curId); curId = ''; return NEXT_MS; }"),'채팅 링크: 끝난 뒤 그 DJ 의 다음 판을 기다린다');
 });
 
 test('api: fights() · fights(주소) · fight(번호) — 머리글 없는 GET · 404 글은 서버 글 그대로', async () => {
@@ -128,6 +130,10 @@ test('약한 기기: 화면 배율 상한 · 코어 4개 이하나 메모리 3GB
   const { sceneQuality } = await import('../docs/lib/boss-core.js');
   assert.deepEqual(sceneQuality({ hardwareConcurrency: 8, deviceMemory: 8 }), { maxDpr: 2, particles: 1, weak: false });
   assert.deepEqual(sceneQuality({ hardwareConcurrency: 4, deviceMemory: 8 }), { maxDpr: 1.5, particles: 0.5, weak: true });
+  // 아이폰·아이패드는 코어 수를 낮춰 말할 수 있다 → 코어 수로는 약하다고 보지 않는다
+  assert.equal(sceneQuality({ hardwareConcurrency: 4, userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)' }).weak, false);
+  assert.equal(sceneQuality({ hardwareConcurrency: 2, platform: 'MacIntel', maxTouchPoints: 5 }).weak, false);
+  assert.equal(sceneQuality({ hardwareConcurrency: 4, userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-A156N)' }).weak, true);
   assert.deepEqual(sceneQuality({ hardwareConcurrency: 8, deviceMemory: 3 }), { maxDpr: 1.5, particles: 0.5, weak: true });
   assert.deepEqual(sceneQuality({}), { maxDpr: 2, particles: 1, weak: false }, '모르면(아이폰은 메모리를 안 알려 줌) 보통으로');
   assert.deepEqual(sceneQuality(undefined), { maxDpr: 2, particles: 1, weak: false });
@@ -161,7 +167,12 @@ test('스푼 앱 안 창(아이폰·갤럭시): safe-area · 100dvh(+100vh 대�
   assert.match(unlock, /new Audio\(/); assert.match(unlock, /data:audio\/wav;base64,/); assert.match(unlock, /iPad|iPhone/);
   const tap = view.slice(view.indexOf('function toggleSound'));
   assert.ok(tap.indexOf('unlockAudio(') > 0 && tap.indexOf('unlockAudio(') < tap.indexOf('.set('), '무음 오디오가 먼저');
-  assert.match(view, /audio: /, '모집 중 → 싸움으로 바뀌어도 같은 소리 길(고른 소리 그대로)');
+  assert.match(view, /playWithSound\(\(o\) => m\.playFight\(wrap, script, o\), sharedAudio, \(\) => sound,/, '모집 중 → 싸움으로 바뀌어도 같은 소리 길 · 띄우는 동안 누른 소리 고름이 이긴다');
+  assert.match(view, /'aria-label': '소리', 'aria-pressed': 'false'/, '소리 단추 이름은 늘 같고 상태는 aria-pressed 로만');
+  assert.doesNotMatch(view, /setAttribute\('aria-label'/);
+  assert.match(view, /stateEl = h\('em', \{ role: 'status', 'aria-live': 'polite' \}\)/, '토벌 성공·실패는 화면 읽기에 알린다');
+  assert.match(view, /sharedAudio\?\.halt\(\)/, '장면을 치우면 곡도 내린다');
+  assert.match(view, /loadFailed/, '장면 모듈을 못 받은 것은 볼 수 없는 판이 아니다(다시 시도)');
 });
 
 test('장면 모듈과 그림(docs/kiugi/s2/battle): 모듈 2 · 목록 · 도트·효과·배경·음악 — 미리보기는 옮기지 않는다 · 사이트가 쓰는 손잡이가 있다 · 찍기(stamp)에 들어가고 처음부터 받지는 않는다', async () => {
@@ -221,4 +232,54 @@ test('체험 모드(이 PC 미리 보기): 지어낸 보스전 — 목록 · DJ 
   const w = mock.demoFights({ t0: T, wait: 20 });
   assert.deepEqual(w.list(T + 19000, { slug: mock.DEMO_BOSS_SLUG }).json.fights, []);
   assert.equal(w.list(T + 21000, { slug: mock.DEMO_BOSS_SLUG }).json.fights.length, 1);
+});
+
+// 장면이 뜨는 동안(그림·글꼴을 받는 동안) 소리 단추를 누르면 — 장면 모듈은 다 받은 뒤에야 처음 값(opts.sound)을 소리에 넣는다. 나중 고름이 이겨야 한다.
+test('소리 고름: 장면을 띄우는 동안 켜면 켜진 채로 · 끄면 꺼진 채로(처음 값이 덮지 않는다) · 안 바꾸면 그대로', async () => {
+  const { playWithSound } = await import('../docs/lib/boss-core.js');
+  const stubAudio = () => { const a = { on: false, calls: [], set(v) { a.on = !!v; a.calls.push(!!v); } }; return a; };
+  // 장면 모듈 흉내: 그림을 받는 동안(gate) 기다렸다가 opts.sound 를 소리에 넣는다(battle-scene.js playFight 와 같은 차례)
+  const scene = (gate) => async (o) => { await gate; o.audio.set(!!o.sound); return { sound: o.sound, nameOf: o.nameOf }; };
+  const open = () => { let go; const gate = new Promise((res) => { go = res; }); return { gate, go }; };
+
+  // 1) 처음 들어와 장면이 뜨는 동안 "소리" 를 켬
+  let sound = false, audio = stubAudio(), g = open();
+  let job = playWithSound(scene(g.gate), audio, () => sound, { nameOf: 'x' });
+  sound = true; audio.set(true);            // 손길: 단추가 곧바로 소리를 켠다
+  g.go();
+  const ctl = await job;
+  assert.equal(audio.on, true, '켠 채로 남는다(단추는 켜짐인데 소리는 꺼짐이 되지 않는다)');
+  assert.deepEqual(audio.calls, [true, false, true], '장면이 처음 값(꺼짐)을 넣은 뒤 지금 고름으로 다시 맞춘다');
+  assert.equal(ctl.nameOf, 'x', '다른 옵션은 그대로 넘어간다'); assert.equal(ctl.sound, false);
+
+  // 2) 모집 → 싸움으로 바뀌는 동안 소리를 끔
+  sound = true; audio = stubAudio(); audio.set(true); g = open();
+  job = playWithSound(scene(g.gate), audio, () => sound, {});
+  sound = false; audio.set(false);
+  g.go(); await job;
+  assert.equal(audio.on, false, '끈 채로 남는다(장면이 다시 켜지 않는다)');
+
+  // 3) 그동안 안 바꿨으면 한 번만 넣는다
+  sound = true; audio = stubAudio(); audio.set(true); g = open();
+  job = playWithSound(scene(g.gate), audio, () => sound, {}); g.go(); await job;
+  assert.equal(audio.on, true); assert.deepEqual(audio.calls, [true, true]);
+
+  // 4) 장면이 못 뜨면 오류는 그대로 올라온다
+  await assert.rejects(playWithSound(async () => { throw new Error('대본'); }, stubAudio(), () => false, {}), /대본/);
+});
+
+test('채팅 링크 기다림: 15초마다 · 10분 넘게 판이 없으면 30초마다 · 다른 보스전 목록은 1분마다 · 없는 판은 여럿이어도 다시 고르지 않는다', async () => {
+  const c = await import('../docs/lib/boss-core.js');
+  assert.equal(c.waitPollMs(0), 15000); assert.equal(c.waitPollMs(600000), 15000); assert.equal(c.waitPollMs(600001), 30000);
+  assert.deepEqual([c.OTHERS_POLL_MS, c.IDLE_AFTER_MS, c.IDLE_POLL_MS], [60000, 600000, 30000]);
+  assert.ok(c.NEXT_MS >= 500, '다음 판으로 넘어갈 때 바로 되부르지 않는다');
+  const a = F({ id: 'aaaaaaaaaaaa', appearAt: T - 1000 }), b = F({ id: 'bbbbbbbbbbbb', appearAt: T });
+  const skip = new Set(['bbbbbbbbbbbb']);
+  assert.equal(c.pickFight([a, b], SLUG, skip).id, 'aaaaaaaaaaaa');
+  skip.add('aaaaaaaaaaaa');
+  assert.equal(c.pickFight([a, b], SLUG, skip), null, '둘 다 없는 판이면 번갈아 고르지 않는다');
+  const view = await text('views/boss.js');
+  assert.match(view, /othersAt > OTHERS_POLL_MS - 1000/); assert.match(view, /return waitPollMs\(Date\.now\(\) - idleSince\)/);
+  assert.match(view, /visibilityState === 'visible'\) idleSince = 0/, '다시 보면 15초 간격으로');
+  assert.doesNotMatch(view, /return tick\(\)/, '쉬지 않고 되부르지 않는다');
 });

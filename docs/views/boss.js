@@ -8,12 +8,13 @@
 //  장면 모듈(kiugi/s2/battle/battle-scene.js — 먼치킨 저장소에서 옮김)과 그림·음악은 이 화면에서만 받는다. 이름표는 키우기 아이디의 # 앞만.
 import { h, icon } from '../lib/dom.js';
 import { kiugiApi } from '../api.js';
-import { EMPTY_BOSS, emptyLines, GONE_BOSS, BROKEN_BOSS, SOUND_NOTE, LIST_POLL_MS, listOf, phaseText, djText, bossText, joinedText, pickFight, watchPlan, clockOffset, sceneQuality, nameOf } from '../lib/boss-core.js';
+import { EMPTY_BOSS, emptyLines, GONE_BOSS, BROKEN_BOSS, SOUND_NOTE, LIST_POLL_MS, OTHERS_POLL_MS, NEXT_MS, waitPollMs, listOf, phaseText, djText, bossText, joinedText, pickFight, watchPlan, clockOffset, sceneQuality, nameOf, playWithSound } from '../lib/boss-core.js';
 import { unlockAudio, lockAudio } from '../lib/sound-unlock.js';
 import { nightTop, siteFoot, ilink, BRAND, UNOFFICIAL } from './common.js';
 
 // 그림 글자는 화면 읽기가 읽지 않게(제목은 글만)
 const ogre = () => h('span', { 'aria-hidden': 'true' }, '👹 ');
+const LOAD_FAILED = '장면을 불러오지 못했어요';
 const RETRY_MS = 5000;      // 읽기에 실패했을 때
 const NOTE_MS = 6000;       // 소리 한 줄이 보이는 시간
 const DARK = '#0d0a10';     // 보는 화면 바탕(브라우저 위쪽 막대 색도)
@@ -84,7 +85,8 @@ function watchPage(root, app, route) {
   let sound = false;        // 소리는 처음엔 꺼짐(보는 사람이 켠다 — 장면이 바뀌어도 고른 대로)
   let mod = null, sharedAudio = null, ctl = null, sceneEl = null;
   let curId = live ? '' : route.fight, cur = null; // cur = 지금 띄운 장면 {id, phase:'join'|'fight', ended, landKnown, win, tries}
-  let doneId = '', offset = 0, dead = false, noteTimer = 0, othersAt = 0, last = null;
+  let offset = 0, dead = false, noteTimer = 0, othersAt = 0, last = null, idleSince = 0;
+  const skip = new Set(); // 다 본 판·없는 판·볼 수 없는 판(채팅 링크에서 다시 고르지 않는다)
   const serverNow = () => Date.now() + offset;
 
   const host = h('div', { class: 'bv-host' });
@@ -92,8 +94,11 @@ function watchPage(root, app, route) {
   const noteEl = h('p', { class: 'bv-note', role: 'status', hidden: true }, SOUND_NOTE);
   const stage = h('div', { class: 'bv-stage' }, host, msg, noteEl);
   const bossEl = h('h1', { class: 'bv-boss' }, ogre(), '보스전 생중계'), statusEl = h('p', { class: 'bv-status' }, '불러오는 중…');
-  const soundIcon = h('span', { class: 'bv-sound-ic', 'aria-hidden': 'true' }), soundText = h('span', null, '소리 켜기');
-  const soundBtn = h('button', { type: 'button', class: 'bv-sound', 'aria-pressed': 'false', disabled: true, onclick: toggleSound }, soundIcon, soundText);
+  // 상태 글(모집 중 → 싸우는 중 → 토벌 성공/실패)만 화면 읽기에 알린다 — 3초마다 바뀌는 참전 수는 알리지 않는다
+  const djEl = h('b'), stateEl = h('em', { role: 'status', 'aria-live': 'polite' }), countEl = h('span');
+  const soundIcon = h('span', { class: 'bv-sound-ic', 'aria-hidden': 'true' }), soundText = h('span', null, '소리 꺼짐');
+  // 켜고 끄는 단추: 이름은 늘 "소리", 상태는 aria-pressed 로만(보이는 글·그림은 지금 상태)
+  const soundBtn = h('button', { type: 'button', class: 'bv-sound', 'aria-label': '소리', 'aria-pressed': 'false', disabled: true, onclick: toggleSound }, soundIcon, soundText);
   const info = h('div', { class: 'bv-info' }, h('div', { class: 'bv-text' }, bossEl, statusEl), soundBtn);
   const othersList = h('ul', { class: 'bl-list bv-list' }), othersBox = h('div', { class: 'bv-others', hidden: true }, h('h2', { class: 'bv-h' }, '지금 다른 보스전'), othersList);
   const more = h('section', { class: 'bv-more', 'aria-label': '더 보기' }, othersBox,
@@ -131,8 +136,7 @@ function watchPage(root, app, route) {
 
   function paintSound() {
     soundBtn.setAttribute('aria-pressed', String(sound));
-    soundBtn.setAttribute('aria-label', sound ? '소리 끄기' : '소리 켜기');
-    soundText.textContent = sound ? '소리 끄기' : '소리 켜기'; // 단추 글 = 누르면 일어나는 일(그림은 지금 상태)
+    soundText.textContent = sound ? '소리 켜짐' : '소리 꺼짐';
     soundIcon.replaceChildren(icon(sound ? 'sound-on' : 'sound-off', { size: 22 }));
   }
   // 소리 단추(누르는 손길 안에서): 아이폰은 무음 오디오를 먼저 틀어야 무음 스위치가 켜져 있어도 들린다 → 그다음 장면 소리(AudioContext)를 깨운다
@@ -146,17 +150,21 @@ function watchPage(root, app, route) {
     if (sound) noteTimer = setTimeout(() => { noteEl.hidden = true; }, NOTE_MS);
   }
 
-  function say(state, title, sub, extra) { // 장면 대신(또는 위에) 글: 기다림 · 없는 판 · 볼 수 없는 판
+  function say(state, title, sub, extra, action) { // 장면 대신(또는 위에) 글: 기다림 · 없는 판 · 볼 수 없는 판 · 불러오지 못함(다시 시도 단추)
     main.dataset.state = state;
-    msg.replaceChildren(...[title ? h('b', null, title) : null, sub ? h('span', null, sub) : null, extra ? h('small', null, extra) : null].filter(Boolean));
+    msg.replaceChildren(...[title ? h('b', null, title) : null, sub ? h('span', null, sub) : null, extra ? h('small', null, extra) : null, action || null].filter(Boolean));
   }
-  function dropScene() { try { ctl?.destroy(); } catch { /* 무시 */ } sceneEl?.remove(); ctl = null; sceneEl = null; cur = null; }
+  const plain = (text) => { statusEl.replaceChildren(text); }; // 판이 없을 때의 한 줄
+  // 장면을 치운다: 울리던 곡도 내린다(기다림·없는 판 화면 위로 음악이 혼자 돌지 않게)
+  function dropScene() { try { ctl?.destroy(); } catch { /* 무시 */ } try { sharedAudio?.halt(); } catch { /* 무시 */ } sceneEl?.remove(); ctl = null; sceneEl = null; cur = null; }
   function paintInfo(f) {
     last = f || last;
     if (!last) return;
     bossEl.replaceChildren(ogre(), bossText(last));
     const state = cur?.ended ? (cur.win ? '토벌 성공' : '토벌 실패') : phaseText(last);
-    statusEl.replaceChildren(h('b', null, djText(last)), ' ', h('em', null, state), ' ', h('span', null, joinedText(last)));
+    if (stateEl.parentNode !== statusEl) statusEl.replaceChildren(djEl, ' ', stateEl, ' ', countEl);
+    djEl.textContent = djText(last); countEl.textContent = joinedText(last);
+    if (stateEl.textContent !== state) stateEl.textContent = state; // 바뀔 때만(화면 읽기가 한 번만 읽게)
     document.title = `${djText(last)} 보스전 · ${BRAND}`;
   }
 
@@ -171,13 +179,15 @@ function watchPage(root, app, route) {
   }
   // 새 장면을 지금 장면 위에 겹쳐 띄우고, 준비되면 예전 것을 치운다(자리·크기는 그대로)
   async function mount(script, opts) {
-    const m = await loadScene();
+    let m = null;
+    try { m = await loadScene(); } catch (e) { throw Object.assign(new Error('장면 모듈을 받지 못했어요'), { loadFailed: true, cause: e }); } // 대본 탓이 아니다
     if (dead) return false;
     sizeStage();
     const wrap = h('div', { class: 'bv-scene' });
     host.append(wrap);
     let next = null;
-    try { next = await m.playFight(wrap, script, { sound, audio: sharedAudio, nameOf, maxHeight: sceneMax, maxDpr: q.maxDpr, particles: q.particles, ...opts }); }
+    // 띄우는 동안 소리 단추를 눌렀으면 그 고름이 이긴다(playWithSound — 다 뜬 뒤 지금 고름으로 다시 맞춤). 소리 길은 장면이 바뀌어도 같은 것(audio: sharedAudio)
+    try { next = await playWithSound((o) => m.playFight(wrap, script, o), sharedAudio, () => sound, { nameOf, maxHeight: sceneMax, maxDpr: q.maxDpr, particles: q.particles, ...opts }); }
     catch (e) { wrap.remove(); throw e; }
     if (dead) { next.destroy(); wrap.remove(); return false; }
     try { ctl?.destroy(); } catch { /* 무시 */ }
@@ -189,7 +199,7 @@ function watchPage(root, app, route) {
   async function others() { // "지금 다른 보스전"(끝난 뒤 · 없는 판일 때)
     othersAt = Date.now();
     try {
-      const rows = listOf(await kiugiApi.fights()).filter((f) => f.id !== curId && f.id !== doneId && f.id !== cur?.id);
+      const rows = listOf(await kiugiApi.fights()).filter((f) => f.id !== curId && !skip.has(f.id) && f.id !== cur?.id);
       othersList.replaceChildren(...rows.map((f) => fightRow(app, f)));
       othersBox.hidden = !rows.length;
     } catch { /* 다음에 다시 */ }
@@ -202,18 +212,19 @@ function watchPage(root, app, route) {
     if (live && !curId) { // 그 DJ 의 지금 판 찾기
       const sent = Date.now(), r = await kiugiApi.fights(slug);
       sync(r.now, sent);
-      const f = pickFight(listOf(r), slug, doneId);
+      const f = pickFight(listOf(r), slug, skip);
       if (!f) {
-        if (!cur) { const [a, b] = emptyLines(); say('wait', a, b, '보스가 나오면 여기서 바로 시작돼요'); statusEl.textContent = '보스를 기다리는 중이에요'; }
-        if (Date.now() - othersAt > LIST_POLL_MS - 1000) others();
+        if (!cur) { const [a, b] = emptyLines(); say('wait', a, b, '보스가 나오면 여기서 바로 시작돼요'); plain('보스를 기다리는 중이에요'); }
+        if (Date.now() - othersAt > OTHERS_POLL_MS - 1000) others(); // 다른 보스전 목록은 1분마다만
         loadScene().catch(() => {}); // 기다리는 동안 장면 모듈을 미리 받아 둔다(소리 단추도 이때 켜진다)
-        return LIST_POLL_MS;
+        idleSince ||= Date.now();
+        return waitPollMs(Date.now() - idleSince); // 15초마다 — 10분 넘게 판이 없으면 30초마다(다시 보면 15초로)
       }
-      curId = f.id;
+      curId = f.id; idleSince = 0;
     }
-    if (!curId) { dropScene(); say('gone', GONE_BOSS); statusEl.textContent = '다른 보스전을 골라 주세요'; await others(); return LIST_POLL_MS; }
+    if (!curId) { dropScene(); say('gone', GONE_BOSS); plain('다른 보스전을 골라 주세요'); await others(); return LIST_POLL_MS; }
     if (cur?.id === curId && cur.ended && cur.landKnown) {
-      if (live) { doneId = curId; curId = ''; return tick(); } // 채팅 링크: 결과 장면은 둔 채 그 DJ 의 다음 판을 기다린다
+      if (live) { skip.add(curId); curId = ''; return NEXT_MS; } // 채팅 링크: 결과 장면은 둔 채 그 DJ 의 다음 판을 기다린다
       await others(); return LIST_POLL_MS;
     } // 끝난 뒤(보기 주소): 다른 보스전 목록만 새로
     let r = null;
@@ -225,11 +236,11 @@ function watchPage(root, app, route) {
     if (r) sync(r.now, sent);
     const f = r?.fight, plan = watchPlan(f, r?.now);
     if (plan.mode === 'gone') {
-      if (cur?.ended) { cur.landKnown = true; return tick(); } // 결과 장면은 그대로 둔다(땅 답만 못 받음)
+      if (cur?.ended) { cur.landKnown = true; return NEXT_MS; } // 결과 장면은 그대로 둔다(땅 답만 못 받음)
       const id = curId;
       dropScene();
-      if (live) { doneId = id; curId = ''; return tick(); }   // 채팅 링크: 다음 판을 기다린다
-      say('gone', GONE_BOSS); statusEl.textContent = '다른 보스전을 골라 주세요';
+      if (live) { skip.add(id); curId = ''; return NEXT_MS; }   // 채팅 링크: 다음 판을 기다린다(없는 판은 다시 고르지 않는다)
+      say('gone', GONE_BOSS); plain('다른 보스전을 골라 주세요');
       curId = ''; await others();
       return LIST_POLL_MS;
     }
@@ -247,8 +258,13 @@ function watchPage(root, app, route) {
       } else if (f.land != null) { ctl.setLand(f.land); cur.landKnown = true; }
     } catch (e) {
       console.error(e);
-      dropScene(); say('broken', BROKEN_BOSS); statusEl.textContent = '다른 보스전을 골라 주세요';
-      if (live) doneId = curId;
+      if (e?.loadFailed) { // 장면 모듈을 못 받음(인터넷 끊김 등): 판은 그대로 두고 다시 — 대본이 잘못된 것이 아니다
+        say('retry', LOAD_FAILED, '인터넷 연결을 확인해 주세요.', '', h('button', { type: 'button', class: 'btn bv-retry', onclick: () => location.reload() }, '다시 시도'));
+        plain('15초 뒤에 다시 해 봐요');
+        return LIST_POLL_MS;
+      }
+      dropScene(); say('broken', BROKEN_BOSS); plain('다른 보스전을 골라 주세요');
+      if (live) skip.add(curId);
       curId = ''; await others();
       return live ? LIST_POLL_MS : 0;
     }
@@ -259,19 +275,21 @@ function watchPage(root, app, route) {
     // 끝났다: 땅 답을 몇 번만 더 기다리고(늦게 온 영토 서버 답), 채팅 링크는 다음 판을 기다린다
     if (!cur.landKnown && ++cur.tries >= 3) cur.landKnown = true;
     main.dataset.state = 'done';
-    if (live && cur.landKnown) { doneId = curId; curId = ''; }
+    if (live && cur.landKnown) { skip.add(curId); curId = ''; }
     others();
     return cur.landKnown ? LIST_POLL_MS : RETRY_MS;
   }
   const poll = poller(main, tick);
+  const onSee = () => { if (document.visibilityState === 'visible') idleSince = 0; }; // 다시 보면 15초 간격으로
+  document.addEventListener('visibilitychange', onSee);
   app.onLeave = () => {
-    dead = true; poll.stop(); clearTimeout(noteTimer); window.removeEventListener('resize', sizeStage);
+    dead = true; poll.stop(); document.removeEventListener('visibilitychange', onSee); clearTimeout(noteTimer); window.removeEventListener('resize', sizeStage);
     try { ctl?.destroy(); } catch { /* 무시 */ }
     try { sharedAudio?.close(); } catch { /* 무시 */ }
     lockAudio();
     if (themeMeta && themeWas) themeMeta.setAttribute('content', themeWas);
   };
-  if (!live && !curId) { say('gone', GONE_BOSS); statusEl.textContent = '다른 보스전을 골라 주세요'; }
+  if (!live && !curId) { say('gone', GONE_BOSS); plain('다른 보스전을 골라 주세요'); }
   else say('loading', '', '');
   poll.start();
 }
