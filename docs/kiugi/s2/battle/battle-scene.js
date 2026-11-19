@@ -1244,7 +1244,7 @@ export async function playFight(container, script, opts = {}) {
           float(t2 + 300, { icon: '💀', text: '토벌 실패', sub: maxR ? `${maxR}라운드 안에 쓰러뜨리지 못했어요` : '', subFont: 's', subColor: C.dim,
             x: L.lose.x, y: L.lose.y, scale: 2, color: C.hurt, stay: true, slam: true });
           results(t2 + 1100, L.lose.x, C.dim, L.lose.y + (maxR ? 44 : 34));
-        } else { // 모두 쓰러짐(wipe) · 아무도 참전하지 않음(empty)
+        } else { // 모두 쓰러짐(wipe) · 아무도 참전하지 않음(empty — 보스가 그냥 지나감, 실패가 아님)
           const empty = st.result === 'empty';
           setAnim(t + 100, boss, 'attack', 700); setAnim(t + 800, boss, 'idle');
           sfx(t + 100, 'roar'); shake(t + 250, 5);
@@ -1252,8 +1252,8 @@ export async function playFight(container, script, opts = {}) {
           tw(t + 600, 700, S, { dim: 0.55 }, ease.out);
           mons.forEach(m => tw(t + 500, 400, m, { labelA: 0 }, ease.lin));
           sfx(t + 1100, 'lose');
-          float(t + 1100, { icon: '💀', text: '토벌 실패', sub: empty ? '아무도 참전하지 않았어요' : '', subFont: 's', subColor: C.dim, x: L.lose.x, y: L.lose.y, scale: 2, color: C.hurt, stay: true, slam: true });
-          results(t + 1800, L.lose.x, C.dim, L.lose.y + (empty ? 44 : 34));
+          float(t + 1100, { icon: empty ? '💨' : '💀', text: empty ? '그냥 지나갔어요' : '토벌 실패', sub: '', subFont: 's', subColor: C.dim, x: L.lose.x, y: L.lose.y, scale: 2, color: C.hurt, stay: true, slam: true });
+          results(t + 1800, L.lose.x, C.dim, L.lose.y + 34);
         }
       },
     };
