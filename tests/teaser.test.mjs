@@ -162,3 +162,37 @@ test('미리 받기(modulepreload)는 예고 화면이 실제로 쓰는 모듈�
   assert.doesNotMatch(html, /modulepreload" href="\/views\/character\.js/);
   assert.match(html, /"\/views\/character\.js":"\/views\/character\.js\?v=/, '표에는 그대로');
 });
+
+test('정보 조금 풀기(11/19): 도감 수는 18종 × 3단계 · 보스 6, 속성마다 1단계 한 마리만 공개 · 보스전 생중계 예시는 지어낸 한 판', async () => {
+  const src = await text('views/teaser.js');
+  const { DEX_FIRST, DEX_COUNT, ELEMENTS } = await import('../docs/views/teaser.js');
+  assert.deepEqual(DEX_COUNT, { species: 18, stages: 3, bosses: 6 });
+  assert.deepEqual(DEX_FIRST.map((d) => d[0]), ELEMENTS.map((e) => e[0]), '속성마다 한 마리');
+  assert.ok(!src.includes('12종'), '예전 수(12종)');
+  const { access, readFile } = await import('node:fs/promises');
+  const at = (p) => new URL(`../docs/${p}`, import.meta.url);
+  for (const [, sp] of DEX_FIRST) await access(at(`kiugi/s2/monster_${sp}_1.webp`));
+  for (const [type] of ELEMENTS) await access(at(`teaser/boss-shadow-${type}.png`));
+  for (const p of ['teaser/boss-demo.png', 'teaser/boss-demo-m.png', 'kiugi/s2/battle/battle-scene.js', 'kiugi/s2/battle/timeline.js', 'kiugi/s2/battle/manifest.json']) await access(at(p));
+  // 예시 대본: 보스 이름은 가리고(12월 1일 공개), 나오는 몬스터는 공개한 1단계뿐, 그림 파일이 모두 있다
+  const demo = JSON.parse(await readFile(at('teaser/boss-demo.json'), 'utf8'));
+  assert.equal(demo.boss.name, '???');
+  for (const m of demo.team) {
+    assert.equal(m.stage, 1);
+    assert.ok(DEX_FIRST.some(([, sp, name]) => sp === m.sp && name === m.name), m.name);
+    assert.match(m.label, /^[가-힣]{1,6}#먼치$/);
+    for (const v of ['', '_front']) await access(at(`kiugi/s2/battle/sprites/${m.sp}_1${v}.png`));
+    await access(at(`kiugi/s2/battle/effects/${m.type}.png`));
+  }
+  await access(at(`kiugi/s2/battle/sprites/boss_${demo.boss.type}.png`));
+  const { buildTimeline } = await import('../docs/kiugi/s2/battle/timeline.js');
+  const tl = buildTimeline(demo);
+  assert.equal(tl.result, 'win');
+  assert.ok(tl.duration > 20000 && tl.duration < 60000, `한 판 ${tl.duration}ms`);
+  // 장면: 소리 끔 · 화면 밖·멈춤·움직임 줄이기면 쉼
+  const { demoCanPlay, demoToggleText } = await import('../docs/lib/teaser-boss.js');
+  assert.equal(demoCanPlay({ paused: false, calm: false, visible: true, hidden: false }), true);
+  for (const off of [{ paused: true }, { calm: true }, { visible: false }, { hidden: true }]) assert.equal(demoCanPlay({ paused: false, calm: false, visible: true, hidden: false, ...off }), false);
+  assert.equal(demoToggleText({ paused: false, calm: true }), '움직임 줄임');
+  assert.match(await text('lib/teaser-boss.js'), /sound: false/);
+});

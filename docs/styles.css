@@ -2117,27 +2117,23 @@ html.s2-teaser {
 .tz-msg.is-user { padding: 0 4px; }
 .tz-msg.is-user p { font-weight: 700; color: #fff; }
 
-/* 보스 */
-.tz-boss-art { position: relative; width: 100%; max-width: 460px; aspect-ratio: 4 / 3.3; border-radius: 18px; overflow: hidden; background: radial-gradient(ellipse at 50% 78%, #6b1410 0%, #2a0709 42%, #08050a 75%); border: 1px solid rgba(255, 80, 60, .25); box-shadow: 0 0 60px -14px rgba(255, 40, 30, .5); }
-.tz-boss-glow { position: absolute; inset: 0; background: radial-gradient(circle at 50% 62%, rgba(255, 90, 30, .55), transparent 45%); animation: tz-breathe 3.6s ease-in-out infinite; }
-@keyframes tz-breathe { 50% { opacity: .45; scale: 1.06; } }
-.tz-boss-svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: auto; filter: drop-shadow(0 0 22px rgba(255, 70, 30, .45)); animation: tz-loom 5s ease-in-out infinite; transform-origin: 50% 100%; }
-@keyframes tz-loom { 50% { transform: scale(1.025) translateY(-4px); } }
-.tz-boss-eyes { fill: #ff3324; filter: drop-shadow(0 0 6px #ff2a1a) drop-shadow(0 0 14px #ff6a1a); animation: tz-blink 4.2s steps(1) infinite; }
-@keyframes tz-blink { 0%, 93%, 100% { opacity: 1; } 95% { opacity: .1; } }
-.tz-boss-mouth { fill: none; stroke: #ff8a3a; stroke-width: 3; stroke-linejoin: round; filter: drop-shadow(0 0 6px #ff5a1a); opacity: .9; }
-.tz-boss-bar { position: absolute; left: 14px; right: 14px; top: 14px; display: grid; gap: 6px; }
-.tz-boss-bar span { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-.tz-boss-bar b { font-size: 14px; font-weight: 900; color: #fff; text-shadow: 0 0 10px rgba(255, 60, 40, .9); }
-.tz-boss-bar em { font-style: normal; font-size: 12px; color: #e7a99e; }
-.tz-hp { height: 10px; border-radius: 999px; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 120, 100, .4); overflow: hidden; }
-.tz-hp i { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, #ff2d2d, #ff8a3d); box-shadow: 0 0 12px rgba(255, 70, 40, .8); animation: tz-hp 7s ease-in-out infinite; transform-origin: left; }
-@keyframes tz-hp { 0% { transform: scaleX(1); } 18% { transform: scaleX(.86); } 34% { transform: scaleX(.71); } 52% { transform: scaleX(.55); } 70% { transform: scaleX(.3); } 86%, 92% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
-.tz-boss-clock { position: absolute; left: 14px; right: 14px; bottom: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; font-weight: 700; color: #e9c7b9; }
-.tz-boss-clock i { flex: 1; max-width: 40px; height: 1px; background: rgba(255, 150, 120, .5); }
-.tz-boss-clock strong { padding: 3px 10px; border-radius: 8px; background: rgba(0, 0, 0, .6); border: 1px solid rgba(255, 110, 80, .5); font-size: 15px; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
+/* 보스전 생중계 예시(2026-11-19): 12월 1일부터 키우기.com 에서 볼 도트 장면(시즌 2 사이트와 같은 장면 모듈)을 이 틀에 띄운다 — lib/teaser-boss.js.
+   뜨기 전·움직임 줄이기·못 받았을 때는 정지 그림(.tz-bv-poster)이 보인다. 넓은 화면은 가로 장면(16:9), 휴대폰 폭은 세로 장면(9:16 — 글씨가 크게) */
+.tz-bv { width: 100%; max-width: 520px; }
+.tz-bv-title { font-size: 15px; font-weight: 900; letter-spacing: -.02em; }
+.tz-bv-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 14px; overflow: hidden; background: #0d0710; border: 1px solid rgba(255, 110, 80, .35); box-shadow: 0 0 60px -14px rgba(255, 60, 40, .55), 0 30px 60px -30px rgba(0, 0, 0, .9); }
+.tz-bv-poster, .tz-bv-poster img { display: block; width: 100%; height: 100%; }
+.tz-bv-poster img { object-fit: contain; }
+.tz-bv-stage, .tz-bv-scene { position: absolute; inset: 0; }
+.tz-bv-scene { display: grid; place-items: center; }
+.tz-bv-frame.is-live .tz-bv-poster { visibility: hidden; }
+.tz-bv figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 12px; margin-top: 10px; font-size: 13px; line-height: 1.6; color: #a9a294; }
+.tz-bv figcaption span { flex: 1 1 220px; }
+@media (max-width: 639px) {
+  .tz-bv { max-width: 320px; }
+  .tz-bv-frame { aspect-ratio: 9 / 16; }
+}
 
-/* 진화 단계 */
 .tz-evo { display: flex; align-items: end; gap: 16px; margin-top: 6px; }
 .tz-evo li { display: grid; justify-items: center; gap: 8px; font-size: 12px; color: #c9c0aa; }
 .tz-egg { display: grid; place-items: center; border-radius: 50%; font-weight: 900; color: rgba(255, 255, 255, .85); background: radial-gradient(circle at 35% 30%, rgba(140, 255, 200, .6), rgba(40, 140, 100, .35) 55%, rgba(10, 40, 30, .6)); box-shadow: 0 0 24px rgba(80, 220, 150, .35), inset 0 0 12px rgba(255, 255, 255, .2); }
@@ -2169,14 +2165,31 @@ html.s2-teaser {
 .tz-card::after { content: ''; position: absolute; inset: auto -20% -40% -20%; height: 70%; background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, currentColor 45%, transparent), transparent 70%); pointer-events: none; }
 .tz-card-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 800; }
 .tz-el-icon { fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linejoin: round; stroke-linecap: round; }
-.tz-card-shadow { position: relative; display: grid; place-items: center; aspect-ratio: 1; }
-.tz-card-shadow i { position: absolute; width: 74%; height: 70%; border-radius: 48% 52% 44% 56% / 60% 58% 42% 40%; background: radial-gradient(circle at 40% 35%, #1c1f2c, #050609); box-shadow: 0 0 30px color-mix(in srgb, currentColor 55%, transparent), inset 0 0 18px color-mix(in srgb, currentColor 30%, transparent); animation: tz-morph 6s ease-in-out infinite; }
-.tz-card:nth-child(2n) .tz-card-shadow i { animation-delay: -2s; border-radius: 56% 44% 58% 42% / 50% 62% 38% 50%; }
-.tz-card:nth-child(3n) .tz-card-shadow i { animation-delay: -4s; }
-@keyframes tz-morph { 50% { border-radius: 58% 42% 50% 50% / 46% 54% 46% 54%; transform: translateY(-4px) scale(1.03); } }
-.tz-card-shadow b { position: relative; font-size: 42px; font-weight: 900; color: color-mix(in srgb, currentColor 80%, #fff); text-shadow: 0 0 18px currentColor; }
-.tz-card p { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 6px; font-size: 12px; color: #bdb4a0; }
-.tz-card p strong { font-size: 12px; font-weight: 900; color: currentColor; }
+/* 도감 미리 공개(2026-11-19): 속성마다 1단계 한 마리(그림·이름) — 2·3단계는 「?」로 남긴다 */
+.tz-card-art { position: relative; display: grid; place-items: center; aspect-ratio: 1; }
+.tz-card-art::before { content: ''; position: absolute; inset: 6% 4% 8%; border-radius: 50%; background: radial-gradient(circle at 50% 58%, color-mix(in srgb, currentColor 32%, transparent), transparent 68%); }
+.tz-card-art img { position: relative; width: 100%; height: 100%; object-fit: contain; transform: translateY(-7%) scale(1.34); filter: drop-shadow(0 8px 10px rgba(0, 0, 0, .5)); }
+.tz-card-name { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0 6px; }
+.tz-card-name strong { font-size: 17px; font-weight: 900; letter-spacing: -.03em; color: #fff; }
+.tz-card-name span { font-size: 12px; font-weight: 800; color: currentColor; }
+.tz-card-next { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.tz-card-next li { display: flex; align-items: center; justify-content: center; gap: 5px; padding: 6px 2px; border-radius: 10px; background: rgba(0, 0, 0, .35); border: 1px dashed color-mix(in srgb, currentColor 38%, transparent); font-size: 12px; font-weight: 700; color: #bdb4a0; white-space: nowrap; }
+.tz-card-next i { font-style: normal; font-size: 14px; font-weight: 900; color: currentColor; }
+/* 보스 6: 그림자와 속성만(이름은 12월 1일) */
+.tz-bossdex { display: grid; gap: 16px; padding-top: 24px; border-top: 1px solid var(--tz-line-2); }
+.tz-bossdex-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; }
+.tz-bossdex h4 { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 900; letter-spacing: -.045em; color: #fff; }
+.tz-bossdex-head p { font-size: 15px; line-height: 1.7; color: #c9c0aa; }
+.tz-boss-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.tz-bcard { position: relative; display: grid; gap: 4px; padding: 10px 6px 12px; border-radius: 16px; text-align: center; background: linear-gradient(180deg, rgba(255, 255, 255, .03), rgba(0, 0, 0, .42)); border: 1px solid color-mix(in srgb, currentColor 24%, transparent); overflow: hidden; }
+.tz-bcard::after { content: ''; position: absolute; inset: auto -20% -45% -20%; height: 70%; background: radial-gradient(ellipse at 50% 100%, color-mix(in srgb, currentColor 34%, transparent), transparent 70%); pointer-events: none; }
+.tz-bcard-art { position: relative; aspect-ratio: 1; }
+.tz-bcard-art img { display: block; width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 1px currentColor) drop-shadow(0 0 12px color-mix(in srgb, currentColor 65%, transparent)); animation: tz-loom 5s ease-in-out infinite; transform-origin: 50% 100%; }
+.tz-bcard:nth-child(2n) .tz-bcard-art img { animation-delay: -1.7s; }
+.tz-bcard:nth-child(3n) .tz-bcard-art img { animation-delay: -3.4s; }
+@keyframes tz-loom { 50% { transform: scale(1.025) translateY(-3px); } }
+.tz-bcard p { position: relative; display: grid; justify-items: center; gap: 2px; }
+.tz-bcard strong { font-size: 16px; font-weight: 900; letter-spacing: .1em; color: #fff; }
 
 /* 1등 보상 */
 .tz-prize { padding: 40px 18px 90px; }
@@ -2241,6 +2254,7 @@ html.s2-teaser {
   .tz-types { grid-template-columns: 1fr 1fr; align-items: center; padding: 56px; }
   .tz-dex { padding: 56px; }
   .tz-dex-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .tz-boss-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .tz-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .tz-stat-0 { grid-column: span 2; }
   .tz-sec { padding: 130px 40px; }

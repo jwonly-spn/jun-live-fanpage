@@ -1,14 +1,17 @@
 // 키우기 시즌 2 「몬스터 영토전」 예고 사이트(2026-11-15 새로 그림 — 어두운 게임 티저).
 //  차례: (예전 주소로 왔으면 안내) → 첫 화면(제목·카운트다운·할 일 한 줄·전쟁 지도) → 시즌 1 기록(맨 앞에 냥 안내) → 시즌 2 미리 보기(영지전·보스전·산책·속성·도감) → 1등 보상 → 바닥.
 //  2026-11-16 화면 점검 고침: 냥 삭제 안내를 시즌 1 기록 칸 맨 앞으로 · 영어 꾸밈 글을 한글로(남은 시간 일·시간·분·초) · 지도 소식·예시 표시는 지도 그림 밖으로.
+//  2026-11-19 정보 조금 풀기: 보스전 칸에 키우기.com 생중계 예시 장면(진짜 장면 모듈 — lib/teaser-boss.js) · 도감은 속성마다 1단계 한 마리와 보스 그림자를 먼저 공개.
 //  글은 모두 textContent(h·svg 도우미)로만 넣는다. 예시 이름은 모두 지어낸 것.
 import { h } from '../lib/dom.js';
 import { countdown, readStats } from '../lib/teaser-time.js';
 import { startMap } from '../lib/teaser-map.js';
+import { startBossDemo } from '../lib/teaser-boss.js';
 import { listMine } from '../lib/me.js';
 import { UNOFFICIAL, DISCLAIMER } from './common.js';
 
 const asset = (file) => new URL('../teaser/' + file, import.meta.url).href;
+const s2art = (file) => new URL('../kiugi/s2/' + file, import.meta.url).href; // 시즌 2 사이트와 같은 자리·같은 파일
 const SVGNS = 'http://www.w3.org/2000/svg';
 function s(tag, attrs = {}, ...children) {
   const el = document.createElementNS(SVGNS, tag);
@@ -123,17 +126,19 @@ export function oldNote(pathname = location.pathname, storage = (() => { try { r
         h('span', {}, '그대로 이어져요')) : null));
 }
 
+// 보스전 생중계 예시(2026-11-19): 12월 1일부터 키우기.com 에서 볼 도트 장면을 미리 보여 준다. 장면은 lib/teaser-boss.js 가 화면 가까이 올 때 띄우고,
+//  그 전·움직임 줄이기·못 받았을 때는 정지 그림(가로 boss-demo.png · 휴대폰 폭은 세로 boss-demo-m.png)이 보인다. 소리 없음.
+export const BOSS_DEMO_ALT = '보스전 생중계 예시 장면: 지어낸 청취자 세 명의 몬스터가 불 속성 보스와 싸워서 이겨요.';
 function bossArt() {
-  const L = 'M0 300L30 250Q60 215 110 205L95 175L130 195Q150 190 158 180Q150 160 152 140L140 120L156 118Q158 100 168 92C140 70 110 40 80 10C125 35 160 55 182 78Q200 72 218 78C240 55 275 35 320 10C290 40 260 70 232 92Q242 100 244 118L260 120L248 140Q250 160 242 180Q250 190 270 195L305 175L290 205Q340 215 370 250L400 300Z';
-  return h('div', { class: 'tz-boss-art', 'aria-hidden': 'true' },
-    h('div', { class: 'tz-boss-glow' }),
-    s('svg', { class: 'tz-boss-svg', viewBox: '0 0 400 300' },
-      s('defs', {}, s('linearGradient', { id: 'tzBossFill', x1: '0', y1: '0', x2: '0', y2: '1' }, s('stop', { offset: '0', 'stop-color': '#2a0f14' }), s('stop', { offset: '1', 'stop-color': '#050407' }))),
-      s('path', { d: L, fill: 'url(#tzBossFill)', class: 'tz-boss-body' }),
-      s('path', { d: 'M165 132L191 141L168 147Z M235 132L209 141L232 147Z', class: 'tz-boss-eyes' }),
-      s('path', { d: 'M174 170L184 177L194 170L204 177L214 170L224 177', class: 'tz-boss-mouth' })),
-    h('div', { class: 'tz-boss-bar' }, h('span', {}, h('b', {}, '보스 「???」'), h('em', {}, '약점 공개는 등장할 때')), h('div', { class: 'tz-hp' }, h('i'))),
-    h('div', { class: 'tz-boss-clock' }, h('span', {}, '방송 시작'), h('i'), h('strong', {}, '30:00'), h('i'), h('span', {}, '보스 등장')));
+  return h('figure', { class: 'tz-bv' },
+    h('div', { class: 'tz-war-hud', 'aria-hidden': 'true' }, h('span', { class: 'tz-live' }, '예시 화면'), h('strong', { class: 'tz-bv-title' }, '키우기.com 보스전 생중계')),
+    h('div', { class: 'tz-bv-frame', role: 'img', 'aria-label': BOSS_DEMO_ALT },
+      h('picture', { class: 'tz-bv-poster' },
+        h('source', { media: '(max-width: 639px)', srcset: asset('boss-demo-m.png'), width: '360', height: '640' }),
+        h('img', { src: asset('boss-demo.png'), alt: '', width: '640', height: '360', loading: 'lazy', decoding: 'async' })),
+      h('div', { class: 'tz-bv-stage' })),
+    h('figcaption', {}, h('span', {}, '12월 1일부터 키우기.com에서 이렇게 실시간으로 볼 수 있어요. 지어낸 이름으로 만든 예시예요.'),
+      h('button', { class: 'tz-war-toggle tz-bv-toggle', type: 'button', 'aria-pressed': 'false' }, '움직임 멈추기')));
 }
 
 function ringArt() {
@@ -183,11 +188,11 @@ function previews() {
       h('div', { class: 'tz-f-copy' },
         h('p', { class: 'tz-f-no' }, '보스전'),
         h('h3', {}, '최애 DJ에게 영광을 가져다줄 보스전.'),
-        h('p', {}, '방송을 켜고 30분 뒤부터 30분마다 보스가 나타나요. 청취자들의 몬스터가 한꺼번에 덤비고, 전투는 채팅으로 생중계돼요. 쓰러뜨리면 DJ 땅이 넓어지고, 지면 줄어들어요. 사람이 적으면 버프를 받아요.'),
+        h('p', {}, '방송을 켜고 30분 뒤부터 30분마다 보스가 나타나요. 청취자들의 몬스터가 한꺼번에 덤비고, 전투는 채팅과 키우기.com에서 생중계돼요. 쓰러뜨리면 DJ 땅이 넓어지고, 지면 줄어들어요. 사람이 적으면 버프를 받아요.'),
         h('ul', { class: 'tz-points' },
           h('li', {}, h('b', {}, '30분마다 한 번'), '2시간 방송이면 3번, 싸울수록 세져요'),
           h('li', {}, h('b', {}, '약점 속성'), '보스의 약점을 찌르면 피해가 1.5배'),
-          h('li', {}, h('b', {}, '생중계'), '한방에 나가떨어지는 순간까지 채팅으로'))),
+          h('li', {}, h('b', {}, '두 곳에서 생중계'), '채팅에는 글로, 키우기.com에는 도트 화면으로'))),
       h('div', { class: 'tz-f-art' }, bossArt(),
         chat('보스 토벌 생중계 (예시)', [
           [null, '👹 보스 등장!\n🔥 불 속성 · 약점 💧물\n👉 !참전 → 대표 몬스터로 싸워요'],
@@ -218,12 +223,30 @@ function previews() {
           RING.map(([, name], i) => [i ? h('span', { class: 'tz-el-arrow', 'aria-hidden': 'true' }, '›') : null, h('span', {}, name)])),
         h('p', {}, '화살표 방향으로 강해요. 상대 약점을 찌르면 1.5배, 거꾸로면 약해져요. 보스도, 영지전 몬스터 대전도 속성을 알면 이겨요.')),
       ringArt()),
-    h('div', { class: 'tz-dex' },
-      h('div', { class: 'tz-dex-head' }, h('p', { class: 'tz-f-no' }, '도감'), h('h3', {}, '12종 몬스터 × 3단계, 그리고 보스 6.'), h('p', {}, '어떤 모습일지는 12월 1일에 공개돼요.')),
-      h('ul', { class: 'tz-dex-grid' }, ELEMENTS.map((el) => h('li', { class: `tz-card tz-${el[0]}` },
-        h('span', { class: 'tz-card-tag' }, elementIcon(el, 16), `${el[1]} 속성`),
-        h('div', { class: 'tz-card-shadow', 'aria-hidden': 'true' }, h('i'), h('b', {}, '?')),
-        h('p', {}, h('strong', {}, '봉인'), h('span', {}, '12월 1일 공개')))))));
+    dex());
+}
+
+// 도감 미리 공개(2026-11-19): 속성마다 1단계 한 마리(이름·모습)만 — 2·3단계와 나머지 종은 12월 1일. 보스 6은 그림자와 속성만(이름은 12월 1일).
+//  [속성, 종, 1단계 이름] — 이름·수는 봇 season-s2.json(몬스터 18종 × 3단계 · 보스 6)과 같다
+export const DEX_FIRST = [['fire', 'fire_01', '홍룡이'], ['water', 'water_01', '물꼬달'], ['grass', 'grass_01', '새싹곰'], ['earth', 'earth_01', '돌몽이'], ['wind', 'wind_01', '삐리링'], ['electric', 'electric_01', '찌릿냥']];
+export const DEX_COUNT = { species: 18, stages: 3, bosses: 6 };
+function dex() {
+  const el = (type) => ELEMENTS.find((e) => e[0] === type);
+  return h('div', { class: 'tz-dex' },
+    h('div', { class: 'tz-dex-head' }, h('p', { class: 'tz-f-no' }, '도감'),
+      h('h3', {}, `${DEX_COUNT.species}종 몬스터 × ${DEX_COUNT.stages}단계, 그리고 보스 ${DEX_COUNT.bosses}.`),
+      h('p', {}, '속성마다 한 마리씩 먼저 공개해요. 진화한 모습과 나머지 몬스터는 12월 1일에 만나요.')),
+    h('ul', { class: 'tz-dex-grid' }, DEX_FIRST.map(([type, sp, name]) => h('li', { class: `tz-card tz-${type}` },
+      h('span', { class: 'tz-card-tag' }, elementIcon(el(type), 16), `${el(type)[1]} 속성`),
+      h('div', { class: 'tz-card-art' }, h('img', { src: s2art(`monster_${sp}_1.webp`), alt: '', width: '256', height: '256', loading: 'lazy', decoding: 'async' })),
+      h('p', { class: 'tz-card-name' }, h('strong', {}, name), h('span', {}, '1단계')),
+      h('ol', { class: 'tz-card-next', 'aria-label': '2단계와 3단계 모습은 12월 1일 공개' },
+        [2, 3].map((n) => h('li', {}, h('i', { 'aria-hidden': 'true' }, '?'), `${n}단계`)))))),
+    h('div', { class: 'tz-bossdex' },
+      h('div', { class: 'tz-bossdex-head' }, h('h4', {}, `보스 ${DEX_COUNT.bosses}`), h('p', {}, '그림자와 속성만 먼저 공개해요. 이름은 12월 1일에 밝혀져요.')),
+      h('ul', { class: 'tz-boss-grid' }, ELEMENTS.map((e) => h('li', { class: `tz-bcard tz-${e[0]}` },
+        h('div', { class: 'tz-bcard-art', 'aria-hidden': 'true' }, h('img', { src: asset(`boss-shadow-${e[0]}.png`), alt: '', width: '240', height: '240', loading: 'lazy', decoding: 'async' })),
+        h('p', {}, h('span', { class: 'tz-card-tag' }, elementIcon(e, 16), `${e[1]} 속성`), h('strong', {}, h('span', { class: 'sr-only' }, '이름 비공개'), h('span', { 'aria-hidden': 'true' }, '???'))))))));
 }
 
 function prize() {
@@ -265,6 +288,7 @@ export function renderTeaser(root) {
   ticker = setInterval(tick, 1000);
   tick();
   startMap(root, motion);
+  startBossDemo(root, motion);
   reveal(root, motion);
   stillOffscreen(root);
   loadRecords(root.querySelector('.tz-stats'), motion);
@@ -286,7 +310,7 @@ function reveal(root, motion) {
   items.forEach((el) => io.observe(el));
 }
 
-// 끝없이 도는 꾸밈 움직임(불씨·금테 반짝임·보스·속성 고리·봉인 카드·보상 빛)은 그 칸이 화면 밖이면 멈춘다(tz-still — styles.css).
+// 끝없이 도는 꾸밈 움직임(불씨·금테 반짝임·속성 고리·보상 빛)은 그 칸이 화면 밖이면 멈춘다(tz-still — styles.css).
 function stillOffscreen(root) {
   if (!('IntersectionObserver' in window)) return;
   const io = new IntersectionObserver((entries) => {
