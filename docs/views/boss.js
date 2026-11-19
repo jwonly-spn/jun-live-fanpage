@@ -164,7 +164,7 @@ function watchPage(root, app, route) {
     last = f || last;
     if (!last) return;
     bossEl.replaceChildren(ogre(), bossText(last));
-    const state = cur?.ended ? (cur.win ? '토벌 성공' : '토벌 실패') : phaseText(last, serverNow());
+    const state = cur?.ended ? (cur.win ? '토벌 성공' : cur.passed ? '그냥 지나갔어요' : '토벌 실패') : phaseText(last, serverNow());
     if (stateEl.parentNode !== statusEl) statusEl.replaceChildren(djEl, ' ', stateEl, ' ', countEl);
     djEl.textContent = djText(last); countEl.textContent = joinedText(last);
     if (stateEl.textContent !== state) stateEl.textContent = state; // 바뀔 때만(화면 읽기가 한 번만 읽게)
@@ -254,7 +254,7 @@ function watchPage(root, app, route) {
           cur = { id: f.id, phase: 'join' };
         } else ctl.updateJoin(f.joined);
       } else if (cur?.id !== f.id || cur.phase !== 'fight') {
-        const my = { id: f.id, phase: 'fight', ended: false, landKnown: f.land != null, win: f.script.win === true, tries: 0 };
+        const my = { id: f.id, phase: 'fight', ended: false, landKnown: f.land != null, win: f.script.win === true, passed: !(Array.isArray(f.script.team) && f.script.team.length), tries: 0 };
         // 서버 시계로 지금−시작만큼 건너뛰어 그 장면부터(끝난 판이면 결과 장면만). 끝나면 다른 보스전을 보여 주고, 채팅 링크는 다음 판을 기다린다
         if (!await mount(f.script, { live: { startAt: f.startAt, now: serverNow }, land: f.land, onEnd: () => { my.ended = true; if (cur === my) { main.dataset.state = 'done'; paintInfo(); poll.kick(); } } })) return 0;
         cur = my;

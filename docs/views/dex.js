@@ -90,7 +90,7 @@ function typeSection(ctx, t, met) {
       boss ? h('article', { class: 's2-sp is-boss' },
         h('h3', null, boss.name),
         h('div', { class: 's2-boss-row' }, bossArtEl(ctx, t.id, { size: 'l', alt: boss.name }),
-          h('div', null, h('p', null, h('span', { class: 's2-badge' }, '보스')), h('p', null, `약점: ${typeLabel(beatenBy(t.id))}`), h('p', { class: 'note' }, '방송을 시작하고 30분 뒤부터 30분마다 나와요. 싸울수록 한 단계씩 세져요. 약점 속성 몬스터가 많을수록 이기기 쉬워요.')))) : null));
+          h('div', null, h('p', null, h('span', { class: 's2-badge' }, '보스')), h('p', null, `약점: ${typeLabel(beatenBy(t.id))}`), h('p', { class: 'note' }, '방송을 시작하고 30분 뒤부터 30분마다 나와요. 날마다 한 단계씩 세져요. 우리 팀보다 세지는 않아요. 약점 속성 몬스터가 많을수록 이기기 쉬워요.')))) : null));
 }
 
 // 한 종 칸: 이름(드문 몬스터 표시) · 3단계 그림 · 내가 키운 단계 · 설화(접어 둔 칸)

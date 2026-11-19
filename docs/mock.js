@@ -18,7 +18,7 @@ function rng(seed) {
 const f1 = (v) => (Math.round(v * 10) / 10).toFixed(1);
 const won = (v) => (v >= 10000 ? `${Math.round(v / 1000) / 10}만` : v.toLocaleString('ko-KR'));
 
-// 한 달 흉내(2026-11-18 보스 규칙에 맞춤: 2시간 방송에 보스 3번 · 이기면 남은 숲 × 2% ÷ 참가 수 — 흉내라 실패한 땅은 줄이지 않고 소식만, 영지전은 진 DJ 땅 10%+판돈 1만 냥마다 5%(25%까지) → 식민지, 되갚으면 독립)
+// 한 달 흉내(2026-11-18 보스 규칙에 맞춤: 2시간 방송에 보스 3번 · 이기면 남은 숲 × 1% · 그날 첫 승 4배 · 둘째 2배 ÷ 참가 수 — 흉내라 실패한 땅은 줄이지 않고 소식만, 영지전은 진 DJ 땅 10%+판돈 1만 냥마다 5%(25%까지) → 식민지, 되갚으면 독립)
 //  land: 땅 칸(Codex 그림의 docs/s2/land-grid.json — 없으면 절차 대륙)
 export function simulate({ djs = 5, day = 12, land: given = null } = {}) {
   const w = GW, h = GH, N = w * h, ND = Math.max(2, Math.min(DEMO_DJS.length, djs));
