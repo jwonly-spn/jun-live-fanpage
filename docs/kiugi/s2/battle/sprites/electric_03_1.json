@@ -1,0 +1,24 @@
+{
+  "id": "electric_03_1",
+  "frameW": 80,
+  "frameH": 80,
+  "baseline": 74,
+  "frames": 7,
+  "anims": {
+    "idle": [
+      0,
+      1
+    ],
+    "attack": [
+      2,
+      3,
+      4
+    ],
+    "hit": [
+      5
+    ],
+    "down": [
+      6
+    ]
+  }
+}

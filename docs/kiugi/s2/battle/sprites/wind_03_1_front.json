@@ -1,0 +1,16 @@
+{
+  "id": "wind_03_1",
+  "frameW": 80,
+  "frameH": 80,
+  "baseline": 74,
+  "frames": 3,
+  "anims": {
+    "idle": [
+      0,
+      1
+    ],
+    "pose": [
+      2
+    ]
+  }
+}
