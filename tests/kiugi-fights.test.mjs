@@ -5,14 +5,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import crypto from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import * as v from '../supabase/functions/kiugi/lib.ts';
 import { world, signed, deviceKey, body, syl } from './kiugi-world.mjs';
 
 const T = Date.parse('2026-12-02T12:00:00+09:00');
 const LK = crypto.createHash('sha256').update('kg-fight:지어낸방송1').digest('hex').slice(0, 32);
 const LK2 = crypto.createHash('sha256').update('kg-fight:지어낸방송2').digest('hex').slice(0, 32);
-const BOSS = { type: 'fire', name: '불꽃 대왕', aoe: '분화', stage: 2 };
-const MEMBER = (i, label = `${syl(i)}톨#먼치`) => ({ label, sp: 'water_01', type: 'water', name: '물방울', stage: 1, lv: 5 + i });
+// 보스·광역기·몬스터·버프 이름은 시즌 2 시즌 파일·봇 버프 표에 있는 것(2026-11-21 검수 S7c — 아닌 이름은 서버가 대신 글로 바꾼다, 아래 "보스전 글" 시험)
+const BOSS = { type: 'fire', name: '화산 두꺼비', aoe: '화구분출', stage: 2 };
+const MEMBER = (i, label = `${syl(i)}톨#먼치`) => ({ label, sp: 'water_01', type: 'water', name: '물꼬달', stage: 1, lv: 5 + i });
 // FightScript v1(봇 app/src/bot/kiugi/fight-script.mjs buildFightScript 모양 — 사건은 짧은 배열)
 const SCRIPT = (team = [MEMBER(0), MEMBER(1)], extra = {}) => ({
   v: 1, k: 3, appearAt: T, joinUntil: T + 65000, startAt: T + 65000, boss: BOSS, team,
@@ -81,12 +83,12 @@ test('흐름: 등장 → 참전 수 → 대본 → 땅 · 목록과 대본 · DJ
   const id = r.json.id;
   assert.match(id, v.FIGHT_ID);
   r = await s.list();
-  assert.deepEqual(r.json.fights, [{ id, dj: { slug: s.slug, name: '먼치' }, boss: { type: 'fire', name: '불꽃 대왕', stage: 2 }, phase: 'join', joined: 0, appearAt, joinUntil: appearAt + 65000, startAt: null }]);
+  assert.deepEqual(r.json.fights, [{ id, dj: { slug: s.slug, name: '먼치' }, boss: { type: 'fire', name: '화산 두꺼비', stage: 2 }, phase: 'join', joined: 0, appearAt, joinUntil: appearAt + 65000, startAt: null }]);
   // 모집 중 보기(대본은 아직 없음)
   r = await s.one(id);
   assert.equal(r.status, 200); assert.equal(r.headers.get('cache-control'), 'public, max-age=5');
   assert.equal(r.json.fight.phase, 'join'); assert.equal(r.json.fight.script, null); assert.equal(r.json.fight.land, null);
-  assert.deepEqual(r.json.fight.boss, { type: 'fire', name: '불꽃 대왕', stage: 2, aoe: '분화' }, '보는 화면은 광역기 이름도');
+  assert.deepEqual(r.json.fight.boss, { type: 'fire', name: '화산 두꺼비', stage: 2, aoe: '화구분출' }, '보는 화면은 광역기 이름도');
   // 참전 수
   s.w.clock.now += 10000;
   assert.equal((await s.send('fight-join', { liveKey: LK, k: 3, joined: 3 })).status, 200);
@@ -98,7 +100,7 @@ test('흐름: 등장 → 참전 수 → 대본 → 땅 · 목록과 대본 · DJ
   r = await s.send('fight', { liveKey: LK, k: 3, script }, { skew: 20000 });
   assert.equal(r.status, 200); assert.equal(r.json.id, id, '같은 판(같은 id)');
   r = await s.list();
-  assert.deepEqual(r.json.fights, [{ id, dj: { slug: s.slug, name: '먼치' }, boss: { type: 'fire', name: '불꽃 대왕', stage: 2 }, phase: 'fight', joined: 2, appearAt, joinUntil: appearAt + 65000, startAt }]);
+  assert.deepEqual(r.json.fights, [{ id, dj: { slug: s.slug, name: '먼치' }, boss: { type: 'fire', name: '화산 두꺼비', stage: 2 }, phase: 'fight', joined: 2, appearAt, joinUntil: appearAt + 65000, startAt }]);
   r = await s.one(id);
   const f = r.json.fight;
   assert.equal(r.json.now, s.w.clock.now);
@@ -156,6 +158,60 @@ test('이름(label): 사이트 아이디 규칙(FULL_ID)에 맞지 않는 글은
   const t = await s.send('fight', { liveKey: LK2, k: 2, script: SCRIPT([MEMBER(0, ' 밤톨#먼치 '), MEMBER(1, '\t사탕요정#먼치'.normalize('NFD'))]) });
   assert.equal(t.status, 200);
   assert.deepEqual((await s.one(t.json.id)).json.fight.script.team.map((m) => m.label), ['밤톨#먼치', '사탕요정#먼치'], '앞뒤 공백을 떼고 아이디로');
+});
+
+// 2026-11-21 검수 S7c(보안-보고 MEDIUM-6 · S6 검토 "컨트롤러 판단 의견 ②"): 보스전 글은 시즌 파일에 있는 이름만 그대로 — 정상 봇은 늘 시즌 파일 이름을 보낸다
+test('시즌 2 이름표(lib.ts)는 시즌 파일 docs/kiugi/season-s2.json(봇 0.22.5 와 같은 파일)과 같다 · 버프 이름은 봇 boss.mjs BUFF_NAMES(인원 1~9)와 같다', async () => {
+  const season = JSON.parse(await readFile(new URL('../docs/kiugi/season-s2.json', import.meta.url), 'utf8'));
+  assert.equal(season.season.id, 's2');
+  assert.deepEqual(Object.fromEntries(v.S2_BOSS_NAMES), Object.fromEntries(season.bosses.map((b) => [b.type, { name: b.name, aoe: b.attack }])));
+  assert.deepEqual(Object.fromEntries(v.S2_MONSTER_NAMES), Object.fromEntries(season.monsters.map((m) => [m.id, m.stageNames])));
+  assert.deepEqual(Object.fromEntries(v.BUFF_NAMES), { 1: '영웅 출현', 2: '삼위일체', 3: '삼위일체', 4: '오성진', 5: '오성진', 6: '북두칠성', 7: '북두칠성', 8: '십시일반', 9: '십시일반' });
+});
+
+test('보스전 글: 보스·광역기·몬스터·버프 이름이 시즌 파일(버프는 봇 표)에 없으면 그 글만 대신 글로 바꾸고 판은 받는다(200) · 있는 이름은 그대로(NFC)', async () => {
+  const s = await setup();
+  // 등장: 없는 보스 이름·광역기 → 그 속성 보스의 이름·광역기
+  let r = await appear(s, { boss: { type: 'water', name: '광고 보러 오세요', aoe: '나쁜 말 폭풍', stage: 3 } });
+  assert.equal(r.status, 200); assert.equal(r.json.ok, true); assert.equal(r.json.ignored, undefined, '판을 받았다');
+  const id = r.json.id;
+  assert.deepEqual((await s.one(id)).json.fight.boss, { type: 'water', name: '심해 크라켄', stage: 3, aoe: '산호해일' });
+  assert.deepEqual((await s.list()).json.fights.map((x) => x.boss.name), ['심해 크라켄']);
+  // 시즌 파일에 없는 속성(모양은 맞음 — Object 의 이름 constructor 도)이면 "보스"·"공격"
+  for (const [i, type] of ['ice', 'constructor'].entries()) {
+    r = await appear(s, { liveKey: LK2, k: 20 + i, boss: { type, name: '가짜 보스', aoe: '가짜 기술', stage: 1 } });
+    assert.equal(r.status, 200, type);
+    assert.deepEqual((await s.one(r.json.id)).json.fight.boss, { type, name: '보스', stage: 1, aoe: '공격' }, type);
+  }
+  // 대본: 몬스터 이름 → 그 종·단계 이름(모르는 종이면 "몬스터") · 보스 이름 → 그 속성 보스 · 버프 → 그 인원의 버프 이름
+  const team = [
+    { ...MEMBER(0), name: '욕하는몬' }, // water_01 1단계 → 물꼬달
+    { ...MEMBER(1), sp: 'fire_03', type: 'fire', name: '광고몬', stage: 3 }, // fire_03 3단계 → 태화깃
+    { ...MEMBER(2), sp: 'zzz_09', type: 'fire', name: '가짜몬', stage: 2 }, // 시즌 파일에 없는 종 → 몬스터
+    { ...MEMBER(3), sp: 'grass_02', type: 'grass', name: '덩굴잠', stage: 2 }, // 있는 이름은 그대로
+    { ...MEMBER(4), sp: 'earth_01', type: 'earth', name: '홍룡이', stage: 1 }, // 시즌 파일 이름이면(다른 종 이름이어도) 그대로
+    { ...MEMBER(5), name: '몬스터' } // 봇이 이름을 모를 때 쓰는 말(monsterName)
+  ];
+  r = await s.send('fight', { liveKey: LK, k: 3, script: SCRIPT(team, { boss: { type: 'fire', name: '나쁜 글', aoe: '공격', stage: 2 }, buff: { b: 4, name: '광고 버프', a: 1.08, h: 1.1, hero: false } }) });
+  assert.equal(r.status, 200); assert.equal(r.json.id, id, '같은 판');
+  const f = (await s.one(id)).json.fight;
+  assert.deepEqual(f.script.team.map((m) => m.name), ['물꼬달', '태화깃', '몬스터', '덩굴잠', '홍룡이', '몬스터']);
+  assert.deepEqual(f.script.team.map(({ name, ...m }) => m), team.map(({ name, ...m }) => m), '이름 말고는 그대로');
+  assert.deepEqual(f.script.boss, { type: 'fire', name: '화산 두꺼비', aoe: '공격', stage: 2 }, '보스 이름만 바꾸고 광역기 "공격"(봇이 모를 때 쓰는 말)은 그대로');
+  assert.deepEqual(f.boss, { type: 'fire', name: '화산 두꺼비', stage: 2, aoe: '공격' }, '목록·보기의 보스도');
+  assert.deepEqual(f.script.buff, { b: 4, name: '오성진', a: 1.08, h: 1.1, hero: false });
+  assert.deepEqual(f.script.events, SCRIPT().events, '사건은 그대로');
+  r = await s.send('fight', { liveKey: LK, k: 5, script: SCRIPT(undefined, { buff: { b: 15, name: '가짜 버프', a: 1, h: 1, hero: false } }) });
+  assert.equal(r.status, 200);
+  assert.equal((await s.one(r.json.id)).json.fight.script.buff.name, '십시일반', '인원 표(1~9) 밖이면 가장 큰 인원의 이름');
+  // 있는 이름은 그대로 — 풀어 쓴 한글(NFD)은 NFC 로
+  r = await s.send('fight', { liveKey: LK, k: 6, script: SCRIPT([{ ...MEMBER(0), name: '물꼬달'.normalize('NFD') }], {
+    boss: { type: 'grass', name: '그루각', aoe: '꽃뿔쇄도'.normalize('NFD'), stage: 1 }, buff: { b: 1, name: '영웅 출현', a: 1.51, h: 1.5, hero: true }, events: [] }) });
+  assert.equal(r.status, 200);
+  const g = (await s.one(r.json.id)).json.fight.script;
+  assert.deepEqual([g.boss.name, g.boss.aoe, g.team[0].name, g.buff.name], ['그루각', '꽃뿔쇄도', '물꼬달', '영웅 출현']);
+  // 모양이 틀린 이름(빈 글·20자 넘음)은 예전처럼 400(아래 "모양 검사")
+  assert.equal((await appear(s, { liveKey: LK2, k: 30, boss: { ...BOSS, name: '' } })).status, 400);
 });
 
 test('모양 검사: 글이 아닌 label 은 400 · 방송 열쇠(16진 32자)·칸·보스·참전 수·대본 모양이 틀리면 400 · 대본이 256KB 를 넘으면 413', async () => {
@@ -237,10 +293,10 @@ test('같은 판을 다시 올리면 덮어쓴다(목록 1개 · 시작 시각�
   assert.equal(list.length, 1); assert.equal(list[0].phase, 'fight'); assert.equal(list[0].joined, 2);
   // 등장을 두 번(봇을 다시 켬): 판은 하나
   await appear(s, { liveKey: LK2 });
-  await appear(s, { liveKey: LK2, boss: { ...BOSS, name: '불꽃 대왕 둘' } });
+  await appear(s, { liveKey: LK2, boss: { ...BOSS, type: 'water', name: '심해 크라켄', aoe: '산호해일' } });
   list = (await s.list()).json.fights;
   assert.equal(list.length, 2);
-  assert.deepEqual(list.map((x) => x.boss.name).sort(), ['불꽃 대왕', '불꽃 대왕 둘']);
+  assert.deepEqual(list.map((x) => x.boss.name).sort(), ['심해 크라켄', '화산 두꺼비']);
   // 다른 칸은 다른 판
   await appear(s, { liveKey: LK2, k: 4 });
   assert.equal((await s.list()).json.fights.length, 3);

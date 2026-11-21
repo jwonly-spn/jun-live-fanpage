@@ -395,6 +395,59 @@ const TYPE_ID = /^[a-z]{1,12}$/;
 const nat = (x: unknown, max = Number.MAX_SAFE_INTEGER): x is number => Number.isSafeInteger(x) && (x as number) >= 0 && (x as number) <= max;
 const BAD_FIGHT = '보스전 내용을 확인해 주세요.', BAD_BOSS = '보스 정보를 확인해 주세요.', BAD_SCRIPT = '보스전 대본을 확인해 주세요.';
 export const BAD_LABEL = '보스전에 올리는 이름은 키우기 아이디(글)나 빈칸만 쓸 수 있어요.', BAD_LAND = '땅 결과를 확인해 주세요.';
+
+// 보스전 글은 시즌 파일 이름만(2026-11-21 키우기 시즌 2 검수 S7c — 보안-보고 MEDIUM-6 · 봇 저장소 S6 검토 "컨트롤러 판단 의견 ②"):
+//  먼치킨은 보스·광역기·몬스터 이름을 시즌 파일(season-s2.json)에서, 인원 버프 이름을 버프 표(봇 app/src/bot/kiugi/boss.mjs BUFF_NAMES)에서 그대로 꺼내 보낸다.
+//  그래서 아래 표에 있는 이름만 그대로 두고, 없는 이름(고친 봇·직접 서명한 요청의 광고·욕 글)은 그 글만 대신 글로 바꾸고 판은 받는다
+//  (먼치킨은 408·429 말고 4xx 를 받으면 그 판 올리기를 멈춘다 — 정상 DJ 를 막지 않게. 정상 봇은 늘 표 안의 이름을 보내 잘못 걸림이 없다).
+//  대신 글: 보스·광역기 = 그 속성 보스의 이름·광역기(표에 없는 속성이면 "보스"·"공격") · 몬스터 = 그 종·단계 이름(표에 없는 종이면 "몬스터")
+//   · 버프 = 그 인원의 버프 이름(인원 1~9 밖이면 9명 이름). "공격"·"몬스터"는 먼치킨이 이름을 모를 때 쓰는 말이라(봇 monsters.mjs loadMonsters·monsterName) 그대로 받는다.
+//  이름이 어느 속성·종의 것인지까지는 보지 않는다(시즌 파일 이름이면 무해). 견주기 전에 NFC 로 맞춘다(풀어 쓴 한글도 같은 이름).
+//  표는 docs/kiugi/season-s2.json(봇 app/src/bot/kiugi/season-s2.json 과 같은 파일)을 옮긴 것 — tests/kiugi-fights.test.mjs 가 같은지 견준다.
+//  시즌 파일·버프 표의 이름이 바뀌거나 다음 시즌이 오면 여기도 고치고 함수 kiugi 를 다시 올린다(안 고치면 새 이름이 대신 글로 보인다).
+//  Map 으로 둔다(모양만 맞으면 받는 속성 이름표 "constructor" 같은 글이 Object 의 것을 꺼내지 않게).
+const bossNames = (name: string, aoe: string) => Object.freeze({ name, aoe });
+export const S2_BOSS_NAMES: ReadonlyMap<string, Readonly<{ name: string; aoe: string }>> = new Map([
+  ['fire', bossNames('화산 두꺼비', '화구분출')],
+  ['water', bossNames('심해 크라켄', '산호해일')],
+  ['grass', bossNames('그루각', '꽃뿔쇄도')],
+  ['earth', bossNames('협곡 들소', '사암폭풍')],
+  ['wind', bossNames('천해신 벨', '구름대진군')],
+  ['electric', bossNames('뇌우라', '천둥그물')]
+]);
+// 몬스터 종 → 단계 1·2·3 이름(시즌 파일 stageNames)
+export const S2_MONSTER_NAMES: ReadonlyMap<string, readonly string[]> = new Map([
+  ['fire_01', Object.freeze(['홍룡이', '화룡이', '파라곤'])],
+  ['fire_02', Object.freeze(['너굴잉', '화구리', '태구리'])],
+  ['fire_03', Object.freeze(['홍깃', '화깃', '태화깃'])],
+  ['water_01', Object.freeze(['물꼬달', '여울달', '해울달'])],
+  ['water_02', Object.freeze(['개골', '깨골', '큰깨골'])],
+  ['water_03', Object.freeze(['솟나루', '물솟나루', '큰너울'])],
+  ['grass_01', Object.freeze(['새싹곰', '그루곰', '거목곰'])],
+  ['grass_02', Object.freeze(['이끼잠', '덩굴잠', '녹림잠'])],
+  ['grass_03', Object.freeze(['빵빵이', '다람이', '숲지람'])],
+  ['earth_01', Object.freeze(['돌몽이', '황토치', '바위든'])],
+  ['earth_02', Object.freeze(['층모루', '판모루', '성모루'])],
+  ['earth_03', Object.freeze(['어금니', '송곳니', '뿔뿔이'])],
+  ['wind_01', Object.freeze(['삐리링', '회오링', '천풍'])],
+  ['wind_02', Object.freeze(['휘부이', '휘나래', '학도령'])],
+  ['wind_03', Object.freeze(['몽실람', '날래람', '창공람'])],
+  ['electric_01', Object.freeze(['찌릿냥', '자뢰냥', '뇌관묘'])],
+  ['electric_02', Object.freeze(['자릿꼬', '자릿쏜', '자릿섬'])],
+  ['electric_03', Object.freeze(['또르매', '뇌깃솔', '천뢰깃'])]
+]);
+// 인원 버프 이름(봇 boss.mjs BUFF_NAMES — 인원 1~9, 10명부터는 버프 없음)
+export const BUFF_NAMES: ReadonlyMap<number, string> = new Map([
+  [1, '영웅 출현'], [2, '삼위일체'], [3, '삼위일체'], [4, '오성진'], [5, '오성진'], [6, '북두칠성'], [7, '북두칠성'], [8, '십시일반'], [9, '십시일반']
+]);
+const BUFF_TOP = 9;
+const BOSS_NAME_SET: ReadonlySet<string> = new Set([...S2_BOSS_NAMES.values()].map((b) => b.name));
+const AOE_SET: ReadonlySet<string> = new Set([...[...S2_BOSS_NAMES.values()].map((b) => b.aoe), '공격']);
+const MONSTER_NAME_SET: ReadonlySet<string> = new Set([...[...S2_MONSTER_NAMES.values()].flat(), '몬스터']);
+const BUFF_NAME_SET: ReadonlySet<string> = new Set(BUFF_NAMES.values());
+// 표에 있는 이름이면 그 이름(NFC), 없으면 대신 글
+const knownName = (name: string, names: ReadonlySet<string>, instead: string) => { const s = name.normalize('NFC'); return names.has(s) ? s : instead; };
+
 export function makeFightId(random: (n: number) => Uint8Array) {
   let out = '';
   while (out.length < 12) for (const b of random(16)) { if (b < 248 && out.length < 12) out += SLUG_ALPHABET[b % 31]; }
@@ -410,12 +463,13 @@ export function fightJoined(value: unknown) {
   if (!nat(value, INT4_MAX)) throw fail(400, BAD_FIGHT);
   return value as number;
 }
-// 보스 {type, name, aoe(광역기 이름), stage(1~)}
+// 보스 {type, name, aoe(광역기 이름), stage(1~)} — 이름·광역기가 시즌 파일에 없으면 그 속성 보스의 것으로(위 "보스전 글은 시즌 파일 이름만")
 export function fightBoss(value: unknown) {
   if (!isObject(value)) throw fail(400, BAD_BOSS);
   const name = clean(value.name, FIGHT_NAME_MAX), aoe = clean(value.aoe, FIGHT_NAME_MAX);
   if (typeof value.type !== 'string' || !TYPE_ID.test(value.type) || !name || !aoe || !nat(value.stage) || (value.stage as number) < 1) throw fail(400, BAD_BOSS);
-  return { type: value.type, name, aoe, stage: value.stage as number };
+  const type = value.type as string, own = S2_BOSS_NAMES.get(type);
+  return { type, name: knownName(name, BOSS_NAME_SET, own?.name ?? '보스'), aoe: knownName(aoe, AOE_SET, own?.aoe ?? '공격'), stage: value.stage as number };
 }
 // 땅 결과: {addedPct, pct} | {lostPct, pct} | {capped:true} | {} — % 는 0~100(pct 칸은 꼭 있어야 하고 null 도 된다 — 영토 서버가 내 땅을 주지 않으면 봇의 NaN 이 JSON 에서 null). 다른 칸은 버린다.
 const pctOf = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x) && x >= 0 && x <= 100;
@@ -430,6 +484,7 @@ export function fightLand(value: unknown): Record<string, unknown> {
 // 참전 한 줄 {label(키우기 아이디 | null), sp, type, name(몬스터 이름), stage 1~3, lv}
 //  label 이 글이지만 사이트 아이디 규칙(FULL_ID)에 맞지 않으면 그 이름만 null 로 바꾸고 판은 받는다
 //  (먼치킨은 4xx 에 그 판 올리기를 통째로 멈춘다 — 2026-11-18 컨트롤러 결정). 글이 아닌 label(숫자·객체 등)은 모양이 틀린 것 → 400.
+//  몬스터 이름이 시즌 파일에 없으면 그 종·단계 이름으로(위 "보스전 글은 시즌 파일 이름만").
 function fightMember(value: unknown) {
   if (!isObject(value)) throw fail(400, BAD_SCRIPT);
   let label: string | null = null;
@@ -441,7 +496,8 @@ function fightMember(value: unknown) {
   const name = clean(value.name, FIGHT_NAME_MAX);
   if (typeof value.sp !== 'string' || !MONSTER_SP.test(value.sp) || typeof value.type !== 'string' || !TYPE_ID.test(value.type) || !name
     || !nat(value.stage, MONSTER_STAGE_MAX) || (value.stage as number) < 1 || !nat(value.lv, MONSTER_LV_MAX) || (value.lv as number) < 1) throw fail(400, BAD_SCRIPT);
-  return { label, sp: value.sp, type: value.type, name, stage: value.stage as number, lv: value.lv as number };
+  const sp = value.sp as string, stage = value.stage as number;
+  return { label, sp, type: value.type, name: knownName(name, MONSTER_NAME_SET, S2_MONSTER_NAMES.get(sp)?.[stage - 1] ?? '몬스터'), stage, lv: value.lv as number };
 }
 const eff = (x: unknown) => x === 0 || x === 1 || x === 2;
 const bit = (x: unknown) => x === 0 || x === 1;
@@ -470,7 +526,9 @@ export function fightScript(value: unknown) {
   if (value.buff !== null && value.buff !== undefined) {
     const b = value.buff, name = isObject(b) ? clean(b.name, FIGHT_NAME_MAX) : null;
     if (!isObject(b) || !nat(b.b, 99) || (b.b as number) < 1 || !name || !posNum(b.a) || !posNum(b.h)) throw fail(400, BAD_SCRIPT);
-    buff = { b: b.b as number, name, a: b.a, h: b.h, hero: b.hero === true };
+    // 버프 이름이 봇 버프 표에 없으면 그 인원의 이름으로(위 "보스전 글은 시즌 파일 이름만")
+    const people = b.b as number;
+    buff = { b: people, name: knownName(name, BUFF_NAME_SET, BUFF_NAMES.get(Math.min(people, BUFF_TOP)) as string), a: b.a, h: b.h, hero: b.hero === true };
   }
   let mvp = null;
   if (value.mvp !== null && value.mvp !== undefined) {

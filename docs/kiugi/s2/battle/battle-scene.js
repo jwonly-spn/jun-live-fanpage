@@ -841,7 +841,7 @@ export async function playFight(container, script, opts = {}) {
   // 글꼴이 준비될 때까지 잠깐만 기다림(안 오면 기본 글꼴로)
   try {
     const sample = [boss0.name, boss0.aoe, fight.buff?.name, djName, ...labels, ...team.map(m => m.name),
-      '보스 출현! 단계 라운드 약점 별로 토벌 성공 실패 땅 생중계 방송 공격 체력 피해 참전 명 연타 위 힘을 모으고 있어요 모두 마리가 쓰러졌어요 마지막 남은 버텼어요 안에 쓰러뜨리지 못했어요 모집 중 결과를 기다리는 시간 초 곧 싸움이 시작돼요 채팅에 아무도 하지 않았어요 오늘은 이미 한 번 져서 그대로예요 MVP Lv./0123456789%+−→…·×'].join('');
+      '보스 출현! 단계 일째 라운드 약점 별로 토벌 성공 실패 땅 생중계 방송 공격 체력 피해 참전 명 연타 위 힘을 모으고 있어요 모두 마리가 쓰러졌어요 마지막 남은 버텼어요 안에 쓰러뜨리지 못했어요 모집 중 결과를 기다리는 시간 초 곧 싸움이 시작돼요 채팅에 아무도 하지 않았어요 오늘은 이미 한 번 져서 그대로예요 MVP Lv./0123456789%+−→…·×'].join('');
     await Promise.race([
       Promise.all([document.fonts.load(`12px "Galmuri11"`, sample), document.fonts.load(`10px "Galmuri9"`, sample)]),
       new Promise(r => setTimeout(r, 2500)),
