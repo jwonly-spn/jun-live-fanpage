@@ -32,10 +32,36 @@ const MAIN_COLUMNS = ['slug', 'device_id', 'updated', 'name', 'season', 'charact
 const EMPTY = () => ({ updated: null, name: '', season: null, character: null, top: [], people: [], count: 0, summary: {} });
 const pick = (p, cols) => (p ? structuredClone(Object.fromEntries(cols.map((c) => [c, p[c]]))) : null);
 
+// 보스전 보기 표 kg_fights(supabase/migrations/20261118_kg_fights.sql)의 목록 칸 — index.ts FIGHT_LIST 와 같은 것
+const FIGHT_LIST_COLUMNS = ['id', 'device_id', 'slug', 'phase', 'joined', 'boss', 'appear_at', 'join_until', 'start_at', 'end_at', 'expires'];
+
 export function memoryStore(clock) {
-  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, nextRelease: null, snaps: new Map() };
+  const s = { pages: new Map(), devices: new Map(), nonces: new Set(), hits: new Map(), hearts: new Map(), votes: new Map(), calls: [], nextSave: null, nextRelease: null, snaps: new Map(), fights: new Map(), beforeFightUpdate: null };
   const byNameKey = (key) => [...s.pages.values()].find((p) => p.name_key === key) || null;
+  const fightOf = (device, liveKey, k) => [...s.fights.values()].find((f) => f.device_id === device && f.live_key === liveKey && f.k === k) || null;
   return Object.assign(s, {
+    // ---- 보스전 보기(kg_fights — index.ts 와 같은 약속) ----
+    fight: async (device, liveKey, k) => structuredClone(fightOf(device, liveKey, k)),
+    fightById: async (id) => structuredClone(s.fights.get(id) || null),
+    // 새 줄: 같은 (기기, 방송 열쇠, 칸)이나 같은 id 가 있으면 'exists'
+    insertFight: async (row) => {
+      if (s.fights.has(row.id) || fightOf(row.device_id, row.live_key, row.k)) return 'exists';
+      s.fights.set(row.id, structuredClone(row)); return 'ok';
+    },
+    // 바꾸기: 본 그대로(phase·updated)일 때만 → true | false(그사이 바뀜). 시험에서 "그사이 다른 요청이 바꿈"을 흉내 낼 때는 beforeFightUpdate 에 함수를 넣어 둔다(한 번 불림)
+    updateFight: async (id, expect, patch) => {
+      if (typeof s.beforeFightUpdate === 'function') { const f = s.beforeFightUpdate; s.beforeFightUpdate = null; f(); }
+      const row = s.fights.get(id);
+      if (!row || row.phase !== expect.phase || row.updated !== expect.updated) return false;
+      const next = { ...row, ...structuredClone(patch) };
+      s.fights.delete(id); s.fights.set(next.id, next); return true;
+    },
+    // 목록: expires 전이고 · 싸우는 중(끝이 아직) 또는 모집 중(마감이 joinFrom 뒤 — handler 가 now − 90초를 준다), 나온 때 최근 순 100개
+    liveFights: async (now, joinFrom, slug = null) => [...s.fights.values()]
+      .filter((f) => (!slug || f.slug === slug) && f.expires > now && ((f.phase === 'fight' && f.end_at >= now) || (f.phase === 'join' && f.join_until >= joinFrom)))
+      .sort((a, b) => b.appear_at - a.appear_at).slice(0, 100).map((f) => pick(f, FIGHT_LIST_COLUMNS)),
+    cleanFights: async (now) => { for (const [id, f] of s.fights) if (f.expires < now) s.fights.delete(id); s.calls.push('cleanFights'); },
+    pagesOf: async (slugs) => [...s.pages.values()].filter((p) => slugs.includes(p.slug)).map((p) => pick(p, ['slug', 'device_id', 'updated', 'name', 'main'])),
     ipSalt: async () => 'salt',
     hit: async (key, seconds, max) => { const k = key + ':' + Math.floor(clock.now / 1000 / seconds); const n = (s.hits.get(k) || 0) + 1; s.hits.set(k, n); return n <= max; },
     nonce: async (id) => { if (s.nonces.has(id)) return false; s.nonces.add(id); return true; },
@@ -104,11 +130,13 @@ export function memoryStore(clock) {
 // 나중에 하는 일(later — 미리 만든 답 올리기)이 끝나게 잠깐 기다린다
 export const settle = () => new Promise((r) => setTimeout(r, 5));
 
-// 시험 세계: 시계·store·handler. cacheMs 0(메인·전체 찾기 목록을 기억하지 않음), chance 0.5(가끔 하는 정리는 안 함)
-export function world({ chance = () => 0.5, cacheMs = 0 } = {}) {
-  const clock = { now: T0 }, store = memoryStore(clock);
+// 시험 세계: 시계·store·handler. cacheMs 0(메인·전체 찾기 목록을 기억하지 않음), fightCacheMs 0(보스전 목록·한 판 답도 기억하지 않음 — 실제 서버는 3초), chance 0.5(가끔 하는 정리는 안 함)
+//  v2Until: 시즌 1 올리기(v2)를 받는 마지막 때 — 시즌 1 시험은 시계를 두 달 넘게 넘기며 v2 로 올려서 기본은 끝 없음(Infinity).
+//   시즌 2 시험(kiugi-s2.test.mjs)은 실제 서버와 같은 때(lib.ts S2_START = 2026-12-01 0시 한국)를 넣는다.
+export function world({ chance = () => 0.5, cacheMs = 0, fightCacheMs = 0, v2Until = Infinity, now = T0 } = {}) {
+  const clock = { now }, store = memoryStore(clock);
   let seed = 1;
-  const handle = createHandler(store, { now: () => clock.now, chance, site: SITE, cacheMs, random: (n) => Uint8Array.from({ length: n }, () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 256) });
+  const handle = createHandler(store, { now: () => clock.now, chance, site: SITE, cacheMs, fightCacheMs, v2Until, random: (n) => Uint8Array.from({ length: n }, () => (seed = (seed * 1103515245 + 12345) % 2147483648) % 256) });
   const post = (body, headers = {}, path = 'app') => handle(new Request(BASE + path, { method: 'POST', headers: { 'content-type': 'application/json', ...headers }, body: typeof body === 'string' ? body : JSON.stringify(body) }));
   const get = (path, ip = '1.1.1.1') => handle(new Request(BASE + path, { headers: { 'cf-connecting-ip': ip } }));
   // 승인된 기기 하나 만들고 올리기(1분에 2번 한도를 피하려고 시계를 61초 넘긴다)

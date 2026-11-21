@@ -1,0 +1,12 @@
+보스전 보기 배경음악 — 출처와 라이선스 (2026-11-18 받음)
+
+곡: 8bit Action Boss Battle (기본판 145BPM · 클라이맥스판 185BPM)
+만든 사람: MintoDog
+받은 곳: https://opengameart.org/content/8bit-action-boss-battle
+라이선스: CC0 (퍼블릭 도메인 — 상업적 사용 가능, 출처 표시 안 해도 됨)
+파일:
+  8bit_action_boss_battle_bpm145.mp3        2,518,334 바이트
+  8bit_action_boss_battle_climax_bpm185.mp3 2,181,886 바이트
+
+쓰는 법(Claude 가 정함): 싸움 동안 기본판을 반복 → 광역기(또는 마지막 라운드)부터 클라이맥스판으로 바꿈 · 기본 볼륨 50%(사용자 "기본 볼륨은 50% 낮춰서").
+참고: 처음에 받은 Kubbi - Up In My Jam 은 작곡가 페이지에 CC BY-NC-SA(비상업용만)라 쓰지 않음.

@@ -1,24 +1,13 @@
-// 화면 공통 조각: 사이트 이름, 맨 위(비공식 한 줄 · 머리줄), 바닥글, 칸 제목, 순위 배지, 사이트 안 링크, 불러오기 표시, 오류 상자, 공유.
-// 모습(2026-10-18 새 구조): 밝은 아이보리 바탕 · 먹색 글 · 장밋빛 하트 — SNS 처럼 큰 사진 카드(views/feed.js). 옆으로 넘기는 화살표 줄(rail)은 없앴다.
-// 모양은 styles.css, 할로윈 장식은 docs/design의 작은 SVG를 사용한다. style 속성은 쓰지 않는다.
+// 화면 공통 조각: 사이트 이름, 맨 위(공지 · 비공식 한 줄 · 머리줄), 바닥글, 칸 제목, 사이트 안 링크, 불러오기 표시, 오류 상자, 공유.
+// 모습(2026-11-15 시즌 2 "몬스터 영토전"): 오래된 지도 종이 같은 바탕 · 먹색 글 · 붉은 밤색 강조 하나. 지도는 밝은·어두운 화면 모두 같은 종이 색.
+// 모양은 styles.css. style 속성은 쓰지 않는다(보안 규칙).
 import { h, icon, toast, copyText } from '../lib/dom.js';
-import { listMine } from '../lib/me.js';
 
 // 사이트 이름(2026-10-08 사용자: "스푼 DJ 키우기" + 맨 위·아래에 비공식 표시)
 export const BRAND = '스푼 DJ 키우기';
+export const SEASON_TITLE = '몬스터 영토전';
 export const UNOFFICIAL = '스푼 공식 서비스가 아니에요';
-export const DISCLAIMER = '키우기.com은 먼치킨과 함께하는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
-
-// 앨범·할로윈 디자인(2026-10-18 Codex 시안 → 사용자 "이대로 반영"): 이제 기본 화면이다.
-//  예전 밝은 화면은 주소에 ?design=classic 을 붙이면 그 창에서만 볼 수 있다(비교용). index.html·404.html 의 <html> 에도 처음부터 클래스를 달아 둔다(자료가 오기 전 예전 색이 잠깐 보이지 않게).
-export function isAlbumPreview() {
-  return !(typeof location !== 'undefined' && new URLSearchParams(location.search).get('design') === 'classic');
-}
-
-export function applySeasonTheme(season) {
-  if (typeof document !== 'undefined') document.documentElement.classList.toggle('halloween-season',
-    isAlbumPreview() && /할로윈/.test(`${season?.name || ''} ${season?.theme || ''}`));
-}
+export const DISCLAIMER = '스푼 DJ 키우기는 먼치킨을 쓰는 DJ 방송들의 몬스터 영토전 지도와 청취자가 키운 몬스터를 모아 보는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
 
 // 사이트 안 링크(app.js가 가로채서 새로고침 없이 이동)
 export function ilink(href, props, ...children) {
@@ -26,7 +15,8 @@ export function ilink(href, props, ...children) {
 }
 
 // 공지(2026-10-18 사용자 "키우기 페이지 제일 상단에 공지 쓸 수 있도록"): docs/notice.json 을 고쳐 올리면 모든 화면 맨 위에 한 줄로 나온다.
-//  {id, text, until} — 글이 비었거나 until(ISO 시각)이 지나면 안 보인다. ×로 닫으면 이 브라우저에서는 그 공지(id)를 다시 안 보인다.
+//  {id, text, from?, until} — 글이 비었거나 from(ISO 시각) 전이거나 until 이 지나면 안 보인다(from 은 2026-11-15 더함 — 미리 올려 두는 시즌 시작 공지).
+//  ×로 닫으면 이 브라우저에서는 그 공지(id)를 다시 안 보인다.
 //  GitHub Pages 가 파일을 10분쯤 기억하므로 1분마다 다른 주소(?t=)로 받는다. 글은 글자로만 넣는다(HTML 아님). 한 화면 묶음에서 한 번만 받는다.
 export const NOTICE_FILE = 'notice.json', NOTICE_CLOSED = 'kg_notice_closed', NOTICE_MAX = 140;
 export function parseNotice(j, now = Date.now()) {
@@ -35,6 +25,8 @@ export function parseNotice(j, now = Date.now()) {
   if (!text) return null;
   const until = typeof j.until === 'string' ? Date.parse(j.until) : NaN;
   if (Number.isFinite(until) && now > until) return null;
+  const from = typeof j.from === 'string' ? Date.parse(j.from) : NaN;
+  if (Number.isFinite(from) && now < from) return null;
   return { id: typeof j.id === 'string' && j.id.trim() ? j.id.trim().slice(0, 40) : text, text };
 }
 let noticeJob = null;
@@ -63,40 +55,23 @@ function noticeBar(app) {
   return host;
 }
 
-// 맨 위: 공지(있을 때만) + 비공식 한 줄 + 머리줄(로고 · 찾기 · 옷 도감 · 그 페이지 단추). 머리줄은 화면 위에 붙어 있다(styles.css).
-// actions = 오른쪽 끝에 더할 요소 목록(예: 공유 단추). 머리줄(header)은 늘 마지막 — 다시 그릴 때는 nightTop(…).at(-1)
-export function nightTop(app, { actions = [] } = {}) {
-  if (typeof document !== 'undefined') document.documentElement?.classList.toggle('album-preview', isAlbumPreview());
+// 맨 위: 공지(있을 때만) + 비공식 한 줄 + 머리줄(로고 · 찾기 · 지도 · 몬스터 도감). 머리줄(header)은 늘 마지막 — 다시 그릴 때는 nightTop(…).at(-1)
+export function nightTop(app) {
   const route = typeof document !== 'undefined' ? document.body?.dataset?.route : '';
-  const home = app.link({ name: 'intro' });
-  // 내 캐릭터(이 브라우저에 정해 둔 것 — lib/me.js)가 있으면 어느 화면에서든 한 번에: 한 명이면 그 캐릭터 페이지, 여럿이면 첫 화면의 내 캐릭터 칸.
-  //  다른 단추로 넣고 빼면('kg-me' 알림) 바로 고친다.
-  const meHost = h('span', { class: 'fp-me-host' });
-  const paintMe = () => {
-    let mine = [];
-    try { mine = listMine(window.localStorage); } catch { mine = []; }
-    const one = mine.length === 1 ? mine[0] : null;
-    const href = one ? app.link({ name: 'character', slug: one.slug, base: one.base }) : home + '#me';
-    meHost.replaceChildren(...(mine.length ? [ilink(href, { class: 'fp-nav icon-only fp-me', 'aria-label': one ? `내 캐릭터 ${one.id}` : `내 캐릭터 ${mine.length}명`,
-      'aria-current': one && route === 'character' && location.pathname === href ? 'page' : null }, icon('user', { size: 19 }))] : []));
-  };
-  paintMe();
-  const listen = () => { if (!meHost.isConnected && meHost.dataset.kgSeen) { document.removeEventListener('kg-me', listen); return; } paintMe(); };
-  document.addEventListener('kg-me', listen);
-  queueMicrotask(() => { meHost.dataset.kgSeen = '1'; });
+  const home = app.link({ name: 'home' });
   return [
     noticeBar(app),
     h('p', { class: 'kg-unofficial' }, UNOFFICIAL),
     h('header', { class: 'fp-top' },
       h('div', { class: 'fp-top-in' },
         ilink(home, { class: 'fp-brand', 'aria-label': `${BRAND} 처음으로` },
-          h('span', { class: 'fp-logo', 'aria-hidden': 'true' }, icon('headphones', { size: 17 })),
+          h('span', { class: 'fp-logo', 'aria-hidden': 'true' }, icon('flag', { size: 17 })),
           h('span', { class: 'fp-brand-name' }, BRAND)),
         h('nav', { class: 'fp-actions', 'aria-label': '바로 가기' },
-          ilink(home + '#find', { class: 'fp-nav icon-only', 'aria-label': '아이디로 찾기' }, icon('search', { size: 19 })),
-          meHost,
-          ilink(app.link({ name: 'items' }), { class: 'fp-nav', 'aria-current': route === 'items' ? 'page' : null }, icon('hanger', { size: 19 }), h('span', null, '옷 도감')),
-          ...actions))),
+          ilink(home + '#find', { class: 'fp-nav icon-only', 'aria-label': '아이디로 몬스터 찾기' }, icon('search', { size: 19 })),
+          ilink(home, { class: 'fp-nav', 'aria-current': route === 'home' ? 'page' : null }, icon('map', { size: 19 }), h('span', null, '지도')),
+          ilink(app.link({ name: 'boss' }), { class: 'fp-nav', 'aria-label': '지금 보스전', 'aria-current': route === 'boss' ? 'page' : null }, icon('swords', { size: 19 }), h('span', null, '보스전')),
+          ilink(app.link({ name: 'dex' }), { class: 'fp-nav', 'aria-current': route === 'dex' ? 'page' : null }, icon('book', { size: 19 }), h('span', null, '몬스터 도감'))))),
   ];
 }
 
@@ -105,34 +80,22 @@ export function siteFoot(app, ...lines) {
   return h('footer', { class: 'fp-foot' },
     h('div', { class: 'fp-foot-in' },
       h('div', { class: 'fp-foot-top' },
-        ilink(app.link({ name: 'intro' }), { class: 'fp-foot-brand' }, h('span', { class: 'fp-logo small', 'aria-hidden': 'true' }, icon('headphones', { size: 14 })), BRAND),
+        ilink(app.link({ name: 'home' }), { class: 'fp-foot-brand' }, h('span', { class: 'fp-logo small', 'aria-hidden': 'true' }, icon('flag', { size: 14 })), BRAND),
         h('nav', { class: 'fp-foot-links', 'aria-label': '바닥 바로 가기' },
-          ilink(app.link({ name: 'intro' }), null, '처음으로'),
-          ilink(app.link({ name: 'items' }), null, '옷 도감'))),
+          ilink(app.link({ name: 'home' }), null, '영토 지도'),
+          ilink(app.link({ name: 'boss' }), null, '지금 보스전'),
+          ilink(app.link({ name: 'dex' }), null, '몬스터 도감'))),
       ...lines.filter(Boolean).map((t) => h('p', { class: 'fp-foot-note' }, t)),
       h('p', { class: 'fp-foot-legal' }, DISCLAIMER)));
 }
 
-// 칸 제목 줄: 제목 · 한 줄 설명 · 오른쪽(링크나 넘기기 단추)
+// 칸 제목 줄: 제목 · 한 줄 설명 · 오른쪽(링크 등)
 export function secHead(title, sub = '', action = null, { id = null, level = 'h2' } = {}) {
   return h('div', { class: 'kg-sec-head' },
     h('div', { class: 'kg-sec-titles' },
       h(level, { class: 'sec-title', id }, title),
       sub ? h('p', null, sub) : null),
     action);
-}
-
-// 순위 배지: 1·2·3등은 금·은·동 색 작은 동그라미, 그 밖은 옅은 동그라미. 글자는 그대로 읽힌다.
-export function medal(n, { className = '', label = null } = {}) {
-  const tier = n === 1 ? 'm1' : n === 2 ? 'm2' : n === 3 ? 'm3' : 'mx';
-  return h('span', { class: `kg-medal ${tier}${className ? ' ' + className : ''}`, 'aria-label': label }, String(n));
-}
-
-// 숫자 묶음 한 줄: [{value, label}]
-export function statTiles(list) {
-  return list.filter(Boolean).map((s) => h('div', { class: 'kg-stat' },
-    h('span', { class: 'kg-stat-v' }, s.value),
-    h('span', { class: 'kg-stat-l' }, s.label)));
 }
 
 export function loading(text = '불러오는 중…') {

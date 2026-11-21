@@ -2,6 +2,56 @@
 
 ## 바뀐 것
 
+### 보스전 보기 — kiugi 함수 v4 (2026-11-18, 설계 봇 저장소 `docs/superpowers/specs/2026-11-18-bossview-design.md`)
+보스전마다 봇이 마감 때 계산한 싸움 대본을 서버가 잠깐 맡아 두고, 사이트(키우기.com)가 생중계로 튼다. 다시 보기는 없다(끝난 판은 10분 뒤 지움). v3 이 받던 요청(시즌 1 v2 올리기 포함)은 그대로 받는다.
+- **표** `kg_fights`(SQL `supabase/migrations/20261118_kg_fights.sql`, 마이그레이션 이름 `kg_fights` — 새 표만 더함): 한 판 = (기기, 방송 열쇠 `live_key`, 칸 `k`) 한 줄. 칸 `id`(서버가 만든 12자, 주소와 같은 글자) · `device_id` · `slug`(그 기기의 키우기 페이지) · `phase` `join`·`fight`·`drop` · `boss {type,name,aoe,stage}` · `join_until` · `joined` · `script`(대본) · `land` · `appear_at`·`start_at`·`end_at`·`updated`·`expires`(모두 서버 시계, 밀리초). RLS 켜고 정책 없음(함수만).
+- **쓰기**(먼치킨 본체 `app/desktop/kiugi-fight.cjs` → `POST app`, 서명은 `upload` 와 같은 모양 — action 만 다르다): 승인된 기기 · 이 기기의 키우기 페이지(`kg_pages`)가 있어야(없으면 409 `키우기 사이트에 먼저 올려 주세요.`) · 기기당 한 시간 60건(넘으면 429) · 같은 nonce 한 번(409).
+  - `fight-appear {liveKey, k, boss:{type,name,aoe,stage}, joinUntil}` → 모집 중 판. `joinUntil` 은 봇 시계라 서버 시계로 고친다(받은 때 + (joinUntil − 서명 시각), 받은 때 ~ 5분 뒤 사이로).
+  - `fight-join {liveKey, k, joined}` → 참전 수(모집 중이고 마감 전일 때만 — 마감 뒤·대본 뒤에 온 것은 200 `{ok:true, ignored:true}`).
+  - `fight {liveKey, k, script}` → 대본(아래). 시작 = 서버가 받은 때, 끝 = 시작 + 90초. 참전 수 = 대본의 참전 줄 수. 같은 판을 다시 받으면 덮어쓰되 시작·끝은 처음 그대로. 등장 없이 오면 등장이 있었던 것으로 판을 만든다.
+  - `fight-land {liveKey, k, land}` → 땅 결과 `{addedPct,pct}` | `{lostPct,pct}` | `{capped:true}` | `{}`(% 0~100, `pct` 칸은 꼭 있고 null 도 됨 — 다른 칸은 버림).
+  - `fight-drop {liveKey, k}` → "키우기 사이트에 올리기"를 끔: 그 판을 목록·보기에서 빼고 대본·땅을 비운다. 그 판에 뒤에 오는 요청은 모두 200 ignored.
+  - `liveKey` = 봇이 sha256(`kg-fight:` + 방송 번호) 16진 앞 32자로 보낸 것(방송 번호 원문은 받지 않음). `k` = 0 이상 정수.
+  - 먼치킨은 408·429 말고 4xx 를 받으면 그 판 올리기를 멈춘다 — 그래서 4xx 는 모양이 틀린 것(400)·너무 큰 것(413)·서명(400/403)·승인(403)·페이지 없음(409)·한도(429)뿐. 없는 판·지난 판(expires)·지운 판의 참전 수·땅·지우기는 200 ignored(대본·등장은 지난 판 자리에 새 판). 같은 판 요청이 겹치면 줄을 본 그대로일 때만 바꾸고 아니면 다시 읽는다.
+- **대본**(FightScript v1 — 봇 `app/src/bot/kiugi/fight-script.mjs`): `{v:1, boss, team:[{label, sp, type, name, stage, lv}], buff:{b,name,a,h,hero}|null, hp, left, win, rounds, maxRounds, mvp:{i,dealt}|null, events, land}`.
+  `label` 은 키우기 아이디(`^[가-힣]{1,6}#[가-힣A-Za-z0-9]{1,8}$`, NFC) 또는 null. 글이지만 이 규칙에 맞지 않으면(봇 규칙 `^[가-힣]{1,6}#.+$` 는 통과해도) **그 이름만 null 로 바꾸고 판은 받는다**(200 — 먼치킨은 4xx 에 그 판을 통째로 멈추므로). 글이 아닌 label(숫자·객체 등)만 400 `보스전에 올리는 이름은 키우기 아이디(글)나 빈칸만 쓸 수 있어요.` 사건은 짧은 배열 `h[round,i,dmg,e,before,after]` · `b[round,i,dmg,e,ko,oneShot,hp]` · `c[round,hp]` · `a[round,hp,[[i,dmg,e,ko],…]]`(e 0·1·2, ko·oneShot 0·1, i 는 참전 줄 번호, round 1~maxRounds). 아는 칸만 새로 담고 다른 칸(닉네임 같은 것)은 버린다. 보낸 `id`·`dj`·`k`·시각은 쓰지 않는다(서버 값). 대본 JSON 이 UTF-8 256KB 를 넘으면 413.
+- **읽기**(누구나, 캐시 5초): DJ 이름은 키우기 페이지 이름(`kg_pages.name`). 페이지를 닫았거나(올리기 끔) 기기가 승인 상태가 아니면 보이지 않는다. 기기 번호·방송 열쇠는 내보내지 않는다.
+  - `GET fights` → `{now, fights:[{id, dj:{slug,name}, boss:{type,name,stage}, phase, joined, appearAt, joinUntil, startAt|null}]}` — 싸우는 중(끝난 것 now > end_at 은 뺌)과 모집 중(**마감 `joinUntil` + 90초까지만** — 봇이 멈춰 대본이 안 온 판이 목록에 남지 않게. 줄은 expires 까지 남아 늦은 대본이 오면 다시 목록에), 지운 것 빼고, **메인에 보이기를 끈 DJ(`main=false`)의 판도 뺀다**(메인 목록·전체 찾기와 같게), 나온 때 최근 순 100개.
+  - `GET fights?slug=<DJ 주소>`(2026-11-19 — 채팅 생중계 링크 `키우기.com/b/<주소>` 가 쓴다) → 같은 모양, **그 DJ 의 판만**. `main=false` 여도 나온다(자기 주소로는 보임 — `page?slug=` 처럼). 주소 모양이 아니면 404.
+  - `fights/<id>` 는 `main=false` 여도·마감이 지난 모집 판이어도 expires 까지 열린다(`page?slug=` 처럼 — 오래된 모집을 어떻게 보일지는 사이트가 정한다).
+  - `GET fights/<id>` → `{now, fight:{…목록 칸(boss 에 aoe 도), script, land}}` | 404 `끝났거나 없는 보스전이에요.` 끝난 판도 expires 까지 읽힌다(늦게 온 사람에게 결과 한 장면). `script` 는 저장한 대본 + `id`·`dj`·`k`·`appearAt`·`joinUntil`·`startAt`(서버 값)·`land`(fight-land 로 받은 것, 없으면 대본의 것) — 모집 중이면 null.
+- **지우기**: 보스전 요청(쓰기·읽기)이 올 때 1% 로 expires 지난 줄을 지운다. expires = 나온 뒤 15분(대본이 오지 않은 판) · 대본을 받으면 끝 + 10분.
+  - 읽기 한도·기억(2026-11-19): `GET fights`(전체·주소마다) · `GET fights/<id>`(판마다)는 함수 안에서 **3초 기억**(`FIGHT_READ_MS` — 그사이 올라온 것은 3초 안에 보인다 · `now` 는 기억하지 않고 답마다 지금 · 404 는 기억하지 않음) · 한 IP **1분에 목록 240번 · 한 판 240번**(`FIGHT_READ_PER_MIN`, 따로 센다) — 넘으면 429 `요청이 많아요. 잠시 뒤에 다시 해 주세요.`(사이트는 30초 쉬었다 다시 묻는다).
+- `GET health` 는 그대로(새 칸 없음) — 함수 v4 가 올라갔는지는 `GET fights` 가 `{now, fights:[]}` 로 확인.
+
+### 시즌 2 "몬스터 영토전" (2026-11-15 — 2026-12-01 0시 공개용, 기록 `notes/20261115-s2-site.md`)
+약속 문서: `기획\시즌2-몬스터영토전\spec.md`(5·7절). 시즌 1 화면(캐릭터 페이지·DJ 페이지·옷 도감·입혀 보기·저장하기)과 시즌 1 그림(`docs/kiugi*`, `docs/pets`)은 걷어냈다. 예전 주소(`k/…`, `items`, `p/…`, `studio`, `app`)는 첫 화면으로(캐릭터 주소면 그 아이디로 찾기).
+- **사이트 화면**: 첫 화면 `/` = 영토 지도(화면 가득) → 아이디로 몬스터 찾기(`/?id=밤톨`) → 땅 순위·지도 소식 → 땅을 넓히는 법 · 몬스터 도감 `/dex`(`/dex?id=밤톨%23먼치` 면 그 청취자가 데려간 몬스터는 색, 못 만난 것은 그림자).
+- **지도 파일(영토 서버 → 사이트)**: 공개 저장소 버킷 `tr-snap` 의 `map.json` — `https://aksegkhhugqvvaidgvro.supabase.co/storage/v1/object/public/tr-snap/map.json`(사이트는 함수를 부르지 않고 이 파일만 읽는다. index.html 이 처음부터 미리 받고, 3분마다 다시 읽는다 — 화면이 숨어 있으면 쉰다. 없으면(400/404) 시즌 시작 전 화면).
+  ```
+  {season:"s2", updatedAt:ISO|ms, endsAt:"2026-12-31T23:59:59+09:00", startsAt?:ISO, final?:true,
+   grid:{w:120, h:75},
+   owner:"-2*240,-1*12,3*4,…",   // 칸마다(왼쪽 위부터 줄마다) 값 하나를 "값*개수"로(개수 1이면 값만). -2 바다 · -1 숲(아무도 없는 땅) · 그 밖 = DJ(djs[].id)
+   col:"-1*5000,7*12,…",         // 식민지: -1 아님 · 그 밖 = 원래 주인 DJ(djs[].id). 칸의 지금 주인은 owner.
+   djs:[{id:정수, name:"별사탕", color?:"#e34948", cap?:칸 번호|[x,y], pct, colPct, ruledPct, dayDelta}],
+   feed:["별사탕 · 보스 토벌 성공 · 땅 +0.4%" | {text, at}],   // 최근 20줄
+   prize:{text}}                  // 없으면 "1등 DJ에게 먼치킨 한 달 무료 이용권 + 상금 486스푼"
+  ```
+  · **owner 에는 바다를 -2 로 꼭 넣는다**(Codex 대륙 그림의 땅 모양을 사이트가 서버와 같게 보려고). 바다가 하나도 없으면 사이트는 자기 땅 칸(`docs/s2/land-grid.json`, 없으면 report.html MapCore 절차 대륙)을 쓴다.
+  · `djs[].id` 는 owner·col 에 쓰는 정수(모두 정수가 아니면 사이트는 값을 djs 차례 번호로 읽는다). `color` 는 있으면 쓰고, 없거나 파랑 계열(바다와 헷갈림)이면 사이트가 id 로 고정 색을 고른다(`lib/map-core.js MAP_PALETTE` — 16색 뒤로는 파랑을 뺀 색상 고리). `pct`·`colPct`·`ruledPct` 가 없으면 사이트가 칸으로 센다. 청취자 정보는 넣지 않는다.
+  · 문서 예시 줄인 글은 값 쌍 배열(`[[값,개수],…]`)·풀어 쓴 배열(`[값,…]`)도 받는다.
+- **그림 지도**: Codex 대륙 그림(시안 `기획\시즌2-몬스터영토전\시안\02_지도\continent_s2.png` 2400×1500 · `land_mask.png`)을 `tools/make-map-art.cjs`(Electron)로 → `docs/s2/continent.webp`(1600×1000, 약 120KB — 바탕) · `docs/s2/land.png`(땅 모양 알파 — DJ 물감을 해안선으로 자른다) · `docs/s2/land-grid.json`(120×75 땅 칸, **칸 하나 = 원본 20×20 픽셀, 땅 픽셀(마스크 128 이상)이 절반 이상이면 땅** — 영토 서버도 이 파일·규칙을 쓰면 지도와 %가 맞는다). 그림을 못 받으면 예전처럼 컴퓨터가 그린 대륙·산·나무.
+- **몬스터 그림·이름·설화**: 먼치킨 저장소 `app/public/kiugi/s2/monster_<속성>_<nn>_<단계>.webp`(256px 투명 — 18종 × 3단계 = 54장)·`boss_<속성>.png`(아직 없음) 와 `season-s2.json` 이 `tools/sync-kiugi-site.mjs`(먼치킨 저장소)로 `docs/kiugi/` 에 오면 그것을 쓴다(그림 목록 = `docs/kiugi/manifest.json files.s2`). 목록은 `season-s2.json` 의 `monsters:[{id, type, name, stageNames:[3], rare?, animal, lore, dex:[3]}]`(파일 차례 그대로 — 2026-11-15 확정 18종, _03 = 드문 몬스터) · `intro`(대륙 이야기) · `bosses:[{type|id,name}]`(예전 모양 `stages`·`names`·객체 모양도 받음 — `lib/monsters.js readCatalog`). 파일이 없으면 자리 목록(속성마다 3종, "불 몬스터 1") + 속성 색 동그라미. 도감은 설화를 접어 두고(`📜 설화 읽기`), `?id=` 로 볼 때 못 만난 몬스터의 설화는 숨기고 닿지 않은 단계 도감 글은 "???".
+- **kiugi 함수 올리기 v3**(먼치킨 → 서버, 서명·주소는 그대로 `POST app`, 머리말 `JUN-LIVE-KIUGI/1`):
+  ```
+  {enabled:true, v:3, at?, paused?, main?, season:"s2" | {id:"s2",name,endsAt},
+   character:{name:"먼치"} | name:"먼치",            // 아이디 뒤 이름(사이트 전체에서 하나만 — 예전과 같은 규칙)
+   people:[{id:"밤톨#먼치", lead:"water_01"|null, monsters:[{sp:"water_01", stage:1~3, lv:1~9999}]}]}
+  ```
+  서버는 아이디·대표·몬스터만 담고 다른 칸(닉네임·냥·경험치)은 버린다. 몬스터 종류는 `<영문 소문자>_<두 자리>`(같은 종류는 하나, 24마리까지), 대표는 가진 몬스터일 때만(아니면 null). 순서는 보낸 그대로. 대표·몬스터가 바뀌면 "새로 꾸민 때"(ch)도 바뀐다.
+  **시즌 1 v2(옷)는 2026-12-01 0시(한국)부터 400 `시즌 1이 끝났어요. 먼치킨을 새 버전으로 업데이트하면 시즌 2 몬스터가 올라가요.`**(끄기 `{enabled:false}` 는 그대로). `GET health` = `{v:3, s2:true, v2Until:"2026-11-30T15:00:00.000Z", …}`.
+- **kiugi 함수 남긴 길**: 시즌 2 사이트가 부르는 것은 `GET search?q=`(카드 `{slug, djName, id, level, worn:{}, lead, monsters, hearts}` — 시즌 1 사람은 lead·monsters 칸이 없다) 하나. `person` 도 lead·monsters 를 준다. `page`·`find`·`home`·`heart`·미리 만든 답(kg-snap)은 시즌 1 사이트용 — 그대로 두지만 시즌 2 사이트는 부르지 않는다(지울지는 시즌 1 기록을 지울 때 함께 정할 것). 표·SQL 은 바뀐 것 없음.
+
 ### 1.0.0 준비 (2026-10-20, 함수 판 12 — 배포 순서는 저장소 맨 위 `CHANGES-20261020-w6.md`)
 - **캐릭터 이름 넘겨받기**: 같은 이름으로 올린 다른 기기가 이름을 넘겨받는 경우는 둘 — ①이름 주인 기기가 승인 상태가 아님(관리 화면에서 차단·대기, 심사용, 기록 없음) ②이름 주인 페이지가 60일 동안 아무것도 올리지 않음. "같은 DJ 면 바로"는 없다: 승인 서버의 고유닉(`junlive_devices.tag`)은 기기가 스스로 신고한 값이라 쓰지 않고, 스푼이 확인한 DJ 계정 값은 저장된 곳이 없다(스푼 연결 표 `sp_links`는 기기 번호·잠긴 토큰·권한·때뿐). 끄기(내용 없음)·시즌 준비 중만으로는 넘겨주지 않는다("끄기는 이름을 지킨다"). 옛 페이지는 내용·이름 열쇠·하트를 비우고(주소 묶음 줄은 남음) 미리 만든 답을 `{closed:true}`로 덮는다. 그사이 옛 페이지가 다시 올렸으면(`updated`가 바뀜) 넘겨받지 않고 409.
   PC 를 바꾼 DJ(새 기기 번호): 운영자가 DJ 본인인지 확인하고 관리 화면에서 옛 PC 를 차단하면 새 PC 의 다음 올리기에서 같은 이름을 쓴다(주소는 새로). 운영 절차 `supabase/ops.md`.
@@ -57,7 +107,7 @@
 사이트 주소 `BASE + 'k/<주소>'`(주소 = 서버가 만든 8자, `[a-hjkmnp-z2-9]`, 헷갈리는 i·l·o·0·1 없음).
 올리는 쪽은 먼치킨(봇 프로그램) 본체 `app/desktop/kiugi-fanpage.cjs`(먼치킨 저장소). 그림은 먼치킨과 같은 `kiugi-art.js`(사이트 `docs/kiugi/`, 먼치킨 저장소 `node tools/sync-kiugi-site.mjs`로 복사).
 
-- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql`. 요청에 공개 키 `sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(비밀 아님)를 싣는다 — 사이트의 읽기(GET)는 주소 쿼리 `?apikey=`로(머리글이 없어야 브라우저가 미리 묻기 OPTIONS 를 하지 않는다, 2026-10-20), 하트(POST)·먼치킨 올리기는 머리글 `apikey:`로.
+- 서버: `https://aksegkhhugqvvaidgvro.supabase.co/functions/v1/kiugi/` — 코드 `supabase/functions/kiugi/`(index.ts = Supabase 연결, handler.ts = 요청 처리, lib.ts = 검사), 표 `supabase/kiugi.sql` + `supabase/kiugi-stage2.sql` + `supabase/migrations/`(하트 주소 칸 · 보스전 보기 `kg_fights`). 요청에 공개 키 `sb_publishable_45cIqG4dGLSlev-rmNiVDg_uG8szVzD`(비밀 아님)를 싣는다 — 사이트의 읽기(GET)는 주소 쿼리 `?apikey=`로(머리글이 없어야 브라우저가 미리 묻기 OPTIONS 를 하지 않는다, 2026-10-20), 하트(POST)·먼치킨 올리기는 머리글 `apikey:`로.
 - 아이디: `<앞>#<캐릭터 이름>`. 앞 = 한글 완성 글자(가~힣)만 1~6자(청취자가 만든 부분), 캐릭터 이름 = 한글·영문·숫자 1~8자이고 올린 내용의 `character.name`과 글자 그대로 같아야 한다. NFC로 맞추고 앞뒤 공백만 뗀 뒤 검사한다. 모양이 틀리거나 뒤 이름이 다른 줄은 그 줄만 버린다. 같은 아이디가 두 번 오면 애정도 높은 줄만 남긴다.
 - 캐릭터 이름 열쇠 `name_key` = 캐릭터 이름을 NFC + 영문 소문자로. 사이트 전체에서 하나만(유일 인덱스). 먼저 쓴 방송이 가진다 — 다른 방송이 같은 열쇠로 올리면 409 "이 캐릭터 이름은 다른 방송이 이미 쓰고 있어요. 먼치킨에서 캐릭터 이름을 바꿔 주세요."(동시에 올려 데이터베이스가 막아도 같은 409). 이름을 바꾸면 예전 열쇠는 풀린다. 끄기(`{enabled:false}`)는 열쇠를 지킨다. 60일 동안 아무것도 올리지 않으면(끈 채로도) 열쇠를 지운다. 넘겨받기(2026-10-20): 이름 주인 기기 승인 아님·60일 동안 안 올림이면 같은 이름으로 올린 다른 기기가 가져가고 옛 페이지는 닫힌다(위 "바뀐 것").
 - 저장하는 것(`kg_pages`): DJ 캐릭터(이름·모양 열쇠), `name_key`, `main`, 시즌(id·이름·끝나는 날), 청취자 줄 `{id, level(1~100), love, worn({칸: 옷 id}), k(찾기 열쇠), ch(새로 꾸민 때)}`, 1~3등, 인원 수, `summary`(메인용 요약: 새로 꾸민 8명 `{k,id,level,worn,ch}`·옷마다 입은 수·하트 받은 사람 카드 `hot`(2026-10-20 — 올릴 때의 이번 시즌 하트 많은 순 20명 `{k,id,level,worn,…}`, 메인 인기가 사람 목록 전체를 다시 받지 않게)), `updated`(마지막으로 내용을 올린 때), `seen`(마지막으로 무엇이든 올린 때 — 끄기 포함). 스푼 닉네임·고유닉·jl-번호·스푼 번호·냥·출석은 받지 않는다(보낸 줄의 다른 칸은 버림). 3,000명·본문 1.5MB까지.
@@ -103,6 +153,7 @@
 3. 확인: `GET …/kiugi/health` → `{"service":"jun-live-kiugi","v":2,"hearts":true}`, `GET …/kiugi/home` → 200, `GET …/kiugi/page?slug=abcdefgh` → 404, `GET …/kiugi/search?q=abc` → 400.
 4. 사이트: 먼치킨 저장소에서 `node tools/sync-kiugi-site.mjs`(그림·시즌 목록이 바뀔 때마다) → `node tools/deploy-site.cjs "메시지"`(새로 올라갈 파일이 docs/ 밖이거나 5MB 넘으면 멈춘다 — 괜찮으면 `--force`).
 5. 2026-10-20(함수 판 12): SQL `supabase/migrations/20261020_kiugi_heart_ip.sql` → `20261020_revoke_legacy_definer.sql` → 함수 → 사이트. 자세히 저장소 맨 위 `CHANGES-20261020-w6.md`.
+6. 2026-11-18(함수 v4 보스전 보기): SQL `supabase/migrations/20261118_kg_fights.sql`(마이그레이션 이름 `kg_fights`) → 함수 → `GET …/kiugi/fights` 가 `{now, fights:[]}`.
 
 ## 마친 서비스 — Edge Function `fanpage` (2026-10-08)
 

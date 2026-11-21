@@ -1,7 +1,8 @@
 // DJ 키우기 페이지 — Supabase Edge Function "kiugi" (API.md "DJ 키우기 페이지").
 // JWT 확인을 끄고 올린다(verify_jwt false): 보는 사람은 로그인하지 않고, 먼치킨은 승인받은 기기 키로 서명한다.
 // people 칸(jsonb)에는 청취자가 직접 만든 시즌 아이디·레벨·애정도·입은 옷·찾기 열쇠·새로 꾸민 때만 들어간다(lib.ts person·withChanges).
-// 표: kg_pages(supabase/kiugi.sql + kiugi-stage2.sql), kg_hearts·kg_heart_votes·함수 kg_heart(kiugi-stage2.sql).
+// 표: kg_pages(supabase/kiugi.sql + kiugi-stage2.sql), kg_hearts·kg_heart_votes·함수 kg_heart(kiugi-stage2.sql),
+//  kg_fights(보스전 보기 — 함수 v4, supabase/migrations/20261118_kg_fights.sql: 판 줄에는 기기 번호·방송 열쇠(방송 번호의 sha256 앞 32자)·보스·참전 수·대본(키우기 아이디만)·땅 결과·시각만).
 // 함께 쓰는 것: junlive_devices·junlive_access_nonces(승인 서버), fp_hit·junlive_secrets(팬페이지 schema.sql).
 import { createClient } from 'jsr:@supabase/supabase-js@2';
 import * as v from './lib.ts';
@@ -18,6 +19,9 @@ async function q<T = any>(p: PromiseLike<{ data: T; error: any }>): Promise<T> {
 // 끄기·60일 지남: 내용만 비운다(끄기는 캐릭터 이름 열쇠·main 을 남기고, 60일 지남은 이름 열쇠도 지운다)
 const EMPTY = { updated: null, name: '', season: null, character: null, top: [], people: [], count: 0, summary: {} };
 const PAGE_COLUMNS = 'slug,device_id,updated,name,season,character,main,people';
+// 보스전 보기 줄(kg_fights): 전부 · 목록에 쓰는 칸(대본·땅·방송 열쇠는 빼고)
+const FIGHT_COLUMNS = 'id,device_id,slug,live_key,k,phase,boss,join_until,joined,script,land,appear_at,start_at,end_at,updated,expires';
+const FIGHT_LIST = 'id,device_id,slug,phase,joined,boss,appear_at,join_until,start_at,end_at,expires';
 let saltPromise: Promise<string> | null = null;
 const chunks = <T>(list: T[], n: number) => Array.from({ length: Math.ceil(list.length / n) }, (_, i) => list.slice(i * n, i * n + n));
 
@@ -93,6 +97,29 @@ const store = {
     for (const part of chunks(slugs, 100)) await q(db.from('kg_hearts').delete().in('slug', part));
   },
   cleanNonces: (now: number) => q(db.from('junlive_access_nonces').delete().lt('expires', now)),
+  // ---- 보스전 보기(kg_fights, 함수 v4 — handler.ts fightWrite·fights·fight) ----
+  //  한 판 = (기기, 방송 열쇠, 칸) 한 줄. 바꾸기는 본 그대로(phase·updated)일 때만 — 같은 판 요청이 겹치면 handler 가 다시 읽어 정한다.
+  fight: (device: string, liveKey: string, k: number) => q(db.from('kg_fights').select(FIGHT_COLUMNS).eq('device_id', device).eq('live_key', liveKey).eq('k', k).maybeSingle()),
+  fightById: (id: string) => q(db.from('kg_fights').select(FIGHT_COLUMNS).eq('id', id).maybeSingle()),
+  insertFight: async (row: Record<string, unknown>) => {
+    const { error } = await db.from('kg_fights').insert(row);
+    if (!error) return 'ok';
+    if (error.code === '23505') return 'exists'; // 같은 판을 동시에 처음 올림 → handler 가 다시 읽는다
+    console.error(error); throw v.fail(503, BROKEN);
+  },
+  updateFight: async (id: string, expect: { phase: string; updated: number }, patch: Record<string, unknown>) =>
+    ((await q(db.from('kg_fights').update(patch).eq('id', id).eq('phase', expect.phase).eq('updated', expect.updated).select('id'))) || []).length > 0,
+  // 지금 판: expires 전이고 · 싸우는 중(끝 end_at 이 아직) 또는 모집 중(마감 join_until 이 joinFrom = now − 90초 뒤) — 나온 때 최근 순 100개
+  //  slug 를 주면 그 DJ 주소의 판만(GET fights?slug= — 채팅 생중계 링크)
+  liveFights: (now: number, joinFrom: number, slug: string | null = null) => q((slug ? db.from('kg_fights').select(FIGHT_LIST).eq('slug', slug) : db.from('kg_fights').select(FIGHT_LIST)).gt('expires', now)
+    .or(`and(phase.eq.fight,end_at.gte.${now}),and(phase.eq.join,join_until.gte.${joinFrom})`).order('appear_at', { ascending: false }).limit(100)),
+  cleanFights: (now: number) => q(db.from('kg_fights').delete().lt('expires', now)),
+  // 판의 DJ 이름(키우기 페이지 이름)·열림(updated)·기기·메인에 보이기(main — false 면 목록에서 뺀다)
+  pagesOf: async (slugs: string[]) => {
+    const out: any[] = [];
+    for (const part of chunks(slugs, 100)) out.push(...await q(db.from('kg_pages').select('slug,device_id,updated,name,main').in('slug', part)));
+    return out;
+  },
   // 미리 만든 답(2026-10-18 — 사이트가 먼저 읽는 공개 파일, 버킷 kg-snap · supabase/kiugi-snap.sql). 실패해도 답에는 영향 없음(기록만).
   //  cacheControl 60초(2026-10-20, 예전 5초): 저장소 CDN·브라우저가 1분 동안 같은 파일을 내준다 — 저장소 읽기를 줄이는 대신 내용이 최대 1분 늦다.
   //  사이트(docs/api.js SNAP_STALE_MS 3분)는 이 1분 + 다시 쓰는 간격(15초)보다 오래된 파일일 때만 뒤에서 함수에 묻는다(캐시 때문에 모두가 함수를 부르지 않게).

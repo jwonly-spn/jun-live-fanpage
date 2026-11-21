@@ -1,7 +1,10 @@
 // DJ 키우기 페이지 — 요청 처리(데이터베이스는 store 로 받는다: index.ts 가 Supabase 로, 노드 시험은 메모리로 넣는다).
 // 길(모든 답에 CORS — 사이트가 부른다):
 //  GET health · GET page?slug= · GET find?slug=&q= · GET person?slug=&id= · GET home · GET search?q=
-//  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v2)
+//  POST heart {slug,id,token} · POST app(먼치킨이 서명해 올림, 내용 v3 시즌 2 몬스터 — v2 시즌 1 옷은 2026-12-01 0시(한국)까지만)
+//  시즌 2 사이트(키우기.com — 지도 첫 화면·아이디 찾기·도감)가 부르는 것은 search(카드에 lead·monsters) 하나뿐이다. person 도 몬스터를 준다.
+//  page·find·home·heart 는 시즌 1 사이트가 쓰던 길 — 그대로 두지만 시즌 2 사이트는 부르지 않는다(API.md "시즌 2").
+//  함수 v4(2026-11-18 보스전 보기): POST app 의 action fight-appear·fight-join·fight·fight-land·fight-drop(먼치킨이 서명) · GET fights(?slug= 그 DJ 것만) · GET fights/<id>(API.md "보스전 보기")
 import * as v from './lib.ts';
 
 // 사이트 주소(올리기 답의 url). 2026-10-20 ~ 11-08 은 임시로 http 였다(GitHub Pages 인증서가 "new" 에서 멈춤).
@@ -31,21 +34,33 @@ const NO_PERSON = '이 아이디를 찾을 수 없어요. 이번 시즌 아이�
 //  cleanVotes(now) · pruneHearts(slug, season, keep:Set) → 이 페이지의 지난 시즌·없어진 아이디 하트 줄 지우기
 //  expire(before)(seen 이 before 보다 오래된 페이지: 내용·이름 열쇠·하트 지우기) · cleanNonces(now)
 //  putSnap(path, text)(있으면) — 공개 저장소 kg-snap 에 미리 만든 답(home.json · page/<slug>.json)을 덮어쓴다
+//  보스전 보기(kg_fights): fight(device, liveKey, k) / fightById(id) → 줄 | null · insertFight(row) → 'ok' | 'exists'(같은 판·같은 id 가 이미 있음)
+//   updateFight(id, {phase, updated}, patch) → 줄이 본 그대로일 때만 바꾸고 true | false · liveFights(now, joinFrom, slug?) → 목록 칸 줄(slug 를 주면 그 주소의 판만 · expires 전 · 싸우는 중은 끝 전 · 모집 중은 마감 ≥ joinFrom)
+//   cleanFights(now)(expires 지난 줄 지우기) · pagesOf(slugs) → [{slug, device_id, updated, name, main}]
 export function createHandler(store: Record<string, any>, opts: Record<string, any> = {}) {
   const now: () => number = opts.now || Date.now;
   const random: (n: number) => Uint8Array = opts.random || ((n: number) => crypto.getRandomValues(new Uint8Array(n)));
   const chance: () => number = opts.chance || Math.random;
   const later: (p: Promise<unknown>) => void = opts.later || ((p: Promise<unknown>) => { p.catch((e) => console.error(e)); });
   const site: string = opts.site || SITE;
+  // 시즌 1 올리기(v2)를 받는 마지막 때 — 실제 서버는 2026-12-01 0시(한국). 시험은 바꿔 넣을 수 있다(예전 시험은 시계를 몇 달 넘겨도 v2 로 올린다).
+  const v2Until: number = opts.v2Until ?? v.S2_START;
   // 메인 페이지·전체 찾기 목록은 이 함수 안에서 잠깐(기본 30초) 기억해 둔다(보는 사람이 많아도 데이터베이스를 덜 부르게).
   const cacheMs: number = opts.cacheMs ?? 30000;
+  // 보스전 목록·한 판 답은 3초(lib.ts FIGHT_READ_MS — 사이트가 3초마다 묻는다). 시험은 0 으로 끈다.
+  const fightCacheMs: number = opts.fightCacheMs ?? v.FIGHT_READ_MS;
   const urlOf = (slug: string) => site + 'k/' + slug;
-  const memo = new Map<string, { at: number; value: Promise<any> }>();
-  function cached<T>(key: string, make: () => Promise<T>): Promise<T> {
+  // 기억(memo): 열쇠마다 ttl. 보스전은 열쇠가 주소·판마다라 많아질 수 있어 MEMO_MAX 를 넘으면 지난 것을 치운다(그래도 많으면 모두).
+  const MEMO_MAX = 500;
+  const memo = new Map<string, { at: number; ttl: number; value: Promise<any> }>();
+  function cached<T>(key: string, make: () => Promise<T>, ttl: number = cacheMs): Promise<T> {
     const t = now(), hit = memo.get(key);
-    if (cacheMs > 0 && hit && t - hit.at < cacheMs) return hit.value;
+    if (ttl > 0 && hit && t - hit.at < ttl) return hit.value;
     const value = make();
-    if (cacheMs > 0) { memo.set(key, { at: t, value }); value.catch(() => memo.delete(key)); }
+    if (ttl > 0) {
+      if (memo.size >= MEMO_MAX) { for (const [k, m] of memo) if (t - m.at >= m.ttl) memo.delete(k); if (memo.size >= MEMO_MAX) memo.clear(); }
+      memo.set(key, { at: t, ttl, value }); value.catch(() => memo.delete(key));
+    }
     return value;
   }
 
@@ -147,7 +162,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const hit = row.season ? v.findOne(row.people, key) : null;
     if (!hit) throw v.fail(404, NO_PERSON);
     const hearts = heartsOf.get(hit.p.k) || 0;
-    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), ...v.expField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
+    return json({ id: hit.p.id, level: hit.p.level, worn: hit.p.worn || {}, titles: v.titles(hit.p.titles), ...v.petsField(hit.p), ...v.motionField(hit.p), ...v.expField(hit.p), ...v.monsterField(hit.p), hearts, season: row.season, dj: { slug: row.slug, name: row.name, character: row.character } }, 200, 'public, max-age=10');
   }
 
   // 메인 페이지: 지금 시즌 · 인기(하트) 12 · 새로 꾸민 8 · 옷마다 입은 수 · DJ 목록 · 합계
@@ -258,7 +273,8 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     return json({ hearts: Number(r?.hearts) || 0, already: r?.already === true });
   }
 
-  async function upload(req: Request) {
+  // 먼치킨이 서명해 보내는 요청(POST app): 몸통을 읽고 서명·기기 승인을 확인한 뒤 action 으로 나눈다 — upload(키우기 페이지) · fight-*(보스전 보기, 함수 v4)
+  async function app(req: Request) {
     if (!req.headers.get('content-type')?.startsWith('application/json')) throw v.fail(415, 'JSON 요청이 필요해요.');
     const text = await req.text();
     if (text.length > v.MAX_BODY_CHARS) throw v.fail(413, '올릴 내용이 너무 커요.');
@@ -270,12 +286,17 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     const dev = await store.device(device);
     if (dev?.review) throw v.fail(403, '심사용 먼치킨은 키우기 페이지를 올리지 않아요.');
     if (dev?.state !== 'approved') throw v.fail(403, '먼치킨 사용 승인을 먼저 받아 주세요.');
+    return b.action === 'upload' ? await upload(b, device, at) : await fightWrite(b, device, at);
+  }
+
+  async function upload(b: Record<string, any>, device: string, at: number) {
     // 1분에 6번까지(2026-10-16 — 먼치킨이 옷·레벨이 바뀌면 15초 뒤 바로 올린다. 예전 2번)
     await limit(`kg:u:${device}`, 60, 6, '조금 전에 올렸어요. 잠시 뒤에 다시 올려요.');
     if (!await store.nonce('kg:' + device + ':' + b.nonce, at + v.NONCE_MS)) throw v.fail(409, '이미 처리한 요청이에요.');
     if (chance() < 0.05) later(store.cleanNonces(at));
     if (v.bytes(JSON.stringify(b.payload ?? null)) > v.MAX_PAYLOAD_BYTES) throw v.fail(413, '올릴 내용이 너무 커요.');
-    const snap = v.snapshot(b.payload);
+    // 시즌 2(2026-11-15): v3(몬스터) 를 받고, 시즌 1 v2(옷)는 2026-12-01 0시(한국)부터 받지 않는다(lib.ts snapshot)
+    const snap = v.snapshot(b.payload, at, v2Until);
     if (chance() < 0.02) later(store.expire(at - v.KEEP_MS));
     let found = await store.pageByDevice(device);
     // 끄면(또는 키우기를 끄면) 내용만 지운다. 주소·캐릭터 이름은 이 기기에 그대로 묶어 둔다(다시 켜면 같은 주소).
@@ -317,13 +338,132 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
     return json({ ok: true, enabled: true, slug: found.slug, url: urlOf(found.slug), count: snap.count });
   }
 
+  // ---- 보스전 보기(함수 v4, 2026-11-18 — lib.ts "보스전 보기", API.md "보스전 보기") ----
+  // 쓰기(서명·승인 기기·이 기기의 키우기 페이지가 있어야): fight-appear · fight-join · fight · fight-land · fight-drop.
+  //  먼치킨은 408·429 말고 4xx 를 받으면 그 판 올리기를 멈춘다 → 모양이 틀린 것·너무 큰 것·한도만 4xx, 늦게 온 것·다시 온 것·지운 판에 온 것은 200(ignored — 아무것도 안 함)
+  //  · 마감(joinUntil) 뒤·대본 뒤의 참전 수는 무시 · 같은 판 대본을 다시 받으면 덮어쓰되 시작·끝 시각은 처음 그대로 · 등장 없이 온 대본은 등장이 있었던 것으로 판을 만든다
+  //  · 지운 판(fight-drop — "키우기 사이트에 올리기"를 끔)은 그 판에 무엇이 와도 그대로(대본·땅은 비운다) · 지난 판(expires)은 없는 판으로 본다(대본·등장은 새 판으로)
+  // 같은 판 요청이 겹치면(먼치킨이 다시 보낸 것과 늦게 끝난 것) 줄을 본 그대로일 때만 바꾸고(phase·updated — updated 는 바꿀 때마다 커진다), 아니면 다시 읽어 정한다.
+  // 읽기(누구나): GET fights(지금 판 목록) · GET fights/<id>(대본까지). DJ 이름은 키우기 페이지(kg_pages.name)에서 — 페이지를 닫았거나 기기가 승인 상태가 아니면 보이지 않는다.
+  // 지우기: 보스전 요청이 올 때 1% 로 expires 지난 줄을 지운다(expires: 등장 + 15분 · 대본을 받으면 끝 + 10분).
+  const FIGHT_GONE = '끝났거나 없는 보스전이에요.';
+  const fightClean = (at: number) => { if (chance() < 0.01) later(store.cleanFights(at)); };
+  // 봇 시계로 보낸 시각 → 서버 시계(서명 시각과 받은 때의 차이만큼 옮긴다)
+  const serverTime = (t: number, b: Record<string, any>, at: number) => at + (t - b.timestamp);
+  const clamp = (x: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, x));
+
+  async function fightWrite(b: Record<string, any>, device: string, at: number) {
+    await limit(`kg:fw:${device}`, 3600, v.FIGHT_HOURLY, '보스전 보기를 너무 자주 올렸어요. 잠시 뒤에 다시 올려요.');
+    if (!await store.nonce('kg:' + device + ':' + b.nonce, at + v.NONCE_MS)) throw v.fail(409, '이미 처리한 요청이에요.');
+    if (chance() < 0.05) later(store.cleanNonces(at));
+    if (v.bytes(JSON.stringify(b.payload ?? null)) > v.FIGHT_MAX_BYTES + 1024) throw v.fail(413, '올릴 내용이 너무 커요.');
+    // 모양 검사(데이터베이스를 부르기 전에)
+    const action: string = b.action, p = b.payload;
+    const key = v.fightKey(p);
+    let boss: ReturnType<typeof v.fightBoss> | null = null, joinUntil = 0, joined = 0, script: ReturnType<typeof v.fightScript> | null = null, land: Record<string, unknown> | null = null;
+    if (action === 'fight-appear') {
+      boss = v.fightBoss(p.boss);
+      if (!Number.isSafeInteger(p.joinUntil)) throw v.fail(400, '보스전 내용을 확인해 주세요.');
+      joinUntil = clamp(serverTime(p.joinUntil, b, at), at, at + v.FIGHT_JOIN_MAX_MS);
+    } else if (action === 'fight-join') joined = v.fightJoined(p.joined);
+    else if (action === 'fight') {
+      if (v.bytes(JSON.stringify(p.script ?? null)) > v.FIGHT_MAX_BYTES) throw v.fail(413, '보스전 대본이 너무 커요.');
+      script = v.fightScript(p.script);
+    } else if (action === 'fight-land') land = v.fightLand(p.land);
+    const page = await store.pageByDevice(device);
+    if (!page) throw v.fail(409, '키우기 사이트에 먼저 올려 주세요.');
+    fightClean(at);
+    const base = { device_id: device, slug: page.slug, live_key: key.liveKey, k: key.k };
+    for (let tries = 0; tries < 4; tries++) {
+      const row = await store.fight(device, key.liveKey, key.k);
+      const live = row && row.expires > at ? row : null;
+      const updated = Math.max(at, (Number(row?.updated) || 0) + 1);
+      // 새 판(없거나 지난 판 자리에): 등장이면 모집 중, 대본이면 등장이 있었던 것으로
+      let fresh: Record<string, any> | null = null, patch: Record<string, any> | null = null;
+      if (action === 'fight-appear') {
+        if (!live) fresh = { ...base, id: v.makeFightId(random), phase: 'join', boss, join_until: joinUntil, joined: 0, script: null, land: null, appear_at: at, start_at: null, end_at: null, updated: at, expires: at + v.FIGHT_JOIN_KEEP_MS };
+        else if (live.phase === 'join') patch = { boss, join_until: joinUntil, slug: page.slug, updated };
+      } else if (action === 'fight-join') {
+        if (live?.phase === 'join' && at <= live.join_until) patch = { joined, updated };
+      } else if (action === 'fight' && script) {
+        const end = at + v.FIGHT_VIEW_MS, n = script.team.length;
+        if (!live) fresh = { ...base, id: v.makeFightId(random), phase: 'fight', boss: script.boss, join_until: at, joined: n, script, land: null, appear_at: at, start_at: at, end_at: end, updated: at, expires: end + v.FIGHT_KEEP_MS };
+        else if (live.phase === 'join') patch = { phase: 'fight', boss: script.boss, joined: n, script, start_at: at, end_at: end, expires: end + v.FIGHT_KEEP_MS, slug: page.slug, updated };
+        else if (live.phase === 'fight') patch = { boss: script.boss, joined: n, script, updated };
+      } else if (action === 'fight-land') {
+        if (live && live.phase !== 'drop') patch = { land, updated };
+      } else if (action === 'fight-drop') {
+        if (live && live.phase !== 'drop') patch = { phase: 'drop', script: null, land: null, updated };
+      }
+      if (!fresh && !patch) return json({ ok: true, ignored: true });
+      if (fresh && row) patch = { ...fresh, updated }; // 지난 판 자리를 새 판으로(같은 열쇠의 줄은 하나)
+      if (patch) {
+        if (await store.updateFight(row!.id, { phase: row!.phase, updated: row!.updated }, patch)) return json({ ok: true, id: patch.id || row!.id, phase: patch.phase || row!.phase });
+      } else if (await store.insertFight(fresh) === 'ok') return json({ ok: true, id: fresh!.id, phase: fresh!.phase });
+    }
+    throw v.fail(503, '잠시 문제가 생겼어요. 조금 뒤에 다시 올려요.');
+  }
+
+  // 보이는 판만(키우기 페이지가 열려 있고 · 그 페이지가 이 기기 것이고 · 기기가 승인 상태): [{row, page}]
+  async function shownFights(rows: Record<string, any>[]) {
+    if (!rows.length) return [];
+    const [pages, devs] = await Promise.all([store.pagesOf([...new Set(rows.map((r) => r.slug))]), store.devicesOf([...new Set(rows.map((r) => r.device_id))])]);
+    const bySlug = new Map(((pages || []) as Record<string, any>[]).map((p) => [p.slug, p]));
+    return rows.flatMap((row) => {
+      const page = bySlug.get(row.slug);
+      return page && page.device_id === row.device_id && page.updated !== null && page.updated !== undefined && approved(devs?.[row.device_id]) ? [{ row, page }] : [];
+    });
+  }
+  // 목록 한 칸 {id, dj:{slug,name}, boss:{type,name,stage}, phase, joined, appearAt, joinUntil, startAt} — 기기 번호·방송 열쇠는 내보내지 않는다
+  const fightOut = (row: Record<string, any>, page: Record<string, any>) => ({
+    id: row.id, dj: { slug: page.slug, name: page.name }, boss: { type: row.boss?.type, name: row.boss?.name, stage: row.boss?.stage },
+    phase: row.phase, joined: Number(row.joined) || 0, appearAt: row.appear_at, joinUntil: row.join_until, startAt: row.start_at ?? null
+  });
+  // 지금 판 목록: 싸우는 중(끝 = now > end_at 이면 뺌) · 모집 중은 마감 + 90초까지(봇이 멈춰 대본이 안 온 판이 목록에 남지 않게 — 보기는 expires 까지)
+  //  지운 것·지난 것(expires)은 빼고, 메인에 보이기를 끈 DJ(main=false)의 판도 뺀다(메인 목록·전체 찾기와 같게 — 보기 fights/<id> 는 page?slug= 처럼 열린다)
+  //  ?slug=<DJ 주소>(채팅 생중계 링크 키우기.com/b/<주소> 가 쓴다): 그 DJ 의 판만 — 메인에 보이기를 꺼도 자기 주소로는 나온다(page?slug= 처럼). 모양은 같다.
+  //  읽기 한도·기억(2026-11-19): 한 IP 1분 240번(넘으면 429 — 사이트는 쉬었다 다시 묻는다) · 목록은 주소마다 3초 기억(now 는 기억하지 않고 답마다 지금 — 사이트가 시계를 맞추는 값)
+  async function fights(url: URL, req: Request) {
+    const slug = url.searchParams.has('slug') ? v.slugOf(url.searchParams.get('slug')) : null;
+    const [, list] = await Promise.all([limitBy(req, 'fl', v.FIGHT_READ_PER_MIN), cached('fights:' + (slug ?? ''), () => fightList(slug), fightCacheMs)]);
+    return json({ now: now(), fights: list }, 200, 'public, max-age=5');
+  }
+  async function fightList(slug: string | null) {
+    const at = now(), joinFrom = at - v.FIGHT_JOIN_GRACE_MS;
+    fightClean(at);
+    const rows = (((await store.liveFights(at, joinFrom, slug)) || []) as Record<string, any>[])
+      .filter((r) => r.expires > at && (r.phase === 'fight' ? r.end_at >= at : r.phase === 'join' && r.join_until >= joinFrom) && (!slug || r.slug === slug));
+    const shown = (await shownFights(rows)).filter(({ page }) => (slug ? page.slug === slug : page.main !== false));
+    return shown.map(({ row, page }) => fightOut(row, page));
+  }
+  // 한 판(대본까지): 끝난 판도 expires 까지(늦게 온 사람에게 결과 한 장면). 대본의 판 번호·DJ·칸·시각은 서버 값으로, 땅은 fight-land 로 받은 것(없으면 대본의 것).
+  //  읽기 한도·기억은 목록과 같다(판마다 3초 · 없는 판(404)은 기억하지 않는다 · now 는 답마다 지금)
+  async function fight(id: string, req: Request) {
+    if (!v.FIGHT_ID.test(id)) throw v.fail(404, FIGHT_GONE);
+    const [, one] = await Promise.all([limitBy(req, 'fo', v.FIGHT_READ_PER_MIN), cached('fight:' + id, () => fightOne(id), fightCacheMs)]);
+    return json({ now: now(), fight: one }, 200, 'public, max-age=5');
+  }
+  async function fightOne(id: string) {
+    const at = now();
+    fightClean(at);
+    const row = await store.fightById(id);
+    if (!row || row.phase === 'drop' || !(row.expires > at)) throw v.fail(404, FIGHT_GONE);
+    const [hit] = await shownFights([row]);
+    if (!hit) throw v.fail(404, FIGHT_GONE);
+    const out = fightOut(row, hit.page), land = row.land ?? row.script?.land ?? null;
+    const script = row.script ? { ...row.script, v: 1, id: row.id, dj: out.dj, k: row.k, appearAt: row.appear_at, joinUntil: row.join_until, startAt: row.start_at, land } : null;
+    return { ...out, boss: { ...out.boss, aoe: row.boss?.aoe }, script, land };
+  }
+
   return async function handle(req: Request): Promise<Response> {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
     try {
       const url = new URL(req.url);
       const route = url.pathname.replace(/^\/(functions\/v1\/)?kiugi\/?/, '').replace(/\/$/, '');
       if (req.method === 'GET') {
-        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
+        if (route === 'health') return json({ service: 'jun-live-kiugi', v: v.PAYLOAD_VERSION, s2: true, v2Until: Number.isFinite(v2Until) ? new Date(v2Until).toISOString() : null, hearts: true, pets: true, motions: true, exp: true, snaps: typeof store.putSnap === 'function' });
+        if (route === 'fights') return await fights(url, req);
+        if (route.startsWith('fights/')) return await fight(route.slice('fights/'.length), req);
         if (route === 'page') return await page(url, req);
         if (route === 'find') return await find(url, req);
         if (route === 'person') return await person(url, req);
@@ -331,7 +471,7 @@ export function createHandler(store: Record<string, any>, opts: Record<string, a
         if (route === 'search') return await search(url, req);
       }
       if (req.method === 'POST' && route === 'heart') return await heart(req);
-      if (req.method === 'POST' && route === 'app') return await upload(req);
+      if (req.method === 'POST' && route === 'app') return await app(req);
       return json({ error: '찾을 수 없어요.' }, 404);
     } catch (error) {
       const e = error as v.Fail;

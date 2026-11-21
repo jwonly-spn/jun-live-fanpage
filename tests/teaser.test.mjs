@@ -95,7 +95,11 @@ test('티저 JS도 stamp 대상이며 import map 해시가 CSP와 일치한다',
   }
   const map = html.match(/<script type="importmap">([^<]+)<\/script>/)[1];
   assert.ok(html.includes(`'sha256-${createHash('sha256').update(map).digest('base64')}'`));
-  assert.doesNotMatch(html, /\sstyle=|\sonclick=|<script>(?!<)/);
+  // 2026-11-21: 글로 적은 스크립트는 맨 위 작은 스크립트(첫 색·미리 받기 — stamp 가 찍는다) 하나뿐이고, 그 글의 해시도 CSP 에 있다
+  assert.doesNotMatch(html, /\sstyle=|\sonclick=/);
+  const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]);
+  assert.deepEqual(inline, [p.boot]);
+  assert.ok(html.includes(`'sha256-${createHash('sha256').update(p.boot).digest('base64')}'`));
 });
 
 // 2026-11-16 화면 점검(S1~S14) 고침이 그대로 있는지
@@ -152,15 +156,17 @@ test('예전 주소(k/…, items)로 오면 안내 — 이 브라우저에 저�
   assert.equal(typeof oldNote, 'function');
 });
 
-test('미리 받기(modulepreload)는 예고 화면이 실제로 쓰는 모듈만 — 시즌 1 화면 코드는 표(import map)에만', async () => {
+test('미리 받기(modulepreload)는 예고 화면이 실제로 쓰는 모듈만 — 시즌 2 화면 코드는 표(import map)에만(12월 1일 0시부터는 거꾸로)', async () => {
   const { plan, reachable } = await import('../tools/stamp.cjs');
-  const used = reachable();
-  for (const m of ['/app.js', '/views/teaser.js', '/lib/teaser-map.js', '/lib/teaser-war-draw.js', '/views/common.js', '/lib/me.js']) assert.ok(used.has(m), m);
-  for (const m of ['/views/character.js', '/lib/raster.js', '/lib/kiugi-save.js', '/api.js']) assert.ok(!used.has(m), m);
+  const used = reachable(undefined, '/app.js', ['/s2-app.js']);
+  for (const m of ['/app.js', '/lib/launch.js', '/views/teaser.js', '/lib/teaser-map.js', '/lib/teaser-war-draw.js', '/views/common.js', '/lib/me.js']) assert.ok(used.has(m), m);
+  for (const m of ['/s2-app.js', '/views/home.js', '/views/dex.js', '/views/boss.js', '/lib/map-draw.js', '/lib/route.js', '/api.js']) assert.ok(!used.has(m), m);
   const html = await text('index.html'), p = plan();
-  assert.ok(p.preload.length <= 12, `미리 받는 모듈 ${p.preload.length}개`);
-  assert.doesNotMatch(html, /modulepreload" href="\/views\/character\.js/);
-  assert.match(html, /"\/views\/character\.js":"\/views\/character\.js\?v=/, '표에는 그대로');
+  assert.ok(p.preloadTeaser.length <= 13, `미리 받는 모듈 ${p.preloadTeaser.length}개`); // 예전 12 + 날짜 갈래(lib/launch.js)
+  for (const u of p.preloadTeaser) assert.doesNotMatch(u, /s2-app|views\/(home|dex|boss|monster-ui)|map-core|map-draw|monsters|boss-core|api\.js/, u);
+  for (const u of p.preloadS2) assert.doesNotMatch(u, /teaser|\/lib\/(me|hearts)\.js/, u + ': 시즌 2 화면은 예고 모듈을 받지 않는다');
+  assert.doesNotMatch(html, /<link rel="modulepreload"/, '미리 받기는 맨 위 작은 스크립트가 그때 화면 것만 붙인다');
+  assert.match(html, /"\/views\/home\.js":"\/views\/home\.js\?v=/, '표에는 그대로');
 });
 
 test('정보 조금 풀기(11/19): 도감 수는 18종 × 3단계 · 보스 6, 속성마다 1단계 한 마리만 공개 · 보스전 생중계 예시는 지어낸 한 판', async () => {

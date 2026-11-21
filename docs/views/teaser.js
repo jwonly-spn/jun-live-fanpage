@@ -8,7 +8,10 @@ import { countdown, readStats } from '../lib/teaser-time.js';
 import { startMap } from '../lib/teaser-map.js';
 import { startBossDemo } from '../lib/teaser-boss.js';
 import { listMine } from '../lib/me.js';
-import { UNOFFICIAL, DISCLAIMER } from './common.js';
+import { UNOFFICIAL } from './common.js';
+
+// 예고 화면 바닥 글(시즌 2 화면의 바닥 글은 views/common.js DISCLAIMER — 지도·몬스터 이야기라 예고에는 예전 글을 그대로 쓴다)
+export const DISCLAIMER = '키우기.com은 먼치킨과 함께하는 비공식 팬 사이트예요. 스푼(Spoon)이 만든 서비스가 아니고, 스푼과 제휴 관계도 아니에요.';
 
 const asset = (file) => new URL('../teaser/' + file, import.meta.url).href;
 const s2art = (file) => new URL('../kiugi/s2/' + file, import.meta.url).href; // 시즌 2 사이트와 같은 자리·같은 파일
@@ -264,7 +267,8 @@ function prize() {
         h('li', {}, h('b', {}, '12.31 23:59'), h('span', {}, '시즌 끝 · 땅 1등 DJ 보상')))));
 }
 
-export function renderTeaser(root) {
+// now: 지금 시각(app.js 가 서버 시각에 맞춘 시계를 넘긴다 — 방문자 시계가 틀려도 카운트다운이 맞게) · onStart: 카운트다운이 끝났을 때 한 번(app.js 가 시즌 2 화면으로 넘긴다)
+export function renderTeaser(root, { now = () => Date.now(), onStart = null } = {}) {
   const motion = matchMedia('(prefers-reduced-motion: reduce)');
   root.replaceChildren(
     h('p', { class: 'tz-unofficial' }, UNOFFICIAL),
@@ -278,12 +282,12 @@ export function renderTeaser(root) {
   const timer = root.querySelector('.tz-countdown');
   let ticker;
   function tick() {
-    const { started, parts } = countdown();
+    const { started, parts } = countdown(now());
     parts.forEach((n, i) => { timeParts[i].textContent = String(n).padStart(2, '0'); });
     timer.setAttribute('aria-label', `시즌 2 시작까지 ${parts[0]}일 ${parts[1]}시간 ${parts[2]}분 ${parts[3]}초`);
     timer.hidden = started;
     root.querySelector('.tz-started').hidden = !started;
-    if (started) clearInterval(ticker);
+    if (started) { clearInterval(ticker); try { onStart?.(); } catch (e) { console.error(e); } }
   }
   ticker = setInterval(tick, 1000);
   tick();
