@@ -30,7 +30,7 @@ export async function renderDex(root, app, route) {
     who, intro ? introSection(intro) : null, body);
   paint(null);
   if (!id) { who.replaceChildren(idForm(app)); return; }
-  who.replaceChildren(loading(`${id} 님의 몬스터를 찾는 중…`));
+  who.replaceChildren(loading(`${id}님의 몬스터를 찾는 중…`));
   try {
     const r = await kiugiApi.search(id);
     const list = (r.results || []).filter((p) => p && Array.isArray(p.monsters));
@@ -41,7 +41,7 @@ export async function renderDex(root, app, route) {
     }
     const met = metOf(person.monsters), metCount = species.filter((s) => met.has(s.sp)).length;
     who.replaceChildren(h('div', { class: 's2-dex-banner is-me' },
-      h('p', null, h('b', null, person.id), ` 님이 데려간 몬스터 ${metCount} / ${species.length}`),
+      h('p', null, h('b', null, person.id), `님이 데려간 몬스터 ${metCount} / ${species.length}`),
       h('p', { class: 'note' }, '색으로 보이는 것이 데려간 몬스터(닿은 단계까지)예요. 그림자는 아직 못 만난 몬스터예요. 설화는 만난 몬스터만 읽을 수 있어요.'),
       ilink(app.link({ name: 'dex' }), { class: 'btn btn-line btn-sm' }, '모두 색으로 보기')));
     paint(met);
