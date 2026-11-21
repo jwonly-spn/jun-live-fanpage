@@ -1,5 +1,7 @@
 // 날짜로 저절로 바뀌는 사이트 확인 사진(2026-11-21): 가짜 시각으로 docs/ 를 열어 찍는다.
-//  쓰는 법: <electron.exe> tools/shots-launch.cjs <사진 폴더> [--docs <docs 폴더>] [--set 기본|시계|넘김|비교]
+//  쓰는 법: <electron.exe> tools/shots-launch.cjs <사진 폴더> [--docs <docs 폴더>] [--set 기본|시계|넘김|비교|시즌2|색] [--dark]
+//   · --dark: 어두운 모드(prefers-color-scheme: dark) 흉내 — 사진 이름 끝에 "-어두운"(2026-11-21 고침 1회차: 밝은 모드만 견줘 어두운 모드 색 차이를 놓쳤다)
+//   · --set 색: 사진 대신 계산된 색을 읽는다(예고 11/25 · 시즌 2 12/15 × 밝은·어두운 — 바탕·글색·색 변수·Tab 으로 옮긴 키보드 초점 테두리) → 기록-색.json(tests/teaser-colors.test.mjs 가 씀)
 //   · 이 PC 안의 작은 서버(127.0.0.1 임의 포트)가 docs/ 를 보여 주고, 답의 Date 머리글을 **가짜 서버 시각**으로 준다.
 //   · 화면(방문자 기기) 시계도 가짜로 바꾼다(미리 넣는 스크립트가 Date 를 바꿈) — 서버 시각과 다르게 줄 수도 있다(틀린 시계 흉내).
 //   · 영토·키우기 서버(supabase)로 가는 요청은 모두 막는다(진짜 서버에 묻지 않음). 127.0.0.1 에서는 사이트의 체험용 mock.js 가 지어낸 지도·보스전을 답한다.
@@ -13,6 +15,8 @@ const flag = (name, def) => { const i = args.indexOf(name); return i >= 0 && arg
 const OUT = path.resolve(args.find((a, i) => !a.startsWith('--') && !(i > 0 && args[i - 1].startsWith('--')) && !/shots-launch\.cjs$/.test(a)) || path.join(os.tmpdir(), 'kiugi-launch-shots'));
 const DOCS = path.resolve(flag('--docs', path.join(__dirname, '..', 'docs')));
 const SET = flag('--set', '기본');
+const DARK = args.includes('--dark');
+const TAIL = DARK ? '-어두운' : ''; // 어두운 모드 사진·기록 이름 끝
 fs.mkdirSync(OUT, { recursive: true });
 const logFile = path.join(OUT, '기록.log');
 fs.writeFileSync(logFile, '');
@@ -60,7 +64,7 @@ function preloadFile(deviceAt, freeze) {
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 let shotN = 0;
 const records = [];
-// 한 장 찍기. opt: { name, size, path, serverAt, deviceAt(없으면 서버와 같음), settle(ms), full(긴 사진도), calm(움직임 줄이기), freeze(시계 멈춤), noClock, storage({local:{…}}), steps(async (win) => …) }
+// 한 장 찍기. opt: { name, size, path, serverAt, deviceAt(없으면 서버와 같음), settle(ms), full(긴 사진도), calm(움직임 줄이기), freeze(시계 멈춤), scheme('light'|'dark' — 없으면 --dark 를 따름), noClock, storage({local:{…}}), steps(async (win) => …) }
 async function shot(port, opt) {
   const size = SIZES[opt.size];
   serverBase = opt.serverAt; serverT0 = Date.now(); frozen = Boolean(opt.freeze); clockOff = Boolean(opt.noClock);
@@ -85,7 +89,9 @@ async function shot(port, opt) {
   dbg.attach('1.3');
   if (opt.size === '휴대폰') await dbg.sendCommand('Emulation.setDeviceMetricsOverride', { width: size.width, height: size.height, deviceScaleFactor: 2, mobile: true });
   else await dbg.sendCommand('Emulation.setDeviceMetricsOverride', { width: size.width, height: size.height, deviceScaleFactor: 1, mobile: false });
-  if (opt.calm) await dbg.sendCommand('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  const features = [{ name: 'prefers-color-scheme', value: opt.scheme || (DARK ? 'dark' : 'light') }]; // 밝은 모드도 이 PC 설정에 기대지 않고 정해 준다
+  if (opt.calm) features.push({ name: 'prefers-reduced-motion', value: 'reduce' });
+  await dbg.sendCommand('Emulation.setEmulatedMedia', { features });
   if (opt.storage) { // 저장해 둔 값이 있는 브라우저 흉내: 먼저 연 글(같은 주소)에서 적어 둔다
     await win.webContents.executeJavaScript(`(() => { const s = ${JSON.stringify(opt.storage)}; for (const [k, v] of Object.entries(s.local || {})) localStorage.setItem(k, v); for (const [k, v] of Object.entries(s.session || {})) sessionStorage.setItem(k, v); })()`);
   }
@@ -100,7 +106,7 @@ async function shot(port, opt) {
       clip = { x: 0, y: 0, width: size.width, height: h, scale: 1 };
     }
     const r = await dbg.sendCommand('Page.captureScreenshot', { format: 'png', ...(full ? { captureBeyondViewport: true, clip } : {}) });
-    const file = path.join(OUT, `${opt.name}${suffix}.png`);
+    const file = path.join(OUT, `${opt.name}${suffix}${TAIL}.png`);
     fs.writeFileSync(file, Buffer.from(r.data, 'base64'));
     return file;
   };
@@ -119,6 +125,30 @@ async function shot(port, opt) {
   win.destroy();
   try { fs.unlinkSync(pre); } catch { /* 무시 */ }
   return rec;
+}
+
+// 계산된 색 읽기(--set 색): 바탕·글색·색 변수 + Tab 을 눌러 차례로 옮긴 키보드 초점의 테두리(진짜 키 입력 — :focus-visible 이 걸리게)
+async function readColors({ win, rec, wait: w }) {
+  const wc = win.webContents, dbg = wc.debugger;
+  rec.colors = await wc.executeJavaScript(`(() => { const h = document.documentElement, b = document.body, cs = (e) => getComputedStyle(e);
+    return { teaser: h.classList.contains('s2-teaser'), dark: matchMedia('(prefers-color-scheme: dark)').matches, colorScheme: cs(h).colorScheme,
+      htmlBg: cs(h).backgroundColor, bodyBg: cs(b).backgroundColor, bodyColor: cs(b).color,
+      vars: Object.fromEntries(['--bg', '--text', '--text-2', '--ink', '--on-ink', '--accent'].map((n) => [n, cs(h).getPropertyValue(n).trim()])) }; })()`);
+  await dbg.sendCommand('Emulation.setFocusEmulationEnabled', { enabled: true }); // 숨은 창도 "창이 앞에 있음"으로 — 그래야 :focus 가 걸린다
+  const key = (type) => dbg.sendCommand('Input.dispatchKeyEvent', { type, key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9, nativeVirtualKeyCode: 9 });
+  const focus = [];
+  for (let i = 0; i < 120; i++) {
+    await key('keyDown'); await key('keyUp'); await w(30);
+    const f = await wc.executeJavaScript(`(() => { const e = document.activeElement; if (!e || e === document.body) return null; if (e.__kgN) return { again: true }; e.__kgN = ${i + 1};
+      const s = getComputedStyle(e), c = typeof e.className === 'string' ? e.className.trim() : '';
+      return { who: e.tagName.toLowerCase() + (c ? '.' + c.split(/\\s+/).join('.') : '') + (e.getAttribute('href') ? '[' + e.getAttribute('href') + ']' : ''), text: (e.getAttribute('aria-label') || e.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 24),
+        visible: e.matches(':focus-visible'), outline: [s.outlineStyle, s.outlineWidth, s.outlineColor, s.outlineOffset].join(' ') }; })()`);
+    if (!f) { if (focus.length) break; continue; }
+    if (f.again) break;
+    focus.push(f);
+  }
+  rec.colors.focus = focus;
+  rec.colors.focusable = await wc.executeJavaScript(`[...document.querySelectorAll('a[href], button, input, select, textarea, [tabindex]')].filter((e) => !e.disabled && e.tabIndex >= 0).map((e) => e.tagName.toLowerCase() + '.' + (typeof e.className === 'string' ? e.className.trim().split(/\\s+/).join('.') : '') + ' ' + (e.__kgN ? 'Tab' : (e.checkVisibility && !e.checkVisibility({ visibilityProperty: true }) ? '숨음' : '안닿음')))`);
 }
 
 // 두 사진이 같은지(픽셀) — 다른 픽셀 수와 비율
@@ -181,11 +211,27 @@ app.whenReady().then(async () => {
     const other = flag('--with', '');
     if (other) {
       const out = {};
-      for (const f of fs.readdirSync(OUT).filter((x) => x.endsWith('.png'))) if (fs.existsSync(path.join(other, f))) out[f] = diffPng(path.join(OUT, f), path.join(other, f));
-      fs.writeFileSync(path.join(OUT, '비교-결과.json'), JSON.stringify(out, null, 1));
+      for (const f of records.flatMap((r) => r.files)) if (fs.existsSync(path.join(other, f))) out[f] = diffPng(path.join(OUT, f), path.join(other, f)); // 이번에 찍은 것만(밝은·어두운이 한 폴더에 있어도)
+      fs.writeFileSync(path.join(OUT, `비교-결과${TAIL}.json`), JSON.stringify(out, null, 1));
+    }
+  } else if (SET === '시즌2') {
+    // 시즌 2 화면(12/1 뒤)의 어두운 모드가 예전 그대로인지 보는 사진(--dark 와 함께): 시계 멈춤 · 움직임 줄이기 — 고치기 전 줄과 픽셀로 견줄 수 있게
+    await shot(port, { name: '1215-첫화면-pc', size: 'pc', path: '/?day=15&still=1', serverAt: T.mid, freeze: true, calm: true, settle: 5000 });
+    const other = flag('--with', '');
+    if (other) {
+      const out = {};
+      for (const f of records.flatMap((r) => r.files)) if (fs.existsSync(path.join(other, f))) out[f] = diffPng(path.join(OUT, f), path.join(other, f));
+      fs.writeFileSync(path.join(OUT, `비교-결과-시즌2${TAIL}.json`), JSON.stringify(out, null, 1));
+    }
+  } else if (SET === '색') {
+    // 계산된 색(사진 아님): 예고(서버·기기 11/25 12:00) · 시즌 2(12/15) × 밝은·어두운 모드 — 움직임은 켠 채(움직임 멈추기 단추도 Tab 에 닿게)
+    for (const [when, at, p] of [['예고', kst('2026-11-25T12:00:00'), '/'], ['시즌2', T.mid, '/?day=15&still=1']]) {
+      for (const scheme of ['light', 'dark']) {
+        await shot(port, { name: `색-${when}-${scheme}`, size: 'pc', path: p, serverAt: at, freeze: true, scheme, settle: 4000, steps: readColors });
+      }
     }
   }
-  fs.writeFileSync(path.join(OUT, `기록-${SET}.json`), JSON.stringify(records, null, 1));
+  fs.writeFileSync(path.join(OUT, `기록-${SET}${TAIL}.json`), JSON.stringify(records, null, 1));
   server.close();
   app.exit(0);
 });

@@ -1,6 +1,6 @@
 // 시작점(2026-11-21): 2026-12-01 0시(한국) 전에는 시즌 2 예고 화면(views/teaser.js — 모든 주소), 그때부터는 시즌 2 화면(s2-app.js — 지도·도감·보스전 보기).
 //  어느 쪽인지는 서버 시각으로 고른다(lib/launch.js — 방문자 시계가 틀려도 같은 때에 바뀐다). 스푼 연결은 별도 HTML이다.
-//  12월 1일이 지나 예고 화면을 걷어낼 때: 이 파일을 s2-app.js 내용으로 바꾸고 views/teaser.js · lib/teaser-*.js · lib/me.js · lib/hearts.js · lib/launch.js · teaser/ 와 styles.css 의 "시즌 2 예고" 덩어리를 지운다.
+//  12월 1일이 지나 예고 화면을 걷어낼 때: 이 파일을 s2-app.js 내용으로 바꾸고 views/teaser.js · lib/teaser-*.js · lib/me.js · lib/hearts.js · lib/launch.js · teaser/ 와 styles.css 의 "시즌 2 예고" 덩어리를 지운다(teaser/ 를 지우기 전에 index.html·404.html 의 og:image 를 og.png 로 — 지금 미리보기 그림이 teaser/og.png).
 import { decideScreen, markStarted, LAUNCH_AT } from './lib/launch.js';
 
 const root = document.documentElement;

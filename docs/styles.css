@@ -20,7 +20,8 @@
   --rare: #7a5806; --rare-soft: rgba(184, 134, 11, .15); --rare-line: rgba(184, 134, 11, .38);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  /* 예고 화면(html.s2-teaser — 12/1 0시 전)에는 걸지 않는다: 예고는 늘 자기 어두운 색(#07080f) — 2026-11-21 고침 1회차 I1 */
+  :root:not([data-theme="light"]):not(.s2-teaser) {
     color-scheme: dark;
     --bg: #15120e; --bg-2: #1d1914; --paper: #201b15; --panel: #231e18;
     --line: rgba(240, 225, 200, .12); --line-2: rgba(240, 225, 200, .22);
@@ -438,6 +439,8 @@ html.s2-teaser {
 .s2-teaser main { outline: none; }
 /* 링크 글색은 맨 위 기본(a { color: inherit })을 그대로 쓴다 — 예전 .s2-teaser a { color: inherit } 는 금색 단추(.tz-btn-gold)·건너뛰기 링크(.skip)의 글색까지 덮어써 글이 바탕에 묻혔다(2026-11-16 점검 S1). */
 .s2-teaser ::selection { background: var(--tz-gold); color: #120d05; }
+/* 기본 키보드 초점 테두리는 지금 예고처럼 밝은 글색(--ink) — 맨 위 공용 규칙은 시즌 2 강조색(--accent)이라 예고에서 바뀌던 것(2026-11-21 고침 1회차 M1). :where 라 우선순위는 공용 규칙과 같고 금색 단추 등 자기 규칙이 있는 것은 그대로 */
+:where(.s2-teaser) :focus-visible { outline-color: var(--ink); }
 
 /* 맨 위 비공식 줄 · 머리줄 */
 .tz-unofficial { padding: 6px 16px; text-align: center; font-size: 12px; font-weight: 600; background: #020205; color: #8d8778; border-bottom: 1px solid var(--tz-line-2); }

@@ -192,17 +192,30 @@ test('맨 위 작은 스크립트(첫 색·미리 받기): 시작 전에는 예�
   assert.equal(runBoot(p.boot, { now: AFTER, blocked: true }).teaser, false);
 });
 
-test('검색·공유용 글(meta)은 날짜로 못 바꾸므로 12월 1일 전에도 뒤에도 맞는 말', async () => {
+test('검색·공유용 글(meta)은 날짜로 못 바꾸므로 12월 1일 전에도 뒤에도 맞는 말 · 미리보기 그림만 12월 1일 전 올림본은 지금 공개본 그대로(COMING SOON)', async () => {
   const html = await text('index.html');
   const meta = (attr, name) => new RegExp(`<meta ${attr}="${name.replace(/[.:]/g, '\\$&')}" content="([^"]*)">`).exec(html)?.[1];
-  const words = [meta('name', 'description'), meta('property', 'og:title'), meta('property', 'og:description'), meta('property', 'og:image:alt'), /<title>([^<]*)<\/title>/.exec(html)[1], /<noscript>([\s\S]*?)<\/noscript>/.exec(html)[1]];
+  const words = [meta('name', 'description'), meta('property', 'og:title'), meta('property', 'og:description'), /<title>([^<]*)<\/title>/.exec(html)[1], /<noscript>([\s\S]*?)<\/noscript>/.exec(html)[1]];
   for (const w of words) {
     assert.ok(w && w.length > 0);
     assert.doesNotMatch(w, /COMING SOON|곧 시작|시작됐어요|시작했어요|카운트다운|예고|진행 중|지금 열렸/, w);
   }
   assert.match(meta('name', 'description'), /2026년 12월 1일 0시~12월 31일/);
   assert.match(meta('property', 'og:description'), /2026년 12월 1일 0시부터 12월 31일까지/);
-  assert.equal(meta('property', 'og:image'), 'https://www.xn--ok0bp87bn6g.com/og.png', '지도 그림(시작 전·뒤 모두 맞는 그림)');
+  // 미리보기 그림과 그 설명(alt)은 12월 1일까지 지금 공개본(main 8e3e240)과 같게 — 사용자 11/21 "추천대로"(12/1 뒤 정리 때 지도 그림 docs/og.png 로)
+  assert.equal(meta('property', 'og:image'), 'https://www.xn--ok0bp87bn6g.com/teaser/og.png', '12/1 전 올림본의 og:image = teaser/og.png');
+  assert.equal(meta('property', 'og:image:alt'), '키우기 시즌 2 COMING SOON — 12월 1일 시작, DJ의 땅이 펼쳐지는 예시 지도', '그림 설명도 그 그림에 맞는 main 글');
+});
+
+test('스타일: 시즌 2 의 어두운 모드 색과 공용 초점 테두리 색은 예고에 안 걸린다(어두운 모드 기기에서도 지금 예고 색 그대로 — 고침 1회차 I1·M1)', async () => {
+  const raw = await text('styles.css');
+  const at = raw.indexOf('/* ===== 아래는 예고 화면');
+  assert.ok(at > 0);
+  const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
+  const dark = [...strip(raw).matchAll(/@media \(prefers-color-scheme: dark\)\s*\{\s*([^{]+?)\s*\{/g)].map((m) => m[1].trim());
+  assert.ok(dark.length > 0, '시즌 2 어두운 모드 덩어리가 있다');
+  for (const sel of dark) for (const one of sel.split(',')) assert.match(one, /:not\(\.s2-teaser\)/, `어두운 모드 규칙이 예고에도 걸림: ${one.trim()}`);
+  assert.match(strip(raw.slice(at)), /:where\(\.s2-teaser\) :focus-visible \{ outline-color: var\(--ink\); \}/, '예고의 기본 초점 테두리는 지금처럼 --ink(밝은 글색)');
 });
 
 test('스타일: 예고 덩어리는 html.s2-teaser 일 때만 걸린다(시즌 2 화면의 규칙을 덮지 않는다)', async () => {

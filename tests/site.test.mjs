@@ -130,12 +130,15 @@ test('공유·검색용 머리 정보: 파비콘 · 테마 색 · 공통 미리�
   assert.deepEqual([meta('property', 'og:image:width'), meta('property', 'og:image:height')], ['1200', '630']);
   const { SITE } = await import('../supabase/functions/kiugi/handler.ts');
   assert.equal(SITE, 'https://xn--ok0bp87bn6g.com/');
-  assert.equal(meta('property', 'og:image'), 'https://www.xn--ok0bp87bn6g.com/og.png', 'CNAME 과 같은 www 주소(2026-11-21)');
+  // 12/1 전 올림본은 지금 공개본과 같은 COMING SOON 그림(teaser/og.png — 사용자 11/21). 지도 그림 og.png 는 12/1 뒤 정리 때 쓰려고 그대로 둔다.
+  assert.equal(meta('property', 'og:image'), 'https://www.xn--ok0bp87bn6g.com/teaser/og.png', 'CNAME 과 같은 www 주소(2026-11-21)');
   assert.equal((await text('CNAME')).trim(), 'www.xn--ok0bp87bn6g.com');
-  const png = await readFile(docs + 'og.png');
-  assert.equal(png.toString('ascii', 1, 4), 'PNG');
-  assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630]);
-  assert.ok(png.length < 1024 * 1024, 'og.png 는 1MB 보다 작다');
+  for (const name of ['teaser/og.png', 'og.png']) {
+    const png = await readFile(docs + name);
+    assert.equal(png.toString('ascii', 1, 4), 'PNG', name);
+    assert.deepEqual([png.readUInt32BE(16), png.readUInt32BE(20)], [1200, 630], name);
+    assert.ok(png.length < 1024 * 1024, `${name} 는 1MB 보다 작다`);
+  }
   const ico = await readFile(docs + 'favicon.ico');
   assert.deepEqual([...ico.subarray(0, 4)], [0, 0, 1, 0], 'ICO 머리');
   const robots = await text('robots.txt');
