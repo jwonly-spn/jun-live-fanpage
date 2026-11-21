@@ -364,3 +364,14 @@ test('장면 모듈을 못 받을 때(T7): 저절로 다시 해 보는 것은 �
   // 기다리는 동안 미리 받기도 두 번 못 받으면 그만(3초마다 되받지 않는다)
   assert.match(view, /if \(preFails < LOAD_RETRY_MAX\) loadScene\(\)\.catch\(\(\) => \{ preFails\+\+; \}\);/);
 });
+
+test('보스 날짜 말(2026-11-21 검수 S7b — 봇 s2-fix 와 같게): 보스는 "n일째"(몬스터 진화 "n단계"와 다른 말) · 목록·장면·도감 풀이 모두', async () => {
+  const { bossText } = await import('../docs/lib/boss-core.js');
+  assert.equal(bossText(F()), '심해 크라켄 9일째');
+  assert.equal(bossText(F({ boss: { type: 'water', name: '심해 크라켄', stage: 0 } })), '심해 크라켄', '날을 모르면 이름만');
+  const scene = await text('kiugi/s2/battle/battle-scene.js');
+  assert.equal((scene.match(/\$\{boss0\.stage\}일째/g) || []).length, 3, '장면: 읽어 주는 이름 · 등장 글 · 왼쪽 위 이름 옆');
+  assert.doesNotMatch(scene, /\$\{boss0\.stage\}단계/);
+  const dex = await text('views/dex.js');
+  assert.match(dex, /날마다 조금씩 세져요\(12월 n일 = n일째 보스\)/); assert.doesNotMatch(dex, /한 단계씩/);
+});

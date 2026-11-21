@@ -7,7 +7,8 @@
 //             기본 이름표(nameOf 없음)는 label 의 # 앞만 보인다("솜사탕#먼치" → "솜사탕"). nameOf 가 준 글은 그대로(비면 몬스터 이름)
 //   live    = { startAt(싸움 시작 — 서버 ms), now(서버 시계 ms 를 주는 함수) } → 지금−시작만큼 건너뛰어 그 장면부터. 끝났으면 결과 장면만
 //   land    = 땅 변화(영토 서버 답 — 대본에는 null 로 오고 나중에 따로 온다). 늦게 오면 ctl.setLand(land)
-//   ctl     = { stop, pause, seek, layout, setSound, toggleSound, setMusicVolume, setLand, updateJoin, destroy, duration, marks, time, done, scene, audioState, usingReal, portrait, canvas }
+//   ctl     = { stop, pause, seek, layout, setSound, toggleSound, setMusicVolume, setLand, updateJoin, destroy, duration, marks, time, done, scene, audioState, usingReal, drawStats, portrait, canvas }
+//   참전이 많으면(11/21) 같은 그림은 한 번 칠한 것을 다시 쓰고, 뒤에 오는 몬스터가 모두 덮는 몬스터는 그리지 않는다(화면 결과는 같다 — framePixels 머리말)
 //   opts 더(11/19 — 휴대폰·스푼 앱 안 창. 키우기.com 이 쓴다, 안 주면 예전과 같다): maxDpr(화면 배율 상한 — 캔버스가 너무 커지지 않게) · particles(0~1, 입자 양 — 약한 기기는 줄임)
 //             · audio(makeAudio 로 만든 소리를 밖에서 넘김 — 모집 중 → 싸움으로 장면을 바꿔도 같은 소리 길을 이어 씀. 넘긴 소리는 destroy 가 닫지 않는다)
 //   끝난 결과 장면은 20초 뒤부터 1초에 8장만 그린다(IDLE — 스푼 앱 안 창에 30분까지 떠 있어도 가볍게). 새 상태(땅 결과·크기·건너뛰기)가 오면 잠깐 다시 모두 그린다.
@@ -123,6 +124,68 @@ export const IDLE = Object.freeze({ afterMs: 20000, frameMs: 125, wakeMs: 2000 }
 // 모집 화면 제목 크기: 두 배로 그린 너비(그림 글자까지)가 화면 너비에서 양옆 4씩 뺀 것에 들어가면 2, 넘치면 1(세로 화면 180 에서 "결과를 기다리는 중"이 잘리지 않게)
 export const joinTitleScale = (wideAt2, W) => (wideAt2 <= W - 8 ? 2 : 1);
 export const idleFrameMs = ({ done, busy, sinceDone, sinceWake }) => (done && !busy && sinceDone >= IDLE.afterMs && sinceWake >= IDLE.wakeMs ? IDLE.frameMs : 0);
+
+// ── 무리 그리기 가볍게(2026-11-21 시즌 2 검수 S5 — 참전 수백 명이면 한 장면마다 모두를 하나씩 그렸다) ──
+//  ① 같은 그림은 한 번만 만든다(playFight 의 tintedOf): 같은 그림·같은 장·같은 어둡기면 처음 칠한 것을 다시 쓴다(반짝임·금빛·번쩍임이 있을 때와
+//     늘이거나 돌려 그릴 때만 예전처럼 작은 판에 그때그때 칠함 — GPU 는 늘인 그림에서 점 경계의 점을 판 크기에 따라 다르게 고를 수 있다).
+//  ② 보이는 것만 그린다(markHidden): 나중에 그리는 몬스터부터 거꾸로 보며, 점 하나하나 그대로 놓이는 몬스터(정수 자리·크기 1·회전 없음)가 투명도 1 로 그리는
+//     꽉 찬 점을 "덮개"에 적고, 몸의 모든 점과 발밑 그림자가 이미 덮인 몬스터는 그리지 않는다 — 그려도 뒤에 오는 몬스터가 모두 덮어 화면 결과는 같다.
+//     셈할 수 없는 몬스터(늘이기·회전·땅에 잠김·점을 못 읽음)는 늘 그리고 덮개에도 적지 않는다. 아래는 순수 함수(node 시험이 본다).
+// 그림 한 장의 점(줄마다 이어진 점 묶음): RGBA → {fw, fh, drawn:[j,i0,i1,…](조금이라도 보이는 점 — j 줄의 i0 이상 i1 미만), solid:[j,i0,i1,…](투명도 255 — 덮을 수 있는 점)}
+export function framePixels(data, fw, fh) {
+  const drawn = [], solid = [];
+  const runs = (out, keep) => { for (let j = 0; j < fh; j++) for (let i = 0; i < fw; i++) { if (!keep(data[(j * fw + i) * 4 + 3])) continue; const i0 = i; while (i + 1 < fw && keep(data[(j * fw + i + 1) * 4 + 3])) i++; out.push(j, i0, i + 1); } };
+  runs(drawn, a => a > 0); runs(solid, a => a === 255);
+  return { fw, fh, drawn: Int16Array.from(drawn), solid: Int16Array.from(solid) };
+}
+// 그림 왼쪽 끝 열: translate(x) 뒤 drawImage(…, −(fw>>1), …) · 뒤집으면 scale(−1,1)이라 i 번째 열이 x + (fw>>1) − 1 − i 에 온다
+export const spriteLeft = (x, fw, flip) => (flip ? x + (fw >> 1) - fw : x - (fw >> 1));
+// 점 하나하나 그대로 옮기는가: 크기 1·회전 없음·땅에 잠기지 않음(잘라 그리지 않음).
+//  크기는 1 에서 0.001 까지 봐준다 — 웅크렸다 일어선 몬스터는 움직임이 끝나기 전에 다음 움직임이 와서 squash 가 0.00005 처럼 아주 조금 남는다(그림 크기 1.00001).
+//  그림은 160 점을 넘지 않아(pixelsOf) 어긋남이 0.16 점보다 작다 — 점 가운데(0.5)를 넘지 못하니 캔버스가 칠하는 칸·고르는 점이 크기 1 과 같다
+export const EXACT_SCALE = 1e-3;
+export const exactPlace = (f, sink) => !f.rot && Math.abs(f.sx - 1) <= EXACT_SCALE && Math.abs(f.sy - 1) <= EXACT_SCALE && !sink;
+// 캔버스가 투명도 255 로 그리는 값인가(늘어나던 값이 1 아래로 아주 조금 남아도 1)
+export const fullAlpha = a => a >= 1 - 1e-9;
+// 발밑 그림자 두 줄(drawActor 의 fillRect 두 번과 같은 자리) — 너비가 음수면 캔버스처럼 왼쪽으로 펼친 칸. out 을 주면 그 배열에 다시 채운다(장면마다 새로 만들지 않게)
+export function shadowRects(x, gy, rw, out = [[], []]) {
+  const put = (r, rx, ry, w, h) => { if (w < 0) { rx += w; w = -w; } r[0] = rx; r[1] = ry; r[2] = w; r[3] = h; r.length = 4; };
+  put(out[0], x - rw, gy, rw * 2, 2); put(out[1], x - rw + 2, gy + 2, rw * 2 - 4, 1);
+  return out;
+}
+// 줄 묶음 [i0, i1) 이 화면에서 놓이는 열 [x0, x1): 뒤집으면 i 번째 점이 left + fw − 1 − i 라서 [left + fw − i1, left + fw − i0)
+const spanX0 = (px, left, flip, i0, i1) => (flip ? left + px.fw - i1 : left + i0);
+// 몸의 보이는 점과 칸(rects — 그림자)이 모두 덮였는가(화면 밖 점은 그리지 않으니 보지 않는다)
+export function allCovered(cover, W, H, px, left, top, flip, rects) {
+  const d = px.drawn;
+  for (let q = 0; q < d.length; q += 3) {
+    const y = top + d[q]; if (y < 0 || y >= H) continue;
+    const a = spanX0(px, left, flip, d[q + 1], d[q + 2]), x0 = Math.max(0, a), x1 = Math.min(W, a + d[q + 2] - d[q + 1]);
+    for (let p = y * W + x0, e = y * W + x1; p < e; p++) if (!cover[p]) return false;
+  }
+  for (const [rx, ry, w, h] of rects) for (let y = Math.max(0, ry); y < Math.min(H, ry + h); y++) for (let x = Math.max(0, rx); x < Math.min(W, rx + w); x++) if (!cover[y * W + x]) return false;
+  return true;
+}
+// 꽉 찬 점을 덮개에 적는다
+export function addCover(cover, W, H, px, left, top, flip) {
+  const s = px.solid;
+  for (let q = 0; q < s.length; q += 3) {
+    const y = top + s[q]; if (y < 0 || y >= H) continue;
+    const a = spanX0(px, left, flip, s[q + 1], s[q + 2]), x0 = Math.max(0, a), x1 = Math.min(W, a + s[q + 2] - s[q + 1]);
+    if (x0 < x1) cover.fill(1, y * W + x0, y * W + x1);
+  }
+}
+// 그리는 차례대로 받은 items([{px, left, top, flip, rects, solid(투명도 1 로 그림)} | null(셈할 수 없음 — 그린다)])에서 건너뛸 것: [true|false]
+export function hiddenList(items, cover, W, H) {
+  cover.fill(0);
+  const out = new Array(items.length).fill(false);
+  for (let k = items.length - 1; k >= 0; k--) {
+    const it = items[k]; if (!it) continue;
+    if (allCovered(cover, W, H, it.px, it.left, it.top, it.flip, it.rects)) { out[k] = true; continue; }
+    if (it.solid) addCover(cover, W, H, it.px, it.left, it.top, it.flip);
+  }
+  return out;
+}
 function rng(seed) { // 늘 같은 모양이 나오게 하는 난수
   let s = seed >>> 0;
   return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
@@ -663,7 +726,7 @@ export async function playFight(container, script, opts = {}) {
   // ── 캔버스 ──
   const canvas = document.createElement('canvas');
   canvas.setAttribute('role', 'img');
-  canvas.setAttribute('aria-label', `보스전: ${boss0.name} ${boss0.stage}단계`);
+  canvas.setAttribute('aria-label', `보스전: ${boss0.name} ${boss0.stage}일째`);
   canvas.style.display = 'block'; canvas.style.margin = '0 auto';
   const out = canvas.getContext('2d');
   const scene = mkCanvas(320, 180), g = ctx2d(scene);
@@ -789,6 +852,10 @@ export async function playFight(container, script, opts = {}) {
   const audio = opts.audio || makeAudio(A.music, { ...AUDIO.tracks, ...(opts.tracks || {}) }); audio.set(!!opts.sound);
   if (opts.musicVolume != null) audio.setMusicVolume(opts.musicVolume);
   const scratch = mkCanvas(160, 160), sg = ctx2d(scratch);
+  // 무리 그리기 가볍게(2026-11-21 검수 S5 — 위 framePixels 머리말): tintCache 다 칠한 그림(그림 → 장·어둡기 → 판) · pixCache 그림의 점(그림 → 장 → framePixels | null)
+  //  · cover 덮개(장면 크기) · dq 이번 장면에 그릴 몬스터 차례(장면마다 다시 채움) · drawStats 지난 장면에 그린 몬스터 수·가려서 건너뛴 수(확인용 ctl.drawStats)
+  const tintCache = new Map(), pixCache = new Map(), dq = { m: [], hop: [], f: [], items: [], pool: [], n: 0 }, drawStats = { drawn: 0, hidden: 0 };
+  let cover = null;
 
   // ── 상태 ──
   let S = null;        // 한 판의 상태
@@ -901,7 +968,7 @@ export async function playFight(container, script, opts = {}) {
         setAnim(land0 + 200, boss, 'attack', 600); setAnim(land0 + 800, boss, 'idle');
         float(land0 + 150, { icon: '👹', text: '보스 출현!', x: L.cap.x, y: L.cap.y + 6, scale: 2, color: C.gold, dur: T.bossCaption, slam: true });
         const t = land0 + 150 + T.bossCaption;
-        float(t, { text: boss0.name, sub: `${boss0.stage}단계`, x: L.cap.x, y: L.cap.y + 6, scale: 2, dur: T.bossName, slam: true });
+        float(t, { text: boss0.name, sub: `${boss0.stage}일째`, x: L.cap.x, y: L.cap.y + 6, scale: 2, dur: T.bossName, slam: true });
         tw(t + T.bossName - 500, 500, S, { ui: 1 }, ease.out);
         if (!TL.joinOnly && team.length) tw(t + T.bossName - 500, 500, S, { bar: 1 }, ease.out); // 체력 막대는 싸울 때만
       },
@@ -1337,34 +1404,87 @@ export async function playFight(container, script, opts = {}) {
     sx *= a.tx; // 돌아설 때 옆으로 납작해졌다 펴짐
     return { frame, sx, sy, rot, dark };
   }
-  function drawActor(a, hop) {
-    if (!a.visible || a.alpha <= 0.01) return;
-    const s = a.spr, f = frameOf(a);
+  // 그릴 자리(정수): 몸 기준점 x·y · 그림자 줄 gy · 그림자 반너비 rw — drawActor 와 덮개 셈(markHidden)이 같은 값을 쓴다
+  function placeOf(a, hop) {
+    const lift = clamp(1 + (a.hy + (hop || 0)) / 60, 0.2, 1);
+    return { x: Math.round(a.x + a.ox), y: Math.round(a.y + a.oy + a.hy + (hop || 0)), gy: Math.round(a.y + a.oy), rw: Math.round(a.spr.fw * 0.26 * lift) };
+  }
+  // 그리는 투명도(앞줄 한 명이 나올 때는 나머지를 흐리게)
+  const alphaOf = a => clamp(a.alpha, 0, 1) * (a !== S.boss && !a.top ? 1 - 0.75 * S.present : 1);
+  // 같은 그림·같은 장·같은 어둡기 → 한 번 칠한 판(①). 작은 판(scratch 160)과 같은 한도로 자르고, 가장자리 2칸은 비워 둔다(작은 판처럼 그림 밖은 투명)
+  function tintedOf(s, frame, dark) {
+    let byImg = tintCache.get(s.img); if (!byImg) tintCache.set(s.img, byImg = new Map());
+    const key = `${frame}|${dark}|${s.fw}|${s.fh}`; let c = byImg.get(key);
+    if (!c) {
+      c = mkCanvas(Math.min(160, s.fw + 2), Math.min(160, s.fh + 2)); const cg = ctx2d(c);
+      cg.drawImage(s.img, frame * s.fw, 0, s.fw, s.fh, 0, 0, s.fw, s.fh);
+      if (dark) { cg.globalCompositeOperation = 'source-atop'; cg.fillStyle = `rgba(30,14,36,${dark})`; cg.fillRect(0, 0, s.fw, s.fh); }
+      byImg.set(key, c);
+    }
+    return c;
+  }
+  // 반짝임·금빛·흰 번쩍임처럼 시시각각 바뀌는 색이 있을 때: 예전처럼 작은 판에 그때그때 칠한다
+  function paintLive(a, s, f, dark) {
     sg.globalCompositeOperation = 'source-over';
     sg.clearRect(0, 0, 160, 160);
     sg.drawImage(s.img, f.frame * s.fw, 0, s.fw, s.fh, 0, 0, s.fw, s.fh);
     sg.globalCompositeOperation = 'source-atop';
-    const dark = Math.max(f.dark, a.ko ? 0.35 : 0, a.top ? 0 : a.shade || 0);
     if (dark) { sg.fillStyle = `rgba(30,14,36,${dark})`; sg.fillRect(0, 0, s.fw, s.fh); }
     if (a.glow > 0.02) { sg.fillStyle = `rgba(${TYPE_RGB[bType] || TYPE_RGB.fire},${a.glow * (0.3 + 0.22 * Math.sin(amb.t / 110))})`; sg.fillRect(0, 0, s.fw, s.fh); }
     if (a.tint > 0.02) { sg.fillStyle = `rgba(255,220,90,${a.tint * 0.75})`; sg.fillRect(0, 0, s.fw, s.fh); }
     if (a.flash > 0.02) { sg.fillStyle = `rgba(255,255,255,${clamp(a.flash, 0, 1) * (calm() ? 0.5 : 1)})`; sg.fillRect(0, 0, s.fw, s.fh); }
     sg.globalCompositeOperation = 'source-over';
-    const x = Math.round(a.x + a.ox), y = Math.round(a.y + a.oy + a.hy + (hop || 0));
+    return scratch;
+  }
+  function drawActor(a, hop, f = frameOf(a)) {
+    if (!a.visible || a.alpha <= 0.01) return;
+    const s = a.spr, dark = Math.max(f.dark, a.ko ? 0.35 : 0, a.top ? 0 : a.shade || 0);
+    // 다 칠한 판은 점을 그대로 옮길 때(exactPlace)만 — 늘이거나 돌리면 GPU 가 점 경계에서 고르는 점이 판 크기에 따라 달라질 수 있어 예전처럼 작은 판(160)으로
+    const pic = a.glow > 0.02 || a.tint > 0.02 || a.flash > 0.02 || !exactPlace(f, a.sink) ? paintLive(a, s, f, dark) : tintedOf(s, f.frame, dark);
+    const { x, y, gy, rw } = placeOf(a, hop);
     // 발밑 그림자
     if (!a.sink) {
-      const lift = clamp(1 + (a.hy + (hop || 0)) / 60, 0.2, 1), rw = Math.round(s.fw * 0.26 * lift), gy = Math.round(a.y + a.oy);
       g.fillStyle = 'rgba(12,4,16,.45)'; g.fillRect(x - rw, gy, rw * 2, 2); g.fillRect(x - rw + 2, gy + 2, rw * 2 - 4, 1);
     }
     g.save();
     if (a.sink) { g.beginPath(); g.rect(x - s.fw, y - s.fh - 40, s.fw * 2, s.fh + 40 + 2); g.clip(); } // 땅 아래는 안 보이게
-    g.globalAlpha = clamp(a.alpha, 0, 1) * (a !== S.boss && !a.top ? 1 - 0.75 * S.present : 1);
+    g.globalAlpha = alphaOf(a);
     g.translate(x, y + Math.round(a.sink));
     if (f.rot) g.rotate(f.rot);
     g.scale(s.flip ? -f.sx : f.sx, f.sy); // 왼쪽을 보는 그림은 거울처럼 뒤집음
-    g.drawImage(scratch, 0, 0, s.fw, s.fh, -(s.fw >> 1), -s.baseline, s.fw, s.fh);
+    g.drawImage(pic, 0, 0, s.fw, s.fh, -(s.fw >> 1), -s.baseline, s.fw, s.fh);
     g.restore();
   }
+  // 그림 한 장의 점(②) — 못 읽거나(그림 주소가 다른 곳 등) 작은 판보다 큰 그림이면 null(그 몬스터는 늘 그리고 덮지 않는다)
+  function pixelsOf(s, frame) {
+    let byImg = pixCache.get(s.img); if (!byImg) pixCache.set(s.img, byImg = new Map());
+    const key = `${frame}|${s.fw}|${s.fh}`;
+    if (!byImg.has(key)) {
+      let px = null;
+      if (s.fw <= 160 && s.fh <= 160) {
+        try { const c = mkCanvas(s.fw, s.fh), cg = c.getContext('2d', { willReadFrequently: true }); cg.drawImage(s.img, frame * s.fw, 0, s.fw, s.fh, 0, 0, s.fw, s.fh); px = framePixels(cg.getImageData(0, 0, s.fw, s.fh).data, s.fw, s.fh); } catch { px = null; }
+      }
+      byImg.set(key, px);
+    }
+    return byImg.get(key);
+  }
+  // 이번 장면에 그릴 차례(dq)에서 가려서 건너뛸 몬스터(②) → [true|false]. sx·sy = 흔들림(정수 — 장면 전체를 그만큼 옮겨 그린다)
+  function markHidden(sx, sy) {
+    const items = dq.items; items.length = dq.n;
+    for (let k = 0; k < dq.n; k++) {
+      const a = dq.m[k]; items[k] = null;
+      if (!a.visible || a.alpha <= 0.01) continue;
+      const f = dq.f[k] = frameOf(a);
+      if (!exactPlace(f, a.sink)) continue;
+      const s = a.spr, px = pixelsOf(s, f.frame); if (!px) continue;
+      const p = placeOf(a, dq.hop[k]), it = dq.pool[k] || (dq.pool[k] = { rects: [[], []] }); // 장면마다 같은 그릇을 다시 쓴다
+      it.px = px; it.left = sx + spriteLeft(p.x, s.fw, s.flip); it.top = sy + p.y - s.baseline; it.flip = !!s.flip; shadowRects(sx + p.x, sy + p.gy, p.rw, it.rects); it.solid = fullAlpha(alphaOf(a));
+      items[k] = it;
+    }
+    if (!cover || cover.length !== W * H) cover = new Uint8Array(W * H);
+    return hiddenList(items, cover, W, H);
+  }
+  function queue(m, hop) { const k = dq.n++; dq.m[k] = m; dq.hop[k] = hop; dq.f[k] = null; }
 
   // 기술 효과: 진짜 도트가 있으면 6장짜리, 없으면 점으로 그림
   function drawFx(f) {
@@ -1686,9 +1806,18 @@ export async function playFight(container, script, opts = {}) {
     drawActor(boss);
     // 먼 무리 → 가까운 무리 → 앞줄 → 지금 주목받는 한 명
     const hopOf = m => (S.celebrate && !m.ko ? -Math.round(Math.abs(Math.sin(amb.t / 190 + m.x)) * (cm ? 2 : 5) * (m.crowd ? 0.6 : 1)) : 0);
-    for (const m of S.crowdSorted) if (!m.top) drawActor(m, hopOf(m));
-    for (const m of S.frontSorted) if (!m.top) drawActor(m, hopOf(m));
-    for (const m of mons) if (m.top) drawActor(m, 0);
+    dq.n = 0;
+    for (const m of S.crowdSorted) if (!m.top) queue(m, hopOf(m));
+    for (const m of S.frontSorted) if (!m.top) queue(m, hopOf(m));
+    for (const m of mons) if (m.top) queue(m, 0);
+    // 무리가 있을 때(4명부터)만 덮개 셈(②) — 뒤에 오는 몬스터가 모두 덮는 몬스터는 건너뛴다. 3명까지는 예전처럼 모두 그린다
+    const skip = S.crowdSorted.length ? markHidden(shx, shy) : null;
+    drawStats.drawn = 0; drawStats.hidden = 0;
+    for (let k = 0; k < dq.n; k++) {
+      const m = dq.m[k]; if (!m.visible || m.alpha <= 0.01) continue;
+      if (skip && skip[k]) { drawStats.hidden++; continue; }
+      drawActor(m, dq.hop[k], dq.f[k] || frameOf(m)); drawStats.drawn++;
+    }
 
     // 날아가는 공격 점
     S.shots = S.shots.filter(o => S.clock - o.t0 < o.dur);
@@ -1774,7 +1903,7 @@ export async function playFight(container, script, opts = {}) {
 
     if (S.ui > 0.02) {
       const nw = text(boss0.name, 10, 8, { alpha: S.ui });
-      text(`${boss0.stage}단계`, 10 + nw + 5, 10, { font: 's', color: C.gold, alpha: S.ui });
+      text(`${boss0.stage}일째`, 10 + nw + 5, 10, { font: 's', color: C.gold, alpha: S.ui });
       if (S.bar > 0.02) text(num(Math.max(0, S.hp)), 132, 20, { font: 's', color: C.cream, alpha: S.bar });
     }
     // 참전 수(들어오는 대로 올라감) · 라운드 표시 — 체력 막대 아래에 작게
@@ -1922,6 +2051,7 @@ export async function playFight(container, script, opts = {}) {
     get joinOnly() { return TL.joinOnly; },
     get result() { return TL.result; },
     get usingReal() { return usingReal; }, // 어떤 그림이 진짜 도트로 들어왔는지
+    get drawStats() { return { ...drawStats }; }, // 확인용: 지난 장면에 그린 몬스터 수 · 가려서 건너뛴 수(2026-11-21 검수 S5)
     canvas,
     destroy() {
       alive = false; cancelAnimationFrame(raf); if (ownAudio) audio.close(); unwatch();

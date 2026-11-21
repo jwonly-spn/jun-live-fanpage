@@ -57,7 +57,8 @@ export const listOf = (json) => (isObj(json) && Array.isArray(json.fights) ? jso
 export const WAIT_RESULT = '결과를 기다리는 중';
 export const phaseText = (f, now) => (f.phase !== 'join' ? '싸우는 중' : Number.isFinite(now) && Number.isFinite(Number(f.joinUntil)) && now > Number(f.joinUntil) ? WAIT_RESULT : '모집 중');
 export const djText = (f) => `${f.dj.name} 방송`;
-export const bossText = (f) => `${f.boss.name}${Number(f.boss.stage) > 0 ? ` ${Math.trunc(f.boss.stage)}단계` : ''}`;
+// 보스 stage = 시즌 며칠째 보스(봇 글 "📅 12월 12일 보스 (12일째)" · 장면 "12일째"와 같은 말 — 2026-11-21 검수 S7b. 몬스터 진화 "n단계"와 헷갈리지 않게)
+export const bossText = (f) => `${f.boss.name}${Number(f.boss.stage) > 0 ? ` ${Math.trunc(f.boss.stage)}일째` : ''}`;
 export const joinedText = (f) => `참전 ${Math.max(0, Math.trunc(Number(f.joined) || 0))}명`;
 
 // 첫 화면 띠: 3개까지 + 더 있는 수

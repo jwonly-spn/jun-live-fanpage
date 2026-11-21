@@ -102,6 +102,8 @@ test('첫 화면(spec.md 7절): 지도 → 바로 아래 아이디 찾기 → �
   const mc = await import('../docs/lib/map-core.js');
   assert.equal(mc.PRIZE_TEXT, '1등 DJ에게 먼치킨 한 달 무료 이용권 + 상금 486스푼');
   for (const s of ['땅 순위', '지도 소식', '아이디로 몬스터 찾기', '땅은 이렇게 넓혀요', '!산책', '!훈련 500', '!대표 이름', '!몬스터', '!참전']) assert.ok(home.includes(s), s);
+  // 봇 명령어 목록과 같은 이름·뜻(검수 L14 · S7b): !냥 · !아이디 · !산책 1(데려가기·싸운다·1번 길) / !산책 2(지나가기·도망간다·2번 길)
+  for (const s of ["cmd('!냥', '가진 냥 보기')", "cmd('!아이디 밤톨'", "cmd('!산책 1', '데려가기 · 싸운다 · 1번 길", "cmd('!산책 2', '지나가기 · 도망간다 · 2번 길"]) assert.ok(home.includes(s), s);
   // 그림 지도(Codex 대륙): 바탕 그림 · 땅 모양 · 땅 칸 — 휴대폰에서도 가볍게
   for (const [f, max] of [['s2/continent.webp', 400e3], ['s2/land.png', 250e3], ['s2/land-grid.json', 8e3]]) { const s = await stat(docs + f); assert.ok(s.size > 0 && s.size < max, `${f} ${s.size}`); }
   const draw = await text('lib/map-draw.js');
