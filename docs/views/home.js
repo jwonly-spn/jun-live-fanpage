@@ -9,6 +9,7 @@ import { kiugiApi, readMapFile, pollMs, isDemo, MAP_WAKE_MS } from '../api.js';
 import { parseMap, emptyMap, sameMap, ranking, seasonClock, clockText, pctText, deltaText, cssColor, f1 } from '../lib/map-core.js';
 import { MapStage, loadMapArt } from '../lib/map-draw.js';
 import { ID_QUERY, cleanId } from '../lib/route.js';
+import { siteNow } from '../lib/clock.js';
 import { LIST_POLL_MS, failWaitMs, listOf, stripItems, phaseText, djText, joinedText } from '../lib/boss-core.js';
 import { RING, TYPE, sortMonsters } from '../lib/monsters.js';
 import { nightTop, siteFoot, secHead, ilink, errorBox, loading, SEASON_TITLE } from './common.js';
@@ -87,7 +88,7 @@ function mapHero(app) {
 
   let ms = null, shown = null, timer = 0, lastRead = 0, failed = false;
   const paint = (map, { error = null } = {}) => {
-    const now = isDemo() && map.updatedAt ? map.updatedAt : Date.now(), c = seasonClock(map, now);
+    const now = isDemo() && map.updatedAt ? map.updatedAt : siteNow(), c = seasonClock(map, now); // 서버 시각에 맞춘 지금(기기 시계가 틀려도 "시작 전"으로 보이지 않게)
     clock.textContent = clockText(c);
     prize.replaceChildren(icon('trophy', { size: 17 }), h('span', null, map.prize));
     stamp.textContent = error ? error : map.updatedAt ? `${formatDate(new Date(map.updatedAt).toISOString(), now)} ${new Date(map.updatedAt + 9 * 3600e3).toISOString().slice(11, 16)} 기준 · 몇 분마다 새로 그려요` : '';

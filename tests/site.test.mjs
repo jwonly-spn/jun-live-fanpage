@@ -47,9 +47,9 @@ test('모든 화면 모듈을 문법 오류 없이 읽는다 · 시즌 1 화면�
     const r = spawnSync(process.execPath, ['--check', docs + f], { encoding: 'utf8' });
     assert.equal(r.status, 0, r.stderr);
   }
-  // 2026-11-21: 12월 1일 0시 전까지 보여 줄 예고 화면(views/teaser.js · lib/teaser-*.js · lib/me.js · lib/hearts.js)과 날짜 갈래(lib/launch.js)를 함께 둔다
+  // 2026-11-21: 12월 1일 0시 전까지 보여 줄 예고 화면(views/teaser.js · lib/teaser-*.js · lib/me.js · lib/hearts.js)과 날짜 갈래(lib/launch.js)를 함께 둔다 · lib/clock.js = 서버 시각에 맞춘 시계(시즌 2 화면)
   assert.deepEqual((await readdir(docs + 'views')).sort(), ['boss.js', 'common.js', 'dex.js', 'home.js', 'monster-ui.js', 'teaser.js']);
-  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['boss-core.js', 'dom.js', 'hearts.js', 'launch.js', 'map-core.js', 'map-draw.js', 'me.js', 'monsters.js', 'route.js', 'sound-unlock.js', 'teaser-boss.js', 'teaser-map.js', 'teaser-time.js', 'teaser-war-core.js', 'teaser-war-draw.js', 'teaser-war-sim.js', 'text.js']);
+  assert.deepEqual((await readdir(docs + 'lib')).sort(), ['boss-core.js', 'clock.js', 'dom.js', 'hearts.js', 'launch.js', 'map-core.js', 'map-draw.js', 'me.js', 'monsters.js', 'route.js', 'sound-unlock.js', 'teaser-boss.js', 'teaser-map.js', 'teaser-time.js', 'teaser-war-core.js', 'teaser-war-draw.js', 'teaser-war-sim.js', 'text.js']);
   for (const gone of ['kiugi-hd', 'kiugi-lite', 'pets', 'design', 'kiugi/r9', 'kiugi/kiugi-art.js', 'kiugi/season-s1.json']) assert.equal(existsSync(docs + gone), false, gone + ' 는 걷어냈다(시즌 1 그림)');
   for (const gone of ['make-lite-art.cjs', 'sync-kiugi-hd.mjs']) assert.equal(existsSync(fileURLToPath(new URL('../tools/' + gone, import.meta.url))), false, gone);
   for (const f of await siteScripts()) {

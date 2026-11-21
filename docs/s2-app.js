@@ -3,6 +3,10 @@
 //  보스전 보기(2026-11-19): /boss(지금 보스전 목록) · /boss/<판 번호> · /b/<DJ 주소>(채팅 생중계 링크) — views/boss.js(그 화면에 갈 때만 받는다).
 // 시즌 1 주소(k/…, items)·예전 팬페이지 주소(p/…, studio, app)는 첫 화면으로 바꾸고(캐릭터 주소였으면 그 아이디로 찾기) 한 줄 알린다.
 import { computeBase, parseRoute, buildPath } from './lib/route.js';
+import { setSkew, SKEW_KEY } from './lib/clock.js';
+
+// 시작점(app.js)이 서버 시각을 물었을 때 적어 둔 시계 차이(이 창에만)를 맞춘 시계에 넣는다 — 없거나 저장소가 막혔으면 기기 시계 그대로
+try { setSkew(window.sessionStorage.getItem(SKEW_KEY)); } catch { setSkew(0); }
 
 const BASE = computeBase(new URL(import.meta.url).pathname);
 const root = document.getElementById('app');

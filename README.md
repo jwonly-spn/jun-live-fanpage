@@ -5,7 +5,7 @@
 ## 12월 1일 0시에 저절로 바뀌기 (2026-11-21)
 
 - 이 사이트는 **2026-12-01 00:00(한국) 전에는 시즌 2 예고 화면**(모든 주소), **그때부터는 시즌 2 화면**(지도 `/` · 도감 `/dex` · 보스전 보기 `/boss` · `/b/<DJ 주소>`)을 보여 줘요. 미리 올려 두면 0시에 아무도 안 해도 바뀌어요.
-- 지금 시각은 방문자 기기 시계가 아니라 **서버 시각**(이 사이트 서버 답의 `Date` 머리글 — `notice.json` 을 HEAD 로 한 번)으로 봐요. 서버에 못 닿으면 방문자 시계로 고르고 console 에 한 줄 남겨요. 코드: `docs/lib/launch.js`(고르기) · `docs/app.js`(시작점) · `docs/s2-app.js`(시즌 2 길잡이 — 예전 app.js) · `tools/stamp.cjs` 의 BOOT(맨 위 작은 스크립트 — 첫 색·미리 받기만 기기 시계로 미리 고름).
+- 지금 시각은 방문자 기기 시계가 아니라 **서버 시각**(이 사이트 서버 답의 `Date` 머리글 — `notice.json` 을 HEAD 로 한 번)으로 봐요. 서버에 못 닿으면 방문자 시계로 고르고 console 에 한 줄 남겨요. 코드: `docs/lib/launch.js`(고르기) · `docs/app.js`(시작점) · `docs/s2-app.js`(시즌 2 길잡이 — 예전 app.js) · `docs/lib/clock.js`(서버 시각에 맞춘 시계 — 시즌 2 첫 화면의 "남은 날") · `tools/stamp.cjs` 의 BOOT(맨 위 작은 스크립트 — 첫 색·미리 받기만 기기 시계로 미리 고름).
 - 예고 화면: `docs/views/teaser.js` · `docs/lib/teaser-*.js` · `docs/lib/me.js` · `docs/lib/hearts.js` · `docs/teaser/` · `styles.css` 맨 끝 "예고 화면" 덩어리(`html.s2-teaser` 일 때만). 시즌 1 숫자는 `docs/teaser/s1-stats.json`.
 - 검색·공유용 글(`index.html` 의 meta·og)은 날짜로 못 바꿔서 두 때 모두 맞는 말로 적었어요.
 - **12월 1일이 지난 뒤 정리(급하지 않음)**: `app.js` 를 `s2-app.js` 내용으로 바꾸고 위 예고 파일·`lib/launch.js`·스타일 덩어리·BOOT 의 예고 갈래를 지워요. `index.html` 의 `class="s2-teaser"` 와 theme-color 도 시즌 2 값으로.

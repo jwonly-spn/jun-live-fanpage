@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import vm from 'node:vm';
 import { createRequire } from 'node:module';
-import { LAUNCH_AT, OPEN_KEY, GO_KEY, CLOCK_FILE, pickScreen, parseServerDate, askClock, decideScreen, markStarted } from '../docs/lib/launch.js';
+import { LAUNCH_AT, OPEN_KEY, GO_KEY, SKEW_KEY, CLOCK_FILE, pickScreen, parseServerDate, askClock, decideScreen, markStarted } from '../docs/lib/launch.js';
 import { LAUNCH_AT as TEASER_AT } from '../docs/lib/teaser-time.js';
 import { S2_START } from '../docs/lib/map-core.js';
 
@@ -94,6 +94,38 @@ test('예고를 켜 둔 채 0시를 넘김: 적어 두고(true) 새로 고치면
   assert.deepEqual([l2.data[OPEN_KEY], s2.data[GO_KEY]], [undefined, '1']);
   const r = await decideScreen({ fetchFn: async () => { throw new Error('묻지 않는다'); }, url: ASK, now: () => LAUNCH_AT - 400, local: l2, session: s2 });
   assert.equal(r.screen, 's2', '새로 고친 뒤 서버 머리글이 1초쯤 늦게 보여도 다시 예고로 돌아가지 않는다');
+});
+
+test('맞춘 시계: 서버에 물었을 때의 시계 차이를 이 창에 적어 두고, 시즌 2 화면의 "남은 날"이 그 시계를 쓴다(기기 시계가 2분 늦어도 0시 뒤에 "시작 전"이라고 하지 않는다)', async () => {
+  const { SKEW_KEY: K2, setSkew, siteNow } = await import('../docs/lib/clock.js');
+  assert.equal(K2, SKEW_KEY);
+  // 기기 시계가 2분 늦은 방문자가 23:59:50(서버)에 예고를 열었다
+  const slow = -120e3, local = store(), session = store();
+  const first = await decideScreen({ fetchFn: server(() => LAUNCH_AT - 10e3), url: ASK, now: () => LAUNCH_AT - 10e3 + slow, local, session });
+  assert.equal(first.screen, 'teaser');
+  assert.ok(Math.abs(Number(session.data[SKEW_KEY]) + slow) <= 1000, '차이를 이 창에 적어 둔다');
+  assert.equal(local.data[SKEW_KEY], undefined, '오래 남는 저장소에는 적지 않는다(나중에 시계를 고치면 틀린 값이 된다)');
+  // 0시가 되어 새로 고침 → 묻지 않고 시즌 2, 적어 둔 차이를 이어 쓴다
+  markStarted({ source: 'server', local, session });
+  const again = await decideScreen({ fetchFn: async () => { throw new Error('묻지 않는다'); }, url: ASK, now: () => LAUNCH_AT + 5e3 + slow, local, session });
+  assert.deepEqual([again.screen, again.source], ['s2', 'remembered']);
+  assert.ok(Math.abs(again.offset + slow) <= 1000);
+  // 차이가 없으면 0
+  assert.equal((await decideScreen({ fetchFn: null, url: ASK, now: () => MID, local: store({ [OPEN_KEY]: '1' }), session: store() })).offset, 0);
+  // 맞춘 시계
+  const realNow = Date.now;
+  try {
+    Date.now = () => LAUNCH_AT + 5e3 + slow; // 기기는 아직 11/30 23:58:05
+    assert.equal(setSkew(session.data[SKEW_KEY]), Number(session.data[SKEW_KEY]));
+    assert.ok(siteNow() >= LAUNCH_AT, '맞춘 시계는 0시를 넘었다');
+    const { seasonClock } = await import('../docs/lib/map-core.js');
+    assert.equal(seasonClock(null, siteNow()).state, 'during');
+    assert.equal(seasonClock(null, Date.now()).state, 'before', '(기기 시계 그대로면 "시작 전"으로 보였을 것)');
+    assert.equal(setSkew('깨진 값'), 0); assert.equal(setSkew(null), 0);
+    assert.equal(siteNow(), Date.now());
+  } finally { Date.now = realNow; setSkew(0); }
+  assert.match(await text('views/home.js'), /map\.updatedAt : siteNow\(\), c = seasonClock\(map, now\)/);
+  assert.match(await text('s2-app.js'), /try \{ setSkew\(window\.sessionStorage\.getItem\(SKEW_KEY\)\); \} catch \{ setSkew\(0\); \}/);
 });
 
 test('시작점(app.js): 서버 시각으로 고른 화면만 그린다 · 예고에는 맞춘 시계와 "시작" 알림을 넘긴다 · 시즌 2 길잡이는 그때만 받는다', async () => {

@@ -5,7 +5,7 @@
 //  · 예고 화면을 켜 둔 채 0시를 넘기면 카운트다운이 끝나는 순간 한 번 새로 고쳐 시즌 2 화면으로 넘어간다(이 창에 kg_s2_go 를 적어 두어 되풀이해서 새로 고치지 않는다).
 //  DOM 없이 동작(fetch·저장소·시계를 넘겨받는다 — 노드 시험). index.html 맨 위 작은 스크립트(tools/stamp.cjs BOOT)는 같은 시각·같은 열쇠로 "첫 색"만 미리 고른다.
 export const LAUNCH_AT = Date.parse('2026-12-01T00:00:00+09:00'); // 1796050800000
-export const OPEN_KEY = 'kg_s2_open', GO_KEY = 'kg_s2_go';
+export const OPEN_KEY = 'kg_s2_open', GO_KEY = 'kg_s2_go', SKEW_KEY = 'kg_s2_skew'; // SKEW_KEY = lib/clock.js 와 같은 열쇠(서버 − 기기 시계 차이, 이 창에만)
 export const CLOCK_FILE = 'notice.json', CLOCK_TIMEOUT_MS = 2500;
 
 // 어느 화면인지: 'teaser'(예고) | 's2'(시즌 2)
@@ -39,8 +39,12 @@ export async function askClock({ fetchFn = globalThis.fetch, url, now = Date.now
 // 화면 고르기 → { screen, offset, source: 'remembered' | 'server' | 'local' }
 //  local = 지속 저장소(localStorage) · session = 이 창 저장소(sessionStorage)
 export async function decideScreen({ fetchFn, url, now = Date.now, local = null, session = null, timeoutMs } = {}) {
-  if (get(local, OPEN_KEY) === '1' || get(session, GO_KEY) === '1') return { screen: 's2', offset: 0, source: 'remembered' };
+  if (get(local, OPEN_KEY) === '1' || get(session, GO_KEY) === '1') {
+    const kept = Number(get(session, SKEW_KEY)); // 이 창에서 서버에 물은 적이 있으면 그때 차이를 이어 쓴다
+    return { screen: 's2', offset: Number.isFinite(kept) ? kept : 0, source: 'remembered' };
+  }
   const clock = await askClock({ fetchFn, url, now, timeoutMs });
+  if (clock.source === 'server') set(session, SKEW_KEY, String(clock.offset));
   const screen = pickScreen(now() + clock.offset);
   if (screen === 's2' && clock.source === 'server') set(local, OPEN_KEY, '1');
   return { screen, ...clock };
